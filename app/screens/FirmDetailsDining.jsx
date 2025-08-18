@@ -11,6 +11,7 @@ import ReviewCard from '@/components/ReviewCard'
 import ImageGallery from '@/components/ImageGallery'
 import MiniRecommendedCard from '@/components/MiniRecommendedCard'
 import { useSafeNavigation } from '@/hooks/navigationPage'
+
 const API_URL = 'http://192.168.0.101:3000'
 const PRODUCT_API_URL = 'http://192.168.0.101:8000/api/collection/products'
 
@@ -171,8 +172,8 @@ export default function FirmDetailsDining() {
   }
 
   const FilterValues = [
-    { id: 'Prebook', value: 'offers' },
     { id: 'Menu', value: 'Menu' },
+    { id: 'Prebook', value: 'offers' }, 
     { id: 'Photos', value: 'Photos' },
     { id: 'Reviews', value: 'Reviews' },
   ]
@@ -302,9 +303,28 @@ export default function FirmDetailsDining() {
     return (
       <View>
         <View>
+             <View style={styles.separatorRow}>
+          <View style={styles.line} />
+          <Text style={styles.separatorText}>Menu</Text>
+          <View style={styles.line} />
+        </View>
+        <TouchableOpacity
+          style={styles.imageBoxContainer}
+          onPress={() => router.navigate({
+            pathname: 'screens/PhotoGallery',
+            params: {
+              image_urls: require("../../assets/images/menu.jpeg"),
+              firmName: firmDetails?.restaurantInfo?.name || "Restaurant",
+              price: firmDetails?.restaurantInfo?.priceRange || '₹1010 for Two'
+            }
+          })}
+        >
+          <Image style={styles.imageBox} source={require("../../assets/images/menu.jpeg")} />
+        </TouchableOpacity>
+        
           <View style={styles.separatorRow}>
             <View style={styles.line} />
-            <Text style={styles.separatorText}>OFFERS</Text>
+            <Text style={styles.separatorText}>Offers</Text>
             <View style={styles.line} />
           </View>
           <FlatList
@@ -318,7 +338,11 @@ export default function FirmDetailsDining() {
 
         {firmDetails?.restaurantInfo?.image_urls?.length > 0 && (
           <View>
-            <Text style={styles.subHeader}>Photos</Text>
+             <View style={styles.separatorRow}>
+           <View style={styles.line} />
+            <Text style={styles.separatorText}>Photos</Text>
+            <View style={styles.line} />
+            </View>
             <FlatList
               data={[...firmDetails.restaurantInfo.image_urls.slice(0, 5), 'last']}
               numColumns={3}
@@ -355,7 +379,7 @@ export default function FirmDetailsDining() {
         <View>
           <View style={styles.separatorRow}>
             <View style={styles.line} />
-            <Text style={styles.separatorText}>REVIEWS</Text>
+            <Text style={styles.separatorText}>Reviews</Text>
             <View style={styles.line} />
           </View>
           <FlatList
@@ -378,24 +402,7 @@ export default function FirmDetailsDining() {
           />
         </View>
 
-        <View style={styles.separatorRow}>
-          <View style={styles.line} />
-          <Text style={styles.separatorText}>MENU</Text>
-          <View style={styles.line} />
-        </View>
-        <TouchableOpacity
-          style={styles.imageBoxContainer}
-          onPress={() => router.navigate({
-            pathname: 'screens/PhotoGallery',
-            params: {
-              image_urls: require("../../assets/images/menu.jpeg"),
-              firmName: firmDetails?.restaurantInfo?.name || "Restaurant",
-              price: firmDetails?.restaurantInfo?.priceRange || '₹1010 for Two'
-            }
-          })}
-        >
-          <Image style={styles.imageBox} source={require("../../assets/images/menu.jpeg")} />
-        </TouchableOpacity>
+     
       </View>
     )
   }
@@ -425,7 +432,7 @@ export default function FirmDetailsDining() {
           <View>
             <View style={styles.imageContainer}>
               <ImageGallery
-              style={{backgroundColor:"rgba(0, 0, 0, 0.63)"}}
+                style={{ backgroundColor: "rgba(0, 0, 0, 0.63)" }}
                 images={
                   firmDetails?.restaurantInfo?.image_urls?.length > 0
                     ? firmDetails.restaurantInfo.image_urls
@@ -441,86 +448,90 @@ export default function FirmDetailsDining() {
                 end={{ x: 0.5, y: 1 }}
               />
               <View style={styles.upperPannel}>
-                <TouchableOpacity onPress={() => router.back()} style={{borderRadius:"100%",backgroundColor:"#00000066",padding:2,alignItems:"center",justifyContent:"center"}}>
+                <TouchableOpacity onPress={() => router.back()} style={{ borderRadius: "100%", backgroundColor: "#00000066", padding: 2, alignItems: "center", justifyContent: "center" }}>
                   <Ionicons name='chevron-back' size={28} color='white' />
                 </TouchableOpacity>
                 <View style={styles.rightPannel}>
-                 
+
                 </View>
               </View>
               <View style={styles.bottomPannel}>
                 <LinearGradient
-                 colors={[
-              '#181818CC',
-              '#18181866',
-              '#18181800'
-            ]}
-            start={{ x: 0, y: 1 }}
-            end={{ x: 1, y: 0 }}
-            style={{flexDirection:"row"}}
+                  colors={[
+                    "#18181800", // top
+                    "#18181866",
+                    "#181818CC", // bottom
+                  ]}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 0, y: 1 }}
+                  style={{
+                    flexDirection: "row",
+                    width: "100%",
+                    justifyContent: "space-between",
+                  }}
                 >
-                  <View style={{padding:10}}>
+                  <View style={{ padding: 10 }}>
                     <View style={styles.mainPannel}>
-                  <Text style={styles.restaurantName}>
-                    {firmDetails?.restaurantInfo?.name || "Restaurant"}
-                  </Text>
-                  <Text style={styles.restaurantAddress}>
-                    {firmDetails?.restaurantInfo?.address || ""}
-                  </Text>
-                  <Text style={styles.cuisines}>
-                    {Array.isArray(firmDetails?.restaurantInfo?.cuisines) ?
-                      firmDetails.restaurantInfo.cuisines.join(' • ') :
-                      firmDetails?.restaurantInfo?.cuisines || 'Italian • Dessert'}
-                  </Text>
-                  <Text style={styles.price}>
-                    {firmDetails?.restaurantInfo?.priceRange || '₹1010 for Two'}
-                  </Text>
-                  <TouchableOpacity
-                    style={styles.openingHrsBackground}
-                    onPress={() => setOpeningHrsVisible(true)}
-                  >
-                           <View style={{backgroundColor:"white",borderRadius:"100%",marginRight:10}}>
-                              <AntDesign name="checkcircle" size={18} color="#048520" />
-                           </View>
-                    <Text style={{color:"white",fontFamily:"outfit-medium",fontSize:16}} >Open From | </Text>
-          
-                    <Text style={styles.openingHrs}>
-                      {Object.values(firmDetails?.opening_hours || {})[0] || 'Opening hrs 12:00 to 23:00'}
-                    </Text>
-                  </TouchableOpacity>
-                </View>
-                  </View>
-           
-                <TouchableOpacity
-                  style={styles.reviewBox}
-                  onPress={() => safeNavigation({
-                    pathname: "/screens/Reviewsall",
-                    params: {
-                      firmId: firmId,
-                      restaurantName: firmDetails?.restaurantInfo?.name,
-                      averageRating: firmDetails?.restaurantInfo?.ratings?.overall,
-                      reviewCount: firmDetails?.restaurantInfo?.ratings?.totalReviews
-                    }
-                  })}
-                >
-                  <View style={styles.reviewBoxTopContainer}>
-                    <View style={styles.reviewBoxUpperContainer}>
-                      <Text style={styles.reviewText}>
-                        {firmDetails?.restaurantInfo?.ratings?.overall?.toFixed(1) || '4.5'}
+                      <Text style={styles.restaurantName}>
+                        {firmDetails?.restaurantInfo?.name || "Restaurant"}
                       </Text>
-                      <FontAwesome name='star' size={24} color='white' />
+                      <Text style={styles.restaurantAddress}>
+                        {firmDetails?.restaurantInfo?.address || ""}
+                      </Text>
+                      <Text style={styles.cuisines}>
+                        {Array.isArray(firmDetails?.restaurantInfo?.cuisines) ?
+                          firmDetails.restaurantInfo.cuisines.join(' • ') :
+                          firmDetails?.restaurantInfo?.cuisines || 'Italian • Dessert'}
+                      </Text>
+                      <Text style={styles.price}>
+                        {firmDetails?.restaurantInfo?.priceRange || '₹1010 for Two'}
+                      </Text>
+                      <TouchableOpacity
+                        style={styles.openingHrsBackground}
+                        onPress={() => setOpeningHrsVisible(true)}
+                      >
+                        <View style={{ backgroundColor: "white", borderRadius: "100%", marginRight: 10 }}>
+                          <AntDesign name="checkcircle" size={18} color="#048520" />
+                        </View>
+                        <Text style={{ color: "white", fontFamily: "outfit-medium", fontSize: 16 }} >Open From | </Text>
+
+                        <Text style={styles.openingHrs}>
+                          {Object.values(firmDetails?.opening_hours || {})[0] || 'Opening hrs 12:00 to 23:00'}
+                        </Text>
+                      </TouchableOpacity>
                     </View>
                   </View>
-                  <View style={styles.reviewBoxBottomContainer}>
-                    <Text style={styles.reviewCount}>
-                      {firmDetails?.restaurantInfo?.ratings?.totalReviews || '2918'}
-                    </Text>
-                    <Text style={styles.reviewCount}>
-                      Reviews
-                    </Text>
-                  </View>
-                </TouchableOpacity>
-                     </LinearGradient>
+
+                  <TouchableOpacity
+                    style={styles.reviewBox}
+                    onPress={() => safeNavigation({
+                      pathname: "/screens/Reviewsall",
+                      params: {
+                        firmId: firmId,
+                        restaurantName: firmDetails?.restaurantInfo?.name,
+                        averageRating: firmDetails?.restaurantInfo?.ratings?.overall,
+                        reviewCount: firmDetails?.restaurantInfo?.ratings?.totalReviews
+                      }
+                    })}
+                  >
+                    <View style={styles.reviewBoxTopContainer}>
+                      <View style={styles.reviewBoxUpperContainer}>
+                        <Text style={styles.reviewText}>
+                          {firmDetails?.restaurantInfo?.ratings?.overall?.toFixed(1) || '4.5'}
+                        </Text>
+                        <FontAwesome name='star' size={18} color='white' />
+                      </View>
+                    </View>
+                    <View style={styles.reviewBoxBottomContainer}>
+                      <Text style={styles.reviewCount}>
+                        {firmDetails?.restaurantInfo?.ratings?.totalReviews || '2179'}
+                      </Text>
+                      <Text style={styles.reviewCount2}>
+                        Reviews
+                      </Text>
+                    </View>
+                  </TouchableOpacity>
+                </LinearGradient>
               </View>
             </View>
             <View style={styles.buttonViewContainer}>
@@ -528,10 +539,10 @@ export default function FirmDetailsDining() {
                 <Text style={styles.buttonText}>Book a table</Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.button2} onPress={() => Linking.openURL(`https://www.google.com/maps/search/?api=1&query=${firmDetails?.restaurantInfo?.name || "Restaurant"}`)}>
-                <FontAwesome5 name='directions' size={24} color='#e23845' />
+                <FontAwesome5 name='directions' size={22} color='#E03A48' />
               </TouchableOpacity>
               <TouchableOpacity style={styles.button2} onPress={() => makeCall(firmDetails?.restaurantInfo?.phoneNo || '0123456789')}>
-                <Feather name="phone-call" size={24} color="#e23845" />
+               <MaterialIcons name="call" size={22} color="#E03A48" />
               </TouchableOpacity>
             </View>
             <View style={styles.filterBox}>
@@ -541,7 +552,7 @@ export default function FirmDetailsDining() {
                 showsHorizontalScrollIndicator={false}
                 keyExtractor={item => item.id}
                 renderItem={({ item }) => (
-                  <TouchableOpacity onPress={() => handleActive(item)}>
+                  <TouchableOpacity style={{justifyContent:"center",alignItems:"center",marginLeft:22}} onPress={() => handleActive(item)}>
                     <View style={filtersActive[item.id] ? styles.filterActive : styles.filterInactive}>
                       <Text style={filtersActive[item.id] ? styles.filterTextActive : styles.filterValueText}>
                         {item.value}
