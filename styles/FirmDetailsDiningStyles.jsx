@@ -6,7 +6,7 @@ const windowHeight = Dimensions.get('window').height
 export const styles = StyleSheet.create({
   container: {
 		flex: 1,
-		backgroundColor: 'white',
+		backgroundColor: '#f8f7f7ff',
     paddingBottom: 20
 	},
   imageContainer: {
@@ -157,7 +157,7 @@ export const styles = StyleSheet.create({
 	},
   line: {
     flex: 1,
-    height: 1,
+    height: 0.4,
     backgroundColor: '#E03A48',
   },
 	separatorText: {
@@ -230,26 +230,26 @@ export const styles = StyleSheet.create({
     marginTop:10,
     marginRight:20,
     marginLeft:20,
-    borderRadius:10,
+    borderRadius:20,
     display:"flex",
   },
   imageBox:{
     height: undefined,
-    aspectRatio: 12 / 9,
-    height:150,
-    width:150
+    aspectRatio: 9/12,
+    width:100,
+    borderRadius:10
   },
   filterValueText:{
     color:"#333333",
     fontWeight:"400",
-    fontSize:14,
+    fontSize:13,
     marginRight:15,
     fontFamily:"outfit"
   },
   filterTextActive:{
     color:"#333333",
     fontWeight:"600",
-    fontSize:14,
+    fontSize:13,
     fontFamily:"outfit"
   },
   ActiveFilterBox:{},
@@ -340,9 +340,10 @@ export const styles = StyleSheet.create({
   },
   galleryImage: { 
     width: '30%', 
-    height: 100, 
-    margin: 4, 
-    borderRadius: 10
+    height: 100,  
+    borderRadius: 10,
+    marginLeft:10,
+    marginTop:4
   },
   galleryOverlayContainer: { 
     position: 'relative', 
