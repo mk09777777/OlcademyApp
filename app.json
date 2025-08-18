@@ -1,7 +1,8 @@
 {
   "expo": {
+    "jsEngine": "jsc",
     "name": "Frontend",
-    "slug": "Frontend",
+    "slug": "projectz",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -15,27 +16,52 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
+      },
+      "edgeToEdgeEnabled": true,
+      "package": "com.mayurk0523.Frontend",
+      "softwareKeyboardLayoutMode": "resize",
+      "permissions": [
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION"
+      ]
+    },
+    "updates": {
+      "enabled": false
+    },
+    "packagerOpts": {
+      "hostType": "lan"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "fd225073-4067-4a25-80b2-ca13b5454fd0"
       }
     },
-    "web": {
-      "bundler": "metro",
-      "output": "static",
-      "favicon": "./assets/images/favicon.png"
-    },
-    "plugins": [
-      "expo-router",
-      [
-        "expo-splash-screen",
-        {
-          "image": "./assets/images/splash-icon.png",
-          "imageWidth": 200,
-          "resizeMode": "contain",
-          "backgroundColor": "#ffffff"
-        }
-      ]
+    "owner": "olcademy"
+  },
+  "web": {
+    "bundler": "metro",
+    "output": "static",
+    "favicon": "./assets/images/favicon.png"
+  },
+  "plugins": [
+    "expo-router",
+    [
+      "expo-splash-screen",
+      {
+        "image": "./assets/images/splash-icon.png",
+        "imageWidth": 200,
+        "resizeMode": "contain",
+        "backgroundColor": "#ffffff"
+      }
     ],
-    "experiments": {
-      "typedRoutes": true
-    }
+    [
+      "expo-splash-screen",
+      {
+        "resizeMode": "contain"
+      }
+    ]
+  ],
+  "experiments": {
+    "typedRoutes": true
   }
 }

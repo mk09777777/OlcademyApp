@@ -1,0 +1,62 @@
+import { StyleSheet } from 'react-native';
+
+export const globalStyles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#f8f9fa',
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 16,
+    backgroundColor: 'white',
+  },
+  headerTitle: {
+    fontSize: 20,
+    fontWeight: '600',
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  button: {
+    backgroundColor: '#08a742',
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  buttonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: '500',
+  },
+  addButton: {
+    position: 'absolute',
+    right: 16,
+    bottom: 16,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: '#08a742',
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+  },
+  // container: { flex: 1, backgroundColor: '#f8f9fa' },
+  // loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  // header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 16, backgroundColor: 'white' },
+  // headerTitle: { fontSize: 20, fontWeight: '600' },
+  tabContainer: { backgroundColor: 'white', borderBottomWidth: 1, borderBottomColor: '#e0e0e0' },
+  tab: { paddingHorizontal: 20, paddingVertical: 12, marginRight: 8 },
+  activeTab: { borderBottomWidth: 2, borderBottomColor: '#08a742' },
+  tabText: { fontSize: 16, color: '#757575' },
+  activeTabText: { color: '#08a742', fontWeight: '500' },
+  bookingsList: { flex: 1, padding: 16 },
+});

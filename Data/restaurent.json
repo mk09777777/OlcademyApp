@@ -1,0 +1,698 @@
+{
+    "restaurantInfo": {
+        "additionalInfo": {
+            "neighbourhood": "Ossington",
+            "diningStyle": "Casual Elegant",
+            "dressCode": "Smart Casual",
+            "executiveCheif": "Dave Kemp",
+            "parking": "Green P Parking located just East of Dundas and Ossington on the South side",
+            "publicTransit": "",
+            "paymentOptions": "AMEX, Diners Club, Mastercard, Visa",
+            "privateParty": null,
+            "privatePartyContact": null,
+            "additionalDetails": "Beer, Cocktails, Delivery, Full Bar, Gender Neutral Restroom, Gluten-free Options, Late Night, Patio/Outdoor Dining, Takeout, Wine"
+        },
+        "ratings": {
+            "overall": 4.6,
+            "food": 4.6,
+            "service": 4.5,
+            "ambience": 4.6,
+            "value": 4.3,
+            "totalReviews": 895,
+            "noiseLevel": "Moderate"
+        },
+        "category": [],
+        "isBookMarked": false,
+        "isFlaged": false,
+        "isBanned": false,
+        "name": "Salt Wine Bar",
+        "priceRange": "CAN$31 to CAN$50",
+        "price_range": "$$$$",
+        "phoneNo": "(416) 533-7258",
+        "website": "http://saltrestaurant.ca/",
+        "cuisines": [
+            "Spanish, Wine bars, Vegetarian options"
+        ],
+        "address": "225 Ossington Ave, Toronto, Ontario, Canada, Ossington",
+        "instagram": "https://restaurantguru.com/link/inst42948593",
+        "overview": "Located at the top of the Ossington strip, Salt wine bar offers a modern progressive approach to Iberian/Canadian tapas. Salt is a bustling, cozy, communal tapas bar with great energy. Our guests enjoy artisanal cheeses, Iberian charcuterie and an excellent variety of small plate dishes. Chef Dave Kemp is strongly committed to using seasonal and local products whenever possible. Our cellar contains an extensive list of Portuguese and Spanish wines which complement each and every dish."
+    },
+    "opening_hours": {
+        "SundaySun": "5PM-10PM",
+        "MondayMon": "5PM-10PM",
+        "TuesdayTue": "5PM-10PM",
+        "WednesdayWed": "5PM-10PM",
+        "ThursdayThu": "5PM-10PM",
+        "FridayFri": "5PM-10PM",
+        "SaturdaySat": "5PM-10PM"
+    },
+    "location": {
+        "type": "Point",
+        "coordinates": []
+    },
+    "termsAccepted": false,
+    "registrationStatus": "incomplete",
+    "offer": [],
+    "dietary": [],
+    "popularity": 0,
+    "vendor": [],
+    "restaurantStatus": "Pending",
+    "newlyAdded": false,
+    "_id": "681458d19e5bfd88960911d9",
+    "image_urls": [
+        "https://resizer.otstatic.com/v2/photos/wide-xlarge/1/30284294.webp",
+        "https://resizer.otstatic.com/v2/photos/wide-xlarge/3/30284318.webp",
+        "https://resizer.otstatic.com/v2/photos/wide-xlarge/1/23667790.webp",
+        "https://resizer.otstatic.com/v2/photos/wide-xlarge/3/30284298.webp",
+        "https://resizer.otstatic.com/v2/photos/wide-xlarge/3/30284297.webp",
+        "https://resizer.otstatic.com/v2/photos/wide-xlarge/3/30284314.webp",
+        "https://resizer.otstatic.com/v2/photos/wide-xlarge/3/30284296.webp",
+        "https://resizer.otstatic.com/v2/photos/wide-xlarge/3/30284295.webp",
+        "https://resizer.otstatic.com/v2/photos/wide-xlarge/3/30284311.webp",
+        "https://resizer.otstatic.com/v2/photos/wide-xlarge/3/30284312.webp",
+        "https://resizer.otstatic.com/v2/photos/wide-xlarge/3/30284315.webp",
+        "https://resizer.otstatic.com/v2/photos/wide-xlarge/3/30284300.webp",
+        "https://resizer.otstatic.com/v2/photos/wide-xlarge/3/30284299.webp",
+        "https://resizer.otstatic.com/v2/photos/wide-xlarge/3/30284309.webp",
+        "https://resizer.otstatic.com/v2/photos/wide-xlarge/3/30284301.webp",
+        "https://resizer.otstatic.com/v2/photos/wide-xlarge/3/30284305.webp",
+        "https://resizer.otstatic.com/v2/photos/wide-xlarge/3/30284316.webp",
+        "https://resizer.otstatic.com/v2/photos/wide-xlarge/3/30284317.webp",
+        "https://resizer.otstatic.com/v2/photos/wide-xlarge/3/30284322.webp",
+        "https://resizer.otstatic.com/v2/photos/wide-xlarge/3/30284303.webp",
+        "https://resizer.otstatic.com/v2/photos/wide-xlarge/3/30284302.webp",
+        "https://resizer.otstatic.com/v2/photos/wide-xlarge/1/46938454.webp"
+    ],
+    "menu_url": "",
+    "menu_images": [],
+    "menu": {
+        "menuTabs": [
+            {
+                "_id": "681f9ba0b039cad227e0b658",
+                "name": "Winter Menu",
+                "sections": [
+                    {
+                        "_id": "681f9ba0b039cad227e0b659",
+                        "name": "Charcuterie, Cheese & Jamon",
+                        "description": "",
+                        "items": [
+                            {
+                                "name": "Beef Cecina",
+                                "price": "$12.00",
+                                "description": "",
+                                "variations": []
+                            },
+                            {
+                                "name": "Duck Jamon",
+                                "price": "$13.00",
+                                "description": "Duck Prosciutto",
+                                "variations": []
+                            },
+                            {
+                                "name": "Chorizo Iberico",
+                                "price": "$15.00",
+                                "description": "",
+                                "variations": []
+                            },
+                            {
+                                "name": "Jamon Serrano",
+                                "price": "$16.00",
+                                "description": "",
+                                "variations": []
+                            },
+                            {
+                                "name": "Jamon Iberico",
+                                "price": "$24.00",
+                                "description": "",
+                                "variations": []
+                            },
+                            {
+                                "name": "3 Cheese",
+                                "price": "$23.00",
+                                "description": "sourdough crostini, grapes",
+                                "variations": []
+                            },
+                            {
+                                "name": "3 Charcuterie",
+                                "price": "$23.00",
+                                "description": "sourdough crostini, house pickled vegetables",
+                                "variations": []
+                            },
+                            {
+                                "name": "2 Cheese & 2 Charcuterie",
+                                "price": "$29.00",
+                                "description": "sourdough crostini, grapes, pickled vegetables",
+                                "variations": []
+                            },
+                            {
+                                "name": "House Pickled Vegetables",
+                                "price": "$6.00",
+                                "description": "",
+                                "variations": []
+                            },
+                            {
+                                "name": "Spanish Marcona Almonds",
+                                "price": "$7.00",
+                                "description": "",
+                                "variations": []
+                            },
+                            {
+                                "name": "Blackbird Sourdough",
+                                "price": "$8.00",
+                                "description": "chili bomba, Portuguese evoo",
+                                "variations": []
+                            },
+                            {
+                                "name": "Marinated Olives",
+                                "price": "$8.00",
+                                "description": "citrus, rosemary, chili",
+                                "variations": []
+                            },
+                            {
+                                "name": "Foie Gras & Chicken Liver Pate",
+                                "price": "$16.00",
+                                "description": "sourdough, sherry onions",
+                                "variations": []
+                            }
+                        ]
+                    }
+                ]
+            }
+        ],
+        "lastUpdated": "January 24, 2025",
+        "_id": "681f9ba0b039cad227e0b674"
+    },
+    "features": [
+        "Сredit cards accepted",
+        "Outdoor seating",
+        "Delivery",
+        "Takeaway",
+        "Booking",
+        "Not wheelchair accessible",
+        "Parking",
+        "TV"
+    ],
+    "insights": [
+        {
+            "_id": "681f9ba0b039cad227e0b675",
+            "name": "dinner",
+            "class": "excellent"
+        },
+        {
+            "_id": "681f9ba0b039cad227e0b676",
+            "name": "wine list",
+            "class": "excellent"
+        },
+        {
+            "_id": "681f9ba0b039cad227e0b677",
+            "name": "great service",
+            "class": "excellent"
+        },
+        {
+            "_id": "681f9ba0b039cad227e0b678",
+            "name": "romantic atmosphere",
+            "class": "excellent"
+        },
+        {
+            "_id": "681f9ba0b039cad227e0b679",
+            "name": "birthday party",
+            "class": "good"
+        },
+        {
+            "_id": "681f9ba0b039cad227e0b67a",
+            "name": "friendly staff",
+            "class": "excellent"
+        },
+        {
+            "_id": "681f9ba0b039cad227e0b67b",
+            "name": "churros",
+            "class": "good"
+        },
+        {
+            "_id": "681f9ba0b039cad227e0b67c",
+            "name": "brulee dessert",
+            "class": "good"
+        },
+        {
+            "_id": "681f9ba0b039cad227e0b67d",
+            "name": "crème brûlée",
+            "class": "good"
+        },
+        {
+            "_id": "681f9ba0b039cad227e0b67e",
+            "name": "chocolate cake",
+            "class": "excellent"
+        },
+        {
+            "_id": "681f9ba0b039cad227e0b67f",
+            "name": "chocolate terrine",
+            "class": "excellent"
+        },
+        {
+            "_id": "681f9ba0b039cad227e0b680",
+            "name": "wine",
+            "class": "good"
+        },
+        {
+            "_id": "681f9ba0b039cad227e0b681",
+            "name": "spanish wine",
+            "class": "good"
+        },
+        {
+            "_id": "681f9ba0b039cad227e0b682",
+            "name": "chocolate",
+            "class": "excellent"
+        },
+        {
+            "_id": "681f9ba0b039cad227e0b683",
+            "name": "beer",
+            "class": "excellent"
+        },
+        {
+            "_id": "681f9ba0b039cad227e0b684",
+            "name": "coffee",
+            "class": "excellent"
+        },
+        {
+            "_id": "681f9ba0b039cad227e0b685",
+            "name": "martinis",
+            "class": "excellent"
+        },
+        {
+            "_id": "681f9ba0b039cad227e0b686",
+            "name": "seafood",
+            "class": "excellent"
+        },
+        {
+            "_id": "681f9ba0b039cad227e0b687",
+            "name": "poultry",
+            "class": "excellent"
+        },
+        {
+            "_id": "681f9ba0b039cad227e0b688",
+            "name": "scallops",
+            "class": "excellent"
+        },
+        {
+            "_id": "681f9ba0b039cad227e0b689",
+            "name": "tapas",
+            "class": "excellent"
+        },
+        {
+            "_id": "681f9ba0b039cad227e0b68a",
+            "name": "gnocchi",
+            "class": "excellent"
+        },
+        {
+            "_id": "681f9ba0b039cad227e0b68b",
+            "name": "truffle",
+            "class": "excellent"
+        },
+        {
+            "_id": "681f9ba0b039cad227e0b68c",
+            "name": "cheese",
+            "class": "excellent"
+        },
+        {
+            "_id": "681f9ba0b039cad227e0b68d",
+            "name": "duck",
+            "class": "excellent"
+        },
+        {
+            "_id": "681f9ba0b039cad227e0b68e",
+            "name": "meat",
+            "class": "excellent"
+        },
+        {
+            "_id": "681f9ba0b039cad227e0b68f",
+            "name": "fish",
+            "class": "excellent"
+        },
+        {
+            "_id": "681f9ba0b039cad227e0b690",
+            "name": "charcuterie board",
+            "class": "excellent"
+        },
+        {
+            "_id": "681f9ba0b039cad227e0b691",
+            "name": "fried chicken",
+            "class": "excellent"
+        },
+        {
+            "_id": "681f9ba0b039cad227e0b692",
+            "name": "octopus",
+            "class": "excellent"
+        },
+        {
+            "_id": "681f9ba0b039cad227e0b693",
+            "name": "grilled octopus",
+            "class": "excellent"
+        },
+        {
+            "_id": "681f9ba0b039cad227e0b694",
+            "name": "chicken",
+            "class": "excellent"
+        },
+        {
+            "_id": "681f9ba0b039cad227e0b695",
+            "name": "steaks",
+            "class": "excellent"
+        },
+        {
+            "_id": "681f9ba0b039cad227e0b696",
+            "name": "meatballs",
+            "class": "excellent"
+        },
+        {
+            "_id": "681f9ba0b039cad227e0b697",
+            "name": "tartare",
+            "class": "excellent"
+        },
+        {
+            "_id": "681f9ba0b039cad227e0b698",
+            "name": "paella",
+            "class": "excellent"
+        },
+        {
+            "_id": "681f9ba0b039cad227e0b699",
+            "name": "salads",
+            "class": "good"
+        },
+        {
+            "_id": "681f9ba0b039cad227e0b69a",
+            "name": "terrine",
+            "class": "excellent"
+        },
+        {
+            "_id": "681f9ba0b039cad227e0b69b",
+            "name": "taters",
+            "class": "good"
+        },
+        {
+            "_id": "681f9ba0b039cad227e0b69c",
+            "name": "patatas bravas",
+            "class": "good"
+        },
+        {
+            "_id": "681f9ba0b039cad227e0b69d",
+            "name": "beet salad",
+            "class": "good"
+        },
+        {
+            "_id": "681f9ba0b039cad227e0b69e",
+            "name": "pork",
+            "class": "good"
+        },
+        {
+            "_id": "681f9ba0b039cad227e0b69f",
+            "name": "filet américain",
+            "class": "excellent"
+        },
+        {
+            "_id": "681f9ba0b039cad227e0b6a0",
+            "name": "ham",
+            "class": "good"
+        },
+        {
+            "_id": "681f9ba0b039cad227e0b6a1",
+            "name": "ceviche",
+            "class": "good"
+        },
+        {
+            "_id": "681f9ba0b039cad227e0b6a2",
+            "name": "prawns",
+            "class": "normal"
+        },
+        {
+            "_id": "681f9ba0b039cad227e0b6a3",
+            "name": "duck confit",
+            "class": "excellent"
+        },
+        {
+            "_id": "681f9ba0b039cad227e0b6a4",
+            "name": "beef sliders",
+            "class": "excellent"
+        },
+        {
+            "_id": "681f9ba0b039cad227e0b6a5",
+            "name": "crabs",
+            "class": "excellent"
+        },
+        {
+            "_id": "681f9ba0b039cad227e0b6a6",
+            "name": "beef",
+            "class": "excellent"
+        },
+        {
+            "_id": "681f9ba0b039cad227e0b6a7",
+            "name": "salted beef",
+            "class": "excellent"
+        },
+        {
+            "_id": "681f9ba0b039cad227e0b6a8",
+            "name": "lobster risotto",
+            "class": "excellent"
+        },
+        {
+            "_id": "681f9ba0b039cad227e0b6a9",
+            "name": "croquettes",
+            "class": "excellent"
+        },
+        {
+            "_id": "681f9ba0b039cad227e0b6aa",
+            "name": "jamon",
+            "class": "excellent"
+        },
+        {
+            "_id": "681f9ba0b039cad227e0b6ab",
+            "name": "pasta",
+            "class": "excellent"
+        },
+        {
+            "_id": "681f9ba0b039cad227e0b6ac",
+            "name": "scallop crudo",
+            "class": "excellent"
+        },
+        {
+            "_id": "681f9ba0b039cad227e0b6ad",
+            "name": "king crab",
+            "class": "excellent"
+        },
+        {
+            "_id": "681f9ba0b039cad227e0b6ae",
+            "name": "grilled chicken",
+            "class": "excellent"
+        },
+        {
+            "_id": "681f9ba0b039cad227e0b6af",
+            "name": "grilled steak",
+            "class": "excellent"
+        },
+        {
+            "_id": "681f9ba0b039cad227e0b6b0",
+            "name": "chicken liver pâté",
+            "class": "excellent"
+        },
+        {
+            "_id": "681f9ba0b039cad227e0b6b1",
+            "name": "cheese salad",
+            "class": "excellent"
+        },
+        {
+            "_id": "681f9ba0b039cad227e0b6b2",
+            "name": "pate",
+            "class": "excellent"
+        },
+        {
+            "_id": "681f9ba0b039cad227e0b6b3",
+            "name": "fried crabs",
+            "class": "excellent"
+        },
+        {
+            "_id": "681f9ba0b039cad227e0b6b4",
+            "name": "grilled salads",
+            "class": "excellent"
+        },
+        {
+            "_id": "681f9ba0b039cad227e0b6b5",
+            "name": "crispy duck",
+            "class": "excellent"
+        },
+        {
+            "_id": "681f9ba0b039cad227e0b6b6",
+            "name": "chorizo",
+            "class": "excellent"
+        },
+        {
+            "_id": "681f9ba0b039cad227e0b6b7",
+            "name": "carpaccio",
+            "class": "excellent"
+        },
+        {
+            "_id": "681f9ba0b039cad227e0b6b8",
+            "name": "tuna",
+            "class": "excellent"
+        },
+        {
+            "_id": "681f9ba0b039cad227e0b6b9",
+            "name": "toast",
+            "class": "excellent"
+        },
+        {
+            "_id": "681f9ba0b039cad227e0b6ba",
+            "name": "burrata salad",
+            "class": "excellent"
+        },
+        {
+            "_id": "681f9ba0b039cad227e0b6bb",
+            "name": "risotto",
+            "class": "excellent"
+        },
+        {
+            "_id": "681f9ba0b039cad227e0b6bc",
+            "name": "scallop ceviche",
+            "class": "excellent"
+        },
+        {
+            "_id": "681f9ba0b039cad227e0b6bd",
+            "name": "sandwiches",
+            "class": "excellent"
+        },
+        {
+            "_id": "681f9ba0b039cad227e0b6be",
+            "name": "belly pork",
+            "class": "excellent"
+        },
+        {
+            "_id": "681f9ba0b039cad227e0b6bf",
+            "name": "grilled squid",
+            "class": "good"
+        },
+        {
+            "_id": "681f9ba0b039cad227e0b6c0",
+            "name": "beef tartare",
+            "class": "good"
+        },
+        {
+            "_id": "681f9ba0b039cad227e0b6c1",
+            "name": "cod",
+            "class": "excellent"
+        },
+        {
+            "_id": "681f9ba0b039cad227e0b6c2",
+            "name": "grilled beef",
+            "class": "excellent"
+        },
+        {
+            "_id": "681f9ba0b039cad227e0b6c3",
+            "name": "spanish paella",
+            "class": "excellent"
+        },
+        {
+            "_id": "681f9ba0b039cad227e0b6c4",
+            "name": "grilled cheese",
+            "class": "good"
+        },
+        {
+            "_id": "681f9ba0b039cad227e0b6c5",
+            "name": "crostini",
+            "class": "good"
+        },
+        {
+            "_id": "681f9ba0b039cad227e0b6c6",
+            "name": "foie gras",
+            "class": "good"
+        },
+        {
+            "_id": "681f9ba0b039cad227e0b6c7",
+            "name": "calamari",
+            "class": "good"
+        },
+        {
+            "_id": "681f9ba0b039cad227e0b6c8",
+            "name": "ribs",
+            "class": "good"
+        },
+        {
+            "_id": "681f9ba0b039cad227e0b6c9",
+            "name": "pork ribs",
+            "class": "good"
+        },
+        {
+            "_id": "681f9ba0b039cad227e0b6ca",
+            "name": "rib steaks",
+            "class": "good"
+        },
+        {
+            "_id": "681f9ba0b039cad227e0b6cb",
+            "name": "lamb",
+            "class": "good"
+        },
+        {
+            "_id": "681f9ba0b039cad227e0b6cc",
+            "name": "spanish tapas",
+            "class": "good"
+        },
+        {
+            "_id": "681f9ba0b039cad227e0b6cd",
+            "name": "lamb meatballs",
+            "class": "good"
+        },
+        {
+            "_id": "681f9ba0b039cad227e0b6ce",
+            "name": "fried octopus",
+            "class": "excellent"
+        },
+        {
+            "_id": "681f9ba0b039cad227e0b6cf",
+            "name": "duck crudo",
+            "class": "excellent"
+        },
+        {
+            "_id": "681f9ba0b039cad227e0b6d0",
+            "name": "roasted duck",
+            "class": "excellent"
+        },
+        {
+            "_id": "681f9ba0b039cad227e0b6d1",
+            "name": "fried cheese",
+            "class": "excellent"
+        },
+        {
+            "_id": "681f9ba0b039cad227e0b6d2",
+            "name": "chairo",
+            "class": "good"
+        },
+        {
+            "_id": "681f9ba0b039cad227e0b6d3",
+            "name": "burrata",
+            "class": "good"
+        },
+        {
+            "_id": "681f9ba0b039cad227e0b6d4",
+            "name": "wagyu steak",
+            "class": "excellent"
+        }
+    ],
+    "reviewSummary": "Salt Wine Bar offers a vibrant dining experience with \"amazing food,\" particularly the Portuguese-inspired tapas and truffle dishes. Patrons appreciate the \"extensive and eclectic wine list,\" expertly curated by knowledgeable staff. While service can vary, the overall atmosphere remains inviting, making it a \"favourite restaurant in Toronto\" for many.",
+    "faqs": [
+        {
+            "_id": "681f9ba0b039cad227e0b6d5",
+            "question": "Does Salt Wine Bar offer delivery through OpenTable or takeout?",
+            "answer": "Salt Wine Bar does offer delivery in partnership with Skip The Dishes and Uber Eats. Salt Wine Bar also offers takeout which you can order by calling the restaurant at (416) 533-7258."
+        },
+        {
+            "_id": "681f9ba0b039cad227e0b6d6",
+            "question": "How is Salt Wine Bar restaurant rated?",
+            "answer": "Salt Wine Bar is rated 4.6 stars by 895 OpenTable diners."
+        },
+        {
+            "_id": "681f9ba0b039cad227e0b6d7",
+            "question": "Is Salt Wine Bar currently accepting reservations?",
+            "answer": "Yes, you can generally book this restaurant by choosing the date, time and party size on OpenTable."
+        }
+    ],
+    "latitude": "43.6489698",
+    "longitude": "-79.4204621",
+    "updatedAt": "2025-05-04T11:21:34.673Z"
+}

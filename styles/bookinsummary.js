@@ -1,0 +1,265 @@
+import { Dimensions,StyleSheet } from "react-native";
+
+const {width} = Dimensions.get('window')
+
+const BookingSummaryStyles = StyleSheet.create({
+background:{
+    display:"flex",
+    flexDirection:"column",
+    flex:1
+},
+headerContainer:{
+    marginLeft:10,
+    marginRight:10,
+    marginTop:10,
+    backgroundColor:"#14356b",
+    borderRadius:10,
+    padding:10,
+    justifyContent:"center",
+    alignItems:"center"
+},
+headingText:{
+    color:"white",
+    fontSize:14,
+    fontWeight:"500"
+},
+BillingDetailContainer:{
+    marginLeft:10,
+    marginRight:10,
+    marginTop:20,
+    padding:10,
+    borderRadius:10,
+    backgroundColor:"white",
+    display:"flex",
+    flexDirection:"column"
+},
+
+summary1Container:{
+    display:"flex",
+    flexDirection:"row",
+    padding:3,
+    alignItems:"center",
+},
+summary3Container:{
+    display:"flex",
+    flexDirection:"row",
+    padding:3,
+    alignItems:"center",
+    marginTop:4
+},
+summary2Container:{
+    display:"flex",
+    flexDirection:"row",
+    padding:3,
+    borderBottomColor:"#78787c",
+    borderBottomWidth:0.6,
+    borderStyle:"dashed",
+    marginRight:9,
+    marginTop:4
+   
+},
+summary4Container:{
+    display:"flex",
+    flexDirection:"row",
+    padding:3,
+    marginRight:9,
+    marginTop:10,
+   justifyContent:"space-between"
+},
+TextAdd11:{
+    color:"black",
+    fontSize:16,
+    fontWeight:"600",
+},
+TextAdd21:{
+    color:"#78787c",
+    fontSize:15,
+    fontWeight:"600",
+    marginTop:10
+},
+Text1:{
+    color:"black",
+    fontSize:15,
+    fontWeight:"500",
+    marginLeft:10
+},
+TextAddContainer:{
+    display:"flex",
+    flexDirection:"column",
+    padding:3,
+    marginLeft:3,
+},
+TextAdd1:{
+    color:"black",
+    fontSize:15,
+    fontWeight:"500",
+},
+TextAdd2:{
+    color:"#78787c",
+    fontSize:14,
+    fontWeight:"400",
+    marginBottom:10,
+},
+addrequestContainer:{
+    marginLeft:10,
+    marginRight:10,
+    marginTop:20,
+    padding:10,
+    borderRadius:10,
+    backgroundColor:"white",
+    display:"flex",
+    flexDirection:"row",
+    justifyContent:"space-between",
+    alignItems:"center"
+},
+addrequestStart:{
+    marginLeft:4,
+    display:"flex",
+    flexDirection:"row",
+    alignItems:"center"
+},
+addrequestStartActive:{
+    marginLeft:4,
+    display:"flex",
+    flexDirection:"column",
+},
+requestText:{
+    fontSize:14,
+    fontWeight:"600",
+    color:"black",
+    marginLeft:10
+},
+requestText2:{
+    fontSize:15,
+    fontWeight:"600",
+    color:"#777b84",
+    marginLeft:10,
+    textDecorationLine:"underline",
+    textDecorationStyle:"dotted",
+    textDecorationColor:"#777b84",
+    marginTop:7
+},
+Divider:{
+    marginTop:40,
+    display:"flex",
+    flexDirection:"row",
+    alignItems:"center",
+    marginLeft:10,
+    marginRight:10
+},
+line: {
+    flex: 1,
+    height: 0.7,
+    backgroundColor: '#ccc',
+    marginLeft:10,
+    marginRight:10
+  },
+  SeperateText:{
+    color:"#535660",
+    fontSize:18,
+    fontWeight:"500"
+  },
+  TermsContainer:{
+    marginLeft:10,
+    marginRight:10,
+    marginTop:20,
+    padding:10,
+    borderRadius:10,
+    backgroundColor:"white",
+    display:"flex",
+    flexDirection:"column",
+},
+TermsText:{
+    color:"black",
+    marginLeft:10,
+    fontSize:14,
+    fontWeight:"400"
+},
+DetailsContainer:{
+    marginLeft:10,
+    marginRight:10,
+    marginTop:20,
+    padding:10,
+    borderRadius:10,
+    backgroundColor:"white",
+    display:"flex",
+    flexDirection:"row",
+    justifyContent:"space-between",
+    alignItems:"center"
+},
+EditText:{
+    fontSize:16,
+    fontWeight:"400",
+    color:"#4a8a68"
+
+},
+EditText2:{
+    color:"#78787c",
+    fontSize:14,
+    fontWeight:"400",
+
+},
+payContainer:{
+    position:"absolute",
+    bottom:0,
+    left:0,
+    right:0,
+    backgroundColor:"white",
+    padding:10,
+    display:"flex",
+    flexDirection:"row",
+    alignItems:"center"
+},
+paymentDetailsContainer:{
+    display:"flex",
+    flexDirection:"column",
+    marginLeft:10
+},
+PayButton:{
+    display:"flex",
+    flexDirection:"row",
+    padding:10,
+    justifyContent:"space-between",
+    paddingHorizontal:20,
+    alignItems:"center",
+    backgroundColor:"#0f8145",
+    borderRadius:10,
+    marginLeft:10,
+    flex:1
+},
+payText1:{
+    color:"black",
+    fontSize:16,
+    fontWeight:"500"
+},
+payText2:{
+    color:"#78787c",
+    fontSize:14,
+    fontWeight:"400",
+    marginTop:2
+},
+payText3:{
+    color:"white",
+    fontSize:16,
+    fontWeight:"500"
+},
+payText32:{
+    color:"white",
+    fontSize:14,
+    fontWeight:"400",
+    marginTop:3
+},
+payText4:{
+    color:"white",
+    fontSize:13,
+    fontWeight:"400",
+    marginTop:3
+},
+payText4:{
+    color:"white",
+    fontSize:16,
+    fontWeight:"600",
+}
+
+});
+export default BookingSummaryStyles;
