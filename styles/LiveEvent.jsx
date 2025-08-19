@@ -14,7 +14,50 @@ const styles = StyleSheet.create({
       fontWeight: '600',
       color: Colors.text,
     },
+    section: {import { StyleSheet } from "react-native";
+const styles = StyleSheet.create({
+    container: {
+      backgroundColor: Colors.white,
+      marginTop: 10,
+    },
+    header: {
+      padding: 15,
+      borderLeftWidth: 3,
+      borderLeftColor: Colors.primary,
+    },
+    headerTitle: {
+      fontSize: 16,
+      fontWeight: '600',
+      color: Colors.text,
+    },
     section: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      padding: 15,
+      borderBottomWidth: 1,
+      borderBottomColor: Colors.border,
+    },
+    iconContainer: {
+      width: 36,
+      height: 36,
+      borderRadius: 18,
+      backgroundColor: '#F8F8F8',
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginRight: 12,
+    },
+    sectionContent: {
+      flex: 1,
+    },
+    sectionTitle: {
+      fontSize: 16,
+      color: Colors.text,
+    },
+    chevron: {
+      marginLeft: 'auto',
+    },
+  });
+  export default styles;
       flexDirection: 'row',
       alignItems: 'center',
       padding: 15,

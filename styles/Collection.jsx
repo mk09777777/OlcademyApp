@@ -62,7 +62,8 @@ const styles = StyleSheet.create({
     color: '#E41E3F',
   },
   searchContainer: {
-    padding: 16,
+   padding: 2,
+    paddingLeft: 20,
     backgroundColor: '#fff',
     borderBottomWidth: 1,
     borderBottomColor: '#eee',

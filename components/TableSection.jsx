@@ -57,7 +57,7 @@ const styles = StyleSheet.create({
     borderLeftColor: Colors.primary,
   },
   headerTitle: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: '600',
     color: Colors.text,
   },
@@ -69,9 +69,9 @@ const styles = StyleSheet.create({
     borderBottomColor: Colors.border,
   },
   iconContainer: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     backgroundColor: '#F8F8F8',
     justifyContent: 'center',
     alignItems: 'center',

@@ -441,8 +441,8 @@ export default function FirmDetailsDining() {
                 end={{ x: 0.5, y: 1 }}
               />
               <View style={styles.upperPannel}>
-                <TouchableOpacity onPress={() => router.back()} style={{borderRadius:"100%",backgroundColor:"#00000066",padding:2,alignItems:"center",justifyContent:"center"}}>
-                  <Ionicons name='chevron-back' size={28} color='white' />
+                <TouchableOpacity onPress={() => router.back()}>
+                  <Ionicons name='chevron-back' size={30} color='white' />
                 </TouchableOpacity>
                 <View style={styles.rightPannel}>
                  

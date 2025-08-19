@@ -58,11 +58,11 @@ const Filterbox = ({
   ];
 
   const moreFilters = [
-    {
-      id: "wheelchairAccessible",
-      label: "Wheelchair accessible",
-      value: "Wheelchair accessible",
-    },
+    // {
+    //   id: "wheelchairAccessible",
+    //   label: "Wheelchair accessible",
+    //   value: "Wheelchair accessible",
+    // },
     {
       id: "creditCard",
       label: "Credit cards accepted",
@@ -311,7 +311,7 @@ const Filterbox = ({
                   <Text style={styles.optionText}>{c.label}</Text>
                   <View style={styles.checkboxContainer}>
                     {localFilters.cuisines &&
-                    localFilters.cuisines.split(",").includes(c.value) ? (
+                      localFilters.cuisines.split(",").includes(c.value) ? (
                       <MaterialIcons name="check-box" size={24} color="#4CAF50" />
                     ) : (
                       <MaterialIcons
@@ -389,7 +389,7 @@ const Filterbox = ({
                     backgroundColor: "#e23845",
                   },
                 ]}
-                onPressIn={() => {}}
+                onPressIn={() => { }}
               />
             </View>
             <View style={styles.sliderMarks}>
@@ -401,35 +401,38 @@ const Filterbox = ({
       case "moreFilters":
         return (
           <ScrollView style={styles.optionsContainer}>
-            {moreFilters.map((m) => (
-              <View key={m.id} style={styles.option}>
-                <Text style={styles.optionText}>{m.label}</Text>
-                <Switch
-                  value={
-                    m.value === "Serves Alcohol"
-                      ? localFilters.Alcohol
-                      : m.value === "openNow"
-                      ? localFilters.openNow
-                      : (localFilters.feature &&
-                          localFilters.feature.split(",").includes(m.value)) ||
-                        (localFilters.others &&
-                          localFilters.others.split(",").includes(m.value))
-                  }
-                  onValueChange={(checked) => handleMoreFiltersChange(m.value, checked)}
-                  trackColor={{ false: "#767577", true: "#e23845" }}
-                  thumbColor={
-                    (m.value === "Serves Alcohol" && localFilters.Alcohol) ||
-                    (m.value === "openNow" && localFilters.openNow) ||
-                    (localFilters.feature &&
+            {moreFilters.map((m) => {
+              const isChecked =
+                m.value === "Serves Alcohol"
+                  ? localFilters.Alcohol
+                  : m.value === "openNow"
+                    ? localFilters.openNow
+                    : (localFilters.feature &&
                       localFilters.feature.split(",").includes(m.value)) ||
                     (localFilters.others &&
-                      localFilters.others.split(",").includes(m.value))
-                      ? "#e23845"
-                      : "#f4f3f4"
-                  }
-                />
-              </View>
-            ))}
+                      localFilters.others.split(",").includes(m.value));
+
+              return (
+                <TouchableOpacity
+                  key={m.id}
+                  style={styles.option}
+                  onPress={() => handleMoreFiltersChange(m.value, !isChecked)}
+                >
+                  <Text style={styles.optionText}>{m.label}</Text>
+                  <View style={styles.checkboxContainer}>
+                    {isChecked ? (
+                      <MaterialIcons name="check-box" size={24} color="#e23845" />
+                    ) : (
+                      <MaterialIcons
+                        name="check-box-outline-blank"
+                        size={24}
+                        color="#757577"
+                      />
+                    )}
+                  </View>
+                </TouchableOpacity>
+              );
+            })}
           </ScrollView>
         );
       default:
@@ -447,7 +450,7 @@ const Filterbox = ({
       <View style={styles.modalOverlay}>
         <View style={styles.filterBoxWrapper}>
           <View style={styles.header}>
-            <View style={{flexDirection: 'row', alignItems: 'center'}}>
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
               <Text style={styles.headerText}>Filters</Text>
               {filterCount > 0 && (
                 <View style={styles.filterCountBadge}>
@@ -568,22 +571,22 @@ const styles = StyleSheet.create({
   },
   tabText: {
     color: "#757575",
-    fontSize: 14, 
+    fontSize: 14,
   },
   activeTabText: {
     color: "#000",
     fontWeight: "bold",
   },
   main: {
-    flex: 3, 
+    flex: 3,
     padding: 10,
-    backgroundColor: '#fff', 
+    backgroundColor: '#fff',
   },
   optionsContainer: {
-    flex: 1, 
+    flex: 1,
   },
   cuisineTabContent: {
-    flex: 1, 
+    flex: 1,
   },
   option: {
     flexDirection: "row",
@@ -618,7 +621,7 @@ const styles = StyleSheet.create({
     backgroundColor: "transparent",
   },
   checkboxContainer: {
-    marginLeft: 10,
+    marginLeft: 4,
   },
   searchBarContainer: {
     flexDirection: 'row',
