@@ -33,7 +33,7 @@ export default function OnMindScreens() {
         console.log("Fetching firms...");
         setIsLoading(true);
         try {
-            const response = await axios.get(`http://192.168.0.100:3000/firm/getnearbyrest?dish=${name}`);
+            const response = await axios.get(`http://172.168.0.108:3000/firm/getnearbyrest?dish=${name}`);
 
             let firmsData;
 

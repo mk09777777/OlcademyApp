@@ -945,7 +945,7 @@ export default function TakeAway() {
                   </View>
 
 
-                  <View style={{ display: "flex", marginTop: 10, marginBottom: 15 }}>
+                  <View style={{ display: "flex", marginTop: 5, marginBottom: 5 }}>
                     <View style={styles.separatorRow}>
                       <View style={styles.line} />
                       <Text style={styles.separatorText}>
