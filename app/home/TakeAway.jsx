@@ -13,7 +13,7 @@ import RadioButtonRN from 'radio-buttons-react-native'
 
 import Filterbox from '@/components/Filterbox';
 import LocationHeader from '@/components/HomeHeader';
-const Api_url = 'http://192.168.0.101:3000';
+const Api_url = 'http://192.168.0.102:3000';
 export default function TakeAway() {
   // const { bookmarks, toggleBookmark, isBookmarked } = useBookmarkManager();
   const [firms, setFirms] = useState([])

@@ -12,14 +12,21 @@ import ImageGallery from '@/components/ImageGallery'
 import MiniRecommendedCard from '@/components/MiniRecommendedCard'
 import { useSafeNavigation } from '@/hooks/navigationPage'
 
-const API_URL = 'http://192.168.0.101:3000'
-const PRODUCT_API_URL = 'http://192.168.0.101:8000/api/collection/products'
+const API_URL = 'http://192.168.0.102:3000'
+const PRODUCT_API_URL = 'http://192.168.0.102:8000/api/collection/products'
 
 export default function FirmDetailsDining() {
   const { firmId } = useGlobalSearchParams()
   const router = useRouter()
-  const { safeNavigation } = useSafeNavigation();
-  const [firmDetails, setFirmDetails] = useState(null)
+  const { safeNavigation } = useSafeNavigation()
+  const [firmDetails, setFirmDetails] = useState({
+    restaurantInfo: {},
+    opening_hours: {},
+    features: [],
+    insights: [],
+    faqs: [],
+    reviews: []
+  })
   const [products, setProducts] = useState([])
   const [isPopupVisible, setIsPopupVisible] = useState(false)
   const [guests, setGuests] = useState(1)
@@ -46,16 +53,10 @@ export default function FirmDetailsDining() {
     { id: 3, title: "Items @99", validity: "Valid Today" }
   ]
 
-  const reviews = [
-    { id: "1", name: "Rakesh", date: "2 days ago", rating: 5, review: "Great ambiance and service!" },
-    { id: "2", name: "Sneha", date: "1 week ago", rating: 4, review: "Amazing food but slow service." },
-    { id: "3", name: "Amit", date: "3 days ago", rating: 5, review: "One of the best places around!" }
-  ]
-
   const fetchRestaurantDetails = async (id) => {
     try {
       setLoading(true)
-      const response = await axios.get(`http://192.168.0.101:3000/firm/getOne/${id}`, { timeout: 5000 })
+      const response = await axios.get(`http://192.168.0.102:3000/firm/getOne/${id}`, { timeout: 5000 })
       if (!response.data) throw new Error('Restaurant data not available')
       const restaurantData = response.data
       setFirmDetails({
@@ -74,7 +75,8 @@ export default function FirmDetailsDining() {
         opening_hours: restaurantData.opening_hours || {},
         features: restaurantData.features || [],
         insights: restaurantData.insights || [],
-        faqs: restaurantData.faqs || []
+        faqs: restaurantData.faqs || [],
+        reviews: restaurantData.reviews || []
       })
 
       const productIds = restaurantData?.product || []
@@ -82,7 +84,6 @@ export default function FirmDetailsDining() {
         const productsResponse = await axios.get(`${PRODUCT_API_URL}?ids=${productIds.join(',')}`)
         setProducts(productsResponse.data.data)
       }
-
     } catch (err) {
       setError(err.response?.data?.error || err.message)
     } finally {
@@ -90,22 +91,18 @@ export default function FirmDetailsDining() {
     }
   }
 
-  const UploadRecentlyViewd = async () => {
+  const UploadRecentlyViewed = async () => {
     try {
-      // getSimilar()
       const restId = firmId
       if (!restId) return
       await axios.post(`${API_URL}/firm/recently-viewed/${restId}`, null, {
         withCredentials: true
-      });
+      })
       console.log("recently viewed uploaded successfully")
     } catch (err) {
       console.error("Failed to upload recently viewed:", err)
     }
   }
-
-
-
 
   const getSimilar = async () => {
     setLoading(true)
@@ -122,15 +119,15 @@ export default function FirmDetailsDining() {
   useEffect(() => {
     if (firmId) {
       fetchRestaurantDetails(firmId)
-      UploadRecentlyViewd()
+      UploadRecentlyViewed()
     }
   }, [firmId])
 
   useEffect(() => {
-    if (firmDetails && firmDetails.restaurantInfo && firmDetails.restaurantInfo.name) {
-      getSimilar();
+    if (firmDetails?.restaurantInfo?.name) {
+      getSimilar()
     }
-  }, [firmDetails]);
+  }, [firmDetails])
 
   const groupedProducts = products.reduce((acc, item) => {
     const category = item.category.length > 0 ? item.category[0] : "Others"
@@ -222,11 +219,11 @@ export default function FirmDetailsDining() {
       const totalImages = firmDetails.restaurantInfo.image_urls.length
       return (
         <View>
-         <View style={styles.separatorRow}>
-              <View style={styles.line} />
-              <Text style={styles.separatorText}>Photos</Text>
-              <View style={styles.line} />
-            </View>
+          <View style={styles.separatorRow}>
+            <View style={styles.line} />
+            <Text style={styles.separatorText}>Photos</Text>
+            <View style={styles.line} />
+          </View>
           <FlatList
             data={[...previewImages, 'last']}
             numColumns={3}
@@ -259,7 +256,7 @@ export default function FirmDetailsDining() {
       )
     }
 
-    if (filtersActive.Reviews && reviews.length > 0) {
+    if (filtersActive.Reviews && firmDetails?.reviews?.length > 0) {
       return (
         <View>
           <View style={styles.separatorRow}>
@@ -268,19 +265,19 @@ export default function FirmDetailsDining() {
             <View style={styles.line} />
           </View>
           <FlatList
-            data={reviews}
+            data={firmDetails.reviews}
             horizontal
             showsHorizontalScrollIndicator={false}
-            keyExtractor={item => item.id}
+            keyExtractor={item => item._id}
             renderItem={({ item }) => (
               <ReviewCard
-                name={item.name}
+                name={item.author_name}
                 date={item.date}
                 rating={item.rating}
-                review={item.review}
+                review={item.comments?.[0] || ""}
                 firmName={firmDetails?.restaurantInfo?.name || "Restaurant"}
                 details={firmDetails?.restaurantInfo?.address || ""}
-                followers={45}
+                followers={item.followers || 0}
               />
             )}
             contentContainerStyle={styles.listContainer}
@@ -387,26 +384,24 @@ export default function FirmDetailsDining() {
             <View style={styles.line} />
           </View>
           <FlatList
-            data={reviews}
+            data={firmDetails?.reviews || []}
             horizontal
             showsHorizontalScrollIndicator={false}
-            keyExtractor={item => item.id}
+            keyExtractor={item => item._id}
             renderItem={({ item }) => (
               <ReviewCard
-                name={item.name}
+                name={item.author_name}
                 date={item.date}
                 rating={item.rating}
-                review={item.review}
+                review={item.comments?.[0] || ""}
                 firmName={firmDetails?.restaurantInfo?.name || "Restaurant"}
                 details={firmDetails?.restaurantInfo?.address || ""}
-                followers={45}
+                followers={item.followers || 0}
               />
             )}
             contentContainerStyle={styles.listContainer}
           />
         </View>
-
-
       </View>
     )
   }
@@ -455,24 +450,14 @@ export default function FirmDetailsDining() {
                 <TouchableOpacity onPress={() => router.back()} style={{ borderRadius: "100%", backgroundColor: "#00000066", padding: 2, alignItems: "center", justifyContent: "center" }}>
                   <Ionicons name='chevron-back' size={28} color='white' />
                 </TouchableOpacity>
-                <View style={styles.rightPannel}>
-
-                </View>
+                <View style={styles.rightPannel}></View>
               </View>
               <View style={styles.bottomPannel}>
                 <LinearGradient
-                  colors={[
-                    "#18181800", // top
-                    "#18181866",
-                    "#181818CC", // bottom
-                  ]}
+                  colors={["#18181800", "#18181866", "#181818CC"]}
                   start={{ x: 0, y: 0 }}
                   end={{ x: 0, y: 1 }}
-                  style={{
-                    flexDirection: "row",
-                    width: "100%",
-                    justifyContent: "space-between",
-                  }}
+                  style={{ flexDirection: "row", width: "100%", justifyContent: "space-between" }}
                 >
                   <View style={{ padding: 10 }}>
                     <View style={styles.mainPannel}>
@@ -483,9 +468,9 @@ export default function FirmDetailsDining() {
                         {firmDetails?.restaurantInfo?.address || ""}
                       </Text>
                       <Text style={styles.cuisines}>
-                        {Array.isArray(firmDetails?.restaurantInfo?.cuisines) ?
-                          firmDetails.restaurantInfo.cuisines.join(' • ') :
-                          firmDetails?.restaurantInfo?.cuisines || 'Italian • Dessert'}
+                        {Array.isArray(firmDetails?.restaurantInfo?.cuisines)
+                          ? firmDetails.restaurantInfo.cuisines.join(' • ')
+                          : firmDetails?.restaurantInfo?.cuisines || 'Italian • Dessert'}
                       </Text>
                       <Text style={styles.price}>
                         {firmDetails?.restaurantInfo?.priceRange || '₹1010 for Two'}
@@ -497,8 +482,7 @@ export default function FirmDetailsDining() {
                         <View style={{ backgroundColor: "white", borderRadius: "100%", marginRight: 10 }}>
                           <AntDesign name="checkcircle" size={18} color="#048520" />
                         </View>
-                        <Text style={{ color: "white", fontFamily: "outfit-medium", fontSize: 16 }} >Open From | </Text>
-
+                        <Text style={{ color: "white", fontFamily: "outfit-medium", fontSize: 16 }}>Open From | </Text>
                         <Text style={styles.openingHrs}>
                           {Object.values(firmDetails?.opening_hours || {})[0] || 'Opening hrs 12:00 to 23:00'}
                         </Text>
@@ -530,9 +514,7 @@ export default function FirmDetailsDining() {
                       <Text style={styles.reviewCount}>
                         {firmDetails?.restaurantInfo?.ratings?.totalReviews || '2179'}
                       </Text>
-                      <Text style={styles.reviewCount2}>
-                        Reviews
-                      </Text>
+                      <Text style={styles.reviewCount2}>Reviews</Text>
                     </View>
                   </TouchableOpacity>
                 </LinearGradient>
@@ -573,10 +555,6 @@ export default function FirmDetailsDining() {
               <View style={styles.line} />
             </View>
             <View style={{ padding: 20 }}>
-              {/* <View style={{ marginBottom: 20 }}>
-                <Text style={{ fontSize: 20, fontWeight: '700', color: '#333', marginBottom: 12 }}>About the Restaurant</Text>
-               
-              </View> */}
               <View style={{
                 backgroundColor: '#FFFFFF',
                 borderRadius: 10,
@@ -585,14 +563,14 @@ export default function FirmDetailsDining() {
                 borderWidth: 1,
                 borderColor: "#D9D9D9"
               }}>
-                <Text style={{
-                  fontSize: 14,
-                  color: '#444444',
-                  fontWeight: 700
-                }}>
-                  {firmDetails?.restaurantInfo?.overview || "Italian inspired cuisine in a stylishly elegant setting."}
+                <Text style={{ fontSize: 14, color: '#444444', fontWeight: '700' }}>
+                  {(() => {
+                    const overview = firmDetails?.restaurantInfo?.overview || "Experience authentic Italian-inspired cuisine crafted with passion, combining traditional flavors and modern presentation in a stylishly elegant setting. Our chefs carefully select the freshest seasonal ingredients to create dishes that delight the senses, whether you are enjoying a romantic dinner, a casual gathering with friends, or a family celebration. With a warm ambiance, attentive service, and thoughtfully curated menu, we strive to make every dining experience memorable, offering a perfect blend of comfort and sophistication.";
+                    const words = overview.split(" ");
+                    return words.length > 10 ? words.slice(0, 10).join(" ") + "..." : overview;
+                  })()}
                 </Text>
-                <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12, marginTop: 10 }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12, marginTop: 20 }}>
                   <FontAwesome5 name="rupee-sign" size={16} color="#E03A48" />
                   <Text style={{ fontSize: 12, marginLeft: 10, color: '#444444' }}>
                     {firmDetails?.restaurantInfo?.priceRange || '₹1010 for Two'}
@@ -601,9 +579,9 @@ export default function FirmDetailsDining() {
                 <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
                   <MaterialIcons name="restaurant" size={16} color="#FF6B6B" />
                   <Text style={{ fontSize: 12, marginLeft: 10, color: '' }}>
-                    {Array.isArray(firmDetails?.restaurantInfo?.cuisines) ?
-                      firmDetails.restaurantInfo.cuisines.join(', ') :
-                      firmDetails?.restaurantInfo?.cuisines || 'Italian, Dessert'}
+                    {Array.isArray(firmDetails?.restaurantInfo?.cuisines)
+                      ? firmDetails.restaurantInfo.cuisines.join(', ')
+                      : firmDetails?.restaurantInfo?.cuisines || 'Italian, Dessert'}
                   </Text>
                 </View>
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -631,42 +609,32 @@ export default function FirmDetailsDining() {
                   ))}
                 </View>
               </View>
-             
-              {firmDetails?.faqs?.length > 0 && (
-                <View>
-                  {/* <Text style={{ fontSize: 20, fontWeight: '700', color: '#333', marginBottom: 12 }}>Frequently Asked Questions</Text>
-                  {firmDetails.faqs.map((faq) => (
-                    <View key={faq._id} style={{ marginBottom: 16, borderBottomWidth: 1, borderBottomColor: '#EEE', paddingBottom: 16 }}>
-                      <Text style={{ fontWeight: '600', fontSize: 15, color: '#333', marginBottom: 6 }}>{faq.question}</Text>
-                      <Text style={{ fontSize: 14, color: '#666', lineHeight: 20 }}>{faq.answer}</Text>
-                    </View>
-                  ))} */}
+              {similar ? (
+                <View style={{ marginBottom: 20 }}>
+                  <View style={styles.separatorRow}>
+                    <View style={styles.line} />
+                    <Text style={styles.separatorText}>Explore other restaurants</Text>
+                    <View style={styles.line} />
+                  </View>
+                  <FlatList
+                    data={similar}
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    keyExtractor={item => item.id}
+                    style={{ marginLeft: 10 }}
+                    renderItem={({ item }) => (
+                      <MiniRecommendedCard
+                        name={item.restaurant_name}
+                        address={item.address}
+                        image={item?.image_url}
+                        rating={item.rating}
+                        onPress={() => safeNavigation({ pathname: '/screens/FirmDetailsDining', params: { firmId: item.id } })}
+                      />
+                    )}
+                  />
                 </View>
-              )}
+              ) : null}
             </View>
-             {similar ? <View style={{ marginBottom: 20 }}>
-                <View style={styles.separatorRow}>
-              <View style={styles.line} />
-              <Text style={styles.separatorText}>Explore other restaurants</Text>
-              <View style={styles.line} />
-            </View>
-                <FlatList
-                  data={similar}
-                  horizontal
-                  showsHorizontalScrollIndicator={false}
-                  keyExtractor={item => item.id}
-                  style={{marginLeft:10}}
-                  renderItem={({ item }) => (
-                    <MiniRecommendedCard
-                      name={item.restaurant_name}
-                      address={item.address}
-                      image={item?.image_url}
-                      rating={item.rating}
-                      onPress={() => safeNavigation({ pathname: '/screens/FirmDetailsDining', params: { firmId: item.id } })}
-                    />
-                  )}
-                />
-              </View> : <></>}
           </View>
         }
         keyExtractor={category => category}

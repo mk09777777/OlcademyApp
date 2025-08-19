@@ -181,7 +181,7 @@ export default function Reviewsall() {
 
       const userIdentifier = profileData?.email || user?.username;
       const response = await axios.post(
-        `http://192.168.0.101:3000/api/reviews/${reviewId}/like`,
+        `http://192.168.0.102:3000/api/reviews/${reviewId}/like`,
         { email: userIdentifier },
         { withCredentials: true }
       );
@@ -223,7 +223,7 @@ export default function Reviewsall() {
       }
 
       const response = await axios.post(
-        `http://192.168.0.101:3000/api/reviews/${reviewId}/comments`,
+        `http://192.168.0.102:3000/api/reviews/${reviewId}/comments`,
         { comment: newComment },
         { withCredentials: true }
       );
