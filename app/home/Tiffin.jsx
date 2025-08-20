@@ -29,6 +29,7 @@ import { useSafeNavigation } from '@/hooks/navigationPage';
 import { useAuth } from '@/context/AuthContext';
 import FilterModal from '@/components/FilterModal';
 import BannerCarousel from '@/components/Banner';
+import env from 'react-native-dotenv';
 
 const Api_url = 'http://10.154.177.16:3000';
 
@@ -71,9 +72,7 @@ const QUICK_FILTERS = [
 ];
 =======
 const Api_url = 'http://192.168.0.102:3000';
->>>>>>> origin/mayurOlcademy
-
-export default function Tiffin() {
+envxport default function Tiffin() {
   const { user, isAuthenticated } = useAuth();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
