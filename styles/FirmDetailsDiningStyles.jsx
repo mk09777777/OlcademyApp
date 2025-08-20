@@ -6,7 +6,7 @@ const windowHeight = Dimensions.get('window').height
 export const styles = StyleSheet.create({
   container: {
 		flex: 1,
-		backgroundColor: 'white',
+		backgroundColor: '#f8f7f7ff',
     paddingBottom: 20
 	},
   imageContainer: {
@@ -53,7 +53,8 @@ export const styles = StyleSheet.create({
   reviewBox: {
     // width:'30%',
     borderRadius: 10,
-    marginTop:50
+    marginTop:110,
+    marginRight:10,
   },
   gradientOverlay: {
     position: 'absolute',
@@ -61,7 +62,7 @@ export const styles = StyleSheet.create({
     width: '100%',
   },
   reviewBoxTopContainer: {
-    backgroundColor: 'green',
+    backgroundColor: '#048520',
     padding: 8,
     borderTopLeftRadius: 10,
     borderTopRightRadius: 10
@@ -85,13 +86,21 @@ export const styles = StyleSheet.create({
   reviewText: {
     fontFamily: 'outfit',
     color: 'white',
-    fontSize: 18,
+    fontSize: 15,
     marginRight: 7,
   },
   reviewCount: {
     fontFamily: 'outfit',
-    fontSize: 14,
-    textAlign: 'center'
+    fontSize: 12,
+    textAlign: 'center',
+    marginTop:4,
+    color:"#333333"
+  },
+   reviewCount2: {
+    fontFamily: 'outfit',
+    fontSize: 12,
+    textAlign: 'center',
+    color:"#333333"
   },
   restaurantName: {
     fontFamily: 'outfit-bold',
@@ -145,14 +154,15 @@ export const styles = StyleSheet.create({
 	},
   line: {
     flex: 1,
-    height: 1,
-    backgroundColor: '#ccc',
+    height: 0.4,
+    backgroundColor: '#E03A48',
   },
 	separatorText: {
 		fontFamily: 'outfit',
 		fontSize: 14,
-		color: '#ccc',
-    marginHorizontal: 7
+		color: '#444444',
+    marginHorizontal: 7,
+    fontWeight:700
 	},
   buttonBar: {
     flexDirection: 'row',
@@ -166,7 +176,7 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius:40,
-    elevation:2,
+    elevation:1,
     flex:1,
     padding:10,
   },
@@ -178,7 +188,7 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius:20,
-    elevation:2,
+    elevation:1,
     padding:9,
     paddingLeft:20,
     paddingRight:20
@@ -194,55 +204,62 @@ export const styles = StyleSheet.create({
   },
   buttonText: {
     fontFamily: 'outfit-medium',
-    fontSize: 16,
-    color: 'black',
+    fontSize: 15,
+    color: '#333333',
   },
   filterBox:{
     marginLeft:20,
     marginRight:20,
     borderRadius:30,
     padding:3,
-    alignItems:"center",
-    backgroundColor:"#f8f8fc",
+    backgroundColor:"#F8F8FA",
     display:"flex",
     flexDirection:"row",
     marginTop:50,
-    justifyContent:"center",
+    justifyContent:"space-between",
     display:"flex",
-    flexDirection:""
+    flexDirection:"",
+    borderWidth:1,
+    borderColor:"#D9D9D9"
 
   },
   imageBoxContainer:{
     marginTop:10,
     marginRight:20,
     marginLeft:20,
-    borderRadius:10,
+    borderRadius:20,
     display:"flex",
   },
   imageBox:{
     height: undefined,
-    aspectRatio: 12 / 9,
-    height:150,
-    width:150
+    aspectRatio: 9/12,
+    width:100,
+    borderRadius:10
   },
   filterValueText:{
-    color:"#9597a0",
-    fontWeight:"600",
-    fontSize:14,
-    marginRight:15
+    color:"#333333",
+    fontWeight:"400",
+    fontSize:13,
+    marginRight:15,
+    fontFamily:"outfit"
   },
   filterTextActive:{
-    color:"black",
-    fontWeight:"500",
-    fontSize:14
+    color:"#333333",
+    fontWeight:"600",
+    fontSize:13,
+    fontFamily:"outfit"
   },
+  ActiveFilterBox:{},
+
   filterActive:{
     backgroundColor:"white",
     borderWidth:1,
-    borderRadius:20,
-    borderColor:"#e23845",
-    padding:4,
-    marginRight:10
+    borderRadius:18,
+    borderColor:"#E03A48",
+    paddingHorizontal:11,
+    paddingVertical:5,
+    justifyContent:"center",
+    alignItems:"center"
   },
   modalOverlay: {
     flex: 1,
@@ -320,9 +337,10 @@ export const styles = StyleSheet.create({
   },
   galleryImage: { 
     width: '30%', 
-    height: 100, 
-    margin: 4, 
-    borderRadius: 10
+    height: 100,  
+    borderRadius: 10,
+    marginLeft:10,
+    marginTop:4
   },
   galleryOverlayContainer: { 
     position: 'relative', 

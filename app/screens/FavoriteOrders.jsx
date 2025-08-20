@@ -5,9 +5,7 @@ import styles from '../../styles/FavoriteOrder';
 import axios from 'axios';
 import TakeawayOrderCard from '../../Card/TakewayCard';
 import TiffinOrderCard from '../../components/TiffinOrderCard';
-
 const SERVER_URL = 'http://10.154.177.16:3000';
-
 export default function FavoriteOrdersScreen() {
   const [activeTab, setActiveTab] = useState('Takeaway');
   const [loading, setLoading] = useState(false);

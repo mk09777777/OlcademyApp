@@ -47,13 +47,11 @@ export default Whatsonyou;
 const styles = StyleSheet.create({
   container: {
     backgroundColor: '#fff',
-   
-    paddingLeft: 20,
-    
+    paddingVertical: 10,
   },
   header: {
     alignItems: 'center',
-    marginBottom: 5,
+    marginBottom: 25,
   },
   title: {
     fontSize: 16,
@@ -70,22 +68,22 @@ const styles = StyleSheet.create({
     borderRadius: 3,
   },
   list: {
-   
+    paddingHorizontal: 10,
     justifyContent: 'center',
   },
   itemContainer: {
     width: ITEM_WIDTH,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 5,
-    // paddingHorizontal: 5,
+    marginBottom: 25,
+    paddingHorizontal: 5,
   },
   image: {
-    width: 70,
-    height: 70,
+    width: 80,
+    height: 80,
     borderRadius: 40,
     resizeMode: 'cover',
-    // marginBottom: 8,
+    marginBottom: 8,
   },
   label: {
     fontSize: 13,
