@@ -1,167 +1,179 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, FlatList, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
-import BackRouting from '@/components/BackRouting';
-const messages = [
-  { id: '1', date: '10 April 2025', time: '7:10 PM', text: 'Hi Shrija, please select the order for which you seek support.', inactive: true },
-  { id: '2', date: '10 April 2025', time: '7:38 PM', text: 'Hi Shrija, please select the order for which you seek support.', inactive: true },
-  { id: '3', date: '16 April 2025', time: '8:15 PM', text: 'Hi Shrija, please select the order for which you seek support.', inactive: true },
-  { id: '4', date: 'Today', time: '9:10 PM', text: 'Hi Shrija, please select the order for which you seek support.', order: true }
-];
+import React from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Linking, Platform } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 
-export default function OrderSupportChat() {
-  const [input, setInput] = useState('');
+const SupportScreen = () => {
+  const supportEmail = 'ap9377016@gmail.com';
+  const whatsappNumber = '+916392006091';
+  const whatsappMessage = 'Hello, I need help with...';
 
-  const renderMessage = ({ item }) => (
-    <View style={styles.messageBlock}>
-      <Text style={styles.date}>{item.date}</Text>
+  const handleEmailPress = () => {
+    const subject = 'Support Request';
+    const body = 'Dear Support Team,\n\nI need assistance with...';
+    const mailtoUrl = `mailto:${supportEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    
+    Linking.openURL(mailtoUrl).catch(err => {
+      console.error('Failed to open email client:', err);
+      alert('Failed to open email client. Please email us directly at ' + supportEmail);
+    });
+  };
 
-      <View style={styles.bubble}>
-        <Text style={styles.bubbleText}>{item.text}</Text>
-        <Text style={styles.time}>{item.time}</Text>
-      </View>
-
-      {item.inactive && (
-        <View style={styles.inactiveNotice}>
-          <Text style={styles.inactiveText}>The conversation has been closed due to inactivity</Text>
-        </View>
-      )}
-
-      {item.order && (
-        <View style={styles.orderCard}>
-          <Text style={styles.orderTitle}>Order from Santosh Dhaba</Text>
-          <Text style={styles.orderDetails}>22nd Mar at 7:50 PM | Paneer Butter Masala</Text>
-          <Text style={styles.orderStatus}>Your order was delivered</Text>
-        </View>
-      )}
-    </View>
-  );
+  const handleWhatsAppPress = () => {
+    let url;
+    if (Platform.OS === 'android') {
+      url = `whatsapp://send?phone=${whatsappNumber}&text=${encodeURIComponent(whatsappMessage)}`;
+    } else {
+      url = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(whatsappMessage)}`;
+    }
+    
+    Linking.openURL(url).catch(err => {
+      console.error('Failed to open WhatsApp:', err);
+      alert('WhatsApp is not installed. Please install it to chat with us.');
+    });
+  };
 
   return (
     <View style={styles.container}>
-      <BackRouting tittle="Support Chat"/>
-      {/* Chat */}
-      <FlatList
-        data={messages}
-        keyExtractor={(item) => item.id}
-        renderItem={renderMessage}
-        contentContainerStyle={{ paddingBottom: 80 }}
-        style={styles.chatArea}
-      />
-
-      {/* Chat Input */}
-      <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : undefined}
-        keyboardVerticalOffset={80}
-        style={styles.inputArea}
-      >
-        <TextInput
-          placeholder="Type a message..."
-          value={input}
-          onChangeText={setInput}
-          style={styles.textInput}
-        />
-        <TouchableOpacity style={styles.sendBtn}>
-          <Text style={styles.sendText}>Send</Text>
+      <View style={styles.header}>
+        <Text style={styles.title}>Contact Support</Text>
+        <Text style={styles.subtitle}>We're here to help you with any questions or issues</Text>
+      </View>
+      
+      <View style={styles.optionsContainer}>
+        <TouchableOpacity 
+          style={[styles.supportOption, styles.emailOption]}
+          onPress={handleEmailPress}
+          activeOpacity={0.8}
+        >
+          <View style={styles.optionContent}>
+            <View style={[styles.iconContainer, styles.emailIcon]}>
+              <Ionicons name="mail" size={22} color="#fff" />
+            </View>
+            <View style={styles.textContainer}>
+              <Text style={styles.optionTitle}>Email Support</Text>
+              <Text style={styles.optionDescription}>Get a response within 24 hours</Text>
+            </View>
+          </View>
+          <Ionicons name="chevron-forward" size={20} color="#bdc3c7" />
         </TouchableOpacity>
-      </KeyboardAvoidingView>
+        
+        <TouchableOpacity 
+          style={[styles.supportOption, styles.whatsappOption]}
+          onPress={handleWhatsAppPress}
+          activeOpacity={0.8}
+        >
+          <View style={styles.optionContent}>
+            <View style={[styles.iconContainer, styles.whatsappIcon]}>
+              <Ionicons name="logo-whatsapp" size={22} color="#fff" />
+            </View>
+            <View style={styles.textContainer}>
+              <Text style={styles.optionTitle}>WhatsApp Chat</Text>
+              <Text style={styles.optionDescription}>Instant messaging support</Text>
+            </View>
+          </View>
+          <Ionicons name="chevron-forward" size={20} color="#bdc3c7" />
+        </TouchableOpacity>
+      </View>
+      
+      <View style={styles.footer}>
+        <Ionicons name="time" size={16} color="#7f8c8d" />
+        <Text style={styles.footerText}>Available 24/7 for your convenience</Text>
+      </View>
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fff' },
-  chatArea: {
-    paddingHorizontal: 16,
-    backgroundColor: '#f9f9f9',
-  },
-  messageBlock: { marginTop: 20 },
-  date: {
-    textAlign: 'center',
-    color: '#999',
-    fontSize: 12,
-    marginBottom: 5,
-  },
-  bubble: {
-    backgroundColor: '#eee',
-    borderRadius: 10,
-    padding: 12,
-    alignSelf: 'flex-start',
-    maxWidth: '80%',
-  },
-  bubbleText: {
-    fontSize: 14,
-    color: '#333',
-  },
-  time: {
-    fontSize: 11,
-    color: '#888',
-    textAlign: 'right',
-    marginTop: 5,
-  },
-  inactiveNotice: {
-    marginTop: 5,
-    backgroundColor: '#fff3cd',
-    padding: 10,
-    borderRadius: 8,
-  },
-  inactiveText: {
-    color: '#856404',
-    fontSize: 13,
-  },
-  orderCard: {
-    marginTop: 10,
-    backgroundColor: '#fff',
-    borderLeftWidth: 4,
-    borderLeftColor: '#ff4d4d',
-    padding: 12,
-    borderRadius: 8,
-    elevation: 2,
-  },
-  orderTitle: {
-    fontSize: 15,
-    fontWeight: 'bold',
-    color: '#c00',
-  },
-  orderDetails: {
-    fontSize: 13,
-    color: '#555',
-    marginTop: 2,
-  },
-  orderStatus: {
-    fontSize: 13,
-    color: '#28a745',
-    marginTop: 5,
-    fontWeight: '600',
-  },
-  inputArea: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    flexDirection: 'row',
-    padding: 10,
-    backgroundColor: '#fff',
-    borderTopWidth: 1,
-    borderColor: '#ddd',
-  },
-  textInput: {
+  container: {
     flex: 1,
-    borderRadius: 25,
-    backgroundColor: '#f0f0f0',
-    paddingHorizontal: 15,
-    paddingVertical: 10,
-    fontSize: 14,
+    padding: 20,
+    backgroundColor: '#f5f7fa',
   },
-  sendBtn: {
-    backgroundColor: '#ff4d4d',
+  header: {
+    marginBottom: 30,
+  },
+  title: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#2c3e50',
+    marginBottom: 8,
+  },
+  subtitle: {
+    fontSize: 15,
+    color: '#7f8c8d',
+    lineHeight: 22,
+  },
+  optionsContainer: {
+    marginBottom: 20,
+  },
+  supportOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: 'white',
+    padding: 15,
+    borderRadius: 12,
+    marginBottom: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 6,
+    elevation: 3,
+  },
+  emailOption: {
+    borderLeftWidth: 4,
+    borderLeftColor: '#3498db',
+  },
+  whatsappOption: {
+    borderLeftWidth: 4,
+    borderLeftColor: '#25D366',
+  },
+  optionContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  iconContainer: {
+    width: 40,
+    height: 40,
     borderRadius: 20,
-    paddingHorizontal: 15,
-    paddingVertical: 10,
-    marginLeft: 8,
     justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 15,
   },
-  sendText: {
-    color: '#fff',
+  emailIcon: {
+    backgroundColor: '#3498db',
+  },
+  whatsappIcon: {
+    backgroundColor: '#25D366',
+  },
+  textContainer: {
+    flex: 1,
+  },
+  optionTitle: {
+    fontSize: 16,
     fontWeight: '600',
+    color: '#2c3e50',
+    marginBottom: 3,
+  },
+  optionDescription: {
+    fontSize: 14,
+    color: '#95a5a6',
+  },
+  footer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 'auto',
+    paddingTop: 20,
+    borderTopWidth: 1,
+    borderTopColor: '#ecf0f1',
+  },
+  footerText: {
+    fontSize: 14,
+    color: '#7f8c8d',
+    marginLeft: 8,
   },
 });
+
+export default SupportScreen;

@@ -1,13 +1,13 @@
 // SearchBar.jsx
 import React from 'react';
-import { View, ActivityIndicator, TouchableOpacity } from 'react-native';
+import { View, ActivityIndicator, TouchableOpacity, StyleSheet,} from 'react-native';
 import { TextInput } from 'react-native-paper';
 import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
-import styles from '@/styles/Collection';
+// import styles from '@/styles/Collection';
 
 export default function SearchBar({ query, setQuery, isLoading, placeholder, onVoicePress }) {
   return (
-    <View style={[styles.searchContainer, { alignSelf: 'stretch' }]}>
+    <View style={styles.searchContainer}>
       <TextInput
         mode="outlined"
         placeholder={placeholder || "Search restaurants..."}
@@ -19,7 +19,7 @@ export default function SearchBar({ query, setQuery, isLoading, placeholder, onV
               <MaterialCommunityIcons 
                 name="magnify" 
                 size={24} 
-                color="#666" 
+                color="#6B7280" 
               />
             )} 
           />
@@ -30,7 +30,7 @@ export default function SearchBar({ query, setQuery, isLoading, placeholder, onV
               icon={() => (
                 <ActivityIndicator 
                   size="small" 
-                  color="#666" 
+                  color="#6B7280" 
                 />
               )}
             />
@@ -38,25 +38,57 @@ export default function SearchBar({ query, setQuery, isLoading, placeholder, onV
             <TextInput.Icon
               icon="close"
               onPress={() => setQuery('')}
-              color="#666"
+              color="#6B7280"
             />
           ) : (
             <TextInput.Icon
               icon={() => (
-                <TouchableOpacity onPress={onVoicePress}>
-                  <MaterialIcons name="keyboard-voice" size={24} color="black" />
+                <TouchableOpacity 
+                  onPress={onVoicePress}
+                  style={styles.voiceButton}
+                >
+                  <MaterialIcons 
+                    name="keyboard-voice" 
+                    size={24} 
+                    color="#3B82F6" 
+                  />
                 </TouchableOpacity>
               )}
             />
           )
         }
-        style={[styles.searchInput, { flexGrow: 1, flexShrink: 1, minWidth: 0 }]}
-        outlineColor="#ddd"
-        activeOutlineColor="#E41E3F"
+        style={styles.searchInput}
+        outlineColor="#E5E7EB"
+        activeOutlineColor="#3B82F6"
         autoCorrect={false}
         autoCapitalize="none"
         returnKeyType="search"
+        theme={{
+          roundness: 12,
+          colors: {
+            primary: '#3B82F6',
+            background: '#FFFFFF',
+            text: '#1F2937',
+            placeholder: '#9CA3AF',
+          }
+        }}
       />
     </View>
   );
 }
+const styles = StyleSheet.create({
+  searchContainer: {
+    marginVertical: 10,
+    width: '80%',
+    paddingHorizontal: 7,
+  },
+  searchInput: {
+    backgroundColor: '#fff',
+    fontFamily: 'outfit',
+    fontSize: 14,
+  },
+  icon: {
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+});

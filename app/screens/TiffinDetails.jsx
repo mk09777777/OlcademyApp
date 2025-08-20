@@ -66,6 +66,32 @@ const TiffinDetails = () => {
     showCustomization: false,
     selectedMenuItem: null
   });
+ const UploadRecentlyViewd = useCallback(async () => {
+    try {
+      const restId = tiffinId;
+      if (!restId) {
+        console.warn("No restaurant ID available for recently viewed tracking");
+        return;
+      }
+  
+      const response = await axios.post(
+        `http://10.154.177.16:3000/firm/recently-viewed/${restId}`,
+          {},
+        { withCredentials: true }
+      );
+  
+      if (response.status !== 200 && response.status !== 201) {
+        throw new Error(`Unexpected status code: ${response.status}`);
+      }
+  
+      console.log("Recently viewed uploaded successfully:", response.data);
+    } catch (err) {
+      console.error("Failed to upload recently viewed:", err);
+      if (err.response) {
+        console.error("Response data:", err.response.data);
+      }
+    }
+  }, [tiffinId]);
 
   const fetchServiceDetails = useCallback(async () => {
     if (!tiffinId) {
@@ -123,8 +149,9 @@ const TiffinDetails = () => {
   }, [tiffinId]);
 
   useEffect(() => {
+      UploadRecentlyViewd();
     fetchServiceDetails();
-  }, [fetchServiceDetails]);
+  }, [fetchServiceDetails,   UploadRecentlyViewd]);
 
   useEffect(() => {
     const items = getCartItems();

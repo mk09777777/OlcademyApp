@@ -6,6 +6,7 @@ import EventCollection from '@/components/EventCollection';
 import TiffinCollection from '@/components/TiffinCollection';
 import DiningCollection from '@/components/DiningCollection';
 import TakewayCollection from '@/components/TakewayCollection';
+import BackRouting from '@/components/BackRouting';
 
 
 
@@ -14,8 +15,8 @@ const Collection = () => {
 
   const renderScreen = () => {
     switch (currentScreen) {
-      case 'EventCollection':
-        return <EventCollection goBack={() => setCurrentScreen('TakewayCollection')} />;
+      // case 'EventCollection':
+      //   return <EventCollection goBack={() => setCurrentScreen('TakewayCollection')} />;
       case 'TiffinCollection':
         return <TiffinCollection goBack={() => setCurrentScreen('TakewayCollection')} />;
       case 'DiningCollection':
@@ -24,15 +25,18 @@ const Collection = () => {
         return <TakewayCollection
           goToDining={() => setCurrentScreen('DiningCollection')}
           goToTiffin={() => setCurrentScreen('TiffinCollection')}
-          goToEvent={() => setCurrentScreen('EventCollection')}
+          // goToEvent={() => setCurrentScreen('EventCollection')}
         />;
     }
   };
 
   return (
     <ScrollView style={styles.container}>
+         <BackRouting/>
       <View style={styles.headerBackground}>
-        <Image source={require('../../assets/images/food.jpg')} style={styles.headerImage} />
+     
+        <Image source={require('../../assets/images/tiffin.jpg')} style={styles.headerImage} />
+        
       </View>
         <ScrollView 
           horizontal 
@@ -82,7 +86,7 @@ const Collection = () => {
             TiffinCollection
           </Text>
         </TouchableOpacity>
-        <TouchableOpacity
+        {/* <TouchableOpacity
           style={[
             styles.tabButton,
             currentScreen === 'EventCollection' && styles.activeTab
@@ -95,7 +99,7 @@ const Collection = () => {
           ]}>
             EventCollection
           </Text>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
 
       </View>
       </ScrollView>

@@ -175,7 +175,7 @@ const handleTempDayPress = (day) => {
     // For one-day plans, just set the start date
     setTempSelectedDates({
       startDate: selectedDate,
-      endDate: selectedDate, // Same date, but handle time difference in submit
+      endDate: selectedDate,
       flexibleDates: [selectedDate]
     });
   } else {
@@ -375,30 +375,38 @@ const handleSubmit = async () => {
       </View>
 
       <ScrollView style={styles.modalScroll} contentContainerStyle={styles.scrollContent}>
-      <Image
+      {/* <Image
   source={typeof img === 'string' ? { uri: img } : img || require('@/assets/images/food_placeholder.jpg')}
   style={styles.menuItemImage}
   resizeMode="cover"
   defaultSource={require('@/assets/images/food_placeholder.jpg')} 
-/>
-        {mealItem && (
-          <View style={styles.mealInfo}>
-            <Text style={styles.mealName}>{mealItem.name}</Text>
-            <Text style={styles.mealPrice}>
-              {state.selectedPlan ? (
-                <>
-                  Price: ${state.selectedPlan.price.toFixed(2)}
-                  {state.selectedPlan.days > 1 && (
-                    <Text style={styles.planDurationText}>
-                      {' '}({state.selectedPlan.days} days)
-                    </Text>
-                  )}
-                </>
-              ) : (
-                `Base Price: $${(mealItem?.basePrice || 0).toFixed(2)}`
-              )}
-            </Text>
-            <Text style={styles.mealDescription}>{mealItem.description}</Text>
+/> */}
+       {mealItem && (
+          <View style={styles.mealContainer}>
+            <Image
+              source={typeof img === 'string' ? { uri: img } : img || require('@/assets/images/food_placeholder.jpg')}
+              style={styles.menuItemImage}
+              resizeMode="cover"
+              defaultSource={require('@/assets/images/food_placeholder.jpg')}
+            />
+            <View style={styles.mealInfo}>
+              <Text style={styles.mealName}>{mealItem.name}</Text>
+              <Text style={styles.mealPrice}>
+                {state.selectedPlan ? (
+                  <>
+                    Price: ${state.selectedPlan.price.toFixed(2)}
+                    {state.selectedPlan.days > 1 && (
+                      <Text style={styles.planDurationText}>
+                        {' '}({state.selectedPlan.days} days)
+                      </Text>
+                    )}
+                  </>
+                ) : (
+                  `Base Price: $${(mealItem?.basePrice || 0).toFixed(2)}`
+                )}
+              </Text>
+              <Text style={styles.mealDescription}>{mealItem.description}</Text>
+            </View>
           </View>
         )}
 
@@ -454,7 +462,7 @@ const handleSubmit = async () => {
                   markedDates={getMarkedDates(tempSelectedDates)}
                   onDayPress={handleTempDayPress}
                   markingType="period"
-                  minDate={new Date().toISOString().split('T')[0]}
+                  minDate={new Date()}
                   theme={{
                     selectedDayBackgroundColor: '#af4c4cff',
                     selectedDayTextColor: '#ffffff',
@@ -501,37 +509,6 @@ const handleSubmit = async () => {
               />
             </View>
           </View>
-
-          {ADDONS.length > 0 && (
-            <View style={styles.formGroup}>
-              <Text style={styles.formLabel}>Add Extra Items</Text>
-              <View style={styles.addonsContainer}>
-                {ADDONS.map((addon) => (
-                  <TouchableOpacity
-                    key={addon.key}
-                    style={[
-                      styles.addonOption,
-                      state.selectedAddons.some(a => a.value === addon.value) && styles.addonSelected
-                    ]}
-                    onPress={() => {
-                      setState(prev => {
-                        const isSelected = prev.selectedAddons.some(a => a.value === addon.value);
-                        return {
-                          ...prev,
-                          selectedAddons: isSelected
-                            ? prev.selectedAddons.filter(a => a.value !== addon.value)
-                            : [...prev.selectedAddons, addon]
-                        };
-                      });
-                    }}
-                  >
-                    <Text style={styles.addonLabel}>{addon.label}</Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            </View>
-          )}
-
           <View style={styles.formGroup}>
             <Text style={styles.formLabel}>Quantity</Text>
             <View style={styles.quantityContainer}>
@@ -555,18 +532,6 @@ const handleSubmit = async () => {
                 <Ionicons name="add" size={20} color="#4CAF50" />
               </TouchableOpacity>
             </View>
-          </View>
-
-          <View style={styles.priceBreakdown}>
-            {state.selectedAddons.length > 0 && (
-              <View style={styles.priceRow}>
-                <Text style={styles.priceLabel}>Addons:</Text>
-                <Text style={styles.priceValue}>
-                  ${state.selectedAddons.reduce((sum, addon) =>
-                    sum + (addon.price * state.quantity), 0).toFixed(2)}
-                </Text>
-              </View>
-            )}
           </View>
         </View>
       </ScrollView>

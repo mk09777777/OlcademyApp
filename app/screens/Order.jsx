@@ -3,7 +3,7 @@ import { StyleSheet, View, Text, SafeAreaView } from 'react-native';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import TakeawayOrdersScreen from './TakeWayOrderScreen';
 import TiffinOrdersScreen from './TiffinOrderScreen';
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons,MaterialCommunityIcons } from '@expo/vector-icons';
 import BackRouting from '@/components/BackRouting';
 import { BadgeX } from 'lucide-react-native';
 const Tab = createMaterialTopTabNavigator();
@@ -31,7 +31,7 @@ export default function OrderScreen() {
           component={TakeawayOrdersScreen}
           options={{ 
             tabBarLabel: 'Takeaway',
-            tabBarIcon: ({ color }) => <Ionicons name="restaurant-outline" size={20} color={color} />,
+            tabBarIcon: ({ color }) => <Ionicons name="fast-food-outline" size={24} color={color} />,
           }}
         />
         <Tab.Screen 
@@ -39,7 +39,7 @@ export default function OrderScreen() {
           component={TiffinOrdersScreen}
           options={{ 
             tabBarLabel: 'Tiffin',
-            tabBarIcon: ({ color }) => <Ionicons name="briefcase-outline" size={20} color={color} />,
+            tabBarIcon: ({ color }) => <MaterialCommunityIcons name="food-takeout-box-outline" size={24} color={color} />,
           }}
         />
       </Tab.Navigator>
