@@ -70,7 +70,6 @@ const QUICK_FILTERS = [
   { name: 'Top Rated', icon: 'thumb-up' },
   { name: 'Open Now', icon: 'clock' },
 ];
-=======
 const Api_url = 'http://192.168.0.102:3000';
 envxport default function Tiffin() {
   const { user, isAuthenticated } = useAuth();
