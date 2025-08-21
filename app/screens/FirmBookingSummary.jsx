@@ -73,7 +73,7 @@ export default function FirmBookingSummary() {
 
     const fetchInitialSettings = async () => {
     try {
-      const response = await fetch('http://192.168.0.102:3000/api/getnotifications', {
+      const response = await fetch('http://192.168.0.101:3000/api/getnotifications', {
         method: 'GET',
         credentials: 'include',
       });
@@ -118,7 +118,7 @@ fetchInitialSettings()
 
     try {
       const response = await axios.post(
-        `http://192.168.0.102:3000/api/bookings/create?id=${firmId}`,
+        `http://192.168.0.101:3000/api/bookings/create?id=${firmId}`,
         orderData,
         {
           headers: {
@@ -163,7 +163,7 @@ fetchInitialSettings()
     };
 
     try {
-      const response = await axios.post("http://192.168.0.102:3000/api/postNotificationsInfo", uploadData, {
+      const response = await axios.post("http://192.168.0.101:3000/api/postNotificationsInfo", uploadData, {
         headers: { "Content-Type": "application/json" },
         withCredentials: true
       });

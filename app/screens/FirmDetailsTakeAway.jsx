@@ -7,8 +7,8 @@ import { AntDesign, FontAwesome, FontAwesome5, Ionicons, MaterialCommunityIcons,
 import { useCart } from '@/context/CartContext';
 import ImageGallery from '@/components/ImageGallery';
 
-const API_BASE_URL = 'http://192.168.0.102:3000';
-const API_URL = 'http://192.168.0.102:3000';
+const API_BASE_URL = 'http://192.168.0.101:3000';
+const API_URL = 'http://192.168.0.101:3000';
 const filtersData = {
   "Dietary": [
     { id: 1, label: "Vegetarian", icon: "leaf", selected: false },

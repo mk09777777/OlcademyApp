@@ -7,7 +7,7 @@ export const styles = StyleSheet.create({
   container: {
       flex: 1,
     backgroundColor: '#fff',
-    padding:0
+    padding:15
   },
   topContainer: {
     flexDirection: 'row',
@@ -35,7 +35,7 @@ export const styles = StyleSheet.create({
   separatorRow: {
 		flexDirection: 'row',
 		alignItems: 'center',
-		
+		marginTop: 10,
     marginBottom: 10
 	  },
   line: {
@@ -44,7 +44,6 @@ export const styles = StyleSheet.create({
     backgroundColor: '#ccc',
   },
   searchAndVegContainer: {
-    marginRight: 10,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -157,7 +156,6 @@ export const styles = StyleSheet.create({
     width:70
   },
   collectionContainer: {
-    paddingTop: 10,
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
@@ -281,22 +279,10 @@ export const styles = StyleSheet.create({
     padding: 10,
   },
   collectionCard: {
-    // flex: 1,
-    // marginLeft: 0,
-    // margin: 10,
-    // borderRadius: 10,
-    // overflow: 'hidden',  
-    marginHorizontal: 5,
-    
-    borderRadius: 19,
+    flex: 1,
+    margin: 6,
+    borderRadius: 10,
     overflow: 'hidden',
-    shadowColor: '#b2babb',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-    width: 140,
-    marginBottom: 2,
   },
   collectionImage: {
    width: 160,

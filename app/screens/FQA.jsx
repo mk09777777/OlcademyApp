@@ -12,7 +12,7 @@ const FAQScreen = () => {
   useEffect(() => {
     const fetchFAQs = async () => {
       try {
-        const response = await fetch('http://192.168.0.102:3000/api/faq');
+        const response = await fetch('http://192.168.0.101:3000/api/faq');
         const data = await response.json();
         if (data.faqs) {
           setFaqData(data.faqs);

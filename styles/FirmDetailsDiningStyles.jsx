@@ -47,7 +47,7 @@ export const styles = StyleSheet.create({
     right: 0,
     flexDirection: "row",
     justifyContent: "space-between",
-    paddingHorizontal: 10,
+   
     alignItems: "center",
   },
   reviewBox: {
@@ -127,19 +127,22 @@ export const styles = StyleSheet.create({
   openingHrs: {
     // marginLeft: 2,
     fontFamily: 'outfit',
-    fontSize: 18,
+    fontSize: 16,
     color:"white",
     fontWeight:"400"
   },
   openingHrsBackground: {
     marginTop: 12,
    marginBottom:20,
-    paddingHorizontal: 20,
-    paddingVertical:10,
+    paddingHorizontal: 14,
+    paddingVertical:7,
     borderRadius: 20,
     backgroundColor: "rgba(0, 0, 0, 0.71)",
     alignSelf: 'flex-start',
+    flexDirection:"row",
+    alignItems:"center"
   },
+
   price: {
     fontFamily: 'outfit',
     fontSize: 16,
@@ -199,7 +202,7 @@ export const styles = StyleSheet.create({
     justifyContent:"space-between",
     marginLeft:10,
     position:"absolute",
-    top:300,
+    top:320,
 
   },
   buttonText: {

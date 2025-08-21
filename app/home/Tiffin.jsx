@@ -36,7 +36,7 @@ import axios from 'axios';
 import MinTiffinCard from '../../components/minCardTiffin';
 import Whatsonyou from '../../components/WhatYou';
 import { useSafeNavigation } from '@/hooks/navigationPage';
-const Api_url = 'http://192.168.0.102:3000';
+const Api_url = 'http://192.168.0.101:3000';
 
 export default function Tiffin() {
   const router = useRouter();
