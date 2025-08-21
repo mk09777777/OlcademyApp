@@ -45,8 +45,36 @@ const styles = StyleSheet.create({
     color: '#E41E3F',
     fontFamily: 'outfit-bold',
   },
-  // Additional styles for content area
-  contentContainer: {
+  searchContainer: {
+    padding: 16,
+    backgroundColor: '#fff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
+  },
+  searchInput: {
+    backgroundColor: '#fff',
+  },
+  collectionContainer: {
+    padding: 16,
+  },
+  collectionCard: {
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    marginBottom: 16,
+    overflow: 'hidden',
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    width:'100%'
+  },
+  collectionImage: {
+    width: '100%',
+    height: 140,
+    resizeMode: 'cover',
+  },
+  collectionContent: {
     padding: 16,
   },
   // Grid styles for collections

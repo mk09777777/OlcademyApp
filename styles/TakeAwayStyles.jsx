@@ -7,7 +7,7 @@ export const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: 'white',
-    
+    padding: 15
   },
   topContainer: {
     flexDirection: 'row',
@@ -22,7 +22,7 @@ export const styles = StyleSheet.create({
   },
   locationName: {
     fontFamily: 'outfit-medium',
-    fontSize: 40,
+    fontSize: 16,
   },
   locationAddress: {
     fontFamily: 'outfit',
@@ -36,7 +36,6 @@ export const styles = StyleSheet.create({
     borderRadius: 10,
   },
   searchAndVegContainer: {
-    marginRight: 10,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -51,7 +50,6 @@ export const styles = StyleSheet.create({
     // width: 300, // Remove this fixed width as it conflicts with flex: 1
   },
   searchBar: {
-    paddingLeft: 10,
     paddingVertical: 4,
     paddingHorizontal: 10,
     borderRadius: 50,
@@ -63,10 +61,10 @@ export const styles = StyleSheet.create({
     // width: 250, // Example: a fixed larger pixel width
   },
    vegFilterContainer: {
-    margin: 0,
     flexDirection: "column",
     alignItems: 'center',
     justifyContent:"flex-start"
+
   },  
   vegFilterText: {
     // marginLeft: 10, // If you uncomment this, it adds space from the icon
@@ -94,11 +92,12 @@ export const styles = StyleSheet.create({
     height:90,
   },
   VegText:{
-    fontSize:18,
+    fontSize:16,
     color:"black",
     fontWeight:"600",
     marginTop:15,
-},
+
+  },
   //Turn off modal
   modalBackground:{
         backgroundColor:"rgba(0, 0, 0, 0.53)",
@@ -151,7 +150,7 @@ export const styles = StyleSheet.create({
   separatorRow: {
 		flexDirection: 'row',
 		alignItems: 'center',
-		
+		marginTop: 10,
     marginBottom: 10
 	  },
   line: {
@@ -161,7 +160,7 @@ export const styles = StyleSheet.create({
   },
 	separatorText: {
 		fontFamily: 'outfit',
-		fontSize: 16,
+		fontSize: 14,
 		color: '#ccc',
     marginHorizontal: 7
 	},
@@ -301,7 +300,7 @@ export const styles = StyleSheet.create({
     borderRadius: 35,
   },
   mindTitle: {
-    fontSize: 16,
+    fontSize: 14,
     fontFamily: 'outfit-medium',
     marginTop: 8,
     textAlign: 'center',

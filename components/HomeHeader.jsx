@@ -44,12 +44,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   cityText: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: 'bold',
     color: '#000',
   },
   stateText: {
-    fontSize: 14,
+    fontSize: 12,
     color: '#555',
   },
 });

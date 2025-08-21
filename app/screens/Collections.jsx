@@ -346,23 +346,17 @@ export default function Collections() {
   return (
     <View style={styles.container}>
       {/* Collection Header */}
-     
-     <ImageBackground
-  source={{ uri: collectionData.photoApp }}
-  style={styles.collectionHeader}
-  imageStyle={styles.collectionHeaderImage}
->
-  <View style={styles.backButtonWrapper}>
-    <BackRouting color="white" />
-  </View>
-
-  <View style={styles.collectionOverlay}>
-    <Text style={styles.collectionTitle}>{collectionData.title}</Text>
-    <Text style={styles.collectionDescription}>{collectionData.description}</Text>
-    <Text style={styles.collectionCount}>{firms.length} Places</Text>
-  </View>
-</ImageBackground>
-
+      <ImageBackground
+        source={{ uri: collectionData.photoApp }}
+        style={styles.collectionHeader}
+        imageStyle={styles.collectionHeaderImage}
+      >
+        <View style={styles.collectionOverlay}>
+          <Text style={styles.collectionTitle}>{collectionData.title}</Text>
+          <Text style={styles.collectionDescription}>{collectionData.description}</Text>
+          <Text style={styles.collectionCount}>{firms.length} Places</Text>
+        </View>
+      </ImageBackground>
 
       {/* Quick Filters */}
       {/* <View style={styles.filterContainer}>
@@ -580,15 +574,6 @@ const styles = StyleSheet.create({
     color: 'white',
     marginBottom: 5,
   },
-  backButtonWrapper: {
-  position: 'absolute',
-  top: 10, 
-  left: 5,
-  color: 'white',
-  
-},
-
-
   collectionDescription: {
     fontSize: 16,
     color: 'white',

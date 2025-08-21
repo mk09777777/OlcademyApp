@@ -272,6 +272,7 @@ export default function Reviewsall() {
           likes: response.data.likes
         }));
       }
+
     } catch (error) {
       console.error("Error liking review:", error);
       Alert.alert("Error", "Failed to like review");

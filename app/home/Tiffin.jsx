@@ -25,50 +25,7 @@ import axios from 'axios';
 import MinTiffinCard from '../../components/minCardTiffin';
 import Whatsonyou from '../../components/WhatYou';
 import { useSafeNavigation } from '@/hooks/navigationPage';
-import { useAuth } from '@/context/AuthContext';
-import FilterModal from '@/components/FilterModal';
-import BannerCarousel from '@/components/Banner';
-import env from 'react-native-dotenv';
-
-const Api_url = 'http://10.154.177.16:3000';
-
-// Filter options
-const FILTER_OPTIONS = {
-  SORT_BY: [
-    { label: 'Rating: High to Low', value: 'rating-desc' },
-    { label: 'Rating: Low to High', value: 'rating-asc' },
-    { label: 'Price: High to Low', value: 'costHighToLow' },
-    { label: 'Price: Low to High', value: 'costLowToHigh' },
-  ],
-  CATEGORY: [
-    { label: 'Vegetarian', value: 'veg' },
-    { label: 'Non-Vegetarian', value: 'non-veg' },
-  ],
-  // RATING: [
-  //   { label: '4.0+', value: '4.0' },
-  //   { label: '4.5+', value: '4.5' },
-  //   { label: '5.0', value: '5.0' },
-  // ],
-  // PRICE_RANGE: [
-  //   { label: 'Under ₹100', value: '100' },
-  //   { label: '₹100-₹200', value: '200' },
-  //   { label: '₹200-₹300', value: '300' },
-  //   { label: '₹300+', value: '300+' },
-  // ],
-  DELIVERY_CITIES: [],
-  SPECIAL_FILTERS: [
-    { label: 'Open Now', value: 'openNow' },
-    { label: 'Top Rated', value: 'topRated' },
-  ]
-};
-
-// Quick filters
-const QUICK_FILTERS = [
-  { name: 'Rating 4.0+', icon: 'star' },
-  { name: 'Pure Veg', icon: 'leaf' },
-  { name: 'Top Rated', icon: 'thumb-up' },
-  { name: 'Open Now', icon: 'clock' },
-];
+const Api_url = 'http://192.168.0.102:3000';
 
 export default function Tiffin() {
   const { user, isAuthenticated } = useAuth();

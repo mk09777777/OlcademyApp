@@ -12,8 +12,8 @@ import ImageGallery from '@/components/ImageGallery'
 import MiniRecommendedCard from '@/components/MiniRecommendedCard'
 import { useSafeNavigation } from '@/hooks/navigationPage'
 
-const API_URL = 'http://192.168.0.102:3000'
-const PRODUCT_API_URL = 'http://192.168.0.102:8000/api/collection/products'
+const API_URL = 'http://192.168.0.101:3000'
+const PRODUCT_API_URL = 'http://192.168.0.101:8000/api/collection/products'
 
 export default function FirmDetailsDining() {
   const { firmId } = useGlobalSearchParams()
@@ -56,7 +56,7 @@ export default function FirmDetailsDining() {
   const fetchRestaurantDetails = async (id) => {
     try {
       setLoading(true)
-      const response = await axios.get(`http://192.168.0.102:3000/firm/getOne/${id}`, { timeout: 5000 })
+      const response = await axios.get(`http://192.168.0.101:3000/firm/getOne/${id}`, { timeout: 5000 })
       if (!response.data) throw new Error('Restaurant data not available')
       const restaurantData = response.data
       setFirmDetails({

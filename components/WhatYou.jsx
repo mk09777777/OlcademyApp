@@ -59,7 +59,7 @@ const styles = StyleSheet.create({
     color: '#3333',
     letterSpacing: 1,
     textTransform: 'uppercase',
-    
+    marginBottom: 5,
   },
   underline: {
     width: 50,

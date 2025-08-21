@@ -19,7 +19,7 @@ export const LocationProvider = ({ children }) => {
   useEffect(() => {
     (async () => {
       try {
-        const res = await fetch('http://192.168.0.108:3000/api/location');
+        const res = await fetch('http://192.168.0.101:3000/api/location');
         const data = await res.json();
 
         console.log('Custom API location response:', data);
