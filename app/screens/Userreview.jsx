@@ -32,7 +32,8 @@ export default function WriteReview() {
   const params = useLocalSearchParams();
   const router = useRouter();
   const ratingFromRoute = Number(params.rating) || 0;
-  const firmId = params.firmId;
+   const firmId = params.firmId;
+  const reviewType = params.reviewType;
 
   const [selectedOptions, setSelectedOptions] = useState([]);
   const [answers, setAnswers] = useState({});
@@ -40,7 +41,6 @@ export default function WriteReview() {
   const [image, setImage] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
-  const reviewType = params.reviewType || REVIEW_TYPES.DINING;
 
   const toggleOption = (option) => {
     setSelectedOptions((prev) =>
@@ -73,92 +73,102 @@ export default function WriteReview() {
     setImage(null);
   };
 
-  const handleSubmit = async () => {
-    if (!user?.email) {
-      setError("You need to be logged in to submit a review.");
-      return;
-    }
+const handleSubmit = async () => {
+  if (!user?.email) {
+    setError("You need to be logged in to submit a review.");
+    return;
+  }
 
-    if (ratingFromRoute === 0) {
-      setError("Please select a star rating.");
-      return;
-    }
+  if (ratingFromRoute === 0) {
+    setError("Please select a star rating.");
+    return;
+  }
 
-    if (!review.trim()) {
-      setError("Please write your review before submitting.");
-      return;
-    }
+  if (!review.trim()) {
+    setError("Please write your review before submitting.");
+    return;
+  }
 
-    if (!firmId) {
-      setError("Restaurant ID is missing. Cannot submit review.");
-      return;
-    }
+  if (!firmId) {
+    setError("Restaurant ID is missing. Cannot submit review.");
+    return;
+  }
 
-    setIsSubmitting(true);
-    setError(null);
+  setIsSubmitting(true);
+  setError(null);
 
-    try {
-      const reviewData = {
-        email: user.email,
-        rating: ratingFromRoute,
-        reviewText: review,
-        reviewType,
-        aspects: {
-          selectedOptions,
-          questionAnswers: answers
-        },
-        firm: firmId,
-        date: new Date().toISOString(),
-        days: 1,
-        tiffin: null
-      };
+  try {
+    const reviewData = {
+      email: user.email,
+      date: new Date().toISOString(),
+      rating: ratingFromRoute,
+      reviewText: review,
+      reviewType,
+      aspects: {
+        selectedOptions,
+        questionAnswers: answers
+      },
+      firm: firmId,
+      tiffin: null
+    };
 
-      let response;
+    let response;
+    
+    if (image) {
+      const formData = new FormData();
+      const filename = image.split('/').pop();
+      const match = /\.(\w+)$/.exec(filename);
+      const type = match ? `image/${match[1]}` : 'image';
       
-      if (image) {
-        const formData = new FormData();
-        const filename = image.split('/').pop();
-        const match = /\.(\w+)$/.exec(filename);
-        const type = match ? `image/${match[1]}` : 'image';
-        
-        formData.append('image', {
-          uri: image,
-          name: filename,
-          type
-        });
-        
-        formData.append('data', JSON.stringify({
-          newReview: reviewData
-        }));
+      formData.append('image', {
+        uri: image,
+        name: filename,
+        type
+      });
+      
+      formData.append('data', JSON.stringify({
+        newReview: reviewData
+      }));
 
-        response = await api.post(`http://192.168.0.100:3000/api/reviews`, formData, {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        });
-      } else {
-        response = await api.post(`http://192.168.0.100:3000/api/reviews`, {
-          newReview: reviewData
-        });
-      }
-
-      Alert.alert(
-        "Thank You!", 
-        `Your ${ratingFromRoute} star review has been submitted.`,
-        [
-          {
-            text: "OK",
-            onPress: () => router.back()
-          }
-        ]
-      );
-    } catch (error) {
-      console.error("Review submission error:", error);
-      setError(error.response?.data?.message || "Failed to submit review. Please try again.");
-    } finally {
-      setIsSubmitting(false);
+      // Use different endpoints based on review type
+      const endpoint = reviewType === "tiffin" 
+        ? `/api/reviews/${firmId}`
+        : `/api/reviews/firm/${firmId}`;
+      
+      response = await api.post(`http://10.34.125.16:3000${endpoint}`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+    } else {
+      // Use different endpoints based on review type
+      const endpoint = reviewType === 'tiffin' 
+        ? `/api/reviews/${firmId}`
+        : `/api/reviews/firm/${firmId}`;
+      
+      response = await api.post(`http://10.34.125.16:3000${endpoint}`, {
+        newReview: reviewData
+      });
     }
-  };
+
+    Alert.alert(
+      "Thank You!", 
+      `Your ${ratingFromRoute} star review has been submitted.`,
+      [
+        {
+          text: "OK",
+          onPress: () => router.back()
+        }
+      ]
+    );
+  } catch (error) {
+    console.error("Review submission error:", error);
+    const errorMsg = error.response?.data?.error || error.message || "Failed to submit review. Please try again.";
+    setError(errorMsg);
+  } finally {
+    setIsSubmitting(false);
+  }
+};
 
   return (
    

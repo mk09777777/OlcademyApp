@@ -1,5 +1,8 @@
 import { Fragment, useEffect, useState } from "react";
-import { FlatList, Text, TextInput, TouchableOpacity, View, Modal, Image, ActivityIndicator, Alert } from "react-native";
+import { 
+  FlatList, Text, TextInput, TouchableOpacity, View, Modal, Image, 
+  ActivityIndicator, Alert, RefreshControl, ScrollView 
+} from "react-native";
 import ZomatoStyles from "../../styles/zomatostyles";
 import Ionicons from '@expo/vector-icons/Ionicons';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
@@ -9,7 +12,6 @@ import Fontisto from '@expo/vector-icons/Fontisto';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import RatingsCalculated from "../../components/calculated";
 import Preference from "../../components/preference";
-import Review from "../../components/review";
 import Entypo from '@expo/vector-icons/Entypo';
 import { router, useLocalSearchParams } from "expo-router";
 import axios from "axios";
@@ -21,17 +23,27 @@ export default function Reviewsall() {
   const [commentvisible, setcommentvisible] = useState(false);
   const [pref, setpref] = useState("");
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState(null);
-  const [likes, setLikes] = useState({});
-  const [selectedComment, setSelectedComment] = useState(null);
-  const [recivecommentno, setrecivecommentno] = useState({});
   const [data, setData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
   const [sortedData, setSortedData] = useState([]);
   const [page, setPage] = useState(1);
-  const [totalReviews, setTotalReviews] = useState(0);
   const [hasMore, setHasMore] = useState(true);
-  const [selectedReviewType, setSelectedReviewType] = useState('');
+  const [selectedComment, setSelectedComment] = useState(null);
+  
+  // New states for comment functionality
+  const [commentList, setCommentList] = useState([]);
+  const [comment, setComment] = useState("");
+  const [comments, setComments] = useState("");
+  const [replyMap, setReplyMap] = useState({});
+  const [visibleReplies, setVisibleReplies] = useState({});
+  const [reviewStatus, setReviewStatus] = useState({
+    isFollowing: false,
+    isLiked: false,
+    followers: 0,
+    likes: 0
+  });
 
   const [filtersActive, setFiltersActive] = useState({
     verified: false,
@@ -46,214 +58,260 @@ export default function Reviewsall() {
 
   const params = useLocalSearchParams();
   const firmId = params.firmId || params.firm || params.id;
-  const { user, profileData } = useAuth();
+  const reviewType= params.reviewType;
+
+  console.log('id',firmId)
+  const { user, profileData, api } = useAuth();
   const currentUserData = profileData?.email ? profileData : (user ? { username: user } : null);
-  console.log('id', firmId)
-  const fetchReviews = async (pageNum = 1) => {
-    try {
-      setLoading(true);
-      const response = await axios.get(`http://192.168.0.100:3000/api/reviews`, {
-        params: { firm: firmId, page: pageNum },
-        withCredentials: true
-      });
-
-      if (response.data?.reviews) {
-        setTotalReviews(response.data.total);
-        setHasMore(pageNum * 10 < response.data.total);
-        console.log('review', response.data)
-        const transformedData = response.data.reviews.map(review => ({
-          _id: review._id,
-          user: {
-            username: review.authorName?.username ||
-              (review.email ? review.email.split('@')[0] : "Anonymous"),
-            followers: 0
-          },
-          comment: review.reviewText,
-          rating: review.rating,
-          createdAt: review.date || review.createdAt,
-          verified: true,
-          images: [],
-          detailedReview: review.reviewText.length > 100,
-          likes: review.likes,
-          commentsCount: review.comments?.length || 0,
-          likedBy: review.likedBy || [],
-          isLiked: review.likedBy?.includes(profileData?.email || user?.username) || false
-        }));
-
-        if (pageNum === 1) {
-          setData(transformedData);
-          setFilteredData(transformedData);
-          setSortedData(transformedData);
-
-          const initialLikes = {};
-          transformedData.forEach(review => {
-            initialLikes[review._id] = review.isLiked;
-          });
-          setLikes(initialLikes);
-        } else {
-          setData(prev => [...prev, ...transformedData]);
-          setFilteredData(prev => [...prev, ...transformedData]);
-          setSortedData(prev => [...prev, ...transformedData]);
-        }
-      }
-    } catch (error) {
-      console.error("Error fetching reviews:", error);
-      setError(error.response?.data?.error || error.message);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const userId = profileData?._id || user?.id;
 
   useEffect(() => {
+    const fetchReviews = async (pageNum = 1, isRefreshing = false) => {
+      try {
+        if (pageNum === 1) setLoading(true);
+
+        let restaurantReviews = [];
+        let tiffinReviews = [];
+
+        // Fetch restaurant reviews
+        try {
+          const restaurantResponse = await axios.get(
+            `http://10.34.125.16:3000/firm/restaurants/get-reviews/${firmId}`,
+            { params: { page: pageNum }, withCredentials: true }
+          );
+          
+          if (restaurantResponse.data && Array.isArray(restaurantResponse.data.reviews)) {
+            restaurantReviews = restaurantResponse.data.reviews;
+          }
+        } catch (err) {
+          if (axios.isAxiosError(err) && err.response && err.response.status === 404) {
+            console.log("No restaurant reviews found");
+          } else {
+            console.error("Error fetching restaurant reviews:", err);
+          }
+        }
+
+        // Fetch tiffin reviews
+        try {
+          const tiffinResponse = await axios.get(
+            `http://10.34.125.16:3000/api/tiffin-Reviews/${firmId}`,
+            { params: { page: pageNum }, withCredentials: true }
+          );
+          
+          if (tiffinResponse.data && Array.isArray(tiffinResponse.data.reviews)) {
+            tiffinReviews = tiffinResponse.data.reviews;
+          }
+        } catch (err) {
+          if (axios.isAxiosError(err) && err.response && err.response.status === 404) {
+            console.log("No tiffin reviews found");
+          } else {
+            console.error("Error fetching tiffin reviews:", err);
+          }
+        }
+
+        // Combine and transform the reviews
+        const allReviews = [...restaurantReviews, ...tiffinReviews];
+        
+        if (allReviews.length > 0) {
+          const transformedData = allReviews.map(review => ({
+            _id: review._id,
+            user: {
+              username: review.author_name || review.authorName?.username || 
+                       (review.email ? review.email.split('@')[0] : "Anonymous"),
+              followers: review.followers || (review.followBy ? review.followBy.length : 0),
+              userId: review.authorId || review.userId || review.authorName?._id
+            },
+            comment: review.comments||[],
+            reviewType: review.reviewType,
+            rating: review.rating,
+            createdAt: review.date || review.createdAt,
+            verified: review.verified || true,
+            images: review.images || [],
+            detailedReview: (review.reviewText || review.comment)?.length > 100,
+            likes: review.likes || (review.likedBy ? review.likedBy.length : 0),
+            commentsCount: review.comments?.length || review.usercomments?.length || 0,
+            likedBy: review.likedBy || [],
+            usercomments: review.usercomments || [],
+            isLiked: review.likedBy?.includes(profileData?.email || user?.username) || false,
+            isFollowing: review.isFollowing || false
+          }));
+
+          if (pageNum === 1 || isRefreshing) {
+            setData(transformedData);
+            setHasMore(false);
+          } else {
+            setData(prev => [...prev, ...transformedData]);
+          }
+        } else {
+          if (pageNum === 1 || isRefreshing) {
+            setData([]);
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching reviews:", error);
+        setError(error.response?.data?.error || error.message);
+        Alert.alert("Error", "Failed to load reviews");
+      } finally {
+        setLoading(false);
+        setRefreshing(false);
+      }
+    };
+
     if (firmId) {
       fetchReviews();
     }
   }, [firmId]);
 
   useEffect(() => {
-    applyFilters(filtersActive);
+    applyFilters();
   }, [filtersActive, data]);
 
   useEffect(() => {
     handleSorting();
   }, [sortActive, filteredData]);
 
+  // Fetch review status and comments when a review is selected for comments
+  useEffect(() => {
+    if (selectedComment) {
+      fetchReviewStatus(selectedComment._id, selectedComment.reviewType,);
+      // Set the comments for the selected review
+  setComments(selectedComment.comment)
+      setCommentList(selectedComment.usercomments || []);
+    }
+  }, [selectedComment]);
+
+  const fetchReviewStatus = async (reviewId, reviewType) => {
+    try {
+      if (!reviewId) return;
+      
+      // const endpoint = reviewType === 'tiffin' 
+      //   ? `/api/reviews/tiffin/${reviewId}/status` 
+      //   : `/api/reviews/${reviewId}/status`;
+      
+      const response = await api.get(`/api/reviews/${reviewId}/status`, {
+          withCredentials: true,
+        });
+      const { isFollow, isLike, followers, likes } = response.data.data;
+      console.log('like',response.data)
+      setReviewStatus({
+        isFollowing: isFollow,
+        isLiked: isLike,
+        followers: followers,
+        likes: likes
+      });
+    } catch (error) {
+      console.error("Error fetching review status:", error);
+      setReviewStatus({
+        isFollowing: false,
+        isLiked: false,
+        followers: 0,
+        likes: 0
+      });
+    }
+  };
+  
+  const applyFilters = () => {
+    const filtered = data.filter(item => {
+      if (filtersActive.verified && !item.verified) return false;
+      if (filtersActive.withPhotos && item.images.length === 0) return false;
+      if (filtersActive.detailedReview && !item.detailedReview) return false;
+      return true;
+    });
+    setFilteredData(filtered);
+  };
+
   const handleSorting = () => {
     let sortedArray = [...filteredData];
-
     if (sortActive.rating) {
       sortedArray.sort((a, b) => b.rating - a.rating);
     } else if (sortActive.date) {
       sortedArray.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
     }
-
     setSortedData(sortedArray);
   };
 
-  const applyFilters = (activeFilters) => {
-    const filtered = data.filter(item => {
-      if (activeFilters.verified && !item.verified) return false;
-      if (activeFilters.withPhotos && (!item.images || item.images.length === 0)) return false;
-      if (activeFilters.detailedReview && !item.detailedReview) return false;
-      return true;
-    });
-
-    setFilteredData(filtered);
-  };
-
   const handleActive = (filter) => {
-    setFiltersActive(prev => {
-      const updatedFilters = { ...prev, [filter]: !prev[filter] };
-      applyFilters(updatedFilters);
-      return updatedFilters;
-    });
+    setFiltersActive(prev => ({ ...prev, [filter]: !prev[filter] }));
   };
 
   const handlechildpref = (childdata) => {
     setpref(childdata);
     if (childdata === "High Rating") {
-      setSortActive(prev => ({ ...prev, rating: true, date: false }));
+      setSortActive({ rating: true, date: false });
     } else if (childdata === "Latest") {
-      setSortActive(prev => ({ ...prev, rating: false, date: true }));
+      setSortActive({ rating: false, date: true });
+    } else {
+      setSortActive({ rating: false, date: false });
     }
   };
 
-  const handlecommentcount = (childData) => {
-    setrecivecommentno((prev) => ({
-      ...prev,
-      [selectedComment._id]: childData,
-    }));
-  };
-
-  const handleLikeReview = async (reviewId) => {
+  const handleLike = async (reviewId, reviewType) => {
     try {
-      if (!user) {
-        Alert.alert(
-          "Login Required",
-          "You need to login to like reviews",
-          [
-            { text: "Cancel", style: "cancel" },
-            { text: "Login", onPress: () => router.push('/auth/LoginScreen') }
-          ]
-        );
-        return;
+       const endpoint = reviewType === 'tiffin' 
+        ? `/api/reviews/tiffin/${reviewId}/like` 
+        : `/api/reviews/${reviewId}/like`;
+      const response = await api.post(endpoint, {}, { withCredentials: true });
+      
+      setData(prevData => 
+        prevData.map(item => 
+          item._id === reviewId 
+            ? { 
+                ...item, 
+                isLiked: !item.isLiked, 
+                likes: response.data.likes 
+              } 
+            : item
+        )
+      );
+      
+      // Update review status if this is the selected comment
+      if (selectedComment && selectedComment._id === reviewId) {
+        setReviewStatus(prev => ({
+          ...prev,
+          isLiked: !prev.isLiked,
+          likes: response.data.likes
+        }));
       }
-
-      const userIdentifier = profileData?.email || user?.username;
-      const response = await axios.post(
-        `http://192.168.0.102:3000/api/reviews/${reviewId}/like`,
-        { email: userIdentifier },
-        { withCredentials: true }
-      );
-      console.log("like posted", reviewId)
-      setData(prev => prev.map(review =>
-        review._id === reviewId ? {
-          ...review,
-          likes: response.data.likes,
-          likedBy: response.data.likedBy,
-          isLiked: response.data.likedBy.includes(userIdentifier)
-        } : review
-      ));
-      setLikes(prev => ({
-        ...prev,
-        [reviewId]: response.data.likedBy.includes(userIdentifier)
-      }));
-
     } catch (error) {
-      console.error('Error liking review:', error);
-      Alert.alert(
-        'Error',
-        error.response?.data?.message || 'Failed to like review',
-        [{ text: "OK" }]
-      );
+      console.error("Error liking review:", error);
+      Alert.alert("Error", "Failed to like review");
     }
   };
-  const handleAddComment = async (reviewId, newComment) => {
+
+  const handleFollow = async (reviewId, reviewType) => {
     try {
-      if (!user) {
-        Alert.alert(
-          "Login Required",
-          "You need to login to add comments",
-          [
-            { text: "Cancel", style: "cancel" },
-            { text: "Login", onPress: () => router.push('/auth/LoginScreen') }
-          ]
-        );
-        return false;
-      }
-
-      const response = await axios.post(
-        `http://192.168.0.102:3000/api/reviews/${reviewId}/comments`,
-        { comment: newComment },
-        { withCredentials: true }
+      const endpoint = reviewType === 'tiffin' 
+        ? `/api/reviews/tiffin/${reviewId}/follow` 
+        : `/api/reviews/${reviewId}/follow`;
+      
+      const response = await api.post(endpoint, {}, { withCredentials: true });
+      
+      setData(prevData => 
+        prevData.map(item => 
+          item._id === reviewId 
+            ? { 
+                ...item, 
+                isFollowing: !item.isFollowing, 
+                user: {
+                  ...item.user,
+                  followers: response.data.followers
+                }
+              } 
+            : item
+        )
       );
-      console.log("comment posted", newComment)
-      // Update all state arrays consistently
-      const updateState = (prev) => prev.map(review => {
-        if (review._id === reviewId) {
-          return {
-            ...review,
-            comments: [...(review.comments || []), response.data.comment],
-            commentsCount: (review.commentsCount || 0) + 1
-          };
-        }
-        return review;
-      });
-
-      setData(updateState);
-      setFilteredData(updateState);
-      setSortedData(updateState);
-
-      setrecivecommentno(prev => ({
-        ...prev,
-        [reviewId]: (prev[reviewId] || 0) + 1
-      }));
-
-      return true;
+      
+      // Update review status if this is the selected comment
+      if (selectedComment && selectedComment._id === reviewId) {
+        setReviewStatus(prev => ({
+          ...prev,
+          isFollowing: !prev.isFollowing,
+          followers: response.data.followers
+        }));
+      }
     } catch (error) {
-      console.error('Error adding comment:', error);
-      Alert.alert('Error', error.response?.data?.message || 'Failed to add comment');
-      return false;
+      console.error("Error following user:", error);
+      Alert.alert("Error", "Failed to follow user");
     }
   };
 
@@ -274,28 +332,41 @@ export default function Reviewsall() {
       }
       return `${diffHours} hours ago`;
     }
-    return `${diffDays} days ago`;
+
+    if (diffDays === 1) return "Yesterday";
+    if (diffDays < 7) return `${diffDays} days ago`;
+
+    const diffWeeks = Math.floor(diffDays / 7);
+    if (diffWeeks < 4) return `${diffWeeks} week${diffWeeks > 1 ? 's' : ''} ago`;
+
+    const diffMonths = Math.floor(diffDays / 30);
+    return `${diffMonths} month${diffMonths > 1 ? 's' : ''} ago`;
   };
 
   const handleLoadMore = () => {
-    if (hasMore) {
+    if (hasMore && !loading) {
       setPage(prev => prev + 1);
-      fetchReviews(page + 1);
+      // You'll need to implement fetchReviews with pagination
     }
   };
 
-  const togglevisible = () => {
-    setcalculatedboxvisible(!calculatedboxvisible);
+  const onRefresh = () => {
+    setRefreshing(true);
+    setPage(1);
+    // You'll need to implement fetchReviews with refresh
   };
 
-  const togglepref = () => {
-    setprefervisible(!perfervisible);
-  };
-
+  const togglevisible = () => setcalculatedboxvisible(!calculatedboxvisible);
+  const togglepref = () => setprefervisible(!perfervisible);
   const togglecomment = (comment = null) => {
     setSelectedComment(comment);
     setcommentvisible(!commentvisible);
+    if (!commentvisible) {
+      setComment("");
+      setReplyMap({});
+    }
   };
+
   const filters = ["verified", "withPhotos", "detailedReview"];
 
   if (loading && page === 1) {
@@ -310,6 +381,9 @@ export default function Reviewsall() {
     return (
       <View style={ZomatoStyles.errorContainer}>
         <Text style={ZomatoStyles.errorText}>{error}</Text>
+        <TouchableOpacity onPress={() => window.location.reload()} style={ZomatoStyles.retryButton}>
+          <Text style={ZomatoStyles.retryText}>Retry</Text>
+        </TouchableOpacity>
       </View>
     );
   }
@@ -328,7 +402,7 @@ export default function Reviewsall() {
         <View style={ZomatoStyles.TotalRatingContainer}>
           <View style={ZomatoStyles.ratingStartcontainer}>
             <View style={ZomatoStyles.RatingsContainer}>
-              <Text style={ZomatoStyles.RatingText}>{params.averageRating || "4.5"}</Text>
+              <Text style={ZomatoStyles.RatingText}>{params.averageRating}</Text>
               <AntDesign name="star" size={11} color="white" style={ZomatoStyles.RatingImg} />
             </View>
             <Text style={ZomatoStyles.TotalText}>{params.reviewCount || "0"} RATED</Text>
@@ -373,7 +447,11 @@ export default function Reviewsall() {
                     ZomatoStyles.verified,
                     filtersActive[item] && ZomatoStyles.VerifiedActive
                   ]}>
-                    <Text style={ZomatoStyles.RelevanceText}>{item}</Text>
+                    <Text style={ZomatoStyles.RelevanceText}>
+                      {item === "verified" ? "Verified" : 
+                       item === "withPhotos" ? "With Photos" : 
+                       "Detailed"}
+                    </Text>
                     {filtersActive[item] && <Entypo name="cross" size={20} color="black" style={ZomatoStyles.DropImg} />}
                   </View>
                 </TouchableOpacity>
@@ -387,6 +465,14 @@ export default function Reviewsall() {
       <FlatList
         data={sortActive.rating || sortActive.date ? sortedData : filteredData}
         keyExtractor={(item) => item._id}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+        ListEmptyComponent={
+          <View style={ZomatoStyles.emptyContainer}>
+            <Text style={ZomatoStyles.emptyText}>No reviews found</Text>
+          </View>
+        }
         renderItem={({ item }) => (
           <View>
             <View style={ZomatoStyles.commentcontainer}>
@@ -395,11 +481,16 @@ export default function Reviewsall() {
                   <FontAwesome name="user-circle-o" size={33} color="#b5b9dc" />
                   <View style={ZomatoStyles.commentnamecontainer}>
                     <Text style={ZomatoStyles.commentName}>{item.user?.username || "Anonymous"}</Text>
-                    {/* {item.user?.followers ? (
-                      <Text style={ZomatoStyles.commentfollowers}>{item.user.followers} Followers</Text>
-                    ) : null} */}
                     <Text style={ZomatoStyles.commentfollowers}>{item.user.followers} Followers</Text>
                   </View>
+                  <TouchableOpacity
+                    onPress={() => handleFollow(item._id, item.reviewType)}
+                    style={[ZomatoStyles.followButton, item.isFollowing && ZomatoStyles.followingButton]}
+                  >
+                    <Text style={[ZomatoStyles.followButtonText, item.isFollowing && ZomatoStyles.followingButtonText]}>
+                      {item.isFollowing ? "Following" : "Follow"}
+                    </Text>
+                  </TouchableOpacity>
                 </View>
                 <View style={ZomatoStyles.commentRatingcontainer}>
                   <View style={ZomatoStyles.RatingsContainer2}>
@@ -417,69 +508,58 @@ export default function Reviewsall() {
                 </View>
               </View>
               <Text style={ZomatoStyles.commentText}>{item.comment}</Text>
-              {item.images && item.images.length > 0 && (
+              {/* {item.images && item.images.length > 0 && (
                 <View style={ZomatoStyles.commentimgContainer}>
                   <Image source={{ uri: item.images[0] }} style={ZomatoStyles.commentimg} />
                 </View>
-              )}
+              )} */}
               <View style={ZomatoStyles.LikeCommentCalculateContainer}>
                 <Text style={ZomatoStyles.commentText2}>{getDaysAgo(item.createdAt)}</Text>
                 <Text style={ZomatoStyles.commentText2}>
-                  {item.likes || 0} helpful votes
-                  {recivecommentno[item._id] ? `, ${recivecommentno[item._id]} comments` : `, ${item.commentsCount || 0} comments`}
+                  {item.likes || 0} helpful votes, {item.commentsCount || 0} comments
                 </Text>
               </View>
             </View>
             <View style={ZomatoStyles.commenttabscontainer}>
               <TouchableOpacity
-                onPress={() => handleLikeReview(item._id)}
+                onPress={() => handleLike(item._id, item.reviewType)}
                 style={ZomatoStyles.commenttabbox}
               >
                 <AntDesign
                   name={item.isLiked ? "like1" : "like2"}
                   size={20}
-                  color={item.isLiked ? "black" : "black"}
+                  color={item.isLiked ? "#E91E63" : "black"}
                 />
-                <Text style={ZomatoStyles.commenttabtext}>Helpful</Text>
+                <Text style={[ZomatoStyles.commenttabtext, item.isLiked && {color: "#E91E63"}]}>Helpful</Text>
               </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => togglecomment(item)}
-                style={ZomatoStyles.commenttabbox}
-              >
-                <MaterialCommunityIcons
-                  name="comment-text-outline"
-                  size={20}
-                  color="black"
-                  style={ZomatoStyles.likeimage}
-                />
-                <Text style={ZomatoStyles.commenttabtext}>Comment</Text>
-              </TouchableOpacity>
-              <Modal animationType="slide" visible={commentvisible} onRequestClose={() => togglecomment(null)}>
-                {selectedComment && (
-                  <Review
-                    data={{
-                      authorName: selectedComment.user?.username,
-                      email: selectedComment.user?.email,
-                      date: selectedComment.createdAt,
-                      days: getDaysAgo(selectedComment.createdAt),
-                      rating: selectedComment.rating,
-                      comments: selectedComment.comments,
-                      likes: selectedComment.likes,
-                      reviewType: selectedReviewType,
-                      _id: selectedComment._id,
-                      reviewText: selectedComment.comment,
-                      isLiked: selectedComment.isLiked
-                    }}
-                    onLike={() => handleLikeReview(selectedComment._id)}
-                    onComment={(comment) => handleAddComment(selectedComment._id, comment)}
-                  />
-                )}
-              </Modal>
-
-              <View style={ZomatoStyles.commenttabbox}>
+             <TouchableOpacity
+  onPress={() => {
+    setSelectedComment(item);
+    router.push({
+      pathname: '/screens/commentscreen',
+      params: {
+        commentData: JSON.stringify(item),
+        review:item._id,
+        firmId: firmId,
+        restaurantName: params.restaurantName,
+        reviewType:reviewType,
+      }
+    });
+  }}
+  style={ZomatoStyles.commenttabbox}
+>
+  <MaterialCommunityIcons
+    name="comment-text-outline"
+    size={20}
+    color="black"
+    style={ZomatoStyles.likeimage}
+  />
+  <Text style={ZomatoStyles.commenttabtext}>Comment</Text>
+</TouchableOpacity>
+              <TouchableOpacity style={ZomatoStyles.commenttabbox}>
                 <Fontisto name="share" size={20} color="black" style={ZomatoStyles.likeimage} />
                 <Text style={ZomatoStyles.commenttabtext}>Share</Text>
-              </View>
+              </TouchableOpacity>
             </View>
           </View>
         )}
@@ -487,20 +567,19 @@ export default function Reviewsall() {
         onEndReachedThreshold={0.5}
         ListFooterComponent={() => (
           loading && page > 1 ? (
-            <ActivityIndicator size="small" color="#0000ff" />
+            <ActivityIndicator size="small" color="#0000ff" style={{ marginVertical: 20 }} />
           ) : null
         )}
       />
-
       <TouchableOpacity
         style={ZomatoStyles.commentButton}
         onPress={() => router.push({
           pathname: "/screens/Userrating",
           params: {
             firmId: firmId,
-            reviewType: selectedReviewType,
             restaurantName: params.restaurantName,
-            currentUser: currentUserData
+            currentUser: currentUserData,
+            reviewType:reviewType,
           }
         })}
         activeOpacity={0.9}

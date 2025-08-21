@@ -26,6 +26,133 @@ const ZomatoStyles = StyleSheet.create({
         marginTop: 18,
         marginBottom: 10,
     },
+    modalContainer: {
+  flex: 1,
+  justifyContent: 'flex-end',
+  backgroundColor: 'rgba(0, 0, 0, 0.5)',
+},
+modalContent: {
+  backgroundColor: 'white',
+  borderTopLeftRadius: 20,
+  borderTopRightRadius: 20,
+  padding: 20,
+  Height: '100%',
+},
+modalHeader: {
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  paddingBottom: 10,
+  borderBottomWidth: 1,
+  borderBottomColor: '#eee',
+},
+modalTitle: {
+  fontSize: 18,
+  fontWeight: 'bold',
+},
+commentsList: {
+  // Height: '80%',
+  marginBottom: 15,
+},
+commentItem: {
+  marginBottom: 15,
+  paddingBottom: 15,
+  borderBottomWidth: 1,
+  borderBottomColor: '#f0f0f0',
+},
+commentHeader: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  marginBottom: 5,
+},
+commentUsername: {
+  fontWeight: 'bold',
+  marginLeft: 8,
+  marginRight: 10,
+},
+commentTime: {
+  color: '#888',
+  fontSize: 12,
+},
+repliesContainer: {
+  marginLeft: 20,
+  marginTop: 10,
+},
+replyItem: {
+  marginBottom: 10,
+},
+replyHeader: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  marginBottom: 3,
+},
+replyUsername: {
+  fontWeight: 'bold',
+  marginLeft: 6,
+  marginRight: 8,
+  fontSize: 14,
+},
+replyTime: {
+  color: '#888',
+  fontSize: 11,
+},
+replyText: {
+  fontSize: 14,
+  marginLeft: 22,
+},
+viewMoreButton: {
+  marginTop: 5,
+},
+viewMoreText: {
+  color: '#E91E63',
+  fontSize: 14,
+},
+replyInputContainer: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  marginTop: 10,
+},
+replyInput: {
+  flex: 1,
+  borderWidth: 1,
+  borderColor: '#ddd',
+  borderRadius: 20,
+  paddingHorizontal: 15,
+  paddingVertical: 8,
+  marginRight: 10,
+},
+replyButton: {
+  backgroundColor: '#E91E63',
+  paddingHorizontal: 15,
+  paddingVertical: 8,
+  borderRadius: 20,
+},
+replyButtonText: {
+  color: 'white',
+  fontWeight: 'bold',
+},
+addCommentContainer: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  borderTopWidth: 1,
+  borderTopColor: '#eee',
+  paddingTop: 15,
+},
+commentInput: {
+  flex: 1,
+  borderWidth: 1,
+  borderColor: '#ddd',
+  borderRadius: 20,
+  paddingHorizontal: 15,
+  paddingVertical: 10,
+  marginRight: 10,
+  maxHeight: 100,
+},
+noCommentsText: {
+  textAlign: 'center',
+  color: '#888',
+  marginVertical: 20,
+},
     headingImg: {
         marginLeft: 16,
         marginTop: 16,

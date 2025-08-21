@@ -25,7 +25,6 @@ import axios from 'axios';
 import MinTiffinCard from '../../components/minCardTiffin';
 import Whatsonyou from '../../components/WhatYou';
 import { useSafeNavigation } from '@/hooks/navigationPage';
-<<<<<<< HEAD
 import { useAuth } from '@/context/AuthContext';
 import FilterModal from '@/components/FilterModal';
 import BannerCarousel from '@/components/Banner';
@@ -70,8 +69,8 @@ const QUICK_FILTERS = [
   { name: 'Top Rated', icon: 'thumb-up' },
   { name: 'Open Now', icon: 'clock' },
 ];
-const Api_url = 'http://192.168.0.102:3000';
-envxport default function Tiffin() {
+
+export default function Tiffin() {
   const { user, isAuthenticated } = useAuth();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);

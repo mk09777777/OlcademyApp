@@ -481,7 +481,8 @@ const UploadRecentlyViewd = async () => {
               firmId: firmId,
               restaurantName: firmDetails?.restaurantInfo?.name,
               averageRating: firmDetails?.restaurantInfo?.ratings?.overall,
-              reviewCount: firmDetails?.restaurantInfo?.ratings?.totalReviews
+              reviewCount: firmDetails?.restaurantInfo?.ratings?.totalReviews,
+              reviewType:"takeaway"
             }
           })}
           style={styles.reviewBox}

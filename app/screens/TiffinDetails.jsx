@@ -582,7 +582,8 @@ const TiffinDetails = () => {
                     firmId: service.id,
                     restaurantName: service.title,
                     averageRating: service.rating.toFixed(1),
-                    reviewCount: service.reviews.length
+                    reviewCount: service.reviews.length,
+                     reviewType:"tiffin"
                   }
                 })}
                 style={styles.reviewBox}
