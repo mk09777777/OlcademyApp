@@ -56,7 +56,7 @@ useEffect(() => {
 
       console.log('Fetching reviews for user:', authUser.id);
       const reviewsResponse = await axios.get(
-        `http://192.168.0.100:3000/api/reviews/user/${authUser.id}`
+        `http://192.168.0.101:3000/api/reviews/user/${authUser.id}`
       );
 
       console.log('Reviews API Response:', {

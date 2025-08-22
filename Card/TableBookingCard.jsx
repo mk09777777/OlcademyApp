@@ -5,12 +5,20 @@ const BookingCard = ({ booking, onPress, Rname, add, guestes, name, date, timeSl
   const statusColor = status === 'accepted' ? '#08a742' : '#e53935';
   const statusText = status === 'confirmed' ? 'Booking confirmed' : 'Booking cancelled';
 
-  // Format date to dd/mm/yy
-  const formattedDate = new Date(date).toLocaleDateString('en-GB', {
-    day: '2-digit',
-    month: '2-digit',
-    year: '2-digit'
-  });
+  // Format date to dd/mm/yy with validation
+  const formatDate = (dateString) => {
+    const parsedDate = new Date(dateString);
+    if (isNaN(parsedDate.getTime())) {
+      return 'Invalid Date';
+    }
+    return parsedDate.toLocaleDateString('en-GB', {
+      day: '2-digit',
+      month: '2-digit',
+      year: '2-digit'
+    });
+  };
+  
+  const formattedDate = formatDate(date);
 
   return (
     <TouchableOpacity style={styles.card} onPress={onPress}>

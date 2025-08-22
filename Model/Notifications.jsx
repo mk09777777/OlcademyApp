@@ -1,14 +1,22 @@
 import React, { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import * as Notifications from 'expo-notifications';
+import Constants from 'expo-constants';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowAlert: true,
-    shouldPlaySound: true,
-    shouldSetBadge: false,
-  }),
-});
+// Check if running in development build or Expo Go
+const isExpoGo = Constants.appOwnership === 'expo';
+const STORAGE_KEY = 'notified_bookings';
+
+if (!isExpoGo) {
+  Notifications.setNotificationHandler({
+    handleNotification: async () => ({
+      shouldShowAlert: true,
+      shouldPlaySound: true,
+      shouldSetBadge: false,
+    }),
+  });
+}
 
 export default function BookingNotifications() {
   const [userBookings, setUserBookings] = useState([]);
@@ -66,17 +74,22 @@ export default function BookingNotifications() {
 
       const notificationId = response?.data?.notifications?._id || Date.now().toString();
 
-      await Notifications.scheduleNotificationAsync({
-        content: {
-          title: uploadData.title,
-          body: uploadData.description,
-          sound: true,
-          priority: Notifications.AndroidNotificationPriority.HIGH,
-        },
-        trigger: {
-          seconds: 1,
-        },
-      });
+      // Only schedule notifications in development builds, not Expo Go
+      if (!isExpoGo) {
+        await Notifications.scheduleNotificationAsync({
+          content: {
+            title: uploadData.title,
+            body: uploadData.description,
+            sound: true,
+            priority: Notifications.AndroidNotificationPriority.HIGH,
+          },
+          trigger: {
+            seconds: 1,
+          },
+        });
+      } else {
+        console.log('📱 Notification would be shown:', uploadData.title, uploadData.description);
+      }
 
       notificationMapRef.current.set(booking._id, notificationId);
       await saveNotifiedBookings();

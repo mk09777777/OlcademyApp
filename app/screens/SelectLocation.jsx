@@ -20,7 +20,7 @@ import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
 import BackRouting from "@/components/BackRouting";
-const CUSTOM_LOCATION_API = 'http://192.168.0.103:3000/api/location';
+const CUSTOM_LOCATION_API = 'http://192.168.0.101:3000/api/location';
 
 export default function SelectLocation({ placeholder = "Enter area, landmark ...", query, setQuery }) {
   const { safeNavigation } = useSafeNavigation();

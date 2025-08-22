@@ -14,7 +14,7 @@ import { Ionicons } from '@expo/vector-icons';
 import TakeawayOrderCard from '../../Card/TakewayCard';
 import axios from 'axios';
 
-const SERVER_URL = 'http://192.168.0.100:3000';
+const SERVER_URL = 'http://192.168.0.101:3000';
 
 export default function TakeawayOrdersScreen() {
   const [activeTab, setActiveTab] = useState('all');

@@ -75,7 +75,7 @@ const TiffinDetails = () => {
       }
   
       const response = await axios.post(
-        `http://10.154.177.16:3000/firm/recently-viewed/${restId}`,
+        `http://192.168.0.101:3000/firm/recently-viewed/${restId}`,
           {},
         { withCredentials: true }
       );
@@ -107,7 +107,7 @@ const TiffinDetails = () => {
       setRefreshing(true);
       setError(null);
 
-      const response = await axios.get(`http://10.154.177.16:3000/api/get-tiffin/${tiffinId}`);
+      const response = await axios.get(`http://192.168.0.101:3000/api/get-tiffin/${tiffinId}`);
       const { success, tiffin } = response.data;
 
       if (success && tiffin) {

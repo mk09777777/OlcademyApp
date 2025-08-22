@@ -50,7 +50,7 @@ const handleSignup = async () => {
   setLoading(true);
   try {
     const response = await axios.post(
-      `http://192.168.0.104:3000/api/signup`,
+      `http://192.168.0.101:3000/api/signup`,
       {
         username: formData.username,
         email: formData.email,

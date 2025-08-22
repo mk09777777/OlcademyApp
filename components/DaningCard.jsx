@@ -213,7 +213,7 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     paddingHorizontal: 10,
     borderRadius: 4,
-    width:"100%"
+    width:"90%"
   },
   badgeTitle: {
     color: '#fff',
@@ -242,14 +242,15 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
   },
   name: {
-    fontSize: 17,
-    fontWeight: 'bold',
-    color: '#111',
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#1A1A1A',
+    marginBottom: 4,
   },
   subtext: {
-    fontSize: 13,
-    color: '#666',
-    marginTop: 2,
+    fontSize: 14,
+    color: '#666666',
+    marginBottom: 4,
   },
   ratingBox: {
     backgroundColor: '#048520',
@@ -259,14 +260,15 @@ const styles = StyleSheet.create({
     // marginBottom: 5,
   },
   ratingText: {
-    color: '#fff',
+    color: '#FFFFFF',
+    fontSize: 14,
     fontWeight: '600',
-    fontSize: 13
   },
   subinfo: {
-    fontSize: 13,
+    fontSize: 12,
     color: '#444',
-    marginTop: 3,
+    marginTop: 2,
+    fontWeight: 'bold'
   },
   promotedBanner: {
     position: 'absolute',

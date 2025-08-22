@@ -30,7 +30,7 @@ export default function SelectDateTime() {
   useEffect(() => {
     const fetchSlots = async () => {
       try {
-        const response = await fetch(`http://192.168.0.100:3000/api/operating-hours/formatted-with-offers-only/${firmId}`);
+        const response = await fetch(`http://192.168.0.101:3000/api/operating-hours/formatted-with-offers-only/${firmId}`);
         const result = await response.json();
         const offers = Array.isArray(result.availableOffers) ? result.availableOffers : [];
         const today = dayjs(date).format('dddd');
@@ -219,7 +219,7 @@ export default function SelectDateTime() {
         }}>
           <TouchableOpacity onPress={() => setScheduleModalVisible(true)}>
             <Text style={{ color: "#525252ff", fontSize: 16, fontWeight: "bold" }}>
-              {selectedScheduleTime || "No slots available Schedule your booking"}
+              {selectedScheduleTime || "No slots available Schedule your booking here"}
             </Text>
           </TouchableOpacity>
           {scheduleModalVisible && (
@@ -230,6 +230,7 @@ export default function SelectDateTime() {
                 setScheduleModalVisible(false);
 
               }}
+              type="dining"
             />
           )}
         </View>

@@ -65,7 +65,7 @@ const verifyOtp = async () => {
 
   try {
     await axios.post(
-      `http://192.168.0.103:3000/api/verify`,
+      `http://192.168.0.101:3000/api/verify`,
       {
         identifier: email.trim(),
         otp: Number(enteredOtp),

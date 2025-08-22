@@ -76,7 +76,7 @@ export default function Reviewsall() {
         // Fetch restaurant reviews
         try {
           const restaurantResponse = await axios.get(
-            `http://10.34.125.16:3000/firm/restaurants/get-reviews/${firmId}`,
+            `http://192.168.0.101:3000/firm/restaurants/get-reviews/${firmId}`,
             { params: { page: pageNum }, withCredentials: true }
           );
           
@@ -94,7 +94,7 @@ export default function Reviewsall() {
         // Fetch tiffin reviews
         try {
           const tiffinResponse = await axios.get(
-            `http://10.34.125.16:3000/api/tiffin-Reviews/${firmId}`,
+            `http://192.168.0.101:3000/api/tiffin-Reviews/${firmId}`,
             { params: { page: pageNum }, withCredentials: true }
           );
           

@@ -30,7 +30,7 @@ export const OffersProvider = ({ children }) => {
   const handleAddOffer = async (newOffer) => {
     try {
       // const response = await fetch('http://localhost:5000/offers', {
-      const response = await fetch(`http://192.168.0.103:3000/offers`, {
+      const response = await fetch(`http://192.168.0.101:3000/offers`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -53,7 +53,7 @@ export const OffersProvider = ({ children }) => {
   const handleRemoveOffer = async (offerId) => {
     try {
       // await fetch(`http://localhost:5000/offers/${offerId}`, {
-      await fetch(`http://192.168.0.103:3000/delete/offers/${offerId}`, {
+      await fetch(`http://192.168.0.101:3000/delete/offers/${offerId}`, {
         method: "PUT",
       });
       refetchOffers();
@@ -65,7 +65,7 @@ export const OffersProvider = ({ children }) => {
   const handleEditOffer = async (offerId, updatedFields) => {
     try {
       const res = await fetch(
-        `http://192.168.0.103:3000/offers/${offerId}`,
+        `http://192.168.0.101:3000/offers/${offerId}`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },

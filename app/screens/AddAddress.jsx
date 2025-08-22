@@ -31,7 +31,7 @@ export default function AddAddressScreen() {
     const serviceArea = selectedType;
 
     try {
-      await axios.post("http://192.168.0.103:3000/api/createUserAddress", [
+      await axios.post("http://192.168.0.101:3000/api/createUserAddress", [
         {
           address: addressUpload,
           service_area: serviceArea

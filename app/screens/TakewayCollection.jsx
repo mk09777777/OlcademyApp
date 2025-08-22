@@ -24,7 +24,7 @@ const TakewayCollection = () => {
   const fetchRestaurants = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('http://192.168.0.100:3000/firm/get-all/restaurants');
+      const response = await axios.get('http://192.168.0.101:3000/firm/get-all/restaurants');
       
       if (response.data && response.data.data) {
         // Update isBookMarked property for each restaurant

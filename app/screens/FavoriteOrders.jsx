@@ -5,7 +5,7 @@ import styles from '../../styles/FavoriteOrder';
 import axios from 'axios';
 import TakeawayOrderCard from '../../Card/TakewayCard';
 import TiffinOrderCard from '../../components/TiffinOrderCard';
-import TakeawayOrderCard from '../../Card/TakewayCard'; // Add this import
+ // Add this import
 
 const SERVER_URL = 'http://192.168.0.101:3000';
 export default function FavoriteOrdersScreen() {

@@ -7,6 +7,10 @@ import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import NotificationModal from '../../components/NotificationModal';
 import { router } from "expo-router";
 import * as Notifications from 'expo-notifications';
+import Constants from 'expo-constants';
+
+// Check if running in development build or Expo Go
+const isExpoGo = Constants.appOwnership === 'expo';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import BackRouting from "@/components/BackRouting";
 import { useSafeNavigation } from "@/hooks/navigationPage";
@@ -36,6 +40,13 @@ export default function NotificationSettings() {
 
     const checkNotificationPermission = async () => {
         try {
+            if (isExpoGo) {
+                console.log('📱 Running in Expo Go - notifications limited');
+                await AsyncStorage.setItem('notification_permission', 'limited');
+                setNotificationModal(false);
+                return;
+            }
+            
             const { status } = await Notifications.getPermissionsAsync();
             if (status === 'granted') {
                 await AsyncStorage.setItem('notification_permission', 'granted');
@@ -43,12 +54,14 @@ export default function NotificationSettings() {
             } else {
                 setNotificationModal(true);
             }
-        } catch (error) { }
+        } catch (error) {
+            console.error('Error checking notification permission:', error);
+        }
     };
 
     const fetchInitialSettings = async () => {
         try {
-            const response = await fetch('http://192.168.0.100:3000/api/getnotifications', {
+            const response = await fetch('http://192.168.0.101:3000/api/getnotifications', {
                 method: 'GET',
                 credentials: 'include',
             });
@@ -108,7 +121,7 @@ export default function NotificationSettings() {
         };
 
         try {
-            const response = await fetch('http://192.168.0.100:3000/api/putnotifications', {
+            const response = await fetch('http://192.168.0.101:3000/api/putnotifications', {
                   method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',

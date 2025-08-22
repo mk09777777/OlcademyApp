@@ -54,7 +54,7 @@ export default function MapPicker() {
 
   const fetchlatlong = async () => {
     try {
-      const response = await axios.get('http://192.168.0.103:3000/api/location');
+      const response = await axios.get('http://192.168.0.101:3000/api/location');
       const { lat, lon } = response.data;
       setRegion({
         latitude: parseFloat(lat),
@@ -147,7 +147,7 @@ export default function MapPicker() {
 
     try {
       await axios.post(
-        'http://192.168.0.103:3000/api/createUserAddress',
+        'http://192.168.0.101:3000/api/createUserAddress',
         [
           {
             address: geo.fullAddress,

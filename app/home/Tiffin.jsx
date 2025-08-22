@@ -29,7 +29,7 @@ import { useAuth } from '@/context/AuthContext';
 import FilterModal from '@/components/FilterModal';
 import BannerCarousel from '@/components/Banner';
 
-const Api_url = 'http://10.34.125.16:3000';
+const Api_url = 'http://192.168.0.101:3000';
 
 // Filter options
 const FILTER_OPTIONS = {

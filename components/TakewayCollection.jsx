@@ -17,7 +17,7 @@ const TakewayCollection = () => {
   const fetchRestaurants = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`http://192.168.37.16:3000/firm/user/liked-restaurants`, {
+      const response = await axios.get(`http://192.168.0.101:3000/firm/user/liked-restaurants`, {
         withCredentials: true,
       });
       console.log(response.data.restaurants)

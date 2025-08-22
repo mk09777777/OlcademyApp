@@ -34,8 +34,8 @@ const Collection = () => {
     <ScrollView style={styles.container}>
          <BackRouting/>
       <View style={styles.headerBackground}>
-     
-        <Image source={require('../../assets/images/tiffin.jpg')} style={styles.headerImage} />
+{/*      
+        <Image source={require('../../../assets/images/tiffin.jpg')} style={styles.headerImage} /> */}
         
       </View>
         <ScrollView 

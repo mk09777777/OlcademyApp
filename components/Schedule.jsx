@@ -9,7 +9,7 @@ import {
   Alert,
 } from "react-native";
 
-export const Schedule = ({ onClose, onSave }) => {
+export const Schedule = ({ onClose, onSave,type }) => {
   const [selectedDay, setSelectedDay] = useState(null);
   const [selectedTime, setSelectedTime] = useState("");
   const [availableDays, setAvailableDays] = useState([]);
@@ -147,7 +147,7 @@ export const Schedule = ({ onClose, onSave }) => {
     <Modal transparent={true} animationType="fade">
       <View style={styles.modalOverlay}>
         <View style={styles.modalContent}>
-          <Text style={styles.modalTitle}>Schedule Pickup</Text>
+          <Text style={styles.modalTitle}>{type==="dining"?"Schedule booking":"Schedule Pickup"}</Text>
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
@@ -231,7 +231,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   modalContent: {
-    backgroundColor: "white",
+    backgroundColor: "#F9F9F9",
     borderRadius: 12,
     width: "90%",
     maxWidth: 400,
@@ -250,11 +250,11 @@ const styles = StyleSheet.create({
   dayButton: {
     padding: 10,
     borderRadius: 8,
-    backgroundColor: "#e5e7eb",
+    backgroundColor: "white",
     marginRight: 8,
   },
   selectedDayButton: {
-    backgroundColor: "black",
+    backgroundColor: "#FF002E",
   },
   dayText: {
     color: "black",
@@ -288,8 +288,8 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   selectedTimeSlotButton: {
-    backgroundColor: "black",
-    borderColor: "black",
+    backgroundColor: "#FF002E",
+    borderColor: "#FF002E",
   },
   timeSlotText: {
     color: "black",
@@ -311,25 +311,24 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 8,
-    backgroundColor: "#e5e7eb",
+    backgroundColor: "white",
   },
   cancelButtonText: {
     color: "black",
     fontSize: 14,
-    fontWeight: "500",
   },
   scheduleButton: {
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 8,
-    backgroundColor: "black",
+    backgroundColor: "#FF002E",
   },
   scheduleButtonDisabled: {
-    opacity: 0.5,
+    backgroundColor: "#cccccc",
   },
   scheduleButtonText: {
     color: "white",
     fontSize: 14,
-    fontWeight: "500",
+    fontWeight: "600",
   },
 });

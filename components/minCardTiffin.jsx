@@ -11,6 +11,7 @@ import { Text } from 'react-native-paper';
 import { MaterialCommunityIcons, FontAwesome } from '@expo/vector-icons';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { LinearGradient } from 'expo-linear-gradient';
+import EvilIcons from '@expo/vector-icons/EvilIcons';
 
 const COLORS = {
   PRIMARY: '#FF4B3A',
@@ -80,7 +81,12 @@ const MinTiffinCard = ({ firm, onPress, onFavoriteToggle, isFavorite, horizontal
             <Text style={styles.title} numberOfLines={1}>
               {title}
             </Text>
-            <Text style={styles.distance}>5KM</Text>
+            <View style={{flexDirection:"row",justifyContent:"center", marginBottom: 14}}>
+               <EvilIcons name="location" size={19} color="black" />
+              <Text style={styles.distance} numberOfLines={1}>
+                5KM
+              </Text>
+            </View>
           </View>
 
           {rating && (
@@ -142,6 +148,7 @@ const styles = StyleSheet.create({
   textContent: {
     flex: 1,
     marginRight: SPACING.MD,
+    fontFamily:"outfit-medium"
   },
   title: {
     fontSize: 16,
@@ -149,11 +156,11 @@ const styles = StyleSheet.create({
     color: COLORS.TEXT_PRIMARY,
     marginBottom: SPACING.XS,
     marginTop: 5,
+    fontFamily:"outfit-bold"
   },
   distance: {
     fontSize: 12,
     color: COLORS.TEXT_SECONDARY,
-    marginBottom: 14,
   },
   bookmarkButton: {
     position: 'absolute',
@@ -172,16 +179,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: 'rgb(4, 116, 19)',
     borderRadius: 6,
-    paddingHorizontal: 6,
+    paddingHorizontal: 2,
     paddingVertical: 2,
-    marginTop: 5,
+    marginTop: 25
   },
   ratingText: {
     color: 'white',
     fontSize: 14,
     fontWeight: '600',
     marginLeft: 2,
-    marginRight: 5,
+    marginRight: 3
   },
 });
 

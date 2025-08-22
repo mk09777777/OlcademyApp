@@ -32,7 +32,7 @@ export default function AddressScreen() {
   const [editingAddressType, setEditingAddressType] = useState('');
   const [editingAddressId, setEditingAddressId] = useState(null);
 
-  const API_BASE_URL = 'http://192.168.0.103:3000';
+  const API_BASE_URL = 'http://192.168.0.101:3000';
 
   const fetchAddresses = async () => {
     setIsLoading(true);

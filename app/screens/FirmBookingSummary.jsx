@@ -12,14 +12,20 @@ import AddRequest from '../../components/AddRequest'
 import InputModalEdit from '../../components/updateNameModal';
 import axios from 'axios';
 import * as Notifications from 'expo-notifications';
+import Constants from 'expo-constants';
 
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowAlert: true,
-    shouldPlaySound: true,
-    shouldSetBadge: false,
-  }),
-});
+// Check if running in development build or Expo Go
+const isExpoGo = Constants.appOwnership === 'expo';
+
+if (!isExpoGo) {
+  Notifications.setNotificationHandler({
+    handleNotification: async () => ({
+      shouldShowAlert: true,
+      shouldPlaySound: true,
+      shouldSetBadge: false,
+    }),
+  });
+}
 
 export default function FirmBookingSummary() {
   const { firmName, date, guestCount, time, name, email, contact, firmadd, firmId, selectedTab, offerId,offerDetails } = useGlobalSearchParams()
@@ -130,7 +136,7 @@ fetchInitialSettings()
 
       console.log("✅ Order saved:", response.data);
       {ordersPush?UploadNotifications(orderData):<></>}
-      router.push('/screens/DiningBooking')
+      
       // Alert.alert("Order Saved Successfully");
     } catch (error) {
       console.error("❌ Error saving order:", error.response?.data || error.message);
@@ -168,18 +174,33 @@ fetchInitialSettings()
         withCredentials: true
       });
 
-      await Notifications.scheduleNotificationAsync({
-        content: {
-          title: uploadData.title,
-          body: uploadData.description,
-          sound: true, // even if disabled, sometimes helps on Android
-          priority: Notifications.AndroidNotificationPriority.HIGH,
-        },
-        trigger: {
-          seconds: 1,
-        },
-      });
+
+      // Only schedule notifications in development builds, not Expo Go
+      if (!isExpoGo) {
+        await Notifications.scheduleNotificationAsync({
+          content: {
+            title: uploadData.title,
+            body: uploadData.description,
+            sound: true,
+            priority: Notifications.AndroidNotificationPriority.HIGH,
+          },
+          trigger: {
+            seconds: 1,
+          },
+        });
+      } else {
+        console.log('📱 Notification would be shown:', uploadData.title, uploadData.description);
+        Alert.alert(uploadData.title, uploadData.description);
+      }
       console.log("✅ Notification saved:", response.data);
+       router.push({
+          pathname: '/screens/OrderSceess',
+          params: {
+            totalAmount: '50.00',
+            restaurantName: firmName || 'Restaurant',
+            autoRedirect: 'true'
+          }
+        });
     } catch (error) {
       console.log("❌ Error in uploading the notification", error.message);
     }

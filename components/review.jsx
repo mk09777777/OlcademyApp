@@ -28,7 +28,7 @@ const Review = (props) => {
 
   const fetchReview = async () => {
     try {
-      const response = await axios.get(`http://192.168.0.100:3000/api/reviews/${_id}`, {
+      const response = await axios.get(`http://192.168.0.101:3000/api/reviews/${_id}`, {
         withCredentials: true
       });
       setCommentData(response.data.review);

@@ -851,7 +851,7 @@ const handleApplyFilterboxFilters = (filters) => {
                       />
                     </ScrollView>
                   )}
-                  <View style={{ display: "flex", marginTop: 10, marginBottom: 15 }}>
+                  <View style={{ display: "flex", marginBottom: 15 }}>
                     <View style={styles.separatorRow}>
                     <View style={styles.line} />
                     <Text style={styles.separatorText}>

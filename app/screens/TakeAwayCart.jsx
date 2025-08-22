@@ -29,16 +29,22 @@ import { useGlobalSearchParams, useRouter } from 'expo-router';
 import { useAuth } from '@/context/AuthContext';
 import axios from 'axios';
 import * as Notifications from 'expo-notifications';
+import Constants from 'expo-constants';
 import { Picker } from '@react-native-picker/picker';
 import { Schedule } from '@/components/Schedule';
 
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowAlert: true,
-    shouldPlaySound: true,
-    shouldSetBadge: false,
-  }),
-});
+// Check if running in development build or Expo Go
+const isExpoGo = Constants.appOwnership === 'expo';
+
+if (!isExpoGo) {
+  Notifications.setNotificationHandler({
+    handleNotification: async () => ({
+      shouldShowAlert: true,
+      shouldPlaySound: true,
+      shouldSetBadge: false,
+    }),
+  });
+}
 
 
 
@@ -207,7 +213,7 @@ const TakeAwayCart = () => {
 
   const fetchInitialSettings = async () => {
     try {
-      const response = await fetch('http://192.168.0.100:3000/api/getnotifications', {
+      const response = await fetch('http://192.168.0.101:3000/api/getnotifications', {
         method: 'GET',
         credentials: 'include',
       });
@@ -577,22 +583,28 @@ const TakeAwayCart = () => {
         description: `Your order from ${restaurantName} ($${order.totalPrice.toFixed(2)}) is confirmed. Expected ${deliveryType} at ${scheduledTime}`,
         time: formattedTime,
       };
-      const response = await axios.post("http://192.168.0.100:3000/api/postNotificationsInfo", uploadData, {
+      const response = await axios.post("http://192.168.0.101:3000/api/postNotificationsInfo", uploadData, {
         headers: { "Content-Type": "application/json" },
         withCredentials: true
       });
 
-      await Notifications.scheduleNotificationAsync({
-        content: {
-          title: uploadData.title,
-          body: uploadData.description,
-          sound: true,
-          priority: Notifications.AndroidNotificationPriority.HIGH,
-        },
-        trigger: {
-          seconds: 1,
-        },
-      });
+      // Only schedule notifications in development builds, not Expo Go
+      if (!isExpoGo) {
+        await Notifications.scheduleNotificationAsync({
+          content: {
+            title: uploadData.title,
+            body: uploadData.description,
+            sound: true,
+            priority: Notifications.AndroidNotificationPriority.HIGH,
+          },
+          trigger: {
+            seconds: 1,
+          },
+        });
+      } else {
+        console.log('📱 Notification would be shown:', uploadData.title, uploadData.description);
+        Alert.alert(uploadData.title, uploadData.description);
+      }
       console.log("✅ Notification saved:", response.data);
     } catch (error) {
       console.log("❌ Error in uploading the notification", error.message);

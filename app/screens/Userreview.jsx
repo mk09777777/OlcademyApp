@@ -135,7 +135,7 @@ const handleSubmit = async () => {
         ? `/api/reviews/${firmId}`
         : `/api/reviews/firm/${firmId}`;
       
-      response = await api.post(`http://10.34.125.16:3000${endpoint}`, formData, {
+      response = await api.post(`http://192.168.0.101:3000${endpoint}`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -146,7 +146,7 @@ const handleSubmit = async () => {
         ? `/api/reviews/${firmId}`
         : `/api/reviews/firm/${firmId}`;
       
-      response = await api.post(`http://10.34.125.16:3000${endpoint}`, {
+      response = await api.post(`http://192.168.0.101:3000${endpoint}`, {
         newReview: reviewData
       });
     }

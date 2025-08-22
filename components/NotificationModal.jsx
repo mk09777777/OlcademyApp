@@ -2,6 +2,10 @@ import React, { useCallback, useState, Fragment } from 'react';
 import { View, Text, Image, TouchableOpacity, Linking } from "react-native";
 import NotificationModalStyles from "../styles/ModalNotificationstyles";
 import * as Notifications from 'expo-notifications';
+import Constants from 'expo-constants';
+
+// Check if running in development build or Expo Go
+const isExpoGo = Constants.appOwnership === 'expo';
 import { useFocusEffect } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -9,10 +13,17 @@ export default function NotificationModal({ toggle }) {
 
   const checkAndRequestPermission = async () => {
     try {
+      if (isExpoGo) {
+        console.log('📱 Running in Expo Go - notifications limited');
+        await AsyncStorage.setItem('notification_permission', 'limited');
+        toggle();
+        return;
+      }
+
       const { status: existingStatus } = await Notifications.getPermissionsAsync();
 
       if (existingStatus === 'granted') {
-        console.log(' Notification permission already granted.');
+        console.log('✅ Notification permission already granted.');
         await AsyncStorage.setItem('notification_permission', 'granted');
         toggle(); 
       } else {
@@ -20,17 +31,15 @@ export default function NotificationModal({ toggle }) {
         const { status: requestedStatus } = await Notifications.requestPermissionsAsync();
 
         if (requestedStatus === 'granted') {
-          console.log('Notification permission granted!');
+          console.log('✅ Notification permission granted!');
           await AsyncStorage.setItem('notification_permission', 'granted');
           toggle(); 
         } else {
-          console.log(' Notification permission denied.');
-
+          console.log('❌ Notification permission denied.');
         }
       }
     } catch (error) {
-      console.error(' Error handling notification permission:', error);
-
+      console.error('❌ Error handling notification permission:', error);
     }
   };
 

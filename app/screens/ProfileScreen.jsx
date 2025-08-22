@@ -56,7 +56,7 @@ const ProfileScreen = () => {
 
   const handleGetUserData = async () => {
     try {
-      const response = await axios.get("http://192.168.0.100:3000/user/profileData", {
+      const response = await axios.get("http://192.168.0.101:3000/user/profileData", {
         withCredentials: true
       })
       const data = response.data
@@ -96,7 +96,7 @@ const ProfileScreen = () => {
 
     }
     try {
-      await axios.post("http://192.168.0.100:3000/user/profileEdit",
+      await axios.post("http://192.168.0.101:3000/user/profileEdit",
         uploadData
         ,
         {
