@@ -32,6 +32,7 @@ import * as Notifications from 'expo-notifications';
 import Constants from 'expo-constants';
 import { Picker } from '@react-native-picker/picker';
 import { Schedule } from '@/components/Schedule';
+import { API_CONFIG } from '../../config/apiConfig';
 
 // Check if running in development build or Expo Go
 const isExpoGo = Constants.appOwnership === 'expo';
@@ -213,7 +214,8 @@ const TakeAwayCart = () => {
 
   const fetchInitialSettings = async () => {
     try {
-      const response = await fetch('http://192.168.0.101:3000/api/getnotifications', {
+
+      const response = await fetch(`${API_CONFIG.BACKEND_URL}/api/getnotifications`, {
         method: 'GET',
         credentials: 'include',
       });
@@ -583,7 +585,7 @@ const TakeAwayCart = () => {
         description: `Your order from ${restaurantName} ($${order.totalPrice.toFixed(2)}) is confirmed. Expected ${deliveryType} at ${scheduledTime}`,
         time: formattedTime,
       };
-      const response = await axios.post("http://192.168.0.101:3000/api/postNotificationsInfo", uploadData, {
+      const response = await axios.post(`${API_CONFIG.BACKEND_URL}/api/postNotificationsInfo`, uploadData, {
         headers: { "Content-Type": "application/json" },
         withCredentials: true
       });

@@ -4,6 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import * as Notifications from 'expo-notifications';
 import Constants from 'expo-constants';
 import axios from 'axios';
+import { API_CONFIG } from '../../config/apiConfig';
 
 // Check if running in development build or Expo Go
 const isExpoGo = Constants.appOwnership === 'expo';
@@ -63,7 +64,7 @@ const BookingDetailsScreen = ({
 
   const fetchInitialSettings = async () => {
     try {
-      const response = await fetch('http://192.168.0.101:3000/api/getnotifications', {
+      const response = await fetch(`${API_CONFIG.BACKEND_URL}/api/getnotifications`, {
         method: 'GET',
         credentials: 'include',
       });
@@ -111,7 +112,7 @@ const BookingDetailsScreen = ({
     };
 
     try {
-      await axios.post('http://192.168.0.101:3000/api/postNotificationsInfo', uploadData, {
+      await axios.post(`${API_CONFIG.BACKEND_URL}/api/postNotificationsInfo`, uploadData, {
         headers: { 'Content-Type': 'application/json' },
         withCredentials: true,
       });
@@ -143,7 +144,7 @@ const BookingDetailsScreen = ({
       Alert.alert("Booking is accepted, you can't cancel it");
     } else {
       try {
-        await axios.put(`http://192.168.0.101:3000/api/bookings/cancel/${id}`, {
+        await axios.put(`${API_CONFIG.BACKEND_URL}/api/bookings/cancel/${id}`, {
           withCredentials: true,
         });
         if (ordersPush) {
@@ -172,7 +173,7 @@ const BookingDetailsScreen = ({
 
       <View style={styles.card}>
         <TouchableOpacity 
-                      style={{display:"flex",justifyContent:"flex-start"}}
+                      style={{justifyContent:"flex-start"}}
                       onPress={onClose}
                     >
                       <Text style={{fontSize:22,fontWeight:"bold",color:"black",marginBottom:10}}>×</Text>

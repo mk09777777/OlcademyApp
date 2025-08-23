@@ -4,7 +4,8 @@ import { styles } from "../styles/FirmCardStyle";
 import { FontAwesome, MaterialIcons } from "@expo/vector-icons";
 import { LinearGradient } from 'expo-linear-gradient';
 import ImageGallery from '@/components/ImageGallery';
-import axios from 'axios'
+import axios from 'axios';
+import { API_CONFIG } from '../config/apiConfig';
 
 export default function FirmCard({
   firmId,
@@ -33,7 +34,8 @@ useEffect(() => {
   const fetchIsLiked = async () => {
     try {
       const response = await axios.get(
-        `http://192.168.0.101:3000/firm/user/${firmId}/islike`,
+
+        `${API_CONFIG.BACKEND_URL}/firm/user/${firmId}/islike`,
         { withCredentials: true }
       );
       setIsFavorited(response.data.islike);

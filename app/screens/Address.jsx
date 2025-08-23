@@ -17,6 +17,8 @@ import { router } from 'expo-router';
 import axios from 'axios';
 import { useSafeNavigation } from '@/hooks/navigationPage';
 import BackRouting from '@/components/BackRouting';
+import { API_CONFIG } from '../../config/apiConfig';
+
 export default function AddressScreen() {
   const [selectedAddressId, setSelectedAddressId] = useState(null);
   const [editModalVisible, setEditModalVisible] = useState(false);
@@ -32,7 +34,8 @@ export default function AddressScreen() {
   const [editingAddressType, setEditingAddressType] = useState('');
   const [editingAddressId, setEditingAddressId] = useState(null);
 
-  const API_BASE_URL = 'http://192.168.0.101:3000';
+
+  const API_BASE_URL = API_CONFIG.BACKEND_URL;
 
   const fetchAddresses = async () => {
     setIsLoading(true);

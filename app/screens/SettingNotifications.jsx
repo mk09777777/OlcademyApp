@@ -8,6 +8,7 @@ import NotificationModal from '../../components/NotificationModal';
 import { router } from "expo-router";
 import * as Notifications from 'expo-notifications';
 import Constants from 'expo-constants';
+import { API_CONFIG } from '../../config/apiConfig';
 
 // Check if running in development build or Expo Go
 const isExpoGo = Constants.appOwnership === 'expo';
@@ -61,7 +62,8 @@ export default function NotificationSettings() {
 
     const fetchInitialSettings = async () => {
         try {
-            const response = await fetch('http://192.168.0.101:3000/api/getnotifications', {
+
+            const response = await fetch(`${API_CONFIG.BACKEND_URL}/api/getnotifications`, {
                 method: 'GET',
                 credentials: 'include',
             });
@@ -121,7 +123,7 @@ export default function NotificationSettings() {
         };
 
         try {
-            const response = await fetch('http://192.168.0.101:3000/api/putnotifications', {
+            const response = await fetch(`${API_CONFIG.BACKEND_URL}/api/putnotifications`, {
                   method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',

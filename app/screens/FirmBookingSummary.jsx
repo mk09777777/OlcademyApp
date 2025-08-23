@@ -13,6 +13,7 @@ import InputModalEdit from '../../components/updateNameModal';
 import axios from 'axios';
 import * as Notifications from 'expo-notifications';
 import Constants from 'expo-constants';
+import { API_CONFIG } from '../../config/apiConfig';
 
 // Check if running in development build or Expo Go
 const isExpoGo = Constants.appOwnership === 'expo';
@@ -79,7 +80,8 @@ export default function FirmBookingSummary() {
 
     const fetchInitialSettings = async () => {
     try {
-      const response = await fetch('http://192.168.0.101:3000/api/getnotifications', {
+
+      const response = await fetch(`${API_CONFIG.BACKEND_URL}/api/getnotifications`, {
         method: 'GET',
         credentials: 'include',
       });
@@ -124,7 +126,7 @@ fetchInitialSettings()
 
     try {
       const response = await axios.post(
-        `http://192.168.0.101:3000/api/bookings/create?id=${firmId}`,
+        `${API_CONFIG.BACKEND_URL}/api/bookings/create?id=${firmId}`,
         orderData,
         {
           headers: {
@@ -169,7 +171,7 @@ fetchInitialSettings()
     };
 
     try {
-      const response = await axios.post("http://192.168.0.101:3000/api/postNotificationsInfo", uploadData, {
+      const response = await axios.post(`${API_CONFIG.BACKEND_URL}/api/postNotificationsInfo`, uploadData, {
         headers: { "Content-Type": "application/json" },
         withCredentials: true
       });

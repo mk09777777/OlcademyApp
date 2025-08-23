@@ -8,6 +8,7 @@ import dayjs from 'dayjs';
 import InputBoxStyles from '../../styles/InputBox';
 import { useSafeNavigation } from '@/hooks/navigationPage';
 import { Schedule } from '@/components/Schedule';
+import { API_CONFIG } from '../../config/apiConfig';
 
 export default function SelectDateTime() {
   const { firmName, guestCount, firmadd, firmId } = useGlobalSearchParams();
@@ -30,7 +31,8 @@ export default function SelectDateTime() {
   useEffect(() => {
     const fetchSlots = async () => {
       try {
-        const response = await fetch(`http://192.168.0.101:3000/api/operating-hours/formatted-with-offers-only/${firmId}`);
+
+        const response = await fetch(`${API_CONFIG.BACKEND_URL}/api/operating-hours/formatted-with-offers-only/${firmId}`);
         const result = await response.json();
         const offers = Array.isArray(result.availableOffers) ? result.availableOffers : [];
         const today = dayjs(date).format('dddd');

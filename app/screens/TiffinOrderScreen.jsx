@@ -4,7 +4,8 @@ import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import axios from 'axios';
 import TiffinOrderCard from '../../components/TiffinOrderCard';
 
-const SERVER_URL = 'http://192.168.0.101:3000';
+import { API_CONFIG } from '../../config/apiConfig';
+const SERVER_URL = API_CONFIG.BACKEND_URL;
 
 export default function TiffinOrdersScreen() {
   const [primaryTab, setPrimaryTab] = useState('All');

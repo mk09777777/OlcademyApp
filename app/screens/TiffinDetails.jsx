@@ -8,6 +8,7 @@ import ImageGallery from '../../components/ImageGallery';
 import { useCart } from '../../context/CartContext';
 import styles from '../../styles/tiffinDetailsStyle';
 import axios from 'axios';
+import { API_CONFIG } from '../../config/apiConfig';
 
 const { width } = Dimensions.get('window');
 
@@ -75,7 +76,8 @@ const TiffinDetails = () => {
       }
   
       const response = await axios.post(
-        `http://192.168.0.101:3000/firm/recently-viewed/${restId}`,
+
+        `${API_CONFIG.BACKEND_URL}/firm/recently-viewed/${restId}`,
           {},
         { withCredentials: true }
       );
@@ -107,7 +109,7 @@ const TiffinDetails = () => {
       setRefreshing(true);
       setError(null);
 
-      const response = await axios.get(`http://192.168.0.101:3000/api/get-tiffin/${tiffinId}`);
+      const response = await axios.get(`${API_CONFIG.BACKEND_URL}/api/get-tiffin/${tiffinId}`);
       const { success, tiffin } = response.data;
 
       if (success && tiffin) {

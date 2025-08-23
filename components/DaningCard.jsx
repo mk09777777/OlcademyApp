@@ -15,6 +15,7 @@ import ImageGallery from '@/components/ImageGallery';
 import { MaterialIcons } from "@expo/vector-icons";
 const { width } = Dimensions.get('window');
 import axios from 'axios';
+import { API_CONFIG } from '../config/apiConfig';
 
 const DiningCard = ({ firmId,
   firmName,
@@ -63,7 +64,8 @@ const DiningCard = ({ firmId,
     const fetchIsLiked = async () => {
       try {
         const response = await axios.get(
-          `http://192.168.0.101:3000/firm/user/${firmId}/islike`,
+
+          `${API_CONFIG.BACKEND_URL}/firm/user/${firmId}/islike`,
           { withCredentials: true }
         );
         setIsFavorited(response.data.islike);

@@ -14,6 +14,7 @@ import { Ionicons, FontAwesome, MaterialCommunityIcons } from '@expo/vector-icon
 import styles from '../../styles/Activity';
 import { useAuth } from '../../context/AuthContext';
 import axios from 'axios';
+import { API_CONFIG } from '../../config/apiConfig';
 
 const ActivityPage = () => {
   const { user: authUser, profileData, api } = useAuth();
@@ -56,7 +57,7 @@ useEffect(() => {
 
       console.log('Fetching reviews for user:', authUser.id);
       const reviewsResponse = await axios.get(
-        `http://192.168.0.101:3000/api/reviews/user/${authUser.id}`
+        `${API_CONFIG.BACKEND_URL}/api/reviews/user/${authUser.id}`
       );
 
       console.log('Reviews API Response:', {

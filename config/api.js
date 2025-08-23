@@ -1,8 +1,9 @@
 // API Base URL (not used when using local data)
-export const API_BASE_URL = 'http://192.168.0.101:3000';
+import { API_CONFIG } from './apiConfig';
+export const API_BASE_URL = API_CONFIG.BACKEND_URL;
 
 // API Request Configuration
-export const API_CONFIG = {
+export const API_REQUEST_CONFIG = {
   withCredentials: true,
   headers: {
     'Content-Type': 'application/json',

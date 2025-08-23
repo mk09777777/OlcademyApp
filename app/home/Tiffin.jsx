@@ -29,7 +29,7 @@ import { useAuth } from '@/context/AuthContext';
 import FilterModal from '@/components/FilterModal';
 import BannerCarousel from '@/components/Banner';
 
-const Api_url = 'http://192.168.0.101:3000';
+const Api_url = 'https://backend-0wyj.onrender.com';
 
 // Filter options
 const FILTER_OPTIONS = {
@@ -135,13 +135,14 @@ export default function Tiffin() {
         { headers: { "Content-Type": "application/json" }, withCredentials: true }
       );
       console.log('data', JSON.stringify(response.data))
+      await fetchLikedTiffins();
     } catch (error) {
       console.error('Error toggling favorite:', error);
       Alert.alert('Error', 'Failed to update favorite status');
     } finally {
       setFavoriteLoading(prev => ({ ...prev, [tiffinId]: false }));
     }
-  }, [isAuthenticated, user?.id], fetchLikedTiffins);
+  }, [isAuthenticated, user?.id, fetchLikedTiffins]);
 
   const fetchLikedTiffins = useCallback(async (tiffinId) => {
     if (isAuthenticated && user?.id) {

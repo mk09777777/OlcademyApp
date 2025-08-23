@@ -23,7 +23,8 @@ import DiningCard from '@/components/DaningCard';
 
 const windowHeight = Dimensions.get('window').height;
 const windowWidth = Dimensions.get('window').width;
-const Api_url = 'http://192.168.0.101:3000';
+import { API_CONFIG } from '../../config/apiConfig';
+const Api_url = API_CONFIG.BACKEND_URL;
 
 const quickFilters = [
   { name: 'Pure Veg', icon: 'leaf' },

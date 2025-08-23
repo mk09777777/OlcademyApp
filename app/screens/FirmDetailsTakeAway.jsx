@@ -6,7 +6,8 @@ import axios from 'axios';
 import { AntDesign, FontAwesome, FontAwesome5, Ionicons, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 import { useCart } from '@/context/CartContext';
 import ImageGallery from '@/components/ImageGallery';
-const API_URL = 'http://192.168.0.101:3000';
+import { API_CONFIG } from '../../config/apiConfig';
+const API_URL = API_CONFIG.BACKEND_URL;
 
 const filtersData = {
   "Dietary": [

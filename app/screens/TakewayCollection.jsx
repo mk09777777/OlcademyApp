@@ -7,6 +7,8 @@ import { useRouter } from 'expo-router';
 import axios from 'axios';
 import { useSafeNavigation } from '@/hooks/navigationPage';
 import BackRouting from '@/components/BackRouting';
+import { API_CONFIG } from '../../config/apiConfig';
+
 const TakewayCollection = () => {
   const [activeTab, setActiveTab] = useState('restaurants');
   const [loading, setLoading] = useState(true);
@@ -24,7 +26,8 @@ const TakewayCollection = () => {
   const fetchRestaurants = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('http://192.168.0.101:3000/firm/get-all/restaurants');
+
+      const response = await axios.get(`${API_CONFIG.BACKEND_URL}/firm/get-all/restaurants`);
       
       if (response.data && response.data.data) {
         // Update isBookMarked property for each restaurant

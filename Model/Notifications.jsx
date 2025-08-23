@@ -3,6 +3,7 @@ import axios from "axios";
 import * as Notifications from 'expo-notifications';
 import Constants from 'expo-constants';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { API_CONFIG } from '../config/apiConfig';
 
 // Check if running in development build or Expo Go
 const isExpoGo = Constants.appOwnership === 'expo';
@@ -26,7 +27,8 @@ export default function BookingNotifications() {
   const fetchDiningBookings = async () => {
     setLoading(true);
     try {
-      const response = await axios.get("http://192.168.0.101:3000/api/bookings/userId", {
+
+      const response = await axios.get(`${API_CONFIG.BACKEND_URL}/api/bookings/userId`, {
         withCredentials: true,
       });
       const bookingsArray = response.data?.data || [];
@@ -67,7 +69,7 @@ export default function BookingNotifications() {
     };
 
     try {
-      const response = await axios.post("http://192.168.0.101:3000/api/postNotificationsInfo", uploadData, {
+      const response = await axios.post(`${API_CONFIG.BACKEND_URL}/api/postNotificationsInfo`, uploadData, {
         headers: { "Content-Type": "application/json" },
         withCredentials: true,
       });

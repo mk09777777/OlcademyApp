@@ -8,6 +8,7 @@ import FirmCard from '@/components/FirmCard';
 import { router, useLocalSearchParams, useNavigation } from 'expo-router';
 import { useSafeNavigation } from '@/hooks/navigationPage';
 import BackRouting from "@/components/BackRouting";
+import { API_CONFIG } from '../../config/apiConfig';
 
 export default function OnMindScreens() {
     // const { name } = useLocalSearchParams();
@@ -33,7 +34,8 @@ export default function OnMindScreens() {
         console.log("Fetching firms...");
         setIsLoading(true);
         try {
-            const response = await axios.get(`http://192.168.0.101:3000/firm/getnearbyrest?dish=${name}`);
+
+            const response = await axios.get(`${API_CONFIG.BACKEND_URL}/firm/getnearbyrest?dish=${name}`);
 
             let firmsData;
 

@@ -4,6 +4,7 @@ import axios from "axios";
 import { useNavigation } from "@react-navigation/native";
 import { Eye, EyeOff, Loader2, X as CloseIcon } from "lucide-react-native";
 import { MaterialIcons, FontAwesome } from '@expo/vector-icons';
+import { API_CONFIG } from '../../config/apiConfig';
 
 const Signup = ({ setAuth }) => {
   const [formData, setFormData] = useState({
@@ -50,7 +51,7 @@ const handleSignup = async () => {
   setLoading(true);
   try {
     const response = await axios.post(
-      `http://192.168.0.101:3000/api/signup`,
+      `${API_CONFIG.BACKEND_URL}/api/signup`,
       {
         username: formData.username,
         email: formData.email,

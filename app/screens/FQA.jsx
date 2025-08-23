@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, FlatList, StyleSheet, ScrollView, Activit
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeNavigation } from '@/hooks/navigationPage';
 import BackRouting from '@/components/BackRouting';
+import { API_CONFIG } from '../../config/apiConfig';
 const FAQScreen = () => {
   const [activeIndex, setActiveIndex] = useState(null);
   const [faqData, setFaqData] = useState([]);
@@ -12,7 +13,8 @@ const FAQScreen = () => {
   useEffect(() => {
     const fetchFAQs = async () => {
       try {
-        const response = await fetch('http://192.168.0.101:3000/api/faq');
+
+        const response = await fetch(`${API_CONFIG.BACKEND_URL}/api/faq`);
         const data = await response.json();
         if (data.faqs) {
           setFaqData(data.faqs);

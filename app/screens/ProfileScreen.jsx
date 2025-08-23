@@ -9,6 +9,7 @@ import Fontisto from '@expo/vector-icons/Fontisto';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import BackRouting from "@/components/BackRouting";
 import axios from 'axios';
+import { API_CONFIG } from '../../config/apiConfig';
 
 const ProfileScreen = () => {
   const { user, setUser } = useAuth();
@@ -56,7 +57,8 @@ const ProfileScreen = () => {
 
   const handleGetUserData = async () => {
     try {
-      const response = await axios.get("http://192.168.0.101:3000/user/profileData", {
+
+      const response = await axios.get(`${API_CONFIG.BACKEND_URL}/user/profileData`, {
         withCredentials: true
       })
       const data = response.data
@@ -96,7 +98,7 @@ const ProfileScreen = () => {
 
     }
     try {
-      await axios.post("http://192.168.0.101:3000/user/profileEdit",
+      await axios.post(`${API_CONFIG.BACKEND_URL}/user/profileEdit`,
         uploadData
         ,
         {
@@ -258,9 +260,7 @@ const ProfileScreen = () => {
             <Text style={styles.label}>Anniversary</Text>
           </View>
           <View style={styles.fieldContainer}>
-            
-              <Text style={styles.value}>{formatDate(localProfile.anniversary)}</Text>
-           
+            <Text style={styles.value}>{formatDate(localProfile.anniversary)}</Text>
             {showAnniversaryPicker && (
               <DateTimePicker
                 value={localProfile.anniversary}
@@ -272,51 +272,49 @@ const ProfileScreen = () => {
           </View>
           <View style={styles.divider} />
 
-     // Replace the Gender Field section in your return statement with this:
-
-{/* Gender Field */}
-<View style={styles.labelContainer}>
-  <AntDesign name="user" size={18} color="#f04f5f" style={styles.labelImage} />
-  <Text style={styles.label}>Gender</Text>
-</View>
-{isEditing ? (
-  <View style={styles.radioContainer}>
-    <TouchableOpacity 
-      style={styles.radioButton}
-      onPress={() => handleChange('gender', 'Male')}
-    >
-      <View style={styles.radioCircle}>
-        {localProfile.gender === 'Male' && <View style={styles.selectedRadio} />}
-      </View>
-      <Text style={styles.radioLabel}>Male</Text>
-    </TouchableOpacity>
-    
-    <TouchableOpacity 
-      style={styles.radioButton}
-      onPress={() => handleChange('gender', 'Female')}
-    >
-      <View style={styles.radioCircle}>
-        {localProfile.gender === 'Female' && <View style={styles.selectedRadio} />}
-      </View>
-      <Text style={styles.radioLabel}>Female</Text>
-    </TouchableOpacity>
-    
-    <TouchableOpacity 
-      style={styles.radioButton}
-      onPress={() => handleChange('gender', 'Other')}
-    >
-      <View style={styles.radioCircle}>
-        {localProfile.gender === 'Other' && <View style={styles.selectedRadio} />}
-      </View>
-      <Text style={styles.radioLabel}>Other</Text>
-    </TouchableOpacity>
-  </View>
-) : (
-  <View style={styles.fieldContainer}>
-    <Text style={styles.value}>{localProfile.gender || 'Not set'}</Text>
-  </View>
-)}
-<View style={styles.divider} />
+          {/* Gender Field */}
+          <View style={styles.labelContainer}>
+            <AntDesign name="user" size={18} color="#f04f5f" style={styles.labelImage} />
+            <Text style={styles.label}>Gender</Text>
+          </View>
+          {isEditing ? (
+            <View style={styles.radioContainer}>
+              <TouchableOpacity 
+                style={styles.radioButton}
+                onPress={() => handleChange('gender', 'Male')}
+              >
+                <View style={styles.radioCircle}>
+                  {localProfile.gender === 'Male' && <View style={styles.selectedRadio} />}
+                </View>
+                <Text style={styles.radioLabel}>Male</Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity 
+                style={styles.radioButton}
+                onPress={() => handleChange('gender', 'Female')}
+              >
+                <View style={styles.radioCircle}>
+                  {localProfile.gender === 'Female' && <View style={styles.selectedRadio} />}
+                </View>
+                <Text style={styles.radioLabel}>Female</Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity 
+                style={styles.radioButton}
+                onPress={() => handleChange('gender', 'Other')}
+              >
+                <View style={styles.radioCircle}>
+                  {localProfile.gender === 'Other' && <View style={styles.selectedRadio} />}
+                </View>
+                <Text style={styles.radioLabel}>Other</Text>
+              </TouchableOpacity>
+            </View>
+          ) : (
+            <View style={styles.fieldContainer}>
+              <Text style={styles.value}>{localProfile.gender || 'Not set'}</Text>
+            </View>
+          )}
+          <View style={styles.divider} />
         </View>
 
 
@@ -334,7 +332,7 @@ const ProfileScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f0f0',
+    backgroundColor: '#f0f0f0',
   },
   header: {
     alignItems: 'center',

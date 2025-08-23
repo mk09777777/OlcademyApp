@@ -6,7 +6,8 @@ import styles from '../../styles/DiningBooking';
 import BackRouting from '@/components/BackRouting';
 import BookingCard from '../../Card/TableBookingCard';
 import { useSafeNavigation } from '@/hooks/navigationPage';
-import BookingDetailsScreen from "./DiningBookingDetails"
+import BookingDetailsScreen from "./DiningBookingDetails";
+import { API_CONFIG } from '../../config/apiConfig';
 const BookingsScreen = () => {
   const router = useRouter();
   const [userBookings, setUserBookings] = useState([]);
@@ -23,7 +24,7 @@ const BookingsScreen = () => {
   const fetchDiningBookings = async () => {
     setLoading(true);
     try {
-      const response = await axios.get('http://192.168.0.101:3000/api/bookings/userId', {
+      const response = await axios.get(`${API_CONFIG.BACKEND_URL}/api/bookings/userId`, {
         withCredentials: true,
       });
       console.log('Fetched bookings:', JSON.stringify(response.data, null, 2));
@@ -102,7 +103,6 @@ const BookingsScreen = () => {
                 name={item.username}
                 date={item.ScheduleDate}
                 timeSlot={item.timeSlot}
-                key={item._id}
                 booking={item}
                 status={item.status}
                 onPress={() => handleBookingPress(item)}
@@ -117,22 +117,58 @@ const BookingsScreen = () => {
           </View>
         )}
       </ScrollView>
-          <Modal
+      <Modal
         visible={diningBookingModal}
         transparent={true}
         animationType="fade"
         onRequestClose={() => setDiningBookingModal(false)}
       >
-        <View style={{display:"flex",justifyContent:"center",flex:1}}>
-         
-            
+        <View style={{
+          flex: 1,
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          justifyContent: 'center',
+          alignItems: 'center',
+        }}>
+          <View style={{
+            width: '90%',
+            maxHeight: '80%',
+            backgroundColor: 'white',
+            borderRadius: 16,
+            position: 'relative',
+          }}>
+            <TouchableOpacity 
+              style={{
+                position: 'absolute',
+                top: -10,
+                right: -10,
+                zIndex: 1,
+                width: 35,
+                height: 35,
+                justifyContent: 'center',
+                alignItems: 'center',
+                backgroundColor: '#fff',
+                borderRadius: 17.5,
+                shadowColor: '#000',
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: 0.25,
+                shadowRadius: 3.84,
+                elevation: 5,
+              }}
+              onPress={() => setDiningBookingModal(false)}
+            >
+              <Text style={{
+                fontSize: 20,
+                color: '#666',
+                fontWeight: 'bold',
+              }}>×</Text>
+            </TouchableOpacity>
             {selectedBooking && (
               <BookingDetailsScreen 
                 {...selectedBooking}
                 onClose={() => setDiningBookingModal(false)}
               />
             )}
-      
+          </View>
         </View>
       </Modal>
   

@@ -7,7 +7,8 @@ import TakeawayOrderCard from '../../Card/TakewayCard';
 import TiffinOrderCard from '../../components/TiffinOrderCard';
  // Add this import
 
-const SERVER_URL = 'http://192.168.0.101:3000';
+import { API_CONFIG } from '../../config/apiConfig';
+const SERVER_URL = API_CONFIG.BACKEND_URL;
 export default function FavoriteOrdersScreen() {
   const [activeTab, setActiveTab] = useState('Takeaway');
   const [loading, setLoading] = useState(false);
