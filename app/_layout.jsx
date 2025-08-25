@@ -111,6 +111,9 @@ export default function RootLayout() {
                               <Stack.Screen name="screens/OrderSceess" options={{ headerShown: false }} />
                               <Stack.Screen name="screens/SelectLocation" options={{ headerShown: false }} />
                               <Stack.Screen name="screens/NoficationsPage" options={{ headerShown: false }} />
+                              <Stack.Screen name="screens/tiffinonmind" options={{ headerShown: false }} />
+                              <Stack.Screen name="screens/commentscreen" options={{ headerShown: false }} />
+                              <Stack.Screen name="screens/DeliveryAddress" options={{ headerShown: false }} />
                               <Stack.Screen name="MapPicker" options={{ headerShown: false }} />
                             </Stack>
                           </LocationProvider>
