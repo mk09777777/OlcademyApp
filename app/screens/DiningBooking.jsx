@@ -81,7 +81,7 @@ const BookingsScreen = () => {
 
   return (
     <View style={styles.container}>
-      
+
       <BackRouting tittle="Booking Details" />
       <View style={styles.tabContainer}>
         <TabButton title="ALL" isActive={activeTab === 'ALL'} onPress={() => setActiveTab('ALL')} />
@@ -123,55 +123,18 @@ const BookingsScreen = () => {
         animationType="fade"
         onRequestClose={() => setDiningBookingModal(false)}
       >
-        <View style={{
-          flex: 1,
-          backgroundColor: 'rgba(0, 0, 0, 0.5)',
-          justifyContent: 'center',
-          alignItems: 'center',
-        }}>
-          <View style={{
-            width: '90%',
-            maxHeight: '80%',
-            backgroundColor: 'white',
-            borderRadius: 16,
-            position: 'relative',
-          }}>
-            <TouchableOpacity 
-              style={{
-                position: 'absolute',
-                top: -10,
-                right: -10,
-                zIndex: 1,
-                width: 35,
-                height: 35,
-                justifyContent: 'center',
-                alignItems: 'center',
-                backgroundColor: '#fff',
-                borderRadius: 17.5,
-                shadowColor: '#000',
-                shadowOffset: { width: 0, height: 2 },
-                shadowOpacity: 0.25,
-                shadowRadius: 3.84,
-                elevation: 5,
-              }}
-              onPress={() => setDiningBookingModal(false)}
-            >
-              <Text style={{
-                fontSize: 20,
-                color: '#666',
-                fontWeight: 'bold',
-              }}>×</Text>
-            </TouchableOpacity>
-            {selectedBooking && (
-              <BookingDetailsScreen 
-                {...selectedBooking}
-                onClose={() => setDiningBookingModal(false)}
-              />
-            )}
-          </View>
-        </View>
+
+
+        {selectedBooking && (
+          <BookingDetailsScreen
+            {...selectedBooking}
+            onClose={() => setDiningBookingModal(false)}
+          />
+        )}
+
+
       </Modal>
-  
+
     </View>
   );
 };

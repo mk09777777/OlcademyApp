@@ -98,10 +98,10 @@ const TiffinCard = ({ firm, onPress, onFavoriteToggle, isFavorite, horizontal = 
 
           <View style={styles.priceContainer}>
             <View style={styles.ratingBadge}>
-              <FontAwesome name='star' size={14} color={COLORS.STAR} />
+              <FontAwesome name='star' size={14} color={"white"} />
               <Text style={styles.ratingText}>{rating}</Text>
             </View>
-            <Text style={styles.price}>{priceRange}</Text>
+            <Text style={styles.price}>${priceRange}</Text>
             {/* <Text style={styles.distance}>5KM</Text> */}
           </View>
         </View>
@@ -112,15 +112,15 @@ const TiffinCard = ({ firm, onPress, onFavoriteToggle, isFavorite, horizontal = 
 
 const styles = StyleSheet.create({
   card: {
-    marginHorizontal: 5,
+    // marginHorizontal: 5,
     backgroundColor: COLORS.SURFACE,
     borderRadius: 16,
     overflow: 'hidden',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.15,
-    shadowRadius: 8,
-    elevation: 5,
+    shadowRadius: 16,
+    elevation: 2,
     marginBottom: SPACING.LG,
   },
   horizontalCard: {
@@ -148,7 +148,7 @@ const styles = StyleSheet.create({
     marginRight: SPACING.MD,
   },
   title: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: '700',
     color: COLORS.TEXT_PRIMARY,
     marginBottom: SPACING.SM,
@@ -179,8 +179,10 @@ const styles = StyleSheet.create({
   price: {
     fontSize: 16,
     fontWeight: '700',
-    color: COLORS.PRIMARY,
-    marginTop: SPACING.XS,
+    color: "black",
+    // marginTop: SPACING.XS,
+    marginTop:12,
+    marginRight:9
   },
   distance: {
     fontSize: 12,
@@ -211,8 +213,8 @@ const styles = StyleSheet.create({
   ratingText: {
     color: 'white',
     fontSize: 14,
-    fontWeight: '700',
-    marginRight: 4,
+    fontWeight: '500',
+    marginLeft: 4,
   },
 });
 
