@@ -81,7 +81,7 @@ const TiffinDetails = () => {
       setRefreshing(true);
       setError(null);
 
-      const response = await axios.get(`http://10.154.177.16:3000/api/get-tiffin/${tiffinId}`);
+      const response = await axios.get(`https://backend-0wyj.onrender.com/api/get-tiffin/${tiffinId}`);
       const { success, tiffin } = response.data;
 
       if (success && tiffin) {
@@ -392,9 +392,7 @@ const TiffinDetails = () => {
               </Text>
             </View>
 
-            <Text style={styles.menuItemPrice}>
-              ${item.price || item.basePrice || 0}
-            </Text>
+            
 
             {item.description && (
               <Text style={styles.menuItemDescription} numberOfLines={2}>
@@ -404,6 +402,9 @@ const TiffinDetails = () => {
                 )}
               </Text>
             )}
+            <Text style={styles.menuItemPrice}>
+              ${item.price || item.basePrice || 0}
+            </Text>
           </View>
         </View>
       </View>
@@ -428,7 +429,7 @@ const TiffinDetails = () => {
 
     return (
       <View style={styles.deliveryCitiesContainer}>
-        <Text style={styles.label}>Delivery Areas:</Text>
+
         <View style={styles.citiesWrapper}>
           {visibleCities.map((city, index) => (
             <View key={index} style={styles.cityPill}>
@@ -512,8 +513,71 @@ const TiffinDetails = () => {
             images={service.images}
             currentIndex={currentImageIndex}
             onIndexChange={setCurrentImageIndex}
+            style={{ width: 412, height: 313, borderRadius: 12 }}
           />
+
+          {/* Overlay Container for title + review box */}
+          <View style={styles.overlayContainer}>
+            {/* Title */}
+            <TouchableOpacity
+              onPress={() =>
+                router.push({
+                  pathname: "/screens/TiffinDetailsScreen",
+                  params: {
+                    restaurant: JSON.stringify({
+                      ...service,
+                      kitchenName: service.title,
+                      ratings: service.rating,
+                      ownerPhoneNo: {
+                        fullNumber: service.phoneNumber,
+                      },
+                    }),
+                  },
+                })
+              }
+              style={styles.titleWrapper}
+            >
+              <Text
+                style={styles.titleText}
+                numberOfLines={3}
+                ellipsizeMode="tail"
+              >
+                {service.title}
+              </Text>
+            </TouchableOpacity>
+
+            {/* Review Box */}
+            <TouchableOpacity
+              onPress={() =>
+                router.push({
+                  pathname: "/screens/Reviewsall",
+                  params: {
+                    firmId: service.id,
+                    restaurantName: service.title,
+                    averageRating: service.rating.toFixed(1),
+                    reviewCount: service.reviews.length,
+                  },
+                })
+              }
+              style={styles.reviewBox}
+            >
+              <View style={styles.reviewBoxTopContainer}>
+                <View style={styles.reviewBoxUpperContainer}>
+                  <Text style={styles.reviewText}>
+                    {service.rating.toFixed(1)}
+                  </Text>
+                  <FontAwesome name="star" size={18} color="white" />
+                </View>
+              </View>
+              <View style={styles.reviewBoxBottomContainer}>
+                <Text style={styles.reviewCount}>{service.reviews.length}</Text>
+                <Text style={styles.reviewCount}>Reviews</Text>
+              </View>
+            </TouchableOpacity>
+          </View>
         </View>
+
+
         <View style={styles.contentContainer}>
           <View style={styles.maincontainer}>
             <View style={styles.headerContainer}>
@@ -536,63 +600,27 @@ const TiffinDetails = () => {
                 })}
                 style={styles.titleButton}
               >
-                <View style={styles.titleContainer}>
-                  <Text style={styles.title} numberOfLines={3} ellipsizeMode="tail">{service.title}</Text>
-                  {/* {service.isVerified && (
-                    <MaterialCommunityIcons name="check-decagram" size={20} color="#4CAF50" />
-                  )} */}
-                </View>
-                <View style={styles.infoRow}>
-                  <MaterialCommunityIcons name="phone" size={20} color="#666" />
-                  <Text style={styles.infoText}>Contact: {service.phoneNumber}</Text>
-                </View>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                onPress={() => router.push({
-                  pathname: "/screens/Reviewsall",
-                  params: {
-                    firmId: service.id,
-                    restaurantName: service.title,
-                    averageRating: service.rating.toFixed(1),
-                    reviewCount: service.reviews.length
-                  }
-                })}
-                style={styles.reviewBox}
-              >
-                <View style={styles.reviewBoxTopContainer}>
-                  <View style={styles.reviewBoxUpperContainer}>
-                    <Text style={styles.reviewText}>
-                      {service.rating.toFixed(1)}
-                    </Text>
-                    <FontAwesome name="star" size={18} color="white" />
-                  </View>
-                </View>
-                <View style={styles.reviewBoxBottomContainer}>
-                  <Text style={styles.reviewCount}>
-                    {service.reviews.length}
-                  </Text>
-                  <Text style={styles.reviewCount}>Reviews</Text>
-                </View>
               </TouchableOpacity>
             </View>
             <View style={styles.detailsContainer}>
               <View style={styles.infoRow}>
-                <MaterialCommunityIcons
-                  name="truck-delivery"
-                  size={20}
-                  color="#666"
-                  style={styles.icon}
-                />
                 <DeliveryCitiesList cities={service.deliveryCities} />
               </View>
               <View style={styles.infoRow}>
-                <MaterialCommunityIcons name="map-marker-distance" size={20} color="#666" />
-                <Text style={styles.infoText}>Distance: {service.distance}</Text>
+                <MaterialCommunityIcons name="phone" size={20} color="#FF69B4" />
+                <Text style={styles.infoText}>Contact: {service.phoneNumber}</Text>
+              </View>
+              <View style={styles.infoRow}>
+                <MaterialCommunityIcons
+                  name="truck-delivery"
+                  size={20}
+                  color="#FF69B4"
+                  style={styles.icon}
+                />                <Text style={styles.infoText}>Distance: {service.distance}</Text>
               </View>
 
               <View style={styles.infoRow}>
-                <MaterialCommunityIcons name="home" size={20} color="#666" />
+                <MaterialCommunityIcons name="map-marker" size={20} color="#FF69B4" />
                 <Text style={styles.infoText}>Address: {service.address}</Text>
               </View>
             </View>
@@ -666,7 +694,7 @@ const TiffinDetails = () => {
             <View style={styles.separatorRow}>
               <View style={styles.line} />
               <Text style={styles.separatorText}>
-                Tiffin Meals
+                 Meals
               </Text>
               <View style={styles.line} />
             </View>
@@ -713,4 +741,4 @@ const TiffinDetails = () => {
   );
 };
 
-export default TiffinDetails;
+export default TiffinDetails;  

@@ -12,6 +12,127 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  card: {
+    margin: 10,
+    borderRadius: 12,
+    overflow: 'hidden',
+  },
+  imageBackground: {
+    height: 200,
+    justifyContent: 'flex-end', // push text to bottom
+  },
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0,0,0,0.4)', // dark overlay for contrast
+  },
+  contentContainer: {
+    padding: 1,
+  },
+  titleContainer: {
+  flexDirection: "row",       // places title on left & review box on right
+  justifyContent: "space-between",
+  alignItems: "flex-start",   // keeps title top-aligned with review box
+  marginTop: 8,
+  paddingHorizontal: 10,
+},
+
+title: {
+  flex: 1,                    // take available width
+  fontSize: 16,
+  fontWeight: "bold",
+  color: "#000",
+  marginRight: 10,
+  flexWrap: "wrap",
+},
+overlayContainer: {
+  position: "absolute",
+  bottom: 0,
+  left: 10,
+  right: 10,
+  flexDirection: "row",
+  justifyContent: "space-between",
+  alignItems: "flex-start",
+},
+
+titleWrapper: {
+  flex: 1, // takes remaining space beside review box
+  marginRight: 10,
+},
+
+titleText: {
+  fontSize: 16,
+  fontWeight: "bold",
+  color: "#fff",
+},
+reviewBox: {
+  marginTop: 20,
+  bottom: 20,
+  minWidth: 70,
+  borderRadius: 10,
+  right: 10,
+  borderWidth: 1,
+  borderColor: '#ccc',
+  overflow: 'hidden',   // ensures children match rounded corners
+},
+
+reviewBoxTopContainer: {
+  backgroundColor: 'green',
+  padding: 10,
+},
+
+reviewBoxBottomContainer: {
+  backgroundColor: 'white',
+  padding: 10,
+  flexDirection: 'row',
+},
+
+
+
+reviewBoxUpperContainer: {
+  flexDirection: "row",
+  alignItems: "center",
+},
+
+reviewText: {
+  fontSize: 14,
+  color: "#fff",
+  marginRight: 4,
+},
+
+
+
+reviewCount: {
+  fontSize: 12,
+  color: "#fff",
+},
+
+
+
+  infoRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  backgroundImage: {
+    width: '100%',
+    height: 200,
+    justifyContent: 'flex-end',
+  },
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+  },
+  overlayContent: {
+    padding: 10,
+  },
+  title: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  infoText: {
+    color: '#fff',
+    fontSize: 14,
+  },
   loadingText: {
     marginTop: 16,
     color: '#666',
@@ -22,22 +143,92 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 24,
   },
-  reviewBoxTopContainer: {
-    backgroundColor: 'green',
-    padding: 10,
-    borderTopLeftRadius: 10,
-    borderTopRightRadius: 10
+  heroContainer: {
+    height: 260,
+    position: 'relative',
+    backgroundColor: '#000',
+    overflow: 'hidden',
   },
+  heroGradient: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    top: 0,
+  },
+  heroTopBar: {
+    position: 'absolute',
+    top: 10,
+    left: 10,
+    right: 10,
+    zIndex: 2,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 12,
+  },
+  roundBtn: {
+    backgroundColor: 'rgba(0,0,0,0.45)',
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  heroBottomOverlay: {
+    position: 'absolute',
+    left: 12,
+    right: 12,
+    bottom: 12,
+    zIndex: 2,
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    gap: 12,
+  },
+  heroTitle: {
+    color: '#fff',
+    fontSize: 20,
+    fontWeight: '700',
+  },
+  heroMetaRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 6,
+  },
+  heroMetaText: {
+    color: '#eee',
+    fontSize: 13,
+  },
+  ratingCard: {
+    minWidth: 90,
+    alignSelf: 'flex-end',
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    paddingVertical: 8,
+    paddingHorizontal: 10,
+    borderRadius: 10,
+  },
+  ratingTop: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    justifyContent: 'center',
+  },
+  ratingValue: {
+    color: '#fff',
+    fontWeight: '700',
+    fontSize: 16,
+  },
+  ratingCount: {
+    color: '#ddd',
+    fontSize: 12,
+    textAlign: 'center',
+    marginTop: 2,
+  },
+  
   reviewBoxUpperContainer: {
     flexDirection: 'row',
   },
-  reviewBoxBottomContainer: {
-    backgroundColor: 'white',
-    borderBottomLeftRadius: 10,
-    borderBottomRightRadius: 10,
-    padding: 10,
-    flexDirection: 'row',
-  },
+  
   reviewText: {
     fontFamily: 'outfit',
     color: 'white',
@@ -49,16 +240,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     textAlign: 'center'
   },
-  reviewBox: {
-    marginTop: 20,
-    bottom: 20,
-    minWidth: 70,
-    borderRadius: 10,
-    right: 10,
-    // left:300,
-    borderWidth: 1,
-    borderColor: '#ccc'
-  },
+  
   errorText: {
     fontSize: 18,
     color: '#FF4500',
@@ -390,28 +572,30 @@ const styles = StyleSheet.create({
     color: '#fff',
   },
   menuList: {
-    padding: 15,
+    padding: 10,
 
   },
   menuItem: {
-    marginBottom: 10,
+    marginBottom: 5,
     backgroundColor: '#f7f7f7ff',
     elevation: 2,
     overflow: 'hidden',
     flexDirection: 'row',
     alignItems: 'stretch',
-    padding:15,
+    padding:5,
       borderColor:'#c1c1c1ff',
     borderWidth:0.5,
     borderRadius: 12,
+    width: 370,
+    height: 100,
   },
   menuItemImageContainer: {
     width: 120,
     height: 130,
   },
   menuItemImage: {
-    width: '100%',
-    height: 120,
+    width: 80,
+    height: 80,
     resizeMode: 'cover',
     borderColor:'#424242ff',
     borderWidth:1,
@@ -481,8 +665,8 @@ const styles = StyleSheet.create({
     marginRight: 12,
   },
   addButton: {
-    bottom: 15,
-    left: 10,
+    bottom: 20,
+    left: 250,
     // paddingBottom:10,
     borderRadius: 10,
     backgroundColor: '#FF4B3f',
@@ -735,7 +919,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   cityPill: {
-    backgroundColor: '#f0f0f0',
+    backgroundColor: 'background: rgba(253, 231, 233, 1)',
     borderRadius: 16,
     paddingVertical: 8,
     paddingHorizontal: 12,
@@ -821,8 +1005,8 @@ const styles = StyleSheet.create({
     separatorRow: {
 		flexDirection: 'row',
 		alignItems: 'center',
-		marginTop: 10,
-    marginBottom: 10
+		marginTop: 5,
+    marginBottom: 5
 	  },
   line: {
     flex: 1,
