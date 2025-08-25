@@ -1,14 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-  Alert,
-  FlatList,
-  Dimensions,
-  ScrollView,
-} from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Alert, FlatList, TextInput, Platform, KeyboardAvoidingView } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import { useRouter } from 'expo-router';
 import Icon from 'react-native-vector-icons/Feather';
@@ -19,9 +10,6 @@ import { useSafeNavigation } from '@/hooks/navigationPage';
 import { useLocationContext } from '@/context/LocationContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import BackRouting from '@/components/BackRouting';
-import { API_CONFIG } from '../config/apiConfig';
-
-const screenHeight = Dimensions.get('window').height;
 
 export default function MapPicker() {
   const router = useRouter();
@@ -36,34 +24,30 @@ export default function MapPicker() {
   });
 
   const [selectedType, setSelectedType] = useState('');
-  const [locationName, setLocationName] = useState({
-     city:  '',
-      state:  '',
-      country:  '',
-      fullAddress:'',
-      area: '',
-      street: '',
-      houseNumber: '',
-  });
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [markerCoordinate, setMarkerCoordinate] = useState(null);
 
   const tagOptions = [
-    { type: 'Other', icon: <FontAwesome5 name="map-marker-alt" size={14} color="#555" /> },
-    { type: 'Hotel', icon: <MaterialCommunityIcons name="office-building" size={14} color="#555" /> },
-    { type: 'Work', icon: <MaterialCommunityIcons name="briefcase-outline" size={14} color="#555" /> },
-    { type: 'Home', icon: <Icon name="home" size={14} color="#555" /> },
+    { type: 'Home', icon: <Icon name="home" size={18} /> },
+    { type: 'Work', icon: <MaterialCommunityIcons name="briefcase-outline" size={18} /> },
+    { type: 'Hotel', icon: <MaterialCommunityIcons name="office-building" size={18} /> },
+    { type: 'Other', icon: <FontAwesome5 name="map-marker-alt" size={16} /> },
   ];
 
   const fetchlatlong = async () => {
     try {
-
-      const response = await axios.get(`${API_CONFIG.BACKEND_URL}/api/location`);
+      const response = await axios.get('https://backend-0wyj.onrender.com/api/location');
       const { lat, lon } = response.data;
-      setRegion({
+      const newRegion = {
         latitude: parseFloat(lat),
         longitude: parseFloat(lon),
         latitudeDelta: 0.01,
         longitudeDelta: 0.01,
-      });
+      };
+      setRegion(newRegion);
+      setMarkerCoordinate(newRegion);
     } catch (err) {
       console.log('Error fetching lat/long:', err);
     }
@@ -72,6 +56,64 @@ export default function MapPicker() {
   useEffect(() => {
     fetchlatlong();
   }, []);
+
+  // Search for locations using Nominatim
+  const searchLocation = async (query) => {
+    if (!query || query.length < 3) {
+      setSearchResults([]);
+      return;
+    }
+
+    try {
+      const response = await axios.get(
+        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`,
+        {
+          headers: {
+            'User-Agent': 'ProjectZ/1.0.0 (mayurvicky01234@gmail.com)',
+          },
+        }
+      );
+      
+      setSearchResults(response.data.slice(0, 5)); // Limit to 5 results
+    } catch (error) {
+      console.log('Search error:', error);
+      Alert.alert('Error', 'Failed to search locations');
+    }
+  };
+
+  // Handle search input changes with debounce
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      searchLocation(searchQuery);
+    }, 500); // 500ms debounce
+
+    return () => clearTimeout(timeoutId);
+  }, [searchQuery]);
+
+  const handleSearchResultSelect = (result) => {
+    const newRegion = {
+      latitude: parseFloat(result.lat),
+      longitude: parseFloat(result.lon),
+      latitudeDelta: 0.01,
+      longitudeDelta: 0.01,
+    };
+    
+    setRegion(newRegion);
+    setMarkerCoordinate(newRegion);
+    setSearchQuery(result.display_name);
+    setSearchResults([]);
+    setIsSearching(false);
+  };
+
+  const handleMapPress = (event) => {
+    const { coordinate } = event.nativeEvent;
+    setMarkerCoordinate(coordinate);
+    setRegion({
+      ...region,
+      latitude: coordinate.latitude,
+      longitude: coordinate.longitude,
+    });
+  };
 
   const reverseGeocode = async (lat, lon) => {
     try {
@@ -103,10 +145,6 @@ export default function MapPicker() {
       await AsyncStorage.setItem('recentlyAddList', JSON.stringify(parsed));
       setRecentlyAdds(parsed);
 
-      const addressLines = fullAddress.split(',');
-      const shortAddress = addressLines.slice(0, 2).join('\n');
-      setLocationName(shortAddress);
-
       return recentEntry;
     } catch (err) {
       console.log('Reverse geocoding failed:', err.message || err);
@@ -116,11 +154,16 @@ export default function MapPicker() {
 
   const handleSaveLocation = async () => {
     if (!selectedType) {
-      Alert.alert('Select Type', 'Please choose a location type');
+      Alert.alert('Select Type', 'Please choose a location type (Home, Work, etc.)');
       return;
     }
 
-    const { latitude, longitude } = region;
+    if (!markerCoordinate) {
+      Alert.alert('Select Location', 'Please select a location on the map');
+      return;
+    }
+
+    const { latitude, longitude } = markerCoordinate;
     const geo = await reverseGeocode(latitude, longitude);
     if (!geo) return;
 
@@ -135,25 +178,17 @@ export default function MapPicker() {
       street: '',
       houseNumber: '',
     });
-    setLocationName({
-       city: geo.city || '',
-      state: geo.state || '',
-      country: geo.country || '',
-      lat: latitude,
-      lon: longitude,
-      fullAddress: geo.fullAddress,
-      area: '',
-      street: '',
-      houseNumber: '',
-    })
+
+    const addressUpload = geo.fullAddress;
+    const serviceArea = selectedType;
 
     try {
       await axios.post(
-        `${API_CONFIG.BACKEND_URL}/api/createUserAddress`,
+        'https://backend-0wyj.onrender.com/api/createUserAddress',
         [
           {
-            address: geo.fullAddress,
-            service_area: selectedType,
+            address: addressUpload,
+            service_area: serviceArea,
           },
         ],
         {
@@ -162,34 +197,83 @@ export default function MapPicker() {
           },
         }
       );
-      safeNavigation('/home');
+      router.back();
     } catch (error) {
-      console.log('Error saving location:', error.response?.data || error.message);
+      console.log('error in uploading the address', error.response?.data || error.message);
     }
   };
 
+  const getTagStyle = (type) => ({
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 8,
+    paddingHorizontal: 14,
+    marginRight: 4,
+    borderWidth: 1,
+    borderRadius: 30,
+    borderColor: selectedType === type ? '#f23e3e' : '#ccc',
+    backgroundColor: selectedType === type ? '#ffe6e6' : '#fff',
+  });
+
+  const getTextStyle = (type) => ({
+    marginLeft: 6,
+    color: selectedType === type ? '#f23e3e' : '#555',
+  });
+
   return (
-    <View style={styles.container}>
-      <ScrollView contentContainerStyle={{ paddingBottom: 100 }}>
-        <View style={styles.header}>
-          <BackRouting />
-          <Text style={styles.headerTitle}>Select From Map</Text>
+    <KeyboardAvoidingView 
+      style={{ flex: 1 }}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    >
+      <View style={{ flex: 1, backgroundColor:'#ffffffff' }}>
+        <BackRouting tittle='Select Map'/>
+        {/* <View style={{ alignItems: 'center', marginVertical: 10 }}>
+          <Text style={styles.headerMap}>Select From Map</Text>
+        </View> */}
+        
+        {/* Search Bar */}
+        <View style={styles.searchContainer}>
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Search for a location..."
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+            onFocus={() => setIsSearching(true)}
+            onBlur={() => setTimeout(() => setIsSearching(false), 200)}
+          />
+          <Icon name="search" size={20} color="#999" style={styles.searchIcon} />
+          
+          {searchResults.length > 0 && isSearching && (
+            <View style={styles.searchResultsContainer}>
+              <FlatList
+                data={searchResults}
+                keyExtractor={(item) => item.place_id.toString()}
+                renderItem={({ item }) => (
+                  <TouchableOpacity
+                    style={styles.searchResultItem}
+                    onPress={() => handleSearchResultSelect(item)}
+                  >
+                    <Text style={styles.searchResultText} numberOfLines={1}>
+                      {item.display_name}
+                    </Text>
+                  </TouchableOpacity>
+                )}
+              />
+            </View>
+          )}
         </View>
 
-        <View style={styles.mapContainer}>
-          <MapView
-            style={styles.map}
-            region={region}
-            onRegionChangeComplete={setRegion}
-          >
-            <Marker coordinate={region} />
-          </MapView>
-        </View>
-
-        <View style={styles.locationContainer}>
-          <Text style={styles.locationText}>{locationName.city}</Text>
-        </View>
-
+        <MapView
+          style={{ height: 300, width: '100%' }}
+          region={region}
+          onRegionChangeComplete={setRegion}
+          onPress={handleMapPress}
+        >
+          {markerCoordinate && (
+            <Marker coordinate={markerCoordinate} />
+          )}
+        </MapView>
+        
         <View style={styles.tagsContainer}>
           <FlatList
             data={tagOptions}
@@ -199,117 +283,94 @@ export default function MapPicker() {
             contentContainerStyle={styles.tagsList}
             renderItem={({ item }) => (
               <TouchableOpacity
-                style={[
-                  styles.tag,
-                  selectedType === item.type && styles.selectedTag
-                ]}
+                style={getTagStyle(item.type)}
                 onPress={() => setSelectedType(item.type)}
               >
                 {item.icon}
-                <Text style={[
-                  styles.tagText,
-                  selectedType === item.type && styles.selectedTagText
-                ]}>
-                  {item.type}
-                </Text>
+                <Text style={getTextStyle(item.type)}>{item.type}</Text>
               </TouchableOpacity>
             )}
           />
         </View>
-      </ScrollView>
-
-      <TouchableOpacity style={styles.saveButton} onPress={handleSaveLocation}>
-        <Text style={styles.saveButtonText}>Save Location</Text>
-      </TouchableOpacity>
-    </View>
+        
+        <TouchableOpacity style={styles.confirmBtn} onPress={handleSaveLocation}>
+          <Text style={styles.confirmTxt}>Save Location</Text>
+        </TouchableOpacity>
+      </View>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-  },
-  header: {
-    flexDirection: 'row',
+  confirmBtn: {
+    position: 'relative',
+    bottom: 10,
+    marginHorizontal: 20,
+    backgroundColor: '#e41e3f',
+    padding: 14,
+    borderRadius: 10,
     alignItems: 'center',
-    padding: 16,
-    paddingTop: 20,
+    marginTop: 10,
   },
-  headerTitle: {
-    fontSize: 18,
+  confirmTxt: {
+    color: '#fff',
     fontWeight: 'bold',
-    color: '#000',
-    marginLeft: 16,
-  },
-  mapContainer: {
-    height: screenHeight * 0.55, 
-    marginHorizontal: 16,
-    borderRadius: 12,
-    overflow: 'hidden',
-    marginTop: 0,
-  },
-  map: {
-    flex: 1,
-  },
-  locationContainer: {
-    marginHorizontal: 16,
-    marginTop: 16,
-    padding: 12,
-    backgroundColor: '#f8f8f8',
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#eee',
-  },
-  locationText: {
     fontSize: 16,
-    color: '#333',
-    lineHeight: 22,
   },
   tagsContainer: {
-    marginHorizontal: 16,
-    marginTop: 16,
+    margin: 10,
   },
   tagsList: {
-    paddingBottom: 8,
+    justifyContent: 'flex-start',
   },
-  tag: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 8,
-    paddingHorizontal: 14,
-    marginRight: 10,
-    borderRadius: 20,
+  headerMap: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#000',
+  },
+  searchContainer: {
+    position: 'relative',
+    marginHorizontal: 20,
+    marginBottom: 10,
+    zIndex: 10,
+  },
+  searchInput: {
+    backgroundColor: '#fff',
+    padding: 12,
+    paddingLeft: 40,
+    borderRadius: 8,
     borderWidth: 1,
     borderColor: '#ddd',
-    backgroundColor: '#fff',
-  },
-  selectedTag: {
-    borderColor: '#e41e3f',
-    backgroundColor: '#ffeaea',
-  },
-  tagText: {
-    marginLeft: 8,
-    fontSize: 14,
-    color: '#555',
-  },
-  selectedTagText: {
-    color: '#e41e3f',
-  },
-  saveButton: {
-    position: 'absolute',
-    bottom: 20,
-    left: 16,
-    right: 16,
-    backgroundColor: '#e41e3f',
-    padding: 16,
-    borderRadius: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  saveButtonText: {
-    color: '#fff',
     fontSize: 16,
-    fontWeight: 'bold',
+  },
+  searchIcon: {
+    position: 'absolute',
+    left: 12,
+    top: 12,
+  },
+  searchResultsContainer: {
+    position: 'absolute',
+    top: 50,
+    left: 0,
+    right: 0,
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#ddd',
+    maxHeight: 200,
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+  },
+  searchResultItem: {
+    padding: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
+  },
+  searchResultText: {
+    fontSize: 14,
+    color: '#333',
   },
 });

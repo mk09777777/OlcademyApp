@@ -1,7 +1,9 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, Image, StyleSheet, Modal, ScrollView } from 'react-native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-
+import { router } from 'expo-router';
+import { useAuth } from '@/context/AuthContext';
+import  {styles } from '../styles/TiffinOrderCardstyle';
 const TiffinOrderCard = ({ 
   item, 
   formatDate, 
@@ -17,8 +19,11 @@ const TiffinOrderCard = ({
 }) => {
   const firstItem = item.items && item.items.length > 0 ? item.items[0] : {};
   const tiffinName = firstItem.sourceEntityId?.kitchenName || firstItem.name || "Unknown Tiffin Service";
+   const firmId = firstItem.sourceEntityId?._id;
+   console.log(firmId)
   const tiffinImage = firstItem.img || "https://placehold.co/150x150/e0f2f7/00796b?text=Tiffin";
-
+    const { user, profileData, api } = useAuth();
+  const currentUserData = profileData?.email ? profileData : (user ? { username: user } : null);
   const handleFavoritePress = () => {
     if (onToggleFavorite) {
       onToggleFavorite(item._id);
@@ -111,6 +116,20 @@ const TiffinOrderCard = ({
               <Text style={styles.viewDetailsButtonText}>View Details</Text>
             </TouchableOpacity>
           </View>
+              <TouchableOpacity
+                    style={styles.viewDetailButton}
+                      onPress={() => router.push({
+                              pathname: "/screens/Userrating",
+                              params: {
+                                firmId: firmId,
+                                restaurantName:tiffinName,
+                                currentUser: currentUserData,
+                                reviewType:'tiffin',
+                              }
+                            })}
+                  >
+                    <Text style={styles.viewDetails}>Review</Text>
+                  </TouchableOpacity>
         </View>
       </TouchableOpacity>
 
@@ -127,10 +146,11 @@ const TiffinOrderCard = ({
               <ScrollView style={styles.modalContent}>
                 {/* Modal Header */}
                 <View style={styles.modalHeader}>
-                  <Text style={styles.modalTitle}>Order Details</Text>
-                  <TouchableOpacity onPress={closeOrderDetails} style={styles.closeButton}>
-                    <Ionicons name="close" size={24} color="#666" />
+                     <TouchableOpacity onPress={closeOrderDetails} style={styles.closeButton}>
+                    <Ionicons name="close" size={26} color="#666" />
                   </TouchableOpacity>
+                  <Text style={styles.modalTitle}>Order Details</Text>
+               
                 </View>
                 <View style={styles.paymentRow}>
                   <Text style={[styles.paymentLabel, styles.discountText]}>OrderId:-</Text>
@@ -217,7 +237,10 @@ const TiffinOrderCard = ({
                       </View>
 
                       {selectedOrder.deliverTime && (
-                        <Text style={styles.itemDetail}>DeliverTime: {selectedOrder.deliverTime}</Text>
+                         <View style={styles.detailRow}>
+                          <Text style={styles.detailLabel}>DeliverTime:</Text>
+                        <Text style={[styles.detailValue, styles.descriptionText]}>{selectedOrder.deliverTime}</Text>
+                        </View>
                       )}
                     </View>
                   ))}
@@ -368,372 +391,5 @@ const TiffinOrderCard = ({
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  orderCard: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    marginBottom: 10,
-    padding: 3,
-    paddingTop: 13,
-    paddingLeft: 13,
-    paddingRight: 13,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-  },
-  restaurantHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: 12,
-  },
-  restaurantInfo: {
-    flexDirection: 'row',
-    flex: 1,
-  },
-  restaurantImage: {
-    width: 100,
-    height: 100,
-    borderRadius: 8,
-    marginRight: 12,
-  },
-  restaurantDetails: {
-    padding: 10,
-    flex: 1,
-  },
-  restaurantName: {
-    fontSize: 16,
-    fontWeight: '600',
-    marginBottom: 4,
-    color: '#333',
-  },
-  orderDate: {
-    marginBottom: 10,
-    fontSize: 14,
-    color: '#666',
-  },
-  priceText: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#333',
-  },
-  cardContent: {
-    padding: 10,
-  },
-  cardFooter: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    borderTopWidth: 1,
-    borderTopColor: '#eee',
-    paddingTop: 12,
-  },
-  orderStatus: {
-    fontSize: 14,
-    fontWeight: '500',
-    marginTop: 2,
-    textTransform: 'capitalize',
-  },
-  viewDetailsButton: {
-    backgroundColor: '#08a742',
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: 20,
-  },
-  viewDetailsButtonText: {
-    color: 'white',
-    fontWeight: '600',
-  },
-  orderItems: {
-    marginBottom: 12,
-  },
-  orderItemt: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 6,
-  },
-  vegIcon: {
-    width: 16,
-    height: 16,
-    borderWidth: 1,
-    borderColor: '#0f8a65',
-    marginRight: 8,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  vegIconInner: {
-    width: 8,
-    height: 8,
-    backgroundColor: '#0f8a65',
-    borderRadius: 4,
-  },
-  nonVegIcon: {
-    borderColor: '#e23744',
-  },
-  nonVegIconInner: {
-    backgroundColor: '#e23744',
-  },
-  itemText: {
-    fontSize: 14,
-    color: '#333',
-    flex: 1,
-  },
-  // Modal styles
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(255, 255, 255, 0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  modalContainer: {
-    backgroundColor: '#f4f3f3ff',
-    padding: 20,
-    width: '100%',
-    maxHeight: '95%',
-    borderRadius: 10,
-  },
-  modalHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  modalTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#333',
-  },
-  closeButton: {
-    padding: 4,
-  },
-  modalContent: {
-    flexGrow: 1,
-  },
-  section: {
-    marginBottom: 15,
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 15,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 12,
-    color: '#333',
-  },
-  infoRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  infoText: {
-    marginLeft: 10,
-    fontSize: 15,
-    color: '#575656ff',
-  },
-  specialInstructionsContainer: {
-    backgroundColor: '#f9fafb',
-    padding: 12,
-    borderRadius: 6,
-    borderWidth: 1,
-    borderColor: '#e5e7eb',
-    marginTop: 10,
-  },
-  instructionHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 4
-  },
-  instructionTitle: {
-    fontWeight: '600',
-    fontSize: 15,
-  },
-  instructionText: {
-    fontStyle: 'italic',
-    marginLeft: 30,
-    color: '#4b5563'
-  },
-  icon: {
-    marginRight: 8
-  },
-  progressSection: {
-    backgroundColor: '#E0F7FA',
-    padding: 12,
-    borderRadius: 12,
-    marginBottom: 15,
-  },
-  progressBarBackground: {
-    height: 8,
-    backgroundColor: '#B2EBF2',
-    borderRadius: 4,
-    marginBottom: 8,
-  },
-  progressBarFill: {
-    height: '100%',
-    backgroundColor: '#00ACC1',
-    borderRadius: 4,
-  },
-  progressInfo: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  progressText: {
-    fontSize: 12,
-    color: '#666',
-  },
-  progressPercent: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#00838F',
-  },
-  orderItem: {
-    backgroundColor: '#ffffffff',
-    padding: 12,
-    borderRadius: 8,
-    marginBottom: 8,
-  },
-  itemHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  itemName: {
-    fontSize: 16,
-    fontWeight: '500',
-    color: '#222',
-    flex: 1,
-  },
-  itemDetails: {
-    marginLeft: 8,
-  },
-  detailRow: {
-    flexDirection: 'row',
-    marginBottom: 6,
-  },
-  detailLabel: {
-    fontSize: 14,
-    color: '#666',
-    width: 100,
-    fontWeight: '500',
-  },
-  detailValue: {
-    fontSize: 14,
-    color: '#333',
-    flex: 1,
-  },
-  descriptionText: {
-    fontStyle: 'bold',
-  },
-  paymentTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 12,
-  },
-  paymentRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 8,
-  },
-  paymentLabel: {
-    fontSize: 14,
-    color: '#666',
-  },
-  paymentValue: {
-    fontSize: 14,
-    color: '#333',
-  },
-  discountText: {
-    color: '#E53935',
-  },
-  totalPaymentRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 12,
-    paddingTop: 12,
-    borderTopWidth: 1,
-    borderTopColor: '#eee',
-  },
-  totalPaymentLabel: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#333',
-  },
-  totalPaymentValue: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#08a742',
-  },
-  timeline: {
-    marginLeft: 15,
-    borderLeftWidth: 2,
-    borderLeftColor: '#BDBDBD',
-    paddingLeft: 19,
-  },
-  timelineItem: {
-    marginBottom: 16,
-    position: 'relative',
-  },
-  timelineDot: {
-    position: 'absolute',
-    left: -30,
-    top: 0,
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    backgroundColor: 'white',
-    borderWidth: 2,
-    borderColor: '#08a742',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  timelineContent: {
-    paddingBottom: 8,
-  },
-  timelineStatus: {
-    fontSize: 15,
-    fontWeight: '600',
-    marginBottom: 4,
-  },
-  latestBadge: {
-    backgroundColor: '#E3F2FD',
-    color: '#1976D2',
-    fontSize: 14,
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 4,
-  },
-  timelineDate: {
-    fontSize: 14,
-    color: '#757575',
-  },
-  cancelButtonContainer: {
-    marginTop: 20,
-    borderTopWidth: 1,
-    borderTopColor: '#eee',
-    paddingTop: 16,
-    alignItems: 'center',
-  },
-  cancelButton: {
-    backgroundColor: '#E53935',
-    paddingHorizontal: 24,
-    paddingVertical: 12,
-    borderRadius: 8,
-  },
-  cancelButtonText: {
-    color: 'white',
-    fontWeight: '600',
-    fontSize: 16,
-  },
-});
 
 export default TiffinOrderCard;

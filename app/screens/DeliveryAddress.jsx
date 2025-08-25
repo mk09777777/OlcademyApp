@@ -17,7 +17,7 @@ import { router } from 'expo-router';
 import axios from 'axios';
 import { useSafeNavigation } from '@/hooks/navigationPage';
 import BackRouting from '@/components/BackRouting';
-import { API_CONFIG } from '../../config/apiConfig';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function AddressScreen() {
   const [selectedAddressId, setSelectedAddressId] = useState(null);
@@ -33,14 +33,19 @@ export default function AddressScreen() {
   const [editingAddressText, setEditingAddressText] = useState('');
   const [editingAddressType, setEditingAddressType] = useState('');
   const [editingAddressId, setEditingAddressId] = useState(null);
+  const [selectedAddress, setSelectedAddress] = useState(null);
 
-
-  const API_BASE_URL = API_CONFIG.BACKEND_URL;
+  const API_BASE_URL = 'https://backend-0wyj.onrender.com';
 
   const fetchAddresses = async () => {
     setIsLoading(true);
     try {
-      const response = await axios.get(`${API_BASE_URL}/api/getSavedAddress`);
+      const response = await axios.get(`${API_BASE_URL}/api/getSavedAddress`, {
+        withCredentials: true,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
       console.log("address fetched is", response.data);
       setAddresses(response.data.reverse()); // latest first
     } catch (error) {
@@ -50,7 +55,6 @@ export default function AddressScreen() {
       setIsLoading(false);
     }
   };
-
 
   useEffect(() => {
     fetchAddresses();
@@ -98,7 +102,12 @@ export default function AddressScreen() {
         {
           address: editingAddressText,
           service_area: editingAddressType
-        }
+        }, {
+          withCredentials: true,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }
       );
 
       // Refresh the list
@@ -117,7 +126,12 @@ export default function AddressScreen() {
   const confirmDelete = async () => {
     setIsDeleting(true);
     try {
-      await axios.delete(`${API_BASE_URL}/api/DeleteUserAddress/${addressToDelete._id}`);
+      await axios.delete(`${API_BASE_URL}/api/DeleteUserAddress/${addressToDelete._id}`, {
+        withCredentials: true,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
       setAddresses(prev => prev.filter(addr => addr._id !== addressToDelete._id));
       setDeleteModalVisible(false);
       Alert.alert("Success", "Address deleted successfully");
@@ -155,58 +169,110 @@ export default function AddressScreen() {
     }
   };
 
-  const AddressCard = ({ address }) => (
-    <View style={styles.addressCardContainer}>
+const handleSuggestionSelect = async (item) => {
+  try {
+    const fullAddress = typeof item.address === 'string' 
+      ? item.address 
+      : item.address?.full || 'Unknown';
+    
+    const locationData = {
+      fullAddress,
+      service_area: item.service_area,
+      address: item.address,
+      _id: item._id,
+      lat: item.lat || null,
+      lng: item.lng || null
+    };
+    setSelectedAddress(locationData);
 
-      {selectedAddressId === address._id && (
-        <View style={styles.dropdownMenu}>
-          <TouchableOpacity
-            style={styles.dropdownItem}
-            onPress={() => handleEditPress(address)}
-          >
-            <Text style={styles.dropdownText}>Edit</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.dropdownItem}
-            onPress={() => handleDeletePress(address)}
-          >
-            <Text style={[styles.dropdownText, styles.deleteText]}>Delete</Text>
-          </TouchableOpacity>
+    // Save to AsyncStorage for recent addresses
+    try {
+      const existing = await AsyncStorage.getItem('recentlyAddList');
+      let parsed = existing ? JSON.parse(existing) : [];
+      parsed = parsed.filter(i => i.fullAddress !== fullAddress);
+      parsed.unshift(locationData);
+      if (parsed.length > 5) parsed = parsed.slice(0, 5);
+      await AsyncStorage.setItem('recentlyAddList', JSON.stringify(parsed));
+    } catch (err) {
+      console.error("Failed to update recent list", err);
+    }
+
+    // Also save the selected address to be used in the cart
+    await AsyncStorage.setItem('selectedAddress', JSON.stringify(locationData));
+    
+    // Show success message
+    Alert.alert("Success", "Address selected successfully!");
+    
+    // Navigate to cart
+    safeNavigation('/screens/TakeAwayCart');
+  } catch (error) {
+    console.error("Error selecting address:", error);
+    Alert.alert("Error", "Failed to select address. Please try again.");
+  }
+};
+
+const AddressCard = ({ address }) => (
+  <View style={styles.addressCardContainer}>
+    {selectedAddressId === address._id && (
+      <View style={styles.dropdownMenu}>
+        <TouchableOpacity
+          style={styles.dropdownItem}
+          onPress={() => handleEditPress(address)}
+        >
+          <Text style={styles.dropdownText}>Edit</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.dropdownItem}
+          onPress={() => handleDeletePress(address)}
+        >
+          <Text style={[styles.dropdownText, styles.deleteText]}>Delete</Text>
+        </TouchableOpacity>
+      </View>
+    )}
+    <TouchableOpacity 
+      style={[
+        styles.addressCard,
+        selectedAddress?._id === address._id && styles.selectedAddressCard
+      ]} 
+      activeOpacity={0.7}
+      onPress={() => handleSuggestionSelect(address)}
+      onLongPress={() => handleMorePress(address._id)}
+    >
+      <View style={styles.addressHeader}>
+        <View style={styles.addressTypeContainer}>
+          {getAddressIcon(address.service_area)}
+          <Text style={styles.addressType}>
+            {typeof address.service_area === 'string'
+              ? address.service_area
+              : address.service_area?.name || 'Unknown'}
+          </Text>
         </View>
-      )}
-      <TouchableOpacity style={styles.addressCard} activeOpacity={1}>
-        <View style={styles.addressHeader}>
-          <View style={styles.addressTypeContainer}>
-            {getAddressIcon(address.service_area)}
-            <Text style={styles.addressType}>
-              {typeof address.service_area === 'string'
-                ? address.service_area
-                : address.service_area?.name || 'Unknown'}
-            </Text>
-          </View>
-        </View>
-        <Text style={styles.addressText}>
-          {typeof address.address === 'string'
-            ? address.address
-            : address.address?.full || 'Unknown'}
-        </Text>
-        <View style={styles.actionButtons}>
-          <TouchableOpacity
-            style={styles.actionButton}
-            onPress={() => handleMorePress(address._id)}
-          >
-            <Feather name="more-horizontal" size={20} color="#666" />
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.actionButton}
-            onPress={() => shareAddress(address)}
-          >
-            <Feather name="share" size={20} color="#666" />
-          </TouchableOpacity>
-        </View>
-      </TouchableOpacity>
-    </View>
-  );
+        {selectedAddress?._id === address._id && (
+          <Ionicons name="checkmark-circle" size={24} color="#4CAF50" />
+        )}
+      </View>
+      <Text style={styles.addressText}>
+        {typeof address.address === 'string'
+          ? address.address
+          : address.address?.full || 'Unknown'}
+      </Text>
+      <View style={styles.actionButtons}>
+        <TouchableOpacity
+          style={styles.actionButton}
+          onPress={() => handleMorePress(address._id)}
+        >
+          <Feather name="more-horizontal" size={20} color="#666" />
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.actionButton}
+          onPress={() => shareAddress(address)}
+        >
+          <Feather name="share" size={20} color="#666" />
+        </TouchableOpacity>
+      </View>
+    </TouchableOpacity>
+  </View>
+);
 
   if (isLoading) {
     return (
@@ -336,6 +402,7 @@ export default function AddressScreen() {
     </SafeAreaView>
   );
 }
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,

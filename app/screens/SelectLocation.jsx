@@ -109,10 +109,10 @@ export default function SelectLocation({ placeholder = "Enter area, landmark ...
   );
 
   return (
-    <SafeAreaView style={styles.container}>
-      <BackRouting style ={{backgroundColor: '#f0f0f0' }}/>
-      <ScrollView keyboardShouldPersistTaps="handled" style ={{backgroundColor: '#f0f0f0'}}>
-        <Text style={styles.header}>Select Location</Text>
+     <SafeAreaView style={styles.container}>
+      <BackRouting style ={{backgroundColor: '#ffffffff' }} tittle ='Select Location'/>
+      <ScrollView keyboardShouldPersistTaps="handled" style ={{backgroundColor: '#ffffffff'}}>
+        {/* <Text style={styles.header}>Select Location</Text> */}
         <View style={styles.searchContainer}>
           <TextInput
             mode="outlined"

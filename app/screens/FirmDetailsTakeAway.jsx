@@ -221,6 +221,8 @@ const UploadRecentlyViewd = async () => {
         return items.map(item => ({
           ...item,
           _id: item._id || Math.random().toString(36).substr(2, 9),
+          categoryId:tab.categoryId,
+          subcategoryId:item.subcategoryId,
           category: section.name || tab.name || 'Uncategorized',
           productName: item.name || 'Unnamed Item',
           description: item.description || '',
@@ -314,6 +316,8 @@ const UploadRecentlyViewd = async () => {
 
         const cartItem = {
           itemToAdd: {
+            subcategoryId: item.subcategoryId,
+            categoryId: item?.categoryId,
             productId: item?._id || item?.id,
             name: item?.productName || item?.name || 'Unknown Item',
             description: item?.description || '',
