@@ -122,5 +122,29 @@ const styles = StyleSheet.create({
       color: '#666',
       marginLeft: 4,
     },
+    tabContainer: {
+  flexDirection: 'row',
+  marginBottom: 10,
+  borderBottomWidth: 1,
+  borderBottomColor: '#eee',
+},
+tab: {
+  flex: 1,
+  paddingVertical: 12,
+  alignItems: 'center',
+  borderBottomWidth: 2,
+  borderBottomColor: 'transparent',
+},
+activeTab: {
+  borderBottomColor: '#fc8019',
+},
+tabText: {
+  fontSize: 16,
+  color: '#666',
+},
+activeTabText: {
+  color: '#fc8019',
+  fontWeight: '600',
+},
   });
   export default styles;

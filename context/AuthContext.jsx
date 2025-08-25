@@ -1,9 +1,11 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
+import { API_CONFIG } from '../config/apiConfig';
 import axios from 'axios';
 const api = axios.create({
-  baseURL: 'http://192.168.0.102:3000',
+
+  baseURL: API_CONFIG.BACKEND_URL,
   withCredentials: true,
   headers: {
     'Content-Type': 'application/json',

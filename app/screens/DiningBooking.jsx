@@ -1,18 +1,21 @@
 import React, { useState, useEffect } from 'react';
-import { ScrollView, Text, View, TouchableOpacity, FlatList } from 'react-native';
+import { ScrollView, Text, View, TouchableOpacity, FlatList, Modal } from 'react-native';
 import { useRouter } from 'expo-router';
 import axios from 'axios';
 import styles from '../../styles/DiningBooking';
 import BackRouting from '@/components/BackRouting';
 import BookingCard from '../../Card/TableBookingCard';
 import { useSafeNavigation } from '@/hooks/navigationPage';
-
+import BookingDetailsScreen from "./DiningBookingDetails";
+import { API_CONFIG } from '../../config/apiConfig';
 const BookingsScreen = () => {
   const router = useRouter();
   const [userBookings, setUserBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('ALL');
   const { safeNavigation } = useSafeNavigation();
+  const [diningBookingModal, setDiningBookingModal] = useState(false);
+  const [selectedBooking, setSelectedBooking] = useState(null);
 
   useEffect(() => {
     fetchDiningBookings();
@@ -21,7 +24,7 @@ const BookingsScreen = () => {
   const fetchDiningBookings = async () => {
     setLoading(true);
     try {
-      const response = await axios.get('http://192.168.0.100:3000/api/bookings/userId', {
+      const response = await axios.get(`${API_CONFIG.BACKEND_URL}/api/bookings/userId`, {
         withCredentials: true,
       });
       console.log('Fetched bookings:', JSON.stringify(response.data, null, 2));
@@ -54,20 +57,18 @@ const BookingsScreen = () => {
         day: 'numeric',
       });
 
-    safeNavigation({
-      pathname: '/screens/DiningBookingDetails',
-      params: {
-        Rname: firm?.restaurantInfo?.name || '',
-        Raddress: firm?.restaurantInfo?.address || '',
-        guestes: guests.toString(),
-        name: username,
-        Formatteddate: formattedDate,
-        timeSlot,
-        status,
-        id: _id,
-        image: firm?.image_urls?.[0] || require('../../assets/images/barger.jpg'),
-      },
+    setSelectedBooking({
+      Rname: firm?.restaurantInfo?.name || '',
+      Raddress: firm?.restaurantInfo?.address || '',
+      guestes: guests.toString(),
+      name: username,
+      Formatteddate: formattedDate,
+      timeSlot,
+      status,
+      id: _id,
+      image: firm?.image_urls?.[0] || require('../../assets/images/barger.jpg'),
     });
+    setDiningBookingModal(true);
   };
 
 
@@ -80,6 +81,7 @@ const BookingsScreen = () => {
 
   return (
     <View style={styles.container}>
+
       <BackRouting tittle="Booking Details" />
       <View style={styles.tabContainer}>
         <TabButton title="ALL" isActive={activeTab === 'ALL'} onPress={() => setActiveTab('ALL')} />
@@ -99,13 +101,8 @@ const BookingsScreen = () => {
                 add={item.firm?.restaurantInfo?.address}
                 guestes={item.guests}
                 name={item.username}
-                date={new Date(item.ScheduleDate).toLocaleDateString('en-US', {
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric',
-                })}
+                date={item.ScheduleDate}
                 timeSlot={item.timeSlot}
-                key={item._id}
                 booking={item}
                 status={item.status}
                 onPress={() => handleBookingPress(item)}
@@ -120,6 +117,24 @@ const BookingsScreen = () => {
           </View>
         )}
       </ScrollView>
+      <Modal
+        visible={diningBookingModal}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setDiningBookingModal(false)}
+      >
+
+
+        {selectedBooking && (
+          <BookingDetailsScreen
+            {...selectedBooking}
+            onClose={() => setDiningBookingModal(false)}
+          />
+        )}
+
+
+      </Modal>
+
     </View>
   );
 };

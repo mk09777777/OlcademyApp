@@ -8,6 +8,7 @@ import ImageGallery from '../../components/ImageGallery';
 import { useCart } from '../../context/CartContext';
 import styles from '../../styles/tiffinDetailsStyle';
 import axios from 'axios';
+import { API_CONFIG } from '../../config/apiConfig';
 
 const { width } = Dimensions.get('window');
 
@@ -66,6 +67,33 @@ const TiffinDetails = () => {
     showCustomization: false,
     selectedMenuItem: null
   });
+ const UploadRecentlyViewd = useCallback(async () => {
+    try {
+      const restId = tiffinId;
+      if (!restId) {
+        console.warn("No restaurant ID available for recently viewed tracking");
+        return;
+      }
+  
+      const response = await axios.post(
+
+        `${API_CONFIG.BACKEND_URL}/firm/recently-viewed/${restId}`,
+          {},
+        { withCredentials: true }
+      );
+  
+      if (response.status !== 200 && response.status !== 201) {
+        throw new Error(`Unexpected status code: ${response.status}`);
+      }
+  
+      console.log("Recently viewed uploaded successfully:", response.data);
+    } catch (err) {
+      console.error("Failed to upload recently viewed:", err);
+      if (err.response) {
+        console.error("Response data:", err.response.data);
+      }
+    }
+  }, [tiffinId]);
 
   const fetchServiceDetails = useCallback(async () => {
     if (!tiffinId) {
@@ -81,7 +109,7 @@ const TiffinDetails = () => {
       setRefreshing(true);
       setError(null);
 
-      const response = await axios.get(`http://10.154.177.16:3000/api/get-tiffin/${tiffinId}`);
+      const response = await axios.get(`${API_CONFIG.BACKEND_URL}/api/get-tiffin/${tiffinId}`);
       const { success, tiffin } = response.data;
 
       if (success && tiffin) {
@@ -123,8 +151,9 @@ const TiffinDetails = () => {
   }, [tiffinId]);
 
   useEffect(() => {
+      UploadRecentlyViewd();
     fetchServiceDetails();
-  }, [fetchServiceDetails]);
+  }, [fetchServiceDetails,   UploadRecentlyViewd]);
 
   useEffect(() => {
     const items = getCartItems();
@@ -555,7 +584,8 @@ const TiffinDetails = () => {
                     firmId: service.id,
                     restaurantName: service.title,
                     averageRating: service.rating.toFixed(1),
-                    reviewCount: service.reviews.length
+                    reviewCount: service.reviews.length,
+                     reviewType:"tiffin"
                   }
                 })}
                 style={styles.reviewBox}

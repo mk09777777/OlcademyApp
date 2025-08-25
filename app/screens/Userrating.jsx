@@ -17,6 +17,7 @@ export default function RatingScreen() {
   const params = useLocalSearchParams();
   const firmId = params.firmId;
   const reviewType = params.reviewType;
+  console.log(reviewType)
   const [rating, setRating] = useState(0);
   const { safeNavigation } = useSafeNavigation();
 
@@ -77,7 +78,7 @@ export default function RatingScreen() {
       </View>
 
       <Text style={styles.reviewTypeText}>
-        Reviewing as: {reviewType.charAt(0).toUpperCase() + reviewType.slice(1)}
+        Reviewing as: {reviewType}
       </Text>
     </View>
   </View>

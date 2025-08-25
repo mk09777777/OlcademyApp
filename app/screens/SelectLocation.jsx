@@ -20,7 +20,8 @@ import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
 import BackRouting from "@/components/BackRouting";
-const CUSTOM_LOCATION_API = 'http://192.168.0.108:3000/api/location';
+import { API_CONFIG } from '../../config/apiConfig';
+const CUSTOM_LOCATION_API = `${API_CONFIG.BACKEND_URL}/api/location`;
 
 export default function SelectLocation({ placeholder = "Enter area, landmark ...", query, setQuery }) {
   const { safeNavigation } = useSafeNavigation();
@@ -108,13 +109,10 @@ export default function SelectLocation({ placeholder = "Enter area, landmark ...
   );
 
   return (
-    <SafeAreaView style={styles.container}>
-      <ScrollView keyboardShouldPersistTaps="handled" style={{ backgroundColor: '#f0f0f0' }}>
-        <View style={{ flexDirection: 'row' }}>
-          <BackRouting style={{ backgroundColor: '#f0f0f0' }} />
-          <Text style={styles.header}>Select Location</Text>
-        </View>
-
+     <SafeAreaView style={styles.container}>
+      <BackRouting style ={{backgroundColor: '#ffffffff' }} tittle ='Select Location'/>
+      <ScrollView keyboardShouldPersistTaps="handled" style ={{backgroundColor: '#ffffffff'}}>
+        {/* <Text style={styles.header}>Select Location</Text> */}
         <View style={styles.searchContainer}>
           <TextInput
             mode="outlined"
@@ -235,7 +233,7 @@ export default function SelectLocation({ placeholder = "Enter area, landmark ...
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#f0f0' },
-  header: { fontSize: 18, fontWeight: '600', margin: 20 },
+  header: { fontSize: 20, fontWeight: '600', margin: 20 },
   searchContainer: { paddingHorizontal: 20, marginBottom: 10, borderRadius: 20 },
   searchInput: { backgroundColor: '#fff' },
   addBtn: {

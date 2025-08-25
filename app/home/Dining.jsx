@@ -12,7 +12,8 @@ import RadioButtonRN from 'radio-buttons-react-native'
 import Filterbox from '@/components/Filterbox';
 import LocationHeader from '@/components/HomeHeader';
 import DiningCard from '@/components/DaningCard';
-const Api_url = 'http://192.168.0.101:3000';
+import { API_CONFIG } from '../../config/apiConfig';
+const Api_url = API_CONFIG.BACKEND_URL;
 export default function TakeAway() {
   // const { bookmarks, toggleBookmark, isBookmarked } = useBookmarkManager();
   const [firms, setFirms] = useState([])
@@ -265,7 +266,7 @@ export default function TakeAway() {
       }
 
       const finalParams = { ...baseParams, ...params };
-      const response = await axios.get(`${Api_url}/firm/getnearbyrest?feature=Takeaway`, {
+      const response = await axios.get(`${Api_url}/firm/getnearbyrest?feature=Booking`, {
         params: finalParams,
         withCredentials: true
       });
@@ -945,7 +946,7 @@ export default function TakeAway() {
                   </View>
 
 
-                  <View style={{ display: "flex", marginTop: 5, marginBottom: 5 }}>
+                  <View style={{ display: "flex", marginTop: 10, marginBottom: 15 }}>
                     <View style={styles.separatorRow}>
                       <View style={styles.line} />
                       <Text style={styles.separatorText}>

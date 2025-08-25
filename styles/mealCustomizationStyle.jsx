@@ -7,17 +7,20 @@ const styles = StyleSheet.create({
   modalContainer: {
     flex: 1,
     backgroundColor: '#fff',
-    padding: 10,
   },
   modalHeader: {
- 
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 16,
+    padding: 20,
     borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
-    backgroundColor: '#f9f9f9',
+    borderBottomColor: '#e0e0e0',
+    backgroundColor: '#fff',
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
   },
   modalTitle: {
     fontSize: 20,
@@ -27,14 +30,16 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   closeButton: {
-    padding: 4,
+    padding: 8,
     borderRadius: 20,
-    backgroundColor: '#f0f0f0',
+    backgroundColor: '#f5f5f5',
   },
-    menuItemImage: {
-      marginTop:20,
+
+  // Image
+  ItemImage: {
     width: '100%',
-    height:140,
+    height: 200,
+    resizeMode: 'cover',
   },
 
   // Scroll Content
@@ -43,48 +48,46 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingBottom: 120,
-    paddingHorizontal: 16,
+    paddingHorizontal: 20,
   },
 
   // Meal Info
-  mealInfo: {
-       top:-30,
-    padding: 16,
-    borderRadius: 12,
-    backgroundColor: '#f9f9f9',
-    marginVertical: 6,
-    borderWidth: 1,
-    borderColor: '#eaeaea',
-  },
-  mealName: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#333',
-    marginBottom: 4,
-  },
-  mealDescription: {
+  // mealInfo: {
+  //   padding: 20,
+  //   borderRadius: 12,
+  //   backgroundColor: '#fff',
+  //   marginVertical: 16,
+  //   borderWidth: 1,
+  //   borderColor: '#eaeaea',
+  //   shadowColor: '#000',
+  //   shadowOffset: { width: 0, height: 2 },
+  //   shadowOpacity: 0.05,
+  //   shadowRadius: 4,
+  //   elevation: 2,
+  // },
+  // mealName: {
+  //   fontSize: 20,
+  //   fontWeight: '700',
+  //   color: '#333',
+  //   marginBottom: 8,
+  // },
+  planDurationText: {
     fontSize: 14,
     color: '#666',
-    lineHeight: 20,
-  },
-  mealPrice: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#4CAF50',
+    fontWeight: '500',
   },
 
   // Form Elements
   customizationForm: {
-    marginBottom: 20,
   },
   formGroup: {
-    marginBottom: 20,
+    marginBottom: 10,
   },
   formLabel: {
     fontSize: 16,
     fontWeight: '600',
     color: '#444',
-    marginBottom: 10,
+    marginBottom: 12,
   },
 
   // Dropdowns
@@ -96,9 +99,9 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   discountBadge: {
-    fontSize: 13,
+    fontSize: 14,
     color: '#4CAF50',
-    marginTop: 6,
+    marginTop: 8,
     textAlign: 'right',
     fontWeight: '500',
   },
@@ -112,9 +115,9 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     elevation: 2,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
-    shadowRadius: 3,
+    shadowRadius: 4,
   },
   selectedRangeText: {
     fontSize: 14,
@@ -133,21 +136,22 @@ const styles = StyleSheet.create({
   },
   calendarModalContent: {
     backgroundColor: 'white',
-    borderRadius: 10,
+    borderRadius: 12,
     padding: 20,
     width: '90%',
     maxHeight: '80%',
+    elevation: 5,
   },
   calendarButtonsContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: 15,
+    marginTop: 20,
   },
   calendarButton: {
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 5,
-    minWidth: 100,
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 8,
+    minWidth: 120,
     alignItems: 'center',
   },
   cancelButton: {
@@ -159,17 +163,17 @@ const styles = StyleSheet.create({
     backgroundColor: '#4CAF50',
   },
   calendarButtonText: {
-    fontWeight: 'bold',
-    color: '#333',
+    fontWeight: '600',
+    fontSize: 16,
   },
   datePreviewContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    padding: 12,
+    padding: 16,
     borderWidth: 1,
     borderColor: '#e0e0e0',
-    borderRadius: 8,
+    borderRadius: 10,
     backgroundColor: '#fff',
   },
   datePreviewText: {
@@ -188,7 +192,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   quantityButton: {
-    padding: 12,
+    padding: 14,
     backgroundColor: '#f9f9f9',
   },
   quantityText: {
@@ -202,109 +206,100 @@ const styles = StyleSheet.create({
 
   // Price Summary
   priceBreakdown: {
-    marginVertical: 5,
-    paddingHorizontal: 10,
+    marginVertical: 16,
+    padding: 16,
+    backgroundColor: '#f9f9f9',
+    borderRadius: 10,
   },
-  priceBreakdownText: {
-    fontSize: 14,
+  priceRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 8,
+  },
+  priceLabel: {
+    fontSize: 15,
     color: '#666',
-    textAlign: 'center',
+  },
+  priceValue: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#333',
   },
   discountText: {
     marginTop: 5,
-    fontSize: 14,
+    fontSize: 15,
     color: '#4CAF50',
     textAlign: 'center',
   },
   totalPrice: {
     fontWeight: 'bold',
     color: '#4CAF50',
-    fontSize: 16,
-    marginTop: 5,
+    fontSize: 18,
+    marginTop: 8,
   },
 
   // Selected Addons
   selectedAddonsContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    marginTop: 10,
+    marginTop: 12,
   },
   selectedAddonBadge: {
     backgroundColor: '#E8F5E9',
-    borderRadius: 14,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    marginRight: 8,
-    marginBottom: 8,
+    borderRadius: 16,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    marginRight: 10,
+    marginBottom: 10,
     flexDirection: 'row',
     alignItems: 'center',
   },
   selectedAddonText: {
-    fontSize: 12,
+    fontSize: 13,
     color: '#2E7D32',
     fontWeight: '500',
   },
 
-  // Action Bar
-  actionBar: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    padding: 16,
-    backgroundColor: '#fff',
-    borderTopWidth: 1,
-    borderTopColor: '#f0f0f0',
+  // Time Slots
+  timeSlotsContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: -2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 5,
+    flexWrap: 'wrap',
+    gap: 10,
+    marginTop: 10,
   },
-  cancelButton: {
-    backgroundColor: '#f5f5f5',
+  timeSlotButton: {
+    paddingVertical: 10,
+    paddingHorizontal: 16,
     borderRadius: 10,
-    padding: 16,
-    alignItems: 'center',
-    flex: 1,
-    marginRight: 10,
-    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: '#e0e0e0',
+    backgroundColor: '#fff',
   },
-  cancelButtonText: {
-    color: '#666',
-    fontWeight: '600',
-    fontSize: 16,
+  timeSlotSelected: {
+    backgroundColor: '#4CAF50',
+    borderColor: '#4CAF50',
   },
-  submitButton: {
-    backgroundColor: 'red',
-    borderRadius: 10,
-    padding: 16,
-    alignItems: 'center',
-    flex: 1,
-    marginLeft: 10,
-    justifyContent: 'center',
+  timeSlotText: {
+    color: '#333',
+    fontSize: 14,
+    fontWeight: '500',
   },
-  submitButtonText: {
+  timeSlotTextSelected: {
     color: '#fff',
-    fontWeight: '600',
-    fontSize: 16,
   },
-  submitButtonDisabled: {
-    backgroundColor: '#cccccc',
-  },
+
+  // Addons
   addonsContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
-    marginTop: 8,
+    marginTop: 10,
   },
   addonOption: {
     width: '48%',
-    padding: 12,
+    padding: 14,
     marginBottom: 12,
-    borderRadius: 8,
+    borderRadius: 10,
     borderWidth: 1,
     borderColor: '#e0e0e0',
     backgroundColor: '#fff',
@@ -321,6 +316,103 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#333',
     fontWeight: '500',
+  },
+
+  // Action Bar
+  actionBar: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    padding: 16,
+    backgroundColor: '#fff',
+    borderTopWidth: 1,
+    borderTopColor: '#f0f0f0',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -3 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 8,
+  },
+  cancelButton: {
+    backgroundColor: '#f5f5f5',
+    borderRadius: 12,
+    padding: 16,
+    alignItems: 'center',
+    flex: 1,
+    marginRight: 10,
+    justifyContent: 'center',
+  },
+  cancelButtonText: {
+    color: '#666',
+    fontWeight: '600',
+    fontSize: 16,
+  },
+  submitButton: {
+    backgroundColor: '#4CAF50',
+    borderRadius: 12,
+    padding: 16,
+    alignItems: 'center',
+    flex: 1,
+    marginLeft: 10,
+    justifyContent: 'center',
+  },
+  submitButtonText: {
+    color: '#fff',
+    fontWeight: '600',
+    fontSize: 16,
+  },
+  submitButtonDisabled: {
+    backgroundColor: '#cccccc',
+  },
+    mealContainer: {
+    flexDirection: 'row',
+    marginTop:10,
+    padding: 10,
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    marginBottom: 15,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  menuItemImage: {
+    width: 100,
+    height: 100,
+    borderRadius: 8,
+    borderColor:'#151515ff',
+    borderWidth:1,
+    marginRight: 20,
+  },
+  mealInfo: {
+    flex: 1,
+    flexDirection: 'column',
+    // justifyContent: 'space-between',
+  },
+  mealName: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 4,
+    color: '#333',
+  },
+  mealPrice: {
+    fontSize: 16,
+    fontWeight: '600',
+    marginBottom: 8,
+    color: '#2ecc71',
+  },
+  planDurationText: {
+    fontSize: 14,
+    color: '#7f8c8d',
+  },
+  mealDescription: {
+    fontSize: 14,
+    color: '#666',
+    lineHeight: 20,
   },
 
   // Platform Specific Styles

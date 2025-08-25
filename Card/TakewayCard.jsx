@@ -19,7 +19,8 @@ import {
 } from '@expo/vector-icons';
 import axios from 'axios';
 
-const SERVER_URL = 'http://192.168.37.16:3000';
+import { API_CONFIG } from '../config/apiConfig';
+const SERVER_URL = API_CONFIG.BACKEND_URL;
 
 const TakeawayOrderCard = ({ order, onToggleFavorite, onOrderCancelled }) => {
   const [isPriceModalVisible, setIsPriceModalVisible] = useState(false);

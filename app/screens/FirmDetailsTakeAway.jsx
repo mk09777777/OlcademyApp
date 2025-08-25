@@ -6,9 +6,9 @@ import axios from 'axios';
 import { AntDesign, FontAwesome, FontAwesome5, Ionicons, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 import { useCart } from '@/context/CartContext';
 import ImageGallery from '@/components/ImageGallery';
+import { API_CONFIG } from '../../config/apiConfig';
+const API_URL = API_CONFIG.BACKEND_URL;
 
-const API_BASE_URL = 'http://192.168.0.103:3000';
-const API_URL = 'http://192.168.0.103:3000';
 const filtersData = {
   "Dietary": [
     { id: 1, label: "Vegetarian", icon: "leaf", selected: false },
@@ -44,6 +44,7 @@ export default function FirmDetailsTakeAway() {
   const [offersVisible, setOffersVisible] = useState(false);
   const [filterVisible, setFilterVisible] = useState(false);
   const [expandedOffer, setExpandedOffer] = useState(null);
+  const [isExpanded, setIsExpanded]=useState();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [offers, setOffers] = useState([
     {
@@ -76,7 +77,7 @@ export default function FirmDetailsTakeAway() {
     const fetchOffers = async () => {
       try {
         const response = await fetch(
-          `${API_BASE_URL}/api/offers/takeaway/offer/${firmId}`
+          `${API_URL}/api/offers/takeaway/offer/${firmId}`
         );
         const data = await response.json();
         console.log(data, "offerdata");
@@ -91,7 +92,7 @@ export default function FirmDetailsTakeAway() {
   const fetchRestaurantDetails = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`${API_BASE_URL}/firm/getOne/${firmId}`, {
+      const response = await axios.get(`${API_URL}/firm/getOne/${firmId}`, {
         timeout: 5000,
       });
       setFirmDetails(response.data);
@@ -109,7 +110,7 @@ export default function FirmDetailsTakeAway() {
     try {
       setLoading(true);
       const response = await axios.get(
-        `${API_BASE_URL}/firm/restaurants/menu-sections-items/${firmId}`,
+        `${API_URL}/firm/restaurants/menu-sections-items/${firmId}`,
         { timeout: 5000 }
       );
 
@@ -158,19 +159,37 @@ export default function FirmDetailsTakeAway() {
   };
 
 
-  const UploadRecentlyViewd = async () => {
-    try {
-      // getSimilar()
-      const restId = firmId
-      if (!restId) return
-      await axios.post(`${API_URL}/firm/recently-viewed/${restId}`, null, {
-        withCredentials: true
-      });
-      console.log("recently viewed uploaded successfully")
-    } catch (err) {
-      console.error("Failed to upload recently viewed:", err)
+const UploadRecentlyViewd = async () => {
+  try {
+    const restId = firmId;
+    if (!restId) {
+      console.warn("No restaurant ID available for recently viewed tracking");
+      return;
+    }
+
+    const response = await axios.post(
+      `${API_URL}/firm/recently-viewed/${restId}`,
+      {},
+      { 
+        withCredentials: true,
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+
+    if (response.status !== 200 && response.status !== 201) {
+      throw new Error(`Unexpected status code: ${response.status}`);
+    }
+
+    console.log("Recently viewed uploaded successfully:", response.data);
+  } catch (err) {
+    console.error("Failed to upload recently viewed:", err);
+    if (err.response) {
+      console.error("Response data:", err.response.data);
     }
   }
+};
 
 
   useEffect(() => {
@@ -202,6 +221,8 @@ export default function FirmDetailsTakeAway() {
         return items.map(item => ({
           ...item,
           _id: item._id || Math.random().toString(36).substr(2, 9),
+          categoryId:tab.categoryId,
+          subcategoryId:item.subcategoryId,
           category: section.name || tab.name || 'Uncategorized',
           productName: item.name || 'Unnamed Item',
           description: item.description || '',
@@ -289,12 +310,14 @@ export default function FirmDetailsTakeAway() {
             : item.price)
           : 8;
 
-        if (isNaN(priceValue) || priceValue <= 0) {
-          throw new Error('Invalid price value');
-        }
+        // if (isNaN(priceValue) || priceValue <= 0) {
+        //   throw new Error('Invalid price value');
+        // }
 
         const cartItem = {
           itemToAdd: {
+            subcategoryId: item.subcategoryId,
+            categoryId: item?.categoryId,
             productId: item?._id || item?.id,
             name: item?.productName || item?.name || 'Unknown Item',
             description: item?.description || '',
@@ -464,7 +487,8 @@ export default function FirmDetailsTakeAway() {
               firmId: firmId,
               restaurantName: firmDetails?.restaurantInfo?.name,
               averageRating: firmDetails?.restaurantInfo?.ratings?.overall,
-              reviewCount: firmDetails?.restaurantInfo?.ratings?.totalReviews
+              reviewCount: firmDetails?.restaurantInfo?.ratings?.totalReviews,
+              reviewType:"takeaway"
             }
           })}
           style={styles.reviewBox}
@@ -479,87 +503,82 @@ export default function FirmDetailsTakeAway() {
           </View>
           <View style={styles.reviewBoxBottomContainer}>
             <Text style={styles.reviewCount}>
-              {firmDetails?.restaurantInfo?.ratings?.totalReviews || "725"}
+              {firmDetails?.restaurantInfo?.ratings?.totalReviews}
             </Text>
             <Text style={styles.reviewCount}>Reviews</Text>
           </View>
         </TouchableOpacity>
       </View>
+    <View style={styles.offersContainer}>
+        <TouchableOpacity
+          onPress={() => setIsExpanded(!isExpanded)}
+          style={styles.offersHeaderContainer}
+        >
+          <Text style={styles.offersHeader}>Available Offers</Text>
+          <Text style={styles.dropdownIcon}>
+            {isExpanded ? '▲' : '▼'}
+          </Text>
+        </TouchableOpacity>
 
+        {isExpanded && (
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.offersTrack}
+          >
+            {offers?.map((offer) => {
+              const discountText =
+                offer.offerType === "percentage"
+                  ? `${offer.discountValue}% OFF`
+                  : `Flat $${offer.discountValue} OFF`;
+
+              const isPercentageOffer = offer.offerType === "percentage";
+
+              return (
+                <TouchableOpacity
+                  key={offer._id}
+                  activeOpacity={0.8}
+                >
+                  <View style={[
+                    styles.offerCard,
+                    isPercentageOffer ? styles.percentageOffer : styles.flatOffer
+                  ]}>
+                    <View style={styles.offerBadge}>
+                      <Text style={styles.offerBadgeText}>
+                        {isPercentageOffer ? 'HOT' : 'FLAT'}
+                      </Text>
+                    </View>
+
+                    <Text style={styles.offerTitle} numberOfLines={1}>
+                      {offer.name}
+                    </Text>
+
+                    <Text style={styles.offerDiscount}>
+                      {discountText}
+                    </Text>
+
+                    <View style={styles.offerCodeContainer}>
+                      <Text style={styles.offerCodeText}>
+                        Use code:
+                      </Text>
+                      <Text style={styles.offerCode}>
+                        {offer.code}
+                      </Text>
+                    </View>
+                  </View>
+                </TouchableOpacity>
+              );
+            })}
+          </ScrollView>
+        )}
+      </View>
       <View style={styles.separatorRow}>
         <View style={styles.line} />
         <Text style={styles.separatorText}>MENU</Text>
         <View style={styles.line} />
       </View>
 
-      <View style={[styles.offersContainer, { padding: 10 ,marginBottom: 20}]}>
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.offersTrack}
-        >
-          {offers?.map((offer) => {
-            const discountText =
-              offer.offerType === "percentage"
-                ? `${offer.discountValue}% OFF`
-                : `₹${offer.discountValue} OFF`;
-
-            const isPercentageOffer = offer.offerType === "percentage";
-
-            return (
-              <TouchableOpacity
-                key={offer._id}
-                activeOpacity={0.8}
-              >
-                <View style={[
-                  styles.offerCard,
-                  isPercentageOffer ? styles.percentageOffer : styles.flatOffer
-                ]}>
-                  <View style={[
-                    styles.offerBadge,
-                    isPercentageOffer ?
-                      { backgroundColor: '#FF525220' } :
-                      { backgroundColor: '#4285F420' }
-                  ]}>
-                    <Text style={[
-                      styles.offerBadgeText,
-                      isPercentageOffer ?
-                        { color: '#FF5252' } :
-                        { color: '#4285F4' }
-                    ]}>
-                      {isPercentageOffer ? 'HOT' : 'FLAT'}
-                    </Text>
-                  </View>
-
-                  <Text style={styles.offerTitle} numberOfLines={2}>
-                    {offer.name}
-                  </Text>
-
-                  <Text style={[
-                    styles.offerDiscount,
-                    isPercentageOffer ?
-                      { color: '#FF5252' } :
-                      { color: '#4285F4' }
-                  ]}>
-                    {discountText}
-                  </Text>
-
-                  <View style={styles.offerCodeContainer}>
-                    <Text style={styles.offerCodeText}>
-                      Use code:
-                    </Text>
-                    <Text style={styles.offerCode}>
-                      {offer.code}
-                    </Text>
-                  </View>
-                </View>
-              </TouchableOpacity>
-            );
-          })}
-        </ScrollView>
-      </View>
-
-      <View style={styles.filterContainer}>
+      {/* <View style={styles.filterContainer}>
         <FlatList
           data={filters}
           horizontal={true}
@@ -612,7 +631,7 @@ export default function FirmDetailsTakeAway() {
             );
           }}
         />
-      </View>
+      </View> */}
 
       <FlatList
         data={categories}

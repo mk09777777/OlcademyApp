@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, SafeAreaView, ActivityIndicator, FlatList, ScrollView, Image } from 'react-native';
 import { styles } from '../styles/TakewayCollection';
 import FirmCard from './FirmCard';
-
+import { API_CONFIG } from '../config/apiConfig';
 import { useRouter } from 'expo-router';
 import axios from 'axios';
 
@@ -17,7 +17,8 @@ const TakewayCollection = () => {
   const fetchRestaurants = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`http://192.168.37.16:3000/firm/user/liked-restaurants`, {
+
+      const response = await axios.get(`${API_CONFIG.BACKEND_URL}/firm/user/liked-restaurants`, {
         withCredentials: true,
       });
       console.log(response.data.restaurants)

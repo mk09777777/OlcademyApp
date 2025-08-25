@@ -4,6 +4,7 @@ import { Text } from 'react-native-paper';
 import { MaterialCommunityIcons, FontAwesome } from '@expo/vector-icons';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { LinearGradient } from 'expo-linear-gradient';
+import EvilIcons from '@expo/vector-icons/EvilIcons';
 
 const COLORS = {
   PRIMARY: '#FF4B3A',
@@ -30,7 +31,7 @@ const MiniRecommendedCard = ({ name, address, image, rating, onPress }) => {
 
 
   return (
-    <TouchableOpacity activeOpacity={0.8} onPress={onPress} style={{ marginBottom: 0}}>
+    <TouchableOpacity activeOpacity={0.8} onPress={onPress} style={{ marginBottom: 10 }}>
       <View style={styles.card}>
         <View style={styles.imageContainer}>
           <ImageBackground
@@ -43,25 +44,23 @@ const MiniRecommendedCard = ({ name, address, image, rating, onPress }) => {
             style={styles.image}
             resizeMode="cover"
           />
-          <LinearGradient
+          {/* <LinearGradient
             colors={[
-              'rgba(40, 109, 255, 1)',
-              'rgba(135, 206, 250, 0.95)',
-              'rgba(40, 108, 255, 0.73)',
-              'rgba(40, 109, 255, 0)'
+              '#D02433',
+              '#E03A48',
+              '#AE1E2A'
             ]}
             start={{ x: 0, y: 1 }}
             end={{ x: 1, y: 0 }}
             style={styles.badge}
           >
             <View style={{display:"flex",flexDirection:"row",alignItems:"center",marginLeft:4}}>
-              <MaterialIcons name="local-offer" size={16} color="white" />
             <Text style={styles.badgeTitle} >
               Flat 20% OFF
             </Text>
-            </View>
+            </View> */}
             {/* <Text style={styles.badgeOffer}>Flat 20% OFF</Text> */}
-          </LinearGradient>
+          {/* </LinearGradient> */}
           {/* <TouchableOpacity
             style={styles.bookmarkButton}
             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
@@ -79,9 +78,12 @@ const MiniRecommendedCard = ({ name, address, image, rating, onPress }) => {
             <Text style={styles.title} numberOfLines={1}>
               {name || "Static restaurant"}
             </Text>
-            <Text style={styles.distance} numberOfLines={1}>
-              {address || "N/A"}
+            <View style={{flexDirection:"row",justifyContent:"center", marginBottom: 14}}>
+               <EvilIcons name="location" size={19} color="black" />
+              <Text style={styles.distance} numberOfLines={1}>
+             {address || "N/A"}
             </Text>
+            </View>
           </View>
 
           <View style={styles.ratingBadge}>
@@ -105,34 +107,45 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
-    width: 140,
-    marginBottom: 0,
+    width: 160,
+    marginBottom: 2,
   },
   imageContainer: {
     position: 'relative',
     height: 120,
   },
-  badge: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    height: 25,                 // ✅ reduce height
-    width: 140,
-    borderRadius: 0,
-    display: "flex",
-    flexDirection: "column",
-    // justifyContent:"flex-start"
-  },
+ badge: {
+  position: 'absolute',
+  bottom: 90,
+  left: 0,
+  height: 20,
+  width: 140,
+  borderRadius: 0,
+  display: "flex",
+  flexDirection: "column",
+
+  // ✅ Android shadow
+  elevation: 10,
+
+  // ✅ iOS shadow
+  shadowColor: '#000',
+  shadowOffset: { width: 0, height: 8 },
+  shadowOpacity: 0.25,
+  shadowRadius: 3.84,
+  backgroundColor: "#fff", // required for shadow to show
+}
+,
   badgeTitle: {
    color: '#fff',
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: 'bold',
-    marginTop:3,
-    marginLeft:4
+    marginTop:1,
+    marginLeft:4,
+    fontFamily:"outfit-bold",
   },
   badgeOffer: {
     color: '#fff',
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: 'bold',
   },
   image: {
@@ -140,28 +153,28 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   content: {
-    fontFamily: 'outfit-regular',
     padding: SPACING.MD,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
   },
   textContent: {
-    fontFamily: 'outfit-regular',
     flex: 1,
     marginRight: SPACING.MD,
+    fontFamily:"outfit-medium"
   },
   title: {
-    fontSize: 14,
-    fontWeight: '600',
+    fontSize: 16,
+    fontWeight: '800',
     color: COLORS.TEXT_PRIMARY,
     marginBottom: SPACING.XS,
-    marginTop: 0
+    marginTop: 5,
+    fontFamily:"outfit-bold"
   },
   distance: {
     fontSize: 12,
     color: COLORS.TEXT_SECONDARY,
-    marginBottom: 1
+
   },
   bookmarkButton: {
     position: 'absolute',
@@ -180,16 +193,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: 'rgb(4, 116, 19)',
     borderRadius: 6,
-    paddingHorizontal: 6,
+    paddingHorizontal: 2,
     paddingVertical: 2,
-    marginTop: 5
+    marginTop: 25
   },
   ratingText: {
     color: 'white',
     fontSize: 14,
     fontWeight: '600',
     marginLeft: 2,
-    marginRight: 5
+    marginRight: 3
   },
 });
 

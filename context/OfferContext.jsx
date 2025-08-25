@@ -1,6 +1,7 @@
 import { createContext, useState, useEffect, useContext } from "react";
 import axios from "axios";
 import { useAuth } from "./AuthContext";
+import { API_CONFIG } from '../config/apiConfig';
 
 const OffersContext = createContext();
 
@@ -30,7 +31,8 @@ export const OffersProvider = ({ children }) => {
   const handleAddOffer = async (newOffer) => {
     try {
       // const response = await fetch('http://localhost:5000/offers', {
-      const response = await fetch(`http://192.168.0.103:3000/offers`, {
+
+      const response = await fetch(`${API_CONFIG.BACKEND_URL}/offers`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -53,7 +55,7 @@ export const OffersProvider = ({ children }) => {
   const handleRemoveOffer = async (offerId) => {
     try {
       // await fetch(`http://localhost:5000/offers/${offerId}`, {
-      await fetch(`http://192.168.0.103:3000/delete/offers/${offerId}`, {
+      await fetch(`${API_CONFIG.BACKEND_URL}/delete/offers/${offerId}`, {
         method: "PUT",
       });
       refetchOffers();
@@ -65,7 +67,7 @@ export const OffersProvider = ({ children }) => {
   const handleEditOffer = async (offerId, updatedFields) => {
     try {
       const res = await fetch(
-        `http://192.168.0.103:3000/offers/${offerId}`,
+        `${API_CONFIG.BACKEND_URL}/offers/${offerId}`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },

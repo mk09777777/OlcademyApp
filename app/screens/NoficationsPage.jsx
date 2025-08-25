@@ -14,6 +14,7 @@ import axios from "axios";
 import { useNavigation, useRouter } from "expo-router";
 import { useSafeNavigation } from "@/hooks/navigationPage";
 import BackRouting from "@/components/BackRouting";
+import { API_CONFIG } from '../../config/apiConfig';
 
 const { width } = Dimensions.get("window");
 
@@ -94,10 +95,12 @@ export default function NotificationPage() {
 
   const fetchBookingNotifications = async () => {
     try {
-      const response = await axios.get("http://192.168.0.100:3000/api/getNotificationsInfo", {
+
+      const response = await axios.get(`${API_CONFIG.BACKEND_URL}/api/getNotificationsInfo`, {
         withCredentials: true,
       });
       const data = response?.data?.notifications;
+      console.log("data", data);
       if (Array.isArray(data)) {
         setNotifications([...data].reverse());
       } else if (data) {
@@ -113,7 +116,7 @@ export default function NotificationPage() {
 
   const handleDeleteNotifications = async (id) => {
     try {
-      await axios.delete(`http://192.168.0.100:3000/api/deleteNotificatonsInfo/${id}`, {
+      await axios.delete(`${API_CONFIG.BACKEND_URL}/api/deleteNotificatonsInfo/${id}`, {
         withCredentials: true,
       });
       setNotifications((prev) => prev.filter((item) => item._id !== id));
@@ -126,7 +129,7 @@ export default function NotificationPage() {
   const clearAllNotifications = async () => {
     try {
       const deletePromises = notifications.map((item) =>
-        axios.delete(`http://192.168.0.100:3000/api/deleteNotificatonsInfo/${item._id}`, {
+        axios.delete(`${API_CONFIG.BACKEND_URL}/api/deleteNotificatonsInfo/${item._id}`, {
           withCredentials: true,
         })
       );
@@ -171,7 +174,7 @@ export default function NotificationPage() {
         </View>
       ) : (
         <TouchableOpacity
-          onPress={() => safeNavigation("/screens/DiningBookingDetails")}
+          // onPress={() => safeNavigation("/screens/DiningBookingDetails")}
           style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
         >
           <Text style={{ fontSize: 20, color: "black", fontWeight: "bold" }}>

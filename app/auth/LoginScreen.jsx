@@ -6,7 +6,8 @@ import { useRouter } from 'expo-router'
 import { useAuth } from '@/context/AuthContext';
 import axios from 'axios'
 import AsyncStorage from '@react-native-async-storage/async-storage'
-const Api_url='http://192.168.0.101:3000';
+import { API_CONFIG } from '../../config/apiConfig';
+const Api_url = API_CONFIG.BACKEND_URL;
 export default function LoginScreen() {
   const router = useRouter()
   const { login } = useAuth();

@@ -13,7 +13,8 @@ import RadioButtonRN from 'radio-buttons-react-native'
 
 import Filterbox from '@/components/Filterbox';
 import LocationHeader from '@/components/HomeHeader';
-const Api_url = 'http://192.168.0.101:3000';
+import { API_CONFIG } from '../../config/apiConfig';
+const Api_url = API_CONFIG.BACKEND_URL;
 export default function TakeAway() {
   // const { bookmarks, toggleBookmark, isBookmarked } = useBookmarkManager();
   const [firms, setFirms] = useState([])
@@ -851,7 +852,7 @@ const handleApplyFilterboxFilters = (filters) => {
                       />
                     </ScrollView>
                   )}
-                  <View style={{ display: "flex", marginTop: 5, marginBottom: 5 }}>
+                  <View style={{ display: "flex", marginBottom: 15 }}>
                     <View style={styles.separatorRow}>
                     <View style={styles.line} />
                     <Text style={styles.separatorText}>

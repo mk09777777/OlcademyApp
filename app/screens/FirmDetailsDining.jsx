@@ -11,14 +11,23 @@ import ReviewCard from '@/components/ReviewCard'
 import ImageGallery from '@/components/ImageGallery'
 import MiniRecommendedCard from '@/components/MiniRecommendedCard'
 import { useSafeNavigation } from '@/hooks/navigationPage'
-const API_URL = 'http://192.168.0.101:3000'
+
+import { API_CONFIG } from '../../config/apiConfig';
+const API_URL = API_CONFIG.BACKEND_URL;
 const PRODUCT_API_URL = 'http://192.168.0.101:8000/api/collection/products'
 
 export default function FirmDetailsDining() {
   const { firmId } = useGlobalSearchParams()
   const router = useRouter()
-  const { safeNavigation } = useSafeNavigation();
-  const [firmDetails, setFirmDetails] = useState(null)
+  const { safeNavigation } = useSafeNavigation()
+  const [firmDetails, setFirmDetails] = useState({
+    restaurantInfo: {},
+    opening_hours: {},
+    features: [],
+    insights: [],
+    faqs: [],
+    reviews: []
+  })
   const [products, setProducts] = useState([])
   const [isPopupVisible, setIsPopupVisible] = useState(false)
   const [guests, setGuests] = useState(1)
@@ -45,16 +54,10 @@ export default function FirmDetailsDining() {
     { id: 3, title: "Items @99", validity: "Valid Today" }
   ]
 
-  const reviews = [
-    { id: "1", name: "Rakesh", date: "2 days ago", rating: 5, review: "Great ambiance and service!" },
-    { id: "2", name: "Sneha", date: "1 week ago", rating: 4, review: "Amazing food but slow service." },
-    { id: "3", name: "Amit", date: "3 days ago", rating: 5, review: "One of the best places around!" }
-  ]
-
   const fetchRestaurantDetails = async (id) => {
     try {
       setLoading(true)
-      const response = await axios.get(`http://192.168.0.101:3000/firm/getOne/${id}`, { timeout: 5000 })
+      const response = await axios.get(`${API_CONFIG.BACKEND_URL}/firm/getOne/${id}`, { timeout: 5000 })
       if (!response.data) throw new Error('Restaurant data not available')
       const restaurantData = response.data
       setFirmDetails({
@@ -73,7 +76,8 @@ export default function FirmDetailsDining() {
         opening_hours: restaurantData.opening_hours || {},
         features: restaurantData.features || [],
         insights: restaurantData.insights || [],
-        faqs: restaurantData.faqs || []
+        faqs: restaurantData.faqs || [],
+        reviews: restaurantData.reviews || []
       })
 
       const productIds = restaurantData?.product || []
@@ -81,7 +85,6 @@ export default function FirmDetailsDining() {
         const productsResponse = await axios.get(`${PRODUCT_API_URL}?ids=${productIds.join(',')}`)
         setProducts(productsResponse.data.data)
       }
-
     } catch (err) {
       setError(err.response?.data?.error || err.message)
     } finally {
@@ -89,22 +92,18 @@ export default function FirmDetailsDining() {
     }
   }
 
-  const UploadRecentlyViewd = async () => {
+  const UploadRecentlyViewed = async () => {
     try {
-      // getSimilar()
       const restId = firmId
       if (!restId) return
       await axios.post(`${API_URL}/firm/recently-viewed/${restId}`, null, {
         withCredentials: true
-      });
+      })
       console.log("recently viewed uploaded successfully")
     } catch (err) {
       console.error("Failed to upload recently viewed:", err)
     }
   }
-
-
-
 
   const getSimilar = async () => {
     setLoading(true)
@@ -121,15 +120,15 @@ export default function FirmDetailsDining() {
   useEffect(() => {
     if (firmId) {
       fetchRestaurantDetails(firmId)
-      UploadRecentlyViewd()
+      UploadRecentlyViewed()
     }
   }, [firmId])
 
   useEffect(() => {
-    if (firmDetails && firmDetails.restaurantInfo && firmDetails.restaurantInfo.name) {
-      getSimilar();
+    if (firmDetails?.restaurantInfo?.name) {
+      getSimilar()
     }
-  }, [firmDetails]);
+  }, [firmDetails])
 
   const groupedProducts = products.reduce((acc, item) => {
     const category = item.category.length > 0 ? item.category[0] : "Others"
@@ -171,8 +170,8 @@ export default function FirmDetailsDining() {
   }
 
   const FilterValues = [
-    { id: 'Prebook', value: 'offers' },
     { id: 'Menu', value: 'Menu' },
+    { id: 'Prebook', value: 'offers' },
     { id: 'Photos', value: 'Photos' },
     { id: 'Reviews', value: 'Reviews' },
   ]
@@ -221,7 +220,11 @@ export default function FirmDetailsDining() {
       const totalImages = firmDetails.restaurantInfo.image_urls.length
       return (
         <View>
-          <Text style={styles.subHeader}>Photos</Text>
+          <View style={styles.separatorRow}>
+            <View style={styles.line} />
+            <Text style={styles.separatorText}>Photos</Text>
+            <View style={styles.line} />
+          </View>
           <FlatList
             data={[...previewImages, 'last']}
             numColumns={3}
@@ -239,9 +242,9 @@ export default function FirmDetailsDining() {
                       }
                     })}
                   >
-                    <Image source={{ uri: previewImages[previewImages.length - 1] }} style={styles.galleryImage} />
+                    <Image source={{ uri: previewImages[previewImages.length - 2] }} style={styles.galleryImage} />
                     <View style={styles.galleryOverlay}>
-                      <Text style={styles.galleryOverlayText}>+{totalImages - 5} More</Text>
+                      <Text style={styles.galleryOverlayText}>+{totalImages - 6} More</Text>
                     </View>
                   </TouchableOpacity>
                 )
@@ -254,7 +257,7 @@ export default function FirmDetailsDining() {
       )
     }
 
-    if (filtersActive.Reviews && reviews.length > 0) {
+    if (filtersActive.Reviews && firmDetails?.reviews?.length > 0) {
       return (
         <View>
           <View style={styles.separatorRow}>
@@ -263,19 +266,19 @@ export default function FirmDetailsDining() {
             <View style={styles.line} />
           </View>
           <FlatList
-            data={reviews}
+            data={firmDetails.reviews}
             horizontal
             showsHorizontalScrollIndicator={false}
-            keyExtractor={item => item.id}
+            keyExtractor={item => item._id}
             renderItem={({ item }) => (
               <ReviewCard
-                name={item.name}
+                name={item.author_name}
                 date={item.date}
                 rating={item.rating}
-                review={item.review}
+                review={item.comments?.[0] || ""}
                 firmName={firmDetails?.restaurantInfo?.name || "Restaurant"}
                 details={firmDetails?.restaurantInfo?.address || ""}
-                followers={45}
+                followers={item.followers || 0}
               />
             )}
             contentContainerStyle={styles.listContainer}
@@ -304,7 +307,26 @@ export default function FirmDetailsDining() {
         <View>
           <View style={styles.separatorRow}>
             <View style={styles.line} />
-            <Text style={styles.separatorText}>OFFERS</Text>
+            <Text style={styles.separatorText}>Menu</Text>
+            <View style={styles.line} />
+          </View>
+          <TouchableOpacity
+            style={styles.imageBoxContainer}
+            onPress={() => router.navigate({
+              pathname: 'screens/PhotoGallery',
+              params: {
+                image_urls: require("../../assets/images/menu.jpeg"),
+                firmName: firmDetails?.restaurantInfo?.name || "Restaurant",
+                price: firmDetails?.restaurantInfo?.priceRange || '₹1010 for Two'
+              }
+            })}
+          >
+            <Image style={styles.imageBox} source={require("../../assets/images/menu.jpeg")} />
+          </TouchableOpacity>
+
+          <View style={styles.separatorRow}>
+            <View style={styles.line} />
+            <Text style={styles.separatorText}>Offers</Text>
             <View style={styles.line} />
           </View>
           <FlatList
@@ -318,7 +340,11 @@ export default function FirmDetailsDining() {
 
         {firmDetails?.restaurantInfo?.image_urls?.length > 0 && (
           <View>
-            <Text style={styles.subHeader}>Photos</Text>
+            <View style={styles.separatorRow}>
+              <View style={styles.line} />
+              <Text style={styles.separatorText}>Photos</Text>
+              <View style={styles.line} />
+            </View>
             <FlatList
               data={[...firmDetails.restaurantInfo.image_urls.slice(0, 5), 'last']}
               numColumns={3}
@@ -355,47 +381,28 @@ export default function FirmDetailsDining() {
         <View>
           <View style={styles.separatorRow}>
             <View style={styles.line} />
-            <Text style={styles.separatorText}>REVIEWS</Text>
+            <Text style={styles.separatorText}>Reviews</Text>
             <View style={styles.line} />
           </View>
           <FlatList
-            data={reviews}
+            data={firmDetails?.reviews || []}
             horizontal
             showsHorizontalScrollIndicator={false}
-            keyExtractor={item => item.id}
+            keyExtractor={item => item._id}
             renderItem={({ item }) => (
               <ReviewCard
-                name={item.name}
+                name={item.author_name}
                 date={item.date}
                 rating={item.rating}
-                review={item.review}
+                review={item.comments?.[0] || ""}
                 firmName={firmDetails?.restaurantInfo?.name || "Restaurant"}
                 details={firmDetails?.restaurantInfo?.address || ""}
-                followers={45}
+                followers={item.followers || 0}
               />
             )}
             contentContainerStyle={styles.listContainer}
           />
         </View>
-
-        <View style={styles.separatorRow}>
-          <View style={styles.line} />
-          <Text style={styles.separatorText}>MENU</Text>
-          <View style={styles.line} />
-        </View>
-        <TouchableOpacity
-          style={styles.imageBoxContainer}
-          onPress={() => router.navigate({
-            pathname: 'screens/PhotoGallery',
-            params: {
-              image_urls: require("../../assets/images/menu.jpeg"),
-              firmName: firmDetails?.restaurantInfo?.name || "Restaurant",
-              price: firmDetails?.restaurantInfo?.priceRange || '₹1010 for Two'
-            }
-          })}
-        >
-          <Image style={styles.imageBox} source={require("../../assets/images/menu.jpeg")} />
-        </TouchableOpacity>
       </View>
     )
   }
@@ -425,7 +432,7 @@ export default function FirmDetailsDining() {
           <View>
             <View style={styles.imageContainer}>
               <ImageGallery
-              style={{backgroundColor:"rgba(0, 0, 0, 0.63)"}}
+                style={{ backgroundColor: "rgba(0, 0, 0, 0.63)" }}
                 images={
                   firmDetails?.restaurantInfo?.image_urls?.length > 0
                     ? firmDetails.restaurantInfo.image_urls
@@ -441,86 +448,78 @@ export default function FirmDetailsDining() {
                 end={{ x: 0.5, y: 1 }}
               />
               <View style={styles.upperPannel}>
-                <TouchableOpacity onPress={() => router.back()}>
-                  <Ionicons name='chevron-back' size={30} color='white' />
+                <TouchableOpacity onPress={() => router.back()} style={{ borderRadius: "100%", backgroundColor: "#00000066", padding: 2, alignItems: "center", justifyContent: "center" }}>
+                  <Ionicons name='chevron-back' size={28} color='white' />
                 </TouchableOpacity>
-                <View style={styles.rightPannel}>
-                 
-                </View>
+                <View style={styles.rightPannel}></View>
               </View>
               <View style={styles.bottomPannel}>
                 <LinearGradient
-                 colors={[
-              '#181818CC',
-              '#18181866',
-              '#18181800'
-            ]}
-            start={{ x: 0, y: 1 }}
-            end={{ x: 1, y: 0 }}
-            style={{flexDirection:"row"}}
+                  colors={["#18181800", "#18181866", "#181818CC"]}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 0, y: 1 }}
+                  style={{ flexDirection: "row", width: "100%", justifyContent: "space-between" }}
                 >
-                  <View style={{padding:10}}>
+                  <View style={{ padding: 10 }}>
                     <View style={styles.mainPannel}>
-                  <Text style={styles.restaurantName}>
-                    {firmDetails?.restaurantInfo?.name || "Restaurant"}
-                  </Text>
-                  <Text style={styles.restaurantAddress}>
-                    {firmDetails?.restaurantInfo?.address || ""}
-                  </Text>
-                  <Text style={styles.cuisines}>
-                    {Array.isArray(firmDetails?.restaurantInfo?.cuisines) ?
-                      firmDetails.restaurantInfo.cuisines.join(' • ') :
-                      firmDetails?.restaurantInfo?.cuisines || 'Italian • Dessert'}
-                  </Text>
-                  <Text style={styles.price}>
-                    {firmDetails?.restaurantInfo?.priceRange || '₹1010 for Two'}
-                  </Text>
-                  <TouchableOpacity
-                    style={styles.openingHrsBackground}
-                    onPress={() => setOpeningHrsVisible(true)}
-                  >
-                           <View style={{backgroundColor:"white",borderRadius:"100%",marginRight:10}}>
-                              <AntDesign name="checkcircle" size={18} color="#048520" />
-                           </View>
-                    <Text style={{color:"white",fontFamily:"outfit-medium",fontSize:16}} >Open From | </Text>
-          
-                    <Text style={styles.openingHrs}>
-                      {Object.values(firmDetails?.opening_hours || {})[0] || 'Opening hrs 12:00 to 23:00'}
-                    </Text>
-                  </TouchableOpacity>
-                </View>
-                  </View>
-           
-                <TouchableOpacity
-                  style={styles.reviewBox}
-                  onPress={() => safeNavigation({
-                    pathname: "/screens/Reviewsall",
-                    params: {
-                      firmId: firmId,
-                      restaurantName: firmDetails?.restaurantInfo?.name,
-                      averageRating: firmDetails?.restaurantInfo?.ratings?.overall,
-                      reviewCount: firmDetails?.restaurantInfo?.ratings?.totalReviews
-                    }
-                  })}
-                >
-                  <View style={styles.reviewBoxTopContainer}>
-                    <View style={styles.reviewBoxUpperContainer}>
-                      <Text style={styles.reviewText}>
-                        {firmDetails?.restaurantInfo?.ratings?.overall?.toFixed(1) || '4.5'}
+                      <Text style={styles.restaurantName}>
+                        {firmDetails?.restaurantInfo?.name || "Restaurant"}
                       </Text>
-                      <FontAwesome name='star' size={24} color='white' />
+                      <Text style={styles.restaurantAddress}>
+                        {firmDetails?.restaurantInfo?.address || ""}
+                      </Text>
+                      <Text style={styles.cuisines}>
+                        {Array.isArray(firmDetails?.restaurantInfo?.cuisines)
+                          ? firmDetails.restaurantInfo.cuisines.join(' • ')
+                          : firmDetails?.restaurantInfo?.cuisines || 'Italian • Dessert'}
+                      </Text>
+                      <Text style={styles.price}>
+                        {firmDetails?.restaurantInfo?.priceRange || '₹1010 for Two'}
+                      </Text>
+                      <TouchableOpacity
+                        style={styles.openingHrsBackground}
+                        onPress={() => setOpeningHrsVisible(true)}
+                      >
+                        <View style={{ backgroundColor: "white", borderRadius: "100%", marginRight: 10 }}>
+                          <AntDesign name="checkcircle" size={18} color="#048520" />
+                        </View>
+                        <Text style={{ color: "white", fontFamily: "outfit-medium", fontSize: 16 }}>Open From | </Text>
+                        <Text style={styles.openingHrs}>
+                          {Object.values(firmDetails?.opening_hours || {})[0] || 'Opening hrs 12:00 to 23:00'}
+                        </Text>
+                      </TouchableOpacity>
                     </View>
                   </View>
-                  <View style={styles.reviewBoxBottomContainer}>
-                    <Text style={styles.reviewCount}>
-                      {firmDetails?.restaurantInfo?.ratings?.totalReviews || '2918'}
-                    </Text>
-                    <Text style={styles.reviewCount}>
-                      Reviews
-                    </Text>
-                  </View>
-                </TouchableOpacity>
-                     </LinearGradient>
+
+                  <TouchableOpacity
+                    style={styles.reviewBox}
+                    onPress={() => safeNavigation({
+                      pathname: "/screens/Reviewsall",
+                      params: {
+                        firmId: firmId,
+                        restaurantName: firmDetails?.restaurantInfo?.name,
+                        averageRating: firmDetails?.restaurantInfo?.ratings?.overall,
+                        reviewCount: firmDetails?.restaurantInfo?.ratings?.totalReviews,
+                         reviewType:"dining"
+                      }
+                    })}
+                  >
+                    <View style={styles.reviewBoxTopContainer}>
+                      <View style={styles.reviewBoxUpperContainer}>
+                        <Text style={styles.reviewText}>
+                          {firmDetails?.restaurantInfo?.ratings?.overall?.toFixed(1) || '4.5'}
+                        </Text>
+                        <FontAwesome name='star' size={18} color='white' />
+                      </View>
+                    </View>
+                    <View style={styles.reviewBoxBottomContainer}>
+                      <Text style={styles.reviewCount}>
+                        {firmDetails?.restaurantInfo?.ratings?.totalReviews || '2179'}
+                      </Text>
+                      <Text style={styles.reviewCount2}>Reviews</Text>
+                    </View>
+                  </TouchableOpacity>
+                </LinearGradient>
               </View>
             </View>
             <View style={styles.buttonViewContainer}>
@@ -528,10 +527,10 @@ export default function FirmDetailsDining() {
                 <Text style={styles.buttonText}>Book a table</Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.button2} onPress={() => Linking.openURL(`https://www.google.com/maps/search/?api=1&query=${firmDetails?.restaurantInfo?.name || "Restaurant"}`)}>
-                <FontAwesome5 name='directions' size={24} color='#e23845' />
+                <FontAwesome5 name='directions' size={22} color='#E03A48' />
               </TouchableOpacity>
               <TouchableOpacity style={styles.button2} onPress={() => makeCall(firmDetails?.restaurantInfo?.phoneNo || '0123456789')}>
-                <Feather name="phone-call" size={24} color="#e23845" />
+                <MaterialIcons name="call" size={22} color="#E03A48" />
               </TouchableOpacity>
             </View>
             <View style={styles.filterBox}>
@@ -541,7 +540,7 @@ export default function FirmDetailsDining() {
                 showsHorizontalScrollIndicator={false}
                 keyExtractor={item => item.id}
                 renderItem={({ item }) => (
-                  <TouchableOpacity onPress={() => handleActive(item)}>
+                  <TouchableOpacity style={{ justifyContent: "center", alignItems: "center", marginLeft: 22 }} onPress={() => handleActive(item)}>
                     <View style={filtersActive[item.id] ? styles.filterActive : styles.filterInactive}>
                       <Text style={filtersActive[item.id] ? styles.filterTextActive : styles.filterValueText}>
                         {item.value}
@@ -554,90 +553,89 @@ export default function FirmDetailsDining() {
             {renderContent()}
             <View style={styles.separatorRow}>
               <View style={styles.line} />
-              <Text style={styles.separatorText}>ABOUT</Text>
+              <Text style={styles.separatorText}>About restaurants</Text>
               <View style={styles.line} />
             </View>
-            <View style={{ padding: 20, backgroundColor: '#fff' }}>
-              <View style={{ marginBottom: 20 }}>
-                <Text style={{ fontSize: 20, fontWeight: '700', color: '#333', marginBottom: 12 }}>About the Restaurant</Text>
-                <Text style={{
-                  fontSize: 15,
-                  lineHeight: 22,
-                  color: '#555',
-                  borderLeftWidth: 3,
-                  borderLeftColor: '#FF6B6B',
-                  paddingLeft: 12
-                }}>
-                  {firmDetails?.restaurantInfo?.overview || "Italian inspired cuisine in a stylishly elegant setting."}
-                </Text>
-              </View>
+            <View style={{ padding: 20 }}>
               <View style={{
-                backgroundColor: '#F8F9FA',
+                backgroundColor: '#FFFFFF',
                 borderRadius: 10,
                 padding: 16,
-                marginBottom: 20
+                marginBottom: 20,
+                borderWidth: 1,
+                borderColor: "#D9D9D9"
               }}>
-                <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
-                  <FontAwesome5 name="rupee-sign" size={16} color="#28A745" />
-                  <Text style={{ fontSize: 15, marginLeft: 10, color: '#333' }}>
+                <Text style={{ fontSize: 14, color: '#444444', fontWeight: '700' }}>
+                  {(() => {
+                    const overview = firmDetails?.restaurantInfo?.overview || "Experience authentic Italian-inspired cuisine crafted with passion, combining traditional flavors and modern presentation in a stylishly elegant setting. Our chefs carefully select the freshest seasonal ingredients to create dishes that delight the senses, whether you are enjoying a romantic dinner, a casual gathering with friends, or a family celebration. With a warm ambiance, attentive service, and thoughtfully curated menu, we strive to make every dining experience memorable, offering a perfect blend of comfort and sophistication.";
+                    const words = overview.split(" ");
+                    return words.length > 10 ? words.slice(0, 10).join(" ") + "..." : overview;
+                  })()}
+                </Text>
+                <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12, marginTop: 20 }}>
+                  <FontAwesome5 name="rupee-sign" size={16} color="#E03A48" />
+                  <Text style={{ fontSize: 12, marginLeft: 10, color: '#444444' }}>
                     {firmDetails?.restaurantInfo?.priceRange || '₹1010 for Two'}
                   </Text>
                 </View>
                 <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
-                  <MaterialIcons name="restaurant" size={18} color="#FF6B6B" />
-                  <Text style={{ fontSize: 15, marginLeft: 10, color: '#333' }}>
-                    {Array.isArray(firmDetails?.restaurantInfo?.cuisines) ?
-                      firmDetails.restaurantInfo.cuisines.join(', ') :
-                      firmDetails?.restaurantInfo?.cuisines || 'Italian, Dessert'}
+                  <MaterialIcons name="restaurant" size={16} color="#FF6B6B" />
+                  <Text style={{ fontSize: 12, marginLeft: 10, color: '' }}>
+                    {Array.isArray(firmDetails?.restaurantInfo?.cuisines)
+                      ? firmDetails.restaurantInfo.cuisines.join(', ')
+                      : firmDetails?.restaurantInfo?.cuisines || 'Italian, Dessert'}
                   </Text>
                 </View>
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                  <MaterialIcons name="access-time" size={18} color="#007BFF" />
-                  <Text style={{ fontSize: 15, marginLeft: 10, color: '#333' }}>
+                  <MaterialIcons name="access-time" size={16} color="#E03A48" />
+                  <Text style={{ fontSize: 12, marginLeft: 10, color: '#444444' }}>
                     {firmDetails?.restaurantInfo?.timings || '11:00 AM - 11:00 PM'}
                   </Text>
                 </View>
               </View>
-              <View style={{ marginBottom: 20 }}>
-                <Text style={{ fontSize: 20, fontWeight: '700', color: '#333', marginBottom: 12 }}>Available Facilities</Text>
+              <View style={{
+                backgroundColor: '#FFFFFF',
+                borderRadius: 10,
+                padding: 16,
+                marginBottom: 20,
+                borderWidth: 1,
+                borderColor: "#D9D9D9"
+              }}>
+                <Text style={{ fontSize: 14, fontWeight: 600, color: '#444444', marginBottom: 12 }}>Facilities</Text>
                 <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
                   {firmDetails?.features?.map((item, index) => (
                     <View key={index} style={{ flexDirection: 'row', alignItems: 'center', width: '50%', marginBottom: 10, paddingRight: 10 }}>
-                      <FontAwesome5 name="check-circle" size={14} color="#28A745" style={{ marginRight: 8 }} />
-                      <Text style={{ fontSize: 14, color: '#555' }}>{item}</Text>
+                      <AntDesign name="checkcircle" size={16} color="#048520" style={{ marginRight: 12 }} />
+                      <Text style={{ fontSize: 12, color: '#444444' }}>{item}</Text>
                     </View>
                   ))}
                 </View>
               </View>
-              {similar ? <View style={{ marginBottom: 20 }}>
-                <Text style={{ color: "black", fontWeight: "bold", fontSize: 20 }}>Similar Restaurants</Text>
-                <FlatList
-                  data={similar}
-                  horizontal
-                  showsHorizontalScrollIndicator={false}
-                  keyExtractor={item => item.id}
-                  renderItem={({ item }) => (
-                    <MiniRecommendedCard
-                      name={item.restaurant_name}
-                      address={item.address}
-                      image={item.image_url}
-                      rating={item.rating}
-                      onPress={() => safeNavigation({ pathname: '/screens/FirmDetailsDining', params: { firmId: item.id } })}
-                    />
-                  )}
-                />
-              </View> : <></>}
-              {firmDetails?.faqs?.length > 0 && (
-                <View>
-                  <Text style={{ fontSize: 20, fontWeight: '700', color: '#333', marginBottom: 12 }}>Frequently Asked Questions</Text>
-                  {firmDetails.faqs.map((faq) => (
-                    <View key={faq._id} style={{ marginBottom: 16, borderBottomWidth: 1, borderBottomColor: '#EEE', paddingBottom: 16 }}>
-                      <Text style={{ fontWeight: '600', fontSize: 15, color: '#333', marginBottom: 6 }}>{faq.question}</Text>
-                      <Text style={{ fontSize: 14, color: '#666', lineHeight: 20 }}>{faq.answer}</Text>
-                    </View>
-                  ))}
+              {similar ? (
+                <View style={{ marginBottom: 20 }}>
+                  <View style={styles.separatorRow}>
+                    <View style={styles.line} />
+                    <Text style={styles.separatorText}>Explore other restaurants</Text>
+                    <View style={styles.line} />
+                  </View>
+                  <FlatList
+                    data={similar}
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    keyExtractor={item => item.id}
+                    style={{ marginLeft: 10 }}
+                    renderItem={({ item }) => (
+                      <MiniRecommendedCard
+                        name={item.restaurant_name}
+                        address={item.address}
+                        image={item?.image_url}
+                        rating={item.rating}
+                        onPress={() => safeNavigation({ pathname: '/screens/FirmDetailsDining', params: { firmId: item.id } })}
+                      />
+                    )}
+                  />
                 </View>
-              )}
+              ) : null}
             </View>
           </View>
         }

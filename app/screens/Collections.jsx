@@ -23,7 +23,8 @@ import DiningCard from '@/components/DaningCard';
 
 const windowHeight = Dimensions.get('window').height;
 const windowWidth = Dimensions.get('window').width;
-const Api_url = 'http://192.168.0.103:3000';
+import { API_CONFIG } from '../../config/apiConfig';
+const Api_url = API_CONFIG.BACKEND_URL;
 
 const quickFilters = [
   { name: 'Pure Veg', icon: 'leaf' },
@@ -346,23 +347,17 @@ export default function Collections() {
   return (
     <View style={styles.container}>
       {/* Collection Header */}
-     
-     <ImageBackground
-  source={{ uri: collectionData.photoApp }}
-  style={styles.collectionHeader}
-  imageStyle={styles.collectionHeaderImage}
->
-  <View style={styles.backButtonWrapper}>
-    <BackRouting color="white" />
-  </View>
-
-  <View style={styles.collectionOverlay}>
-    <Text style={styles.collectionTitle}>{collectionData.title}</Text>
-    <Text style={styles.collectionDescription}>{collectionData.description}</Text>
-    <Text style={styles.collectionCount}>{firms.length} Places</Text>
-  </View>
-</ImageBackground>
-
+      <ImageBackground
+        source={{ uri: collectionData.photoApp }}
+        style={styles.collectionHeader}
+        imageStyle={styles.collectionHeaderImage}
+      >
+        <View style={styles.collectionOverlay}>
+          <Text style={styles.collectionTitle}>{collectionData.title}</Text>
+          <Text style={styles.collectionDescription}>{collectionData.description}</Text>
+          <Text style={styles.collectionCount}>{firms.length} Places</Text>
+        </View>
+      </ImageBackground>
 
       {/* Quick Filters */}
       {/* <View style={styles.filterContainer}>
@@ -580,15 +575,6 @@ const styles = StyleSheet.create({
     color: 'white',
     marginBottom: 5,
   },
-  backButtonWrapper: {
-  position: 'absolute',
-  top: 10, 
-  left: 5,
-  color: 'white',
-  
-},
-
-
   collectionDescription: {
     fontSize: 16,
     color: 'white',
