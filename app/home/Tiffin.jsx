@@ -614,6 +614,7 @@ const FetchRecentlyViewData = useCallback(async () => {
       })
     ) : (
       <>
+        <View><BannerCarousel page="Tiffin-services" /></View>
         <Whatsonyou />
         {recentlyViewData.length > 0 && renderSection({
           title: 'RECENTLY VIEWED',
@@ -848,7 +849,7 @@ const FetchRecentlyViewData = useCallback(async () => {
           </Modal>
         </View>
       </View>
-      <View><BannerCarousel page="Tiffin-services" /></View>
+
       {/* {renderFilterModal()} */}
       <FilterModal
         isOpen={showFilters}
