@@ -1,149 +1,233 @@
-import React, { useState } from "react";
-import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
-import { FontAwesome } from "@expo/vector-icons";
-import { router, useLocalSearchParams } from "expo-router";
-import { useAuth } from "../context/AuthContext";
-import { useSafeNavigation } from "@/hooks/navigationPage";
-import BackRouting from "@/components/BackRouting";
-const REVIEW_TYPES = {
-  DINING: 'dining',
-  TIFFIN: 'tiffin',
-  TAKEAWAY: 'takeaway'
-};
+import React, { useState, useEffect, useRef } from "react"; 
+import { 
+  View, 
+  Image, 
+  TouchableOpacity, 
+  StyleSheet, 
+  Dimensions, 
+  FlatList,
+  ActivityIndicator,
+  Text
+} from "react-native";
+import axios from "axios";
 
-export default function RatingScreen() {
-  const { user, profileData } = useAuth();
-  const currentUserData = profileData?.email ? profileData : (user ? { username: user } : null);
-  const params = useLocalSearchParams();
-  const firmId = params.firmId;
-  const reviewType = params.reviewType;
-  console.log(reviewType)
-  const [rating, setRating] = useState(0);
-  const { safeNavigation } = useSafeNavigation();
+const API = 'https://backend-0wyj.onrender.com';
 
-  const handleRating = (value) => {
-    if (!user?.email) {
-      Alert.alert("Login Required", "You need to be logged in to submit a review.");
-      return;
-    }
-    
-    setRating(value);
-    safeNavigation({
-      pathname: "/screens/Userreview",
-      params: {
-        rating: value,
-        firmId: firmId,
-        reviewType: reviewType,
-        restaurantName: params.restaurantName,
-          currentUser: currentUserData 
+const BannerCarousel = ({ page }) => {
+  const [banners, setBanners] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const flatListRef = useRef(null);
+  const windowWidth = Dimensions.get("window").width;
+  const autoScrollInterval = useRef(null);
 
+  useEffect(() => {
+    const fetchBanners = async () => {
+      try {
+        setLoading(true);
+        const response = await axios.get(
+          `${API}/banners/active`,
+          { withCredentials: true }
+        );
+        
+        // Process banners to fix malformed arrays and filter by page
+        const processedBanners = response.data.map(banner => {
+          // Fix malformed arrays in cities and pages
+          const fixArray = (field) => {
+            if (!banner[field]) return [];
+            if (Array.isArray(banner[field])) return banner[field];
+            
+            try {
+              // Handle cases where arrays are stored as JSON strings
+              const parsed = JSON.parse(banner[field].replace(/\\"/g, '"'));
+              return Array.isArray(parsed) ? parsed : [];
+            } catch (e) {
+              return [];
+            }
+          };
+
+          return {
+            ...banner,
+            cities: fixArray('cities'),
+            pages: fixArray('pages')
+          };
+        });
+
+        // Filter banners for current page
+        const pageBanners = processedBanners.filter(banner => 
+          banner.pages.includes(page)
+        );
+
+        setBanners(pageBanners);
+      } catch (err) {
+        console.error("Error fetching banners:", err);
+        setError(err.message);
+      } finally {
+        setLoading(false);
       }
-    });
+    };
+
+    fetchBanners();
+  }, [page]);
+
+  useEffect(() => {
+    // Auto-scroll functionality
+    const startAutoScroll = () => {
+      if (validBanners.length <= 1) return;
+      
+      autoScrollInterval.current = setInterval(() => {
+        const nextIndex = (currentIndex + 1) % validBanners.length;
+        setCurrentIndex(nextIndex);
+        flatListRef.current?.scrollToIndex({
+          index: nextIndex,
+          animated: true
+        });
+      }, 5000); // Change slide every 5 seconds
+    };
+
+    startAutoScroll();
+    return () => {
+      if (autoScrollInterval.current) {
+        clearInterval(autoScrollInterval.current);
+      }
+    };
+  }, [currentIndex, banners]);
+
+  const validBanners = banners.filter(banner => 
+    banner?.photoApp?.trim() && 
+    (!banner.startDate || new Date(banner.startDate) <= new Date()) &&
+    (!banner.endDate || new Date(banner.endDate) >= new Date())
+  );
+
+  const handleClick = async (banner) => {
+    if (!banner?._id) return;
+    try {
+      await axios.post(`${API}/banners/banner-click/${banner._id}`);
+    } catch (err) {
+      console.log("Error counting click:", err);
+    }
   };
 
-  return (
-  <View style={styles.container}>
-    {/* Back button at top-left */}
-    <View style={styles.backContainer}>
-      <BackRouting />
-    </View>
+  const handleScroll = (event) => {
+    const contentOffset = event.nativeEvent.contentOffset.x;
+    const newIndex = Math.round(contentOffset / (windowWidth - 40));
+    setCurrentIndex(newIndex);
+  };
 
-    {/* Centered content */}
-    <View style={styles.contentContainer}>
+  const renderItem = ({ item }) => (
+    <TouchableOpacity 
+      activeOpacity={0.9} 
+      onPress={() => handleClick(item)}
+      style={styles.slide}
+    >
       <Image
-        source={{
-          uri: "https://cdn-icons-png.flaticon.com/512/3075/3075977.png",
-        }}
-        style={styles.image}
+        source={{ uri: item.photoApp }}
+        style={styles.carouselImage}
+        resizeMode="contain"
       />
-      <Text style={styles.title}>{params.restaurantName || "The Food Workshop"}</Text>
-      <View style={styles.underline} />
-      <Text style={styles.subtitle}>How was your {reviewType} experience?</Text>
+    </TouchableOpacity>
+  );
 
-      <View style={styles.starsContainer}>
-        {[1, 2, 3, 4, 5].map((val) => (
-          <TouchableOpacity
-            key={val}
-            onPress={() => handleRating(val)}
-            activeOpacity={0.7}
-          >
-            <FontAwesome
-              name={val <= rating ? "star" : "star-o"}
-              size={40}
-              color="#FFB800"
-              style={styles.star}
-            />
-          </TouchableOpacity>
+  const renderPagination = () => {
+    if (validBanners.length <= 1) return null;
+    
+    return (
+      <View style={styles.pagination}>
+        {validBanners.map((_, index) => (
+          <View 
+            key={index}
+            style={[
+              styles.paginationDot,
+              index === currentIndex ? styles.paginationDotActive : null
+            ]}
+          />
         ))}
       </View>
+    );
+  };
 
-      <Text style={styles.reviewTypeText}>
-        Reviewing as: {reviewType}
-      </Text>
+  if (loading) return <ActivityIndicator style={styles.loadingContainer} size="large" />;
+  if (error) return (
+    <View style={styles.errorContainer}>
+      <Text>Error loading banners</Text>
     </View>
-  </View>
-);
+  );
+  if (validBanners.length === 0) return null;
 
-}
+  return (
+    <View style={styles.carouselContainer}>
+      <FlatList
+        ref={flatListRef}
+        data={validBanners}
+        renderItem={renderItem}
+        horizontal
+        pagingEnabled
+        showsHorizontalScrollIndicator={false}
+        keyExtractor={(item) => item._id}
+        snapToInterval={windowWidth - 40}
+        decelerationRate="fast"
+        onScroll={handleScroll}
+        scrollEventThrottle={16}
+        initialScrollIndex={0}
+        getItemLayout={(data, index) => ({
+          length: windowWidth - 40,
+          offset: (windowWidth - 40) * index,
+          index,
+        })}
+      />
+      {renderPagination()}
+    </View>
+  );
+};
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
-    alignItems: "center",
+  carouselContainer: { 
+    marginVertical: 10,
+    // height: 110, 
+    position: 'relative',
+  },
+  slide: {
+    width: Dimensions.get("window").width,
+    height: 100,
     justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "transparent",
+    // marginHorizontal: 20,
+  },
+  carouselImage: {
+    width: "100%",
+    height: "100%",
+    borderRadius: 8,
+  },
+  loadingContainer: {
+    height: 100,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  errorContainer: {
+    height: 100,
+    backgroundColor: "#ffebee",
+    justifyContent: "center",
+    alignItems: "center",
     padding: 20,
   },
-  image: {
-    width: 160,
-    height: 160,
-    marginBottom: 30,
-    borderRadius: 80,
+  pagination: {
+    position: 'absolute',
+    bottom: 10,
+    flexDirection: 'row',
+    alignSelf: 'center',
   },
-  title: {
-    fontSize: 24,
-    fontWeight: "bold",
-    color: "#1a1a1a",
-    textAlign: 'center',
+  paginationDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#ccc',
+    margin: 5,
   },
-  underline: {
-    width: 50,
-    height: 3,
-    backgroundColor: "#FFD700",
-    marginVertical: 8,
-    borderRadius: 2,
+  paginationDotActive: {
+    backgroundColor: '#000',
   },
-  subtitle: {
-    fontSize: 18,
-    color: "#1a1a1a",
-    marginBottom: 30,
-    textAlign: 'center',
-  },
-  starsContainer: {
-    flexDirection: "row",
-    justifyContent: "center",
-    marginTop: 20,
-  },
-  star: {
-    marginHorizontal: 10,
-  },
-  reviewTypeText: {
-    marginTop: 20,
-    fontSize: 16,
-    color: "#666",
-    fontStyle: 'italic'
-  },
-  backContainer: {
-  position: 'absolute',
-  top: 20,
-  left: 0,
-  zIndex: 10,
-},
-contentContainer: {
-  flex: 1,
-  justifyContent: 'center',
-  alignItems: 'center',
-  paddingHorizontal: 20,
-},
-
 });
+
+export default BannerCarousel;
