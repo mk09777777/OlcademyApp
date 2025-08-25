@@ -12,6 +12,127 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  card: {
+    margin: 10,
+    borderRadius: 12,
+    overflow: 'hidden',
+  },
+  imageBackground: {
+    height: 200,
+    justifyContent: 'flex-end', // push text to bottom
+  },
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0,0,0,0.4)', // dark overlay for contrast
+  },
+  contentContainer: {
+    padding: 1,
+  },
+  titleContainer: {
+  flexDirection: "row",       // places title on left & review box on right
+  justifyContent: "space-between",
+  alignItems: "flex-start",   // keeps title top-aligned with review box
+  marginTop: 8,
+  paddingHorizontal: 10,
+},
+
+title: {
+  flex: 1,                    // take available width
+  fontSize: 16,
+  fontWeight: "bold",
+  color: "#000",
+  marginRight: 10,
+  flexWrap: "wrap",
+},
+overlayContainer: {
+  position: "absolute",
+  bottom: 0,
+  left: 10,
+  right: 10,
+  flexDirection: "row",
+  justifyContent: "space-between",
+  alignItems: "flex-start",
+},
+
+titleWrapper: {
+  flex: 1, // takes remaining space beside review box
+  marginRight: 10,
+},
+
+titleText: {
+  fontSize: 16,
+  fontWeight: "bold",
+  color: "#fff",
+},
+reviewBox: {
+  marginTop: 20,
+  bottom: 20,
+  minWidth: 70,
+  borderRadius: 10,
+  right: 10,
+  borderWidth: 1,
+  borderColor: '#ccc',
+  overflow: 'hidden',   // ensures children match rounded corners
+},
+
+reviewBoxTopContainer: {
+  backgroundColor: 'green',
+  padding: 10,
+},
+
+reviewBoxBottomContainer: {
+  backgroundColor: 'white',
+  padding: 10,
+  flexDirection: 'row',
+},
+
+
+
+reviewBoxUpperContainer: {
+  flexDirection: "row",
+  alignItems: "center",
+},
+
+reviewText: {
+  fontSize: 14,
+  color: "#fff",
+  marginRight: 4,
+},
+
+
+
+reviewCount: {
+  fontSize: 12,
+  color: "#fff",
+},
+
+
+
+  infoRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  backgroundImage: {
+    width: '100%',
+    height: 200,
+    justifyContent: 'flex-end',
+  },
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+  },
+  overlayContent: {
+    padding: 10,
+  },
+  title: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  infoText: {
+    color: '#fff',
+    fontSize: 14,
+  },
   loadingText: {
     marginTop: 16,
     color: '#666',
@@ -22,7 +143,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 24,
   },
-    reviewBoxTopContainer: {
+  reviewBoxTopContainer: {
     backgroundColor: 'green',
     padding: 10,
     borderTopLeftRadius: 10,
@@ -34,7 +155,9 @@ const styles = StyleSheet.create({
   reviewBoxBottomContainer: {
     backgroundColor: 'white',
     borderBottomLeftRadius: 10,
-    borderBottomRightRadius: 10
+    borderBottomRightRadius: 10,
+    padding: 10,
+    flexDirection: 'row',
   },
   reviewText: {
     fontFamily: 'outfit',
@@ -47,11 +170,13 @@ const styles = StyleSheet.create({
     fontSize: 14,
     textAlign: 'center'
   },
-    reviewBox: {
-      bottom:90,
-      width:80,
+  reviewBox: {
+    marginTop: 20,
+    bottom: 20,
+    minWidth: 70,
     borderRadius: 10,
-    left:300,
+    right: 10,
+    // left:300,
     borderWidth: 1,
     borderColor: '#ccc'
   },
@@ -384,15 +509,20 @@ const styles = StyleSheet.create({
     color: '#fff',
   },
   menuList: {
-    padding: 16,
+    padding: 15,
+
   },
   menuItem: {
-    marginBottom: 16,
-    // backgroundColor: '#fff',
-    // elevation: 2,
+    marginBottom: 10,
+    backgroundColor: '#f7f7f7ff',
+    elevation: 2,
     overflow: 'hidden',
     flexDirection: 'row',
     alignItems: 'stretch',
+    padding:15,
+      borderColor:'#c1c1c1ff',
+    borderWidth:0.5,
+    borderRadius: 12,
   },
   menuItemImageContainer: {
     width: 150,
@@ -400,7 +530,7 @@ const styles = StyleSheet.create({
   },
   menuItemImage: {
     width: '100%',
-    height: 130,
+    height: 120,
     resizeMode: 'cover',
     borderRadius: 12,
   },
@@ -473,8 +603,8 @@ const styles = StyleSheet.create({
     marginRight: 12,
   },
   addButton: {
-    bottom:15,
-    left:10,
+    bottom: 15,
+    left: 10,
     // paddingBottom:10,
     borderRadius: 10,
     backgroundColor: '#FF4B3f',
@@ -678,6 +808,154 @@ customizeButtonText: {
     fontSize: 16,
     textAlign: 'center',
   },
+  maincontainer: {
+    backgroundColor: '#FFF',
+    // borderRadius: 12,
+    padding: 16,
+    marginBottom: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  headerContainer: {
+    // bottom:100,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    // alignItems: 'center',
+    // marginBottom: 12,
+  },
+  titleButton: {
+    flex: 1,
+
+  },
+  detailsContainer: {
+    borderTopWidth: 1,
+    borderTopColor: '#EEE',
+    paddingTop: 10,
+  },
+  icon: {
+    marginTop: 2,
+    marginRight: 10,
+  },
+
+  deliveryCitiesContainer: {
+    flex: 1,
+  },
+  label: {
+    fontSize: 14,
+    color: '#666',
+    marginBottom: 10,
+    fontWeight: '500',
+  },
+  citiesWrapper: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    //  paddingHorizontal: 10,
+    gap: 8,
+  },
+  cityPill: {
+    backgroundColor: '#f0f0f0',
+    borderRadius: 16,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    marginBottom: 8,
+  },
+  cityText: {
+    fontSize: 12,
+    color: '#333',
+  },
+  togglePill: {
+    backgroundColor: '#e3f2fd',
+    borderRadius: 16,
+    paddingVertical: 6,
+    paddingHorizontal: 14,
+    alignSelf: 'flex-start',
+  },
+  toggleText: {
+    fontSize: 12,
+    color: '#1976d2',
+    fontWeight: '500',
+  },
+  moreLessPill: {
+    backgroundColor: '#e3f2fd',
+    borderRadius: 16,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+  },
+  moreLessText: {
+    fontSize: 13,
+    color: '#1976d2',
+    fontWeight: '500',
+  },
+   offersContainer: {
+    marginTop: 20,
+    backgroundColor: '#f8f9fa',
+    borderRadius: 12,
+    padding: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#2c3e50',
+    marginBottom: 12,
+    paddingBottom: 6,
+    borderBottomWidth: 1,
+    borderBottomColor: '#e0e0e0',
+  },
+  offerItem: {
+    backgroundColor: '#ffffff',
+    borderRadius: 8,
+    padding: 14,
+    marginBottom: 12,
+    borderLeftWidth: 4,
+    borderLeftColor: '#4a90e2',
+  },
+  offerTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#2c3e50',
+    marginBottom: 4,
+  },
+  offerDescription: {
+    fontSize: 14,
+    color: '#7f8c8d',
+    marginBottom: 8,
+    lineHeight: 20,
+  },
+  offerCode: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#27ae60',
+    backgroundColor: '#e8f5e9',
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+    borderRadius: 4,
+    alignSelf: 'flex-start',
+  },
+    separatorRow: {
+		flexDirection: 'row',
+		alignItems: 'center',
+		marginTop: 10,
+    marginBottom: 10
+	  },
+  line: {
+    flex: 1,
+    height: 1,
+    backgroundColor: '#353434ff',
+  },
+	separatorText: {
+		fontFamily: 'outfit',
+		fontSize: 16,
+		// color: '#ccc',
+    marginHorizontal: 7
+	},
 });
 
 export default styles;
