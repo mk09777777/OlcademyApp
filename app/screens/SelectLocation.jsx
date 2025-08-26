@@ -20,8 +20,6 @@ import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
 import BackRouting from "@/components/BackRouting";
-import { API_CONFIG } from '../../config/apiConfig';
-const CUSTOM_LOCATION_API = `${API_CONFIG.BACKEND_URL}/api/location`;
 
 export default function SelectLocation({ placeholder = "Enter area, landmark ...", query, setQuery }) {
   const { safeNavigation } = useSafeNavigation();
@@ -29,7 +27,7 @@ export default function SelectLocation({ placeholder = "Enter area, landmark ...
 
   const [localQuery, setLocalQuery] = useState(query || '');
   const [loading, setLoading] = useState(false);
-  const [region, setRegion] = useState({ latitude: 17.385044, longitude: 78.486671 });
+  const [region, setRegion] = useState();
   const [suggestions, setSuggestions] = useState([]);
   const [debounceTimer, setDebounceTimer] = useState(null);
 
@@ -39,7 +37,7 @@ export default function SelectLocation({ placeholder = "Enter area, landmark ...
         `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(text)}&format=json&addressdetails=1`,
         {
           headers: {
-            'User-Agent': 'ProjectZ/1.0.0 (mayurvicky01234@gmail.com)',
+            'User-Agent': 'tiffinuser/1.0.0 (mayurvicky01234@gmail.com)',
           },
         }
       );
@@ -77,7 +75,7 @@ export default function SelectLocation({ placeholder = "Enter area, landmark ...
       let parsed = existing ? JSON.parse(existing) : [];
       parsed = parsed.filter(i => i.fullAddress !== fullAddress);
       parsed.unshift(locationData);
-      if (parsed.length > 5) parsed = parsed.slice(0, 5);
+      if (parsed.length > 5) parsed = parsed.slice(0, 7);
       await AsyncStorage.setItem('recentlyAddList', JSON.stringify(parsed));
       setRecentlyAdds(parsed);
     } catch (err) {
@@ -108,11 +106,87 @@ export default function SelectLocation({ placeholder = "Enter area, landmark ...
     }, [])
   );
 
+  const getCurrentLocation = async () => {
+    try {
+      setLoading(true);
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('Permission Denied', 'Location permission is required to use this feature');
+        return;
+      }
+
+      const { coords } = await Location.getCurrentPositionAsync({});
+      setRegion(coords);
+      
+      // Try to get detailed address information using reverse geocoding
+      try {
+        const reverseGeocode = await Location.reverseGeocodeAsync({
+          latitude: coords.latitude,
+          longitude: coords.longitude,
+        });
+        
+        if (reverseGeocode.length > 0) {
+          const location = reverseGeocode[0];
+          const locationData = {
+            city: location.city || '',
+            state: location.region || '',
+            country: location.country || '',
+            lat: coords.latitude.toString(),
+            lon: coords.longitude.toString(),
+            fullAddress: `${location.name || ''} ${location.street || ''}, ${location.city || ''}, ${location.region || ''}, ${location.country || ''}`.trim(),
+            area: location.district || '',
+            street: location.street || '',
+            houseNumber: location.name || '',
+            display_name: `${location.name || ''} ${location.street || ''}, ${location.city || ''}, ${location.region || ''}, ${location.country || ''}`.trim(),
+          };
+          
+          setLocation(locationData);
+          
+          // Save to recent locations
+          try {
+            const existing = await AsyncStorage.getItem('recentlyAddList');
+            let parsed = existing ? JSON.parse(existing) : [];
+            parsed = parsed.filter(i => i.fullAddress !== locationData.fullAddress);
+            parsed.unshift(locationData);
+            if (parsed.length > 5) parsed = parsed.slice(0, 5);
+            await AsyncStorage.setItem('recentlyAddList', JSON.stringify(parsed));
+            setRecentlyAdds(parsed);
+          } catch (err) {
+            console.error("Failed to update recent list", err);
+          }
+        }
+      } catch (reverseError) {
+        console.log('Reverse geocoding failed:', reverseError);
+        // Fallback: Use coordinates only
+        const locationData = {
+          city: '',
+          state: '',
+          country: '',
+          lat: coords.latitude.toString(),
+          lon: coords.longitude.toString(),
+          fullAddress: `Lat: ${coords.latitude.toFixed(6)}, Lon: ${coords.longitude.toFixed(6)}`,
+          area: '',
+          street: '',
+          houseNumber: '',
+          display_name: `Lat: ${coords.latitude.toFixed(6)}, Lon: ${coords.longitude.toFixed(6)}`,
+        };
+        
+        setLocation(locationData);
+      }
+      
+      safeNavigation('/home');
+    } catch (err) {
+      console.error('Location error:', err);
+      Alert.alert('Error', 'Could not get current location. Please check your internet connection and try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-     <SafeAreaView style={styles.container}>
-      <BackRouting style ={{backgroundColor: '#ffffffff' }} tittle ='Select Location'/>
-      <ScrollView keyboardShouldPersistTaps="handled" style ={{backgroundColor: '#ffffffff'}}>
-        {/* <Text style={styles.header}>Select Location</Text> */}
+    <SafeAreaView style={styles.container}>
+      <BackRouting style={{ backgroundColor: '#f0f0f0'  }} title='Select Location' />
+      <ScrollView keyboardShouldPersistTaps="handled" style={styles.container} >
         <View style={styles.searchContainer}>
           <TextInput
             mode="outlined"
@@ -171,35 +245,7 @@ export default function SelectLocation({ placeholder = "Enter area, landmark ...
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.useLocationBtn}
-            onPress={async () => {
-              try {
-                setLoading(true);
-                const { status } = await Location.requestForegroundPermissionsAsync();
-                if (status !== 'granted') {
-                  return Alert.alert('Permission denied');
-                }
-                const { coords } = await Location.getCurrentPositionAsync({});
-                setRegion(coords);
-                const response = await fetch(CUSTOM_LOCATION_API);
-                const data = await response.json();
-                setLocation({
-                  city: data.city || '',
-                  state: data.state || '',
-                  country: data.country || '',
-                  lat: data.lat || coords.latitude,
-                  lon: data.lon || coords.longitude,
-                  fullAddress: `${data.city}, ${data.state}, ${data.country}`,
-                  area: '',
-                  street: '',
-                  houseNumber: '',
-                });
-                safeNavigation('/home');
-              } catch (err) {
-                Alert.alert('Error', 'Could not get current location.');
-              } finally {
-                setLoading(false);
-              }
-            }}
+            onPress={getCurrentLocation}
           >
             <Text style={styles.useLocationTxt}>{loading ? 'Fetching...' : '📍 Use Current Location'}</Text>
           </TouchableOpacity>
@@ -232,10 +278,10 @@ export default function SelectLocation({ placeholder = "Enter area, landmark ...
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f0f0' },
+  container: { flex: 1, backgroundColor: '#ffffffff',paddingTop:10, },
   header: { fontSize: 20, fontWeight: '600', margin: 20 },
   searchContainer: { paddingHorizontal: 20, marginBottom: 10, borderRadius: 20 },
-  searchInput: { backgroundColor: '#fff' },
+  searchInput: { backgroundColor: '#fff', fontFamily:'outfit-medium', fontSize:15, },
   addBtn: {
     backgroundColor: '#e41e3f',
     marginHorizontal: 20,
@@ -247,10 +293,10 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     marginTop: 10
   },
-  addBtnTxt: { color: '#fff', fontWeight: 'bold' },
+  addBtnTxt: { color: '#fff' ,fontFamily:'outfit-bold', fontSize:14,},
   suggestionList: { backgroundColor: '#fff', maxHeight: 150, marginHorizontal: 20 },
   suggestionItem: { padding: 10, borderBottomWidth: 1, borderBottomColor: '#ddd' },
-  suggestionText: { color: '#000' },
+  suggestionText: { color: '#000' ,fontFamily:'outfit-bold', fontSize:14,},
   useLocationBtn: {
     backgroundColor: '#e6f7ff',
     padding: 12,
@@ -260,7 +306,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 3
   },
-  useLocationTxt: { color: '#000', fontWeight: 'bold', fontSize: 15 },
+  useLocationTxt: { color: '#000', fontSize: 15 ,fontFamily:'outfit-bold'},
   separatorRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -272,7 +318,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: '#999999',
     marginHorizontal: 7,
-    fontWeight: "500"
+    fontFamily:'outfit-bold'
   },
   RecentlyContainer: {
     flexDirection: "row",
@@ -295,11 +341,12 @@ const styles = StyleSheet.create({
   RecText1: {
     color: "black",
     fontSize: 16,
-    fontWeight: "500",
+        fontFamily:'outfit-bold',
   },
   RecText2: {
     color: "black",
-    fontSize: 12,
+        fontFamily:'outfit-medium',
+    fontSize: 14,
     fontWeight: "400",
     marginTop: 4
   }

@@ -5,13 +5,13 @@ import {
   Image,
   TouchableOpacity,
   Dimensions,
-  ImageBackground
+  ImageBackground,
+  ActivityIndicator
 } from 'react-native';
 import { Text } from 'react-native-paper';
 import { MaterialCommunityIcons, FontAwesome } from '@expo/vector-icons';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { LinearGradient } from 'expo-linear-gradient';
-import EvilIcons from '@expo/vector-icons/EvilIcons';
 
 const COLORS = {
   PRIMARY: '#FF4B3A',
@@ -34,9 +34,15 @@ const SPACING = {
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
-const MinTiffinCard = ({ firm, onPress, onFavoriteToggle, isFavorite, horizontal = false }) => {
+const MinTiffinCard = ({ firm, onPress,   onFavoriteToggle, 
+  isFavorite, 
+  isLoading = false, horizontal = false }) => {
   const { title, rating, image, priceRange, mealTypes } = firm;
-
+  const handleFavoritePress = () => {
+    if (!isLoading) {
+      onFavoriteToggle();
+    }
+  };
   return (
     <TouchableOpacity onPress={onPress} activeOpacity={0.8}>
       <View style={styles.card}>
@@ -46,7 +52,7 @@ const MinTiffinCard = ({ firm, onPress, onFavoriteToggle, isFavorite, horizontal
             style={styles.image}
             resizeMode="cover"
           />
-          <LinearGradient
+          {/* <LinearGradient
             colors={[
               'rgba(40, 109, 255, 1)',
               'rgba(135, 206, 250, 0.95)',
@@ -61,19 +67,24 @@ const MinTiffinCard = ({ firm, onPress, onFavoriteToggle, isFavorite, horizontal
               <MaterialIcons name="local-offer" size={16} color="white" />
               <Text style={styles.badgeTitle}>Flat 20% OFF</Text>
             </View>
-          </LinearGradient>
+          </LinearGradient> */}
 
-          <TouchableOpacity
-            onPress={onFavoriteToggle}
-            style={styles.bookmarkButton}
-            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-          >
+               <TouchableOpacity
+          onPress={handleFavoritePress}
+          style={styles.bookmarkButton}
+          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          disabled={isLoading}
+        >
+          {isLoading ? (
+            <ActivityIndicator size="small" color={COLORS.PRIMARY} />
+          ) : (
             <MaterialCommunityIcons
               name={isFavorite ? 'bookmark' : 'bookmark-outline'}
               size={24}
               color={isFavorite ? COLORS.PRIMARY : 'white'}
             />
-          </TouchableOpacity>
+          )}
+        </TouchableOpacity>
         </View>
 
         <View style={styles.content}>
@@ -81,12 +92,7 @@ const MinTiffinCard = ({ firm, onPress, onFavoriteToggle, isFavorite, horizontal
             <Text style={styles.title} numberOfLines={1}>
               {title}
             </Text>
-            <View style={{flexDirection:"row",justifyContent:"center", marginBottom: 14}}>
-               <EvilIcons name="location" size={19} color="black" />
-              <Text style={styles.distance} numberOfLines={1}>
-                5KM
-              </Text>
-            </View>
+            <Text style={styles.distance}>$ {priceRange}</Text>
           </View>
 
           {rating && (
@@ -108,16 +114,18 @@ const styles = StyleSheet.create({
     borderRadius: 19,
     overflow: 'hidden',
     shadowColor: '#b2babb',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
-    elevation: 3,
+    elevation: 4,
     width: 160,
+    borderWidth:1,
+    borderColor:'#d5d5d5ff',
     marginBottom: 2,
   },
   imageContainer: {
     position: 'relative',
-    height: 120,
+    height: 110,
   },
   image: {
     width: '100%',
@@ -135,6 +143,7 @@ const styles = StyleSheet.create({
   badgeTitle: {
     color: '#fff',
     fontSize: 13,
+    fontFamily: 'outfit',
     fontWeight: 'bold',
     marginTop: 3,
     marginLeft: 4,
@@ -148,19 +157,20 @@ const styles = StyleSheet.create({
   textContent: {
     flex: 1,
     marginRight: SPACING.MD,
-    fontFamily:"outfit-medium"
   },
   title: {
+        fontFamily: 'outfit',
     fontSize: 16,
     fontWeight: '800',
     color: COLORS.TEXT_PRIMARY,
     marginBottom: SPACING.XS,
     marginTop: 5,
-    fontFamily:"outfit-bold"
   },
   distance: {
-    fontSize: 12,
+        fontFamily: 'outfit-bold',
+    fontSize: 14,
     color: COLORS.TEXT_SECONDARY,
+    marginBottom: 14,
   },
   bookmarkButton: {
     position: 'absolute',
@@ -179,16 +189,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: 'rgb(4, 116, 19)',
     borderRadius: 6,
-    paddingHorizontal: 2,
+    paddingHorizontal: 6,
     paddingVertical: 2,
-    marginTop: 25
+    marginTop: 5,
   },
   ratingText: {
+        fontFamily: 'outfit-bold',
     color: 'white',
     fontSize: 14,
     fontWeight: '600',
     marginLeft: 2,
-    marginRight: 3
+    marginRight: 5,
   },
 });
 
