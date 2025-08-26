@@ -70,6 +70,7 @@ export default styles = StyleSheet.create({
   vegFilterText: {
     // marginLeft: 10, // If you uncomment this, it adds space from the icon
     fontSize: 14,
+    fontFamily: 'outfit',
     fontWeight: 'bold',
     color: '#333',
   },
@@ -77,6 +78,7 @@ export default styles = StyleSheet.create({
     // marginLeft: 10, // If you uncomment this, it adds space from the icon
     fontSize: 12,
     fontWeight: '900',
+    fontFamily: 'outfit',
     color: '#333',
     marginBottom:0
   },
@@ -96,6 +98,7 @@ export default styles = StyleSheet.create({
     fontSize:16,
     color:"black",
     fontWeight:"600",
+        fontFamily: 'outfit',
     marginTop:15,
 
   },
@@ -123,6 +126,7 @@ export default styles = StyleSheet.create({
   },
   filterChipText: {
     fontSize: 10,
+        fontFamily: 'outfit',
     color: '#333',
   },
   filterButton: {
@@ -150,11 +154,13 @@ export default styles = StyleSheet.create({
     marginBottom: 10,
   },
   sectionTitle: {
-    fontSize: 20,
+    fontFamily: 'outfit-medium',
+    fontSize: 22,
     fontWeight: 'bold',
     color: '#333',
   },
   sectionSubtitle: {
+        fontFamily: 'outfit',
     fontSize: 14,
     color: '#666',
     marginTop: 4,
@@ -197,10 +203,12 @@ export default styles = StyleSheet.create({
   loadingTitle: {
     marginTop: 12,
     fontSize: 16,
+        fontFamily: 'outfit',
     fontWeight: 'bold',
     color: COLORS.TEXT_PRIMARY,
   },
   loadingSubtext: {
+        fontFamily: 'outfit',
     fontSize: 14,
     color: COLORS.TEXT_SECONDARY,
     marginTop: 4,
@@ -208,6 +216,7 @@ export default styles = StyleSheet.create({
   loadingText: {
     marginTop: 12,
     fontSize: 16,
+        fontFamily: 'outfit',
     color: COLORS.TEXT_PRIMARY,
   },
   titleContainer: {
@@ -222,9 +231,9 @@ export default styles = StyleSheet.create({
   },
   sectionTitleText: {
     marginHorizontal: 10,
-    fontSize: 14,
-    fontWeight: 'bold',
-    color: '#333',
+    fontSize: 15,
+        fontFamily: 'outfit-bold',
+    color: '#524e4eff',
   },
   filterButton: {
   flexDirection: 'row',
@@ -239,6 +248,7 @@ export default styles = StyleSheet.create({
 filterButtonText: {
   color: '#e23845',
   marginLeft: 5,
+      fontFamily: 'outfit-bold',
   fontWeight: '500',
 },
 modalBackground: {
@@ -271,6 +281,7 @@ filterSection: {
 },
 filterSectionTitle: {
   fontSize: 16,
+      fontFamily: 'outfit',
   fontWeight: '600',
   marginBottom: 10,
 },
@@ -287,6 +298,7 @@ activeFilterOption: {
 },
 filterOptionText: {
   fontSize: 14,
+      fontFamily: 'outfit',
 },
 activeFilterOptionText: {
   color: '#e23845',
@@ -322,6 +334,7 @@ applyFiltersButton: {
 applyFiltersButtonText: {
   color: 'white',
   fontWeight: '600',
+      fontFamily: 'outfit',
 },
 quickFiltersContainer: {
 marginVertical:7,
@@ -347,12 +360,14 @@ activeQuickFilter: {
 },
 quickFilterText: {
   marginLeft: 5,
-  fontSize: 12,
+  fontSize: 14,
+  fontFamily: 'outfit',
   color: '#666',
 },
 activeQuickFilterText: {
   color: '#e23845',
   fontWeight: 'bold',
+      fontFamily: 'outfit',
 },
 });
 

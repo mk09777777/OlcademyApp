@@ -28,7 +28,8 @@ const Review = (props) => {
 
   const fetchReview = async () => {
     try {
-      const response = await axios.get(`http://192.168.0.100:3000/api/reviews/${_id}`, {
+import { API_CONFIG } from '../config/apiConfig';
+      const response = await axios.get(`${API_CONFIG.BACKEND_URL}/api/reviews/${_id}`, {
         withCredentials: true
       });
       setCommentData(response.data.review);
@@ -39,7 +40,7 @@ const Review = (props) => {
 
   const fetchUserProfile = async () => {
     try {
-      const res = await axios.get("http://192.168.0.101:3000/user/profileData", {
+      const res = await axios.get(`${API_CONFIG.BACKEND_URL}/user/profileData`, {
         withCredentials: true
       });
       setUsername(res.data.user?.username || "Anonymous");
@@ -82,7 +83,7 @@ const Review = (props) => {
 
 
 const response = await axios.post(
-  `http://192.168.0.101:3000/api/reviews/${_id}/comments`,
+  `${API_CONFIG.BACKEND_URL}/api/reviews/${_id}/comments`,
   {
     comment: comments.trim(),
     username: username,

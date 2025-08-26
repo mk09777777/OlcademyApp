@@ -2,6 +2,7 @@ import React, { createContext, useContext, useEffect, useState, useMemo, useCall
 import axios from 'axios';
 // import AsyncStorage from '@react-native-async-storage/async-storage';
 import { NativeEventEmitter } from 'react-native';
+import { API_CONFIG } from '../config/apiConfig';
 
 const cartEventEmitter = new NativeEventEmitter();
 const CartContext = createContext();
@@ -28,7 +29,8 @@ const CartProvider = ({ children }) => {
 
   const api = useMemo(() => {
     const instance = axios.create({
-      baseURL: 'http://192.168.0.101:3000/api',
+
+      baseURL: `${API_CONFIG.BACKEND_URL}/api`,
       withCredentials: true,
       timeout: 5000,
     });

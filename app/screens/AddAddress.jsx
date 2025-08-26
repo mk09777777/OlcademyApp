@@ -5,6 +5,7 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import axios from 'axios';
 import { router } from 'expo-router';
+import { API_CONFIG } from '../../config/apiConfig';
 
 export default function AddAddressScreen() {
   const [address, setAddress] = useState('');
@@ -31,7 +32,8 @@ export default function AddAddressScreen() {
     const serviceArea = selectedType;
 
     try {
-      await axios.post("http://192.168.0.103:3000/api/createUserAddress", [
+
+      await axios.post(`${API_CONFIG.BACKEND_URL}/api/createUserAddress`, [
         {
           address: addressUpload,
           service_area: serviceArea

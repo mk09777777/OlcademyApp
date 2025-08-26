@@ -14,6 +14,7 @@ import {
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { FontAwesome, MaterialIcons } from "@expo/vector-icons";
 import { useAuth } from "../../context/AuthContext";
+import { API_CONFIG } from '../../config/apiConfig';
 import BackRouting from "@/components/BackRouting";
 const feedbackOptions = ["Food", "Ambience", "Service", "Washroom hygiene"];
 const questions = [
@@ -135,7 +136,8 @@ const handleSubmit = async () => {
         ? `/api/reviews/${firmId}`
         : `/api/reviews/firm/${firmId}`;
       
-      response = await api.post(`http://10.34.125.16:3000${endpoint}`, formData, {
+
+      response = await api.post(`${API_CONFIG.BACKEND_URL}${endpoint}`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -146,7 +148,7 @@ const handleSubmit = async () => {
         ? `/api/reviews/${firmId}`
         : `/api/reviews/firm/${firmId}`;
       
-      response = await api.post(`http://10.34.125.16:3000${endpoint}`, {
+      response = await api.post(`${API_CONFIG.BACKEND_URL}${endpoint}`, {
         newReview: reviewData
       });
     }

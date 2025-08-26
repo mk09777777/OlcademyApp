@@ -295,15 +295,16 @@ export const styles = StyleSheet.create({
     marginHorizontal: 8,
   },
   mindImage: {
-    width: 70,
-    height: 70,
+    width: 60,
+    height: 60,
     borderRadius: 35,
   },
   mindTitle: {
     fontSize: 14,
     fontFamily: 'outfit-medium',
-    marginTop: 8,
+    marginTop: 2,
     textAlign: 'center',
+    marginBottom:12
   },
   mindSeparator: {
     width: 10,

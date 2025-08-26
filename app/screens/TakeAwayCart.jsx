@@ -31,7 +31,7 @@ import axios from 'axios';
 import * as Notifications from 'expo-notifications';
 import { Picker } from '@react-native-picker/picker';
 import { Schedule } from '@/components/Schedule';
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
     shouldShowAlert: true,
@@ -39,10 +39,6 @@ Notifications.setNotificationHandler({
     shouldSetBadge: false,
   }),
 });
-
-
-
-
 const TakeAwayCart = () => {
   const {
     cart,
@@ -157,7 +153,22 @@ const TakeAwayCart = () => {
     setAppliedTaxes(calculatedTaxes);
   };
   const dateLabels = ['Today', 'Tomorrow', 'Day After'];
+  useEffect(() => {
+    const loadSavedAddress = async () => {
+      try {
+        const savedAddress = await AsyncStorage.getItem('selectedAddress');
+        if (savedAddress) {
+          const addressData = JSON.parse(savedAddress);
+          setPickupAddress(addressData.fullAddress || '');
+        }
+      } catch (error) {
+        console.error('Error loading saved address:', error);
+      }
+    };
 
+    loadSavedAddress();
+  }, []);
+  console.log('select', pickupAddress)
   const fetchOffers = async () => {
     try {
       let offers = [];
@@ -207,7 +218,7 @@ const TakeAwayCart = () => {
 
   const fetchInitialSettings = async () => {
     try {
-      const response = await fetch('http://192.168.0.100:3000/api/getnotifications', {
+      const response = await fetch('http://10.34.125.16:3000/api/getnotifications', {
         method: 'GET',
         credentials: 'include',
       });
@@ -409,7 +420,7 @@ const TakeAwayCart = () => {
   const total = Number(
     (subtotal - discount) +
     deliveryFee +
-    platformFee +
+    // platformFee +
     overallOtherTaxes +
     carts.overallOtherCharges +
     (carts?.taxDetails?.[0]?.gstAmount || 0)
@@ -418,13 +429,13 @@ const TakeAwayCart = () => {
 
   const isCartEmpty = cartItems.length === 0;
 
-  if (cartItems.length === 0) {
-    return (
-      <View>
-        <ActivityIndicator size="large" color="#0000ff" />
-      </View>
-    );
-  }
+  // if (cartItems.length === 0) {
+  //   return (
+  //     <View>
+  //       <ActivityIndicator size="large" color="#0000ff" />
+  //     </View>
+  //   );
+  // }
 
   const handlePlaceOrder = async () => {
     try {
@@ -523,11 +534,11 @@ const TakeAwayCart = () => {
       }
 
       const response = await api.post('/api/create', orderData, { withCredentials: true });
-
+console.log(response)
       if (response.data.success) {
-
+UploadNotifications(orderData)
         await fetchCart();
-        { ordersPush ? UploadNotifications(orderData) : <></> }
+        
 
         router.push({
           pathname: '/screens/OrderSceess',
@@ -842,13 +853,47 @@ const TakeAwayCart = () => {
                   keyboardType="phone-pad"
                   style={styles.input}
                 />
-                <TextInput
+                {/* <TextInput
                   placeholder="Delivery Address"
                   value={pickupAddress}
                   onChangeText={setPickupAddress}
                   multiline
                   style={[styles.input, { height: 80 }]}
-                />
+                /> */}
+
+                              <TouchableOpacity
+                                onPress={() => router.push('/screens/DeliveryAddress')}
+                                style={styles.addressInputContainer}
+                              >
+                                <TextInput
+                                  placeholder="Delivery Address"
+                                  value={pickupAddress}
+                                  onChangeText={setPickupAddress}
+                                  multiline
+                                  style={[styles.input, { height: 90 }]}
+                                  editable={false}
+                                />
+                                {/* <Text style={styles.stateText}>{location.fullAddress || ''}</Text> */}
+                                {/* <Ionicons name="location-outline" size={20} color="#666" style={styles.addressIcon} /> */}
+                
+                                {/* Saved Address Label */}
+                                {/* {pickupAddress ? (
+                    <Text style={styles.savedAddressLabel}>Saved Address</Text>
+                  ) : null} */}
+                
+                                {/* Clear Address Button */}
+                                {pickupAddress ? (
+                                  <TouchableOpacity
+                                    onPress={async () => {
+                                      setPickupAddress('');
+                                      await AsyncStorage.removeItem('selectedAddress');
+                                    }}
+                                    // style={styles.clearAddressButton}
+                                  >
+                                    {/* <Text style={styles.clearAddressText}>Clear</Text> */}
+                                  </TouchableOpacity>
+                                ) : null}
+                              </TouchableOpacity>
 
                 <TextInput
                   placeholder="Special Instructions"
@@ -1009,10 +1054,10 @@ const TakeAwayCart = () => {
               </View>
             )}
 
-            <View style={styles.billRowItem}>
+            {/* <View style={styles.billRowItem}>
               <Text style={styles.billLabel}>Platform fee</Text>
               <Text style={styles.billValue}>${platformFee.toFixed(2)}</Text>
-            </View>
+            </View> */}
 
             <View style={styles.billRowItem}>
               <Text style={styles.billLabel}>GST Charges</Text>

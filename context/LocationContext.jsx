@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-
+import { API_CONFIG } from '../config/apiConfig';
 const LocationContext = createContext();
 
 export const LocationProvider = ({ children }) => {
@@ -19,7 +19,8 @@ export const LocationProvider = ({ children }) => {
   useEffect(() => {
     (async () => {
       try {
-        const res = await fetch('http://192.168.0.101:3000/api/location');
+
+        const res = await fetch(`${API_CONFIG.BACKEND_URL}/api/location`);
         const data = await res.json();
 
         console.log('Custom API location response:', data);

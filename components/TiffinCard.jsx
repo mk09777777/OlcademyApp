@@ -98,10 +98,10 @@ const TiffinCard = ({ firm, onPress, onFavoriteToggle, isFavorite, horizontal = 
 
           <View style={styles.priceContainer}>
             <View style={styles.ratingBadge}>
-              <FontAwesome name='star' size={14} color={COLORS.STAR} />
+              <FontAwesome name='star' size={14} color={"white"} />
               <Text style={styles.ratingText}>{rating}</Text>
             </View>
-            <Text style={styles.price}>{priceRange}</Text>
+            <Text style={styles.price}>${priceRange}</Text>
             {/* <Text style={styles.distance}>5KM</Text> */}
           </View>
         </View>
@@ -112,7 +112,6 @@ const TiffinCard = ({ firm, onPress, onFavoriteToggle, isFavorite, horizontal = 
 
 const styles = StyleSheet.create({
   card: {
-    marginHorizontal: 5,
     backgroundColor: COLORS.SURFACE,
     borderRadius: 12,
     overflow: 'hidden',
@@ -123,19 +122,9 @@ const styles = StyleSheet.create({
     elevation: 3,
     marginBottom: SPACING.LG,
   },
-  horizontalCard: {
-    marginRight: SPACING.LG,
-  },
-  verticalCard: {
-    alignSelf: 'center',
-  },
   imageContainer: {
     position: 'relative',
     height: 150,
-  },
-  image: {
-    width: '100%',
-    height: '100%',
   },
   content: {
     padding: SPACING.MD,
@@ -148,26 +137,19 @@ const styles = StyleSheet.create({
     marginRight: SPACING.MD,
   },
   title: {
-    fontSize: 16,
-    fontWeight: '600',
+    fontFamily:'outfit-bold',
+    fontSize: 18,
+    fontWeight: '700',
     color: COLORS.TEXT_PRIMARY,
     marginBottom: SPACING.XS,
   },
-  mealTypesContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    marginTop: SPACING.XS,
-  },
-  mealTypePill: {
-    // width:'80%',
-    backgroundColor: COLORS.BACKGROUND,
-    borderRadius: 12,
-    paddingHorizontal: 5,
-    paddingVertical: 4,
-    marginRight: SPACING.XS,
-    marginBottom: SPACING.XS,
-  },
   mealTypeText: {
+    fontFamily:'outfit-medium',
+    fontSize: 15,
+    color: COLORS.TEXT_SECONDARY,
+  },
+  cuisineText:{
+ fontFamily:'outfit-medium',
     fontSize: 14,
     color: COLORS.TEXT_SECONDARY,
   },
@@ -177,14 +159,11 @@ const styles = StyleSheet.create({
     minWidth: 80,
   },
   price: {
+    fontFamily:'outfit',
     fontSize: 16,
     fontWeight: '700',
     color: COLORS.PRIMARY,
     marginBottom: SPACING.XS,
-  },
-  distance: {
-    fontSize: 12,
-    color: COLORS.TEXT_SECONDARY,
   },
   bookmarkButton: {
     position: 'absolute',
@@ -199,18 +178,16 @@ const styles = StyleSheet.create({
     zIndex: 1,
   },
   ratingBadge: {
-    // position: 'absolute',
-    // bottom: SPACING.MD,
-    // left: SPACING.MD,
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: 'rgba(5, 137, 23, 0.97)',
     borderRadius: 6,
-    paddingHorizontal: 6,
-    paddingVertical: 2,
+    paddingHorizontal: 10,
+    paddingVertical: 3,
   },
   ratingText: {
     color: 'white',
+    fontFamily:'out-fit',
     fontSize: 14,
     fontWeight: '600',
     marginLeft: 4,

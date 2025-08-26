@@ -1,31 +1,36 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useRouter, useLocalSearchParams } from 'expo-router';
 import * as Notifications from 'expo-notifications';
+import Constants from 'expo-constants';
 import axios from 'axios';
+import { API_CONFIG } from '../../config/apiConfig';
 
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowAlert: true,
-    shouldPlaySound: true,
-    shouldSetBadge: false,
-  }),
-});
+// Check if running in development build or Expo Go
+const isExpoGo = Constants.appOwnership === 'expo';
 
-const BookingDetailsScreen = () => {
-  const router = useRouter();
-  const {
-    Rname,
-    Raddress,
-    guestes,
-    name,
-    Formatteddate,
-    timeSlot,
-    status,
-    id,
-    image,
-  } = useLocalSearchParams();
+if (!isExpoGo) {
+  Notifications.setNotificationHandler({
+    handleNotification: async () => ({
+      shouldShowAlert: true,
+      shouldPlaySound: true,
+      shouldSetBadge: false,
+    }),
+  });
+}
+
+const BookingDetailsScreen = ({
+  Rname,
+  Raddress,
+  guestes,
+  name,
+  Formatteddate,
+  timeSlot,
+  status,
+  id,
+  image,
+  onClose,
+}) => {
 
   const [enableAll, setEnableAll] = useState(false);
   const [promosPush, setPromosPush] = useState(false);
@@ -59,7 +64,7 @@ const BookingDetailsScreen = () => {
 
   const fetchInitialSettings = async () => {
     try {
-      const response = await fetch('http://192.168.0.100:3000/api/getnotifications', {
+      const response = await fetch(`${API_CONFIG.BACKEND_URL}/api/getnotifications`, {
         method: 'GET',
         credentials: 'include',
       });
@@ -107,22 +112,28 @@ const BookingDetailsScreen = () => {
     };
 
     try {
-      await axios.post('http://192.168.0.100:3000/api/postNotificationsInfo', uploadData, {
+      await axios.post(`${API_CONFIG.BACKEND_URL}/api/postNotificationsInfo`, uploadData, {
         headers: { 'Content-Type': 'application/json' },
         withCredentials: true,
       });
 
-      await Notifications.scheduleNotificationAsync({
-        content: {
-          title: uploadData.title,
-          body: uploadData.description,
-          sound: true,
-          priority: Notifications.AndroidNotificationPriority.HIGH,
-        },
-        trigger: {
-          seconds: 1,
-        },
-      });
+      // Only schedule notifications in development builds, not Expo Go
+      if (!isExpoGo) {
+        await Notifications.scheduleNotificationAsync({
+          content: {
+            title: uploadData.title,
+            body: uploadData.description,
+            sound: true,
+            priority: Notifications.AndroidNotificationPriority.HIGH,
+          },
+          trigger: {
+            seconds: 1,
+          },
+        });
+      } else {
+        console.log('📱 Notification would be shown:', uploadData.title, uploadData.description);
+        Alert.alert(uploadData.title, uploadData.description);
+      }
     } catch (error) {
       console.log('Error in uploading the notification', error.message);
     }
@@ -133,13 +144,13 @@ const BookingDetailsScreen = () => {
       Alert.alert("Booking is accepted, you can't cancel it");
     } else {
       try {
-        await axios.put(`http://192.168.0.100:3000/api/bookings/cancel/${id}`, {
+        await axios.put(`${API_CONFIG.BACKEND_URL}/api/bookings/cancel/${id}`, {
           withCredentials: true,
         });
         if (ordersPush) {
           UploadNotifications();
         }
-        router.back();
+        onClose && onClose();
       } catch (error) {
         console.log('Error in deleting the booking', error);
       }
@@ -154,10 +165,19 @@ const BookingDetailsScreen = () => {
   };
 
   return (
-    <ScrollView style={styles.container}>
-      <Image source={Booking.image} style={styles.coverImage} />
+    <ScrollView 
+      style={styles.container}
+      contentContainerStyle={styles.contentContainer}
+    >
+      {/* <Image source={Booking.image} style={styles.coverImage} /> */}
 
       <View style={styles.card}>
+        <TouchableOpacity 
+                      style={{justifyContent:"flex-start"}}
+                      onPress={onClose}
+                    >
+                      <Text style={{fontSize:22,fontWeight:"bold",color:"black",marginBottom:10}}>×</Text>
+                    </TouchableOpacity>
         <View style={styles.header}>
           <View style={{ flex: 1 }}>
             <Text style={styles.restaurantName}>{Booking.restaurant}</Text>
@@ -195,12 +215,12 @@ const BookingDetailsScreen = () => {
             <Text style={styles.detailValue}>{Booking.guests}</Text>
           </View>
         </View>
-
         {Booking.status === 'pending' && (
           <TouchableOpacity style={styles.cancelButton} onPress={cancelBooking}>
             <Text style={styles.cancelButtonText}>Cancel Booking</Text>
           </TouchableOpacity>
         )}
+
       </View>
     </ScrollView>
   );
@@ -209,7 +229,11 @@ const BookingDetailsScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#00000084',
+  },
+  contentContainer: {
+    flex: 1,
+    justifyContent: 'center',
   },
   coverImage: {
     width: '100%',

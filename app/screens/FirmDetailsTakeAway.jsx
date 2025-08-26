@@ -6,7 +6,8 @@ import axios from 'axios';
 import { AntDesign, FontAwesome, FontAwesome5, Ionicons, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 import { useCart } from '@/context/CartContext';
 import ImageGallery from '@/components/ImageGallery';
-const API_URL = 'http://10.154.177.16:3000';
+import { API_CONFIG } from '../../config/apiConfig';
+const API_URL = API_CONFIG.BACKEND_URL;
 
 const filtersData = {
   "Dietary": [
@@ -220,6 +221,8 @@ const UploadRecentlyViewd = async () => {
         return items.map(item => ({
           ...item,
           _id: item._id || Math.random().toString(36).substr(2, 9),
+          categoryId:tab.categoryId,
+          subcategoryId:item.subcategoryId,
           category: section.name || tab.name || 'Uncategorized',
           productName: item.name || 'Unnamed Item',
           description: item.description || '',
@@ -313,6 +316,8 @@ const UploadRecentlyViewd = async () => {
 
         const cartItem = {
           itemToAdd: {
+            subcategoryId: item.subcategoryId,
+            categoryId: item?.categoryId,
             productId: item?._id || item?.id,
             name: item?.productName || item?.name || 'Unknown Item',
             description: item?.description || '',

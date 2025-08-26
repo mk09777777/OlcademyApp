@@ -1,14 +1,23 @@
 import React, { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import * as Notifications from 'expo-notifications';
+import Constants from 'expo-constants';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { API_CONFIG } from '../config/apiConfig';
 
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowAlert: true,
-    shouldPlaySound: true,
-    shouldSetBadge: false,
-  }),
-});
+// Check if running in development build or Expo Go
+const isExpoGo = Constants.appOwnership === 'expo';
+const STORAGE_KEY = 'notified_bookings';
+
+if (!isExpoGo) {
+  Notifications.setNotificationHandler({
+    handleNotification: async () => ({
+      shouldShowAlert: true,
+      shouldPlaySound: true,
+      shouldSetBadge: false,
+    }),
+  });
+}
 
 export default function BookingNotifications() {
   const [userBookings, setUserBookings] = useState([]);
@@ -18,7 +27,8 @@ export default function BookingNotifications() {
   const fetchDiningBookings = async () => {
     setLoading(true);
     try {
-      const response = await axios.get("http://192.168.0.101:3000/api/bookings/userId", {
+
+      const response = await axios.get(`${API_CONFIG.BACKEND_URL}/api/bookings/userId`, {
         withCredentials: true,
       });
       const bookingsArray = response.data?.data || [];
@@ -59,24 +69,29 @@ export default function BookingNotifications() {
     };
 
     try {
-      const response = await axios.post("http://192.168.0.101:3000/api/postNotificationsInfo", uploadData, {
+      const response = await axios.post(`${API_CONFIG.BACKEND_URL}/api/postNotificationsInfo`, uploadData, {
         headers: { "Content-Type": "application/json" },
         withCredentials: true,
       });
 
       const notificationId = response?.data?.notifications?._id || Date.now().toString();
 
-      await Notifications.scheduleNotificationAsync({
-        content: {
-          title: uploadData.title,
-          body: uploadData.description,
-          sound: true,
-          priority: Notifications.AndroidNotificationPriority.HIGH,
-        },
-        trigger: {
-          seconds: 1,
-        },
-      });
+      // Only schedule notifications in development builds, not Expo Go
+      if (!isExpoGo) {
+        await Notifications.scheduleNotificationAsync({
+          content: {
+            title: uploadData.title,
+            body: uploadData.description,
+            sound: true,
+            priority: Notifications.AndroidNotificationPriority.HIGH,
+          },
+          trigger: {
+            seconds: 1,
+          },
+        });
+      } else {
+        console.log('📱 Notification would be shown:', uploadData.title, uploadData.description);
+      }
 
       notificationMapRef.current.set(booking._id, notificationId);
       await saveNotifiedBookings();

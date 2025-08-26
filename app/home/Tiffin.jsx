@@ -29,7 +29,7 @@ import { useAuth } from '@/context/AuthContext';
 import FilterModal from '@/components/FilterModal';
 import BannerCarousel from '@/components/Banner';
 
-const Api_url = 'http://10.34.125.16:3000';
+const Api_url = 'https://backend-0wyj.onrender.com';
 
 // Filter options
 const FILTER_OPTIONS = {
@@ -613,6 +613,7 @@ const FetchRecentlyViewData = useCallback(async () => {
       })
     ) : (
       <>
+        <View><BannerCarousel page="Tiffin-services" /></View>
         <Whatsonyou />
         {recentlyViewData.length > 0 && renderSection({
           title: 'RECENTLY VIEWED',
@@ -847,7 +848,7 @@ const FetchRecentlyViewData = useCallback(async () => {
           </Modal>
         </View>
       </View>
-      <View><BannerCarousel page="Tiffin-services" /></View>
+
       {/* {renderFilterModal()} */}
       <FilterModal
         isOpen={showFilters}

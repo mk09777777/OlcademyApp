@@ -9,6 +9,17 @@ export const styles = StyleSheet.create({
 		backgroundColor: 'white',
     // paddingBottom: 20
 	},
+  imageContainer: {
+    width: '100%',
+    height: windowHeight * 0.40,
+  },
+  primaryImage: {
+    width: '100%',
+    height: '100%'
+  },
+  rightPannel: {
+    flexDirection: 'row',
+  },
   upperPannel: {
     bottom:170,
     flexDirection: 'row',
@@ -27,20 +38,26 @@ export const styles = StyleSheet.create({
   },
   itemContainer: {
     flexDirection: 'row',
-    padding: 10,
+    padding: 0,
     marginVertical: 4,
     backgroundColor: '#f9f9f9',
     borderRadius: 8,
     justifyContent: 'space-between',
   },
-  imageContainer:{
- height: windowHeight*0.20,
-  },
-  image: {
-    width: windowWidth*0.40,
-    height: windowHeight*0.16,
-    borderRadius: 8
-  },
+  imageContainer: {
+  justifyContent: "center",
+  alignItems: "center",
+},
+image: {
+  width: 167.09,                       
+  height: 171.67,                      
+  borderTopLeftRadius: 11.44,          
+  borderBottomLeftRadius: 11.44,       
+  borderTopRightRadius: 0,             
+  borderBottomRightRadius: 0,         
+  resizeMode: "cover",                 
+},
+
   reviewBox: {
     borderRadius: 10,
     borderWidth: 1,
@@ -94,7 +111,7 @@ export const styles = StyleSheet.create({
   },
   price: {
     fontSize: 14,
-    color: '#666'
+    fontWeight: 'light-bold'
   },
   description: {
     width:200,
@@ -154,21 +171,29 @@ export const styles = StyleSheet.create({
   },
   itemCount: {
     fontSize: 16,
-  
     fontWeight: 'bold',
   },
-  addButton: {
-    backgroundColor: '#e23845',
-    padding: 7,
-    borderRadius: 10,
-    // marginTop: 10,
-    bottom:30,
-  },
-  addButtonText: {
-    paddingHorizontal:40,
-    color: 'white',
-    fontWeight: 'bold',
-  },
+    addButton: {
+  backgroundColor: '#ffffff',      
+  borderWidth: 1,                  
+  borderColor: '#e23845',          
+  width: 149,                       
+  height: 34,                       
+  borderRadius: 6.87,               
+  justifyContent: 'center',         
+  alignItems: 'center',             
+  marginBottom: 8,                  
+  alignSelf: 'center',           // centers horizontally
+  position: 'absolute',           // fixes it at the bottom
+  bottom: 20,                     // distance from bottom
+},
+
+addButtonText: {
+  color: '#e23845',                 // red text
+  fontWeight: 'bold',
+  fontSize: 16,
+},
+
   proceedToCartButton: {
     backgroundColor: '#e23845',
     padding: 15,
@@ -232,7 +257,8 @@ export const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
-  },
+    justifyContent: 'space-between', 
+},
   percentageOffer: {
     borderLeftWidth: 4,
     borderLeftColor: 'red',

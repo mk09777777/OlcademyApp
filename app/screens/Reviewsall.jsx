@@ -16,6 +16,7 @@ import Entypo from '@expo/vector-icons/Entypo';
 import { router, useLocalSearchParams } from "expo-router";
 import axios from "axios";
 import { useAuth } from "../../context/AuthContext";
+import { API_CONFIG } from '../../config/apiConfig';
 
 export default function Reviewsall() {
   const [calculatedboxvisible, setcalculatedboxvisible] = useState(false);
@@ -76,7 +77,8 @@ export default function Reviewsall() {
         // Fetch restaurant reviews
         try {
           const restaurantResponse = await axios.get(
-            `http://10.34.125.16:3000/firm/restaurants/get-reviews/${firmId}`,
+
+            `${API_CONFIG.BACKEND_URL}/firm/restaurants/get-reviews/${firmId}`,
             { params: { page: pageNum }, withCredentials: true }
           );
           
@@ -94,7 +96,7 @@ export default function Reviewsall() {
         // Fetch tiffin reviews
         try {
           const tiffinResponse = await axios.get(
-            `http://10.34.125.16:3000/api/tiffin-Reviews/${firmId}`,
+            `${API_CONFIG.BACKEND_URL}/api/tiffin-Reviews/${firmId}`,
             { params: { page: pageNum }, withCredentials: true }
           );
           

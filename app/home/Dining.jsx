@@ -12,7 +12,8 @@ import RadioButtonRN from 'radio-buttons-react-native'
 import Filterbox from '@/components/Filterbox';
 import LocationHeader from '@/components/HomeHeader';
 import DiningCard from '@/components/DaningCard';
-const Api_url = 'http://192.168.0.101:3000';
+import { API_CONFIG } from '../../config/apiConfig';
+const Api_url = API_CONFIG.BACKEND_URL;
 export default function TakeAway() {
   // const { bookmarks, toggleBookmark, isBookmarked } = useBookmarkManager();
   const [firms, setFirms] = useState([])

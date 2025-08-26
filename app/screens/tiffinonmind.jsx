@@ -27,7 +27,7 @@ export default function OnMindScreens() {
     const fetchFirms = async () => {
         setIsLoading(true);
         try {
-            const response = await axios.get(`http://10.154.177.16:3000/api/tiffin/tiffins/filter?kitchenName=${name}`);
+            const response = await axios.get(`http://10.34.125.16:3000/api/tiffin/tiffins/filter?kitchenName=${name}`);
 
             if (!response.data || (!Array.isArray(response.data) && !Array.isArray(response.data.tiffins))) {
                 throw new Error('Invalid data format from API');

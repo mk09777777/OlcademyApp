@@ -11,6 +11,10 @@ import { Redirect, router } from 'expo-router';
 import NotificationWatcher from '@/Model/Notifications';
 import { useEffect } from 'react';
 import * as Notifications from 'expo-notifications';
+import Constants from 'expo-constants';
+
+// Check if running in development build or Expo Go
+const isExpoGo = Constants.appOwnership === 'expo';
 import { LocationProvider } from '@/context/LocationContext';
 import { useRouter } from 'expo-router';
 import { OffersProvider } from '@/context/OfferContext';
@@ -107,6 +111,9 @@ export default function RootLayout() {
                               <Stack.Screen name="screens/OrderSceess" options={{ headerShown: false }} />
                               <Stack.Screen name="screens/SelectLocation" options={{ headerShown: false }} />
                               <Stack.Screen name="screens/NoficationsPage" options={{ headerShown: false }} />
+                              <Stack.Screen name="screens/tiffinonmind" options={{ headerShown: false }} />
+                              <Stack.Screen name="screens/commentscreen" options={{ headerShown: false }} />
+                              <Stack.Screen name="screens/DeliveryAddress" options={{ headerShown: false }} />
                               <Stack.Screen name="MapPicker" options={{ headerShown: false }} />
                             </Stack>
                           </LocationProvider>
@@ -128,10 +135,17 @@ const NotificationHandler = () => {
   const router = useRouter();
 
   useEffect(() => {
+    if (isExpoGo) {
+      console.log('📱 Notification handling limited in Expo Go');
+      return;
+    }
+
     const subscription = Notifications.addNotificationResponseReceivedListener(() => {
       router.push('/screens/NoficationsPage');
     });
 
     return () => subscription.remove();
   }, []);
+
+  return null;
 };

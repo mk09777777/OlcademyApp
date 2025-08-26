@@ -3,6 +3,7 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from "reac
 import axios from "axios";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { Loader2 } from "lucide-react-native";
+import { API_CONFIG } from '../../config/apiConfig';
 
 const OTP = () => {
   const route = useRoute();
@@ -65,7 +66,7 @@ const verifyOtp = async () => {
 
   try {
     await axios.post(
-      `http://192.168.0.103:3000/api/verify`,
+      `${API_CONFIG.BACKEND_URL}/api/verify`,
       {
         identifier: email.trim(),
         otp: Number(enteredOtp),
@@ -88,7 +89,7 @@ const verifyOtp = async () => {
     setError("");
     try {
       await axios.post(
-        `http://192.168.0.101:3000/api/send-email-otp`,
+        `${API_CONFIG.BACKEND_URL}/api/send-email-otp`,
         { email: email },
         { withCredentials: true }
       );
