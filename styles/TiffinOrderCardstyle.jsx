@@ -2,9 +2,36 @@ import { StyleSheet } from "react-native";
 export const styles = StyleSheet.create({
   container: {
     // marginTop: 10,
-    padding: 10,
+    // padding: 10,
     flex: 1,
     backgroundColor: '#f8f9fa',
+  },
+  filterBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'white',
+    paddingVertical: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
+  },
+  filterButtonsContainer: {
+    paddingHorizontal: 12,
+  },
+  filterButton: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    marginHorizontal: 4,
+    borderRadius: 20,
+    backgroundColor: '#f5f5f5',
+  },
+  activeFilterButton: {
+    backgroundColor: '#e6f7ee',
+  },
+  filterButtonText: {
+    color: '#666',
+    fontSize: 14,
+    fontFamily: 'outfit',
+    fontWeight: '500',
   },
   activeFilterButtonText: {
     color: '#08a742',
@@ -30,9 +57,9 @@ export const styles = StyleSheet.create({
     borderBottomColor: '#eee',
   },
   orderStatus: {
-    fontSize: 14,
-    fontWeight: '500',
-    marginTop: 2,
+    fontFamily: 'outfit',
+    fontSize: 15,
+    fontWeight: '700',
     textTransform: 'capitalize',
   },
   secondaryTab: {
@@ -46,10 +73,12 @@ export const styles = StyleSheet.create({
     borderBottomColor: '#08a742',
   },
   secondaryTabText: {
+    fontFamily: 'outfit',
     fontSize: 15,
     color: '#666',
   },
   activeSecondaryTabText: {
+    fontFamily: 'outfit',
     color: '#08a742',
     fontWeight: '500',
   },
@@ -70,11 +99,13 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
   },
   errorText: {
+    fontFamily: 'outfit',
     color: '#C62828',
     fontWeight: 'bold',
     marginBottom: 5,
   },
   errorSubtext: {
+    fontFamily: 'outfit',
     color: '#666',
     fontSize: 12,
   },
@@ -84,12 +115,14 @@ export const styles = StyleSheet.create({
     padding: 40,
   },
   emptyText: {
+    fontFamily: 'outfit',
     fontSize: 16,
     color: '#666',
     marginBottom: 8,
     fontWeight: 'bold',
   },
   emptySubtext: {
+    fontFamily: 'outfit',
     fontSize: 14,
     color: '#999',
   },
@@ -100,12 +133,12 @@ export const styles = StyleSheet.create({
   orderCard: {
     backgroundColor: '#fff',
     borderRadius: 12,
-    marginBottom: 10,
-    padding: 3,
-    paddingTop: 13,
-    paddingLeft: 13,
-    paddingRight: 13,
-    elevation: 2,
+    marginBottom: 15,
+    padding: 15,
+    // paddingTop: 10,
+    // paddingLeft: 10,
+    // paddingRight: 10,
+    elevation: 4,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
@@ -138,24 +171,32 @@ export const styles = StyleSheet.create({
     flex: 1,
   },
   restaurantImage: {
-    width: 100,
-    height: 100,
+    width: 80,
+    height: 80,
     borderRadius: 8,
     marginRight: 12,
   },
   restaurantDetails: {
-    padding: 10,
     // width:200,
     flex: 1,
   },
   restaurantName: {
-    fontSize: 16,
+    fontFamily: 'outfit-bold',
+    fontSize: 15,
     fontWeight: '600',
     marginBottom: 4,
     color: '#333',
   },
+  restaurantaddress: {
+    fontFamily: 'outfit',
+    fontSize: 14,
+    fontWeight: '600',
+    marginBottom: 4,
+    color: '#686464ff',
+  },
   orderDate: {
-    marginBottom: 10,
+    marginBottom: 5,
+    fontFamily: 'outfit-medium',
     fontSize: 14,
     color: '#666',
   },
@@ -189,6 +230,7 @@ export const styles = StyleSheet.create({
     borderColor: '#E0E0E0',
   },
   statusBadgeText: {
+    fontFamily: 'outfit',
     fontSize: 15,
     fontWeight: '500',
   },
@@ -205,16 +247,24 @@ export const styles = StyleSheet.create({
     fontSize: 12,
     color: '#666',
   },
-  cardContent: {
-    padding: 10,
+  cardmain: {
+    //  flexDirection:'row',
+    alignItems: 'center',
+  },
+  paid: {
+    fontFamily: 'outfit-bold',
+    fontSize: 14,
+    color: '#0a971dff'
   },
   tiffinName: {
+    fontFamily: 'outfit',
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 4,
     color: '#333',
   },
   mealType: {
+    fontFamily: 'outfit',
     fontSize: 14,
     color: '#666',
     marginBottom: 12,
@@ -224,19 +274,22 @@ export const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     borderTopWidth: 1,
-    borderTopColor: '#eee',
-    paddingTop: 12,
+    borderTopColor: '#e5e4e4ff',
+    paddingTop: 5,
   },
   priceText: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#333',
+    fontFamily: 'outfit-medium',
+    fontSize: 17,
+    fontWeight: '500',
+    color: '#545454ff',
   },
   viewDetailsButton: {
-    backgroundColor: '#08a742',
+    // backgroundColor: '#08a742',
     paddingHorizontal: 16,
-    paddingVertical: 10,
+    // paddingVertical: 10,
     borderRadius: 20,
+    alignContent: 'center',
+    flexDirection: 'row'
   },
   viewDetailsButtonText: {
     color: 'white',
@@ -251,6 +304,7 @@ export const styles = StyleSheet.create({
     color: '#666',
   },
   noMoreOrdersText: {
+    fontFamily: 'outfit',
     textAlign: 'center',
     padding: 16,
     color: '#999',
@@ -267,7 +321,7 @@ export const styles = StyleSheet.create({
     width: '90%',
     maxHeight: '90%',
     backgroundColor: '#ffffffff',
-    padding: 15,
+    padding: 20,
   },
   cancelModalContainer: {
     backgroundColor: 'white',
@@ -286,6 +340,7 @@ export const styles = StyleSheet.create({
     paddingBottom: 12,
   },
   modalTitle: {
+    fontFamily: 'outfit',
     fontSize: 20,
     fontWeight: 'bold',
     color: '#333',
@@ -311,10 +366,12 @@ export const styles = StyleSheet.create({
     marginBottom: 4
   },
   instructionTitle: {
+    fontFamily: 'outfit',
     fontWeight: '600',
     fontSize: 15,
   },
   instructionText: {
+    fontFamily: 'outfit',
     fontStyle: 'italic',
     marginLeft: 30,
     color: '#4b5563'
@@ -330,13 +387,14 @@ export const styles = StyleSheet.create({
     // elevation: 2,
     // shadowColor: '#000',
     // shadowOffset: { width: 0, height: 2 },
-    borderBottomWidth:1,
+    borderBottomWidth: 1,
     borderBottomColor: '#EBDDD9',
     // shadowOpacity: 0.1,
     // shadowRadius: 4,
   },
   sectionTitle: {
-    fontSize: 16,
+    fontFamily: 'outfit-bold',
+    fontSize: 18,
     fontWeight: '600',
     marginBottom: 12,
     color: '#333',
@@ -368,11 +426,13 @@ export const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   progressText: {
-    fontSize: 12,
+    fontSize: 13,
+    fontFamily: 'outfit',
     color: '#666',
   },
   progressPercent: {
-    fontSize: 12,
+    fontFamily: 'outfit-medium',
+    fontSize: 13,
     fontWeight: '600',
     color: '#FF002E',
   },
@@ -383,9 +443,10 @@ export const styles = StyleSheet.create({
     marginHorizontal: 10,
   },
   infoText: {
+    fontFamily: 'outfit',
     marginHorizontal: 10,
     marginVertical: 5,
-    fontSize: 14,
+    fontSize: 15,
     color: '#575656ff',
   },
   orderItem: {
@@ -398,9 +459,10 @@ export const styles = StyleSheet.create({
   itemName: {
     fontWeight: '600',
     marginBottom: 4,
+    fontFamily: 'outfit',
   },
   itemDetails: {
- marginBottom:8,
+    marginBottom: 8,
   },
   // itemDetail: {
   //   fontSize: 14,
@@ -409,8 +471,9 @@ export const styles = StyleSheet.create({
   //   marginBottom: 4,
   // },
   paymentTitle: {
+    fontFamily: 'outfit-bold',
     fontSize: 18,
-    fontWeight: 'bold',
+    // fontWeight: 'bold',
     color: '#333',
     marginBottom: 12,
   },
@@ -423,11 +486,13 @@ export const styles = StyleSheet.create({
     marginBottom: 8,
   },
   paymentLabel: {
+    fontFamily: 'outfit-medium',
     fontSize: 14,
     color: '#666',
   },
   paymentValue: {
-    fontSize: 14,
+    fontFamily: 'outfit-bold',
+    fontSize: 15,
     color: '#333',
   },
   discountText: {
@@ -442,14 +507,16 @@ export const styles = StyleSheet.create({
     borderTopColor: '#eee',
   },
   totalPaymentLabel: {
+    fontFamily: 'outfit-bold',
     fontSize: 18,
-    fontWeight: 'bold',
+    // fontWeight: 'bold',
     color: '#333',
   },
   totalPaymentValue: {
+    fontFamily: 'outfit-bold',
     fontSize: 18,
-    fontWeight: 'bold',
-    color: '#08a742',
+    // fontWeight: 'bold',
+    color: '#c91707ff',
   },
   orderItems: {
     marginBottom: 12,
@@ -457,7 +524,7 @@ export const styles = StyleSheet.create({
   orderItemt: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 6,
+    // marginBottom: 6,
   },
   vegIcon: {
     width: 16,
@@ -481,7 +548,8 @@ export const styles = StyleSheet.create({
     backgroundColor: '#e23744',
   },
   itemText: {
-    fontSize: 14,
+    fontFamily: 'outfit-bold',
+    fontSize: 15,
     color: '#333',
     flex: 1,
   },
@@ -513,18 +581,20 @@ export const styles = StyleSheet.create({
   },
   timelineStatus: {
     fontSize: 15,
-    fontWeight: '600',
+    fontFamily: 'outfit-bold',
     marginBottom: 4,
   },
   latestBadge: {
     backgroundColor: '#E3F2FD',
     color: '#1976D2',
     fontSize: 14,
+    fontFamily: 'outfit-bold',
     paddingHorizontal: 6,
     paddingVertical: 2,
     borderRadius: 4,
   },
   timelineDate: {
+    fontFamily: 'outfit-medium',
     fontSize: 14,
     color: '#757575',
   },
@@ -545,8 +615,10 @@ export const styles = StyleSheet.create({
     color: 'white',
     fontWeight: '600',
     fontSize: 16,
+    fontFamily: 'outfit',
   },
   cancelModalText: {
+    fontFamily: 'outfit',
     fontSize: 16,
     color: '#666',
     marginBottom: 16,
@@ -583,6 +655,7 @@ export const styles = StyleSheet.create({
   cancelModalButtonSecondaryText: {
     color: '#666',
     fontWeight: '600',
+    fontFamily: 'outfit',
   },
   cancelModalButtonPrimaryText: {
     color: 'white',
@@ -602,7 +675,8 @@ export const styles = StyleSheet.create({
     marginBottom: 16,
   },
   deliveryTimeLabel: {
-    fontSize: 14,
+    fontFamily: 'outfit-medium',
+    fontSize: 15,
     fontWeight: '600',
     marginBottom: 8,
     color: '#333',
@@ -611,6 +685,7 @@ export const styles = StyleSheet.create({
     marginBottom: 16,
   },
   timelineSlotTitle: {
+    fontFamily: 'outfit-medium',
     fontSize: 16,
     fontWeight: '600',
     marginBottom: 8,
@@ -630,6 +705,7 @@ export const styles = StyleSheet.create({
     marginBottom: 8,
   },
   itemName: {
+    fontFamily: 'outfit-medium',
     fontSize: 16,
     fontWeight: '500',
     color: '#222',
@@ -637,6 +713,7 @@ export const styles = StyleSheet.create({
     marginRight: 10,
   },
   itemPrice: {
+    fontFamily: 'outfit-medium',
     paddingRight: 50,
     fontSize: 15,
     fontWeight: '600',
@@ -648,23 +725,25 @@ export const styles = StyleSheet.create({
   detailRow: {
     flexDirection: 'row',
     // alignItems:'center',
-    justifyContent:'space-between',
+    justifyContent: 'space-between',
     marginBottom: 6,
   },
   detailLabel: {
-    fontSize: 14,
+    fontFamily: 'outfit-medium',
+    fontSize: 15,
     color: '#666',
     width: 100,
     fontWeight: '500',
   },
   detailValue: {
-    fontSize: 14,
-    color: '#020202ff',
+    fontFamily: 'outfit-bold',
+    fontSize: 15,
+    color: '#202020ff',
     // flex: 1,
-    textAlign:'center'
+    textAlign: 'center'
   },
   descriptionText: {
-    fontStyle: 'bold',
+    fontFamily: 'outfit-bold',
   },
   deliveryTimeContainer: {
     flexDirection: 'row',
@@ -673,20 +752,15 @@ export const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: '#EBDDD9',
   },
-    deliveryTimeContainert: {
+  deliveryTimeContainert: {
     // flexDirection: 'row',
     // marginTop: 12,
     // paddingTop: 12,
     // borderTopWidth: 1,
-    marginLeft:10,
-  },
-  deliveryTimeLabel: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#656565ff',
-    marginBottom: 4,
+    marginLeft: 10,
   },
   deliveryTimeText: {
+    fontFamily: 'outfit-bold',
     fontSize: 14,
     color: '#090909ff',
     marginLeft: 8,
