@@ -712,13 +712,11 @@ const handleApplyFilterboxFilters = (filters) => {
           </View>
 
           <View style={styles.searchAndVegContainer}>
-            <View>
               <SearchBar
-              query={query}
-              setQuery={setQuery}
-              onSearch={handleSearch}
-            />
-            </View>
+                query={query}
+                setQuery={setQuery}
+                onSearch={handleSearch}
+              />
             <View style={styles.vegFilterContainer}>
               <Text style={styles.vegFilterText}>Veg</Text>
               <Text style={styles.vegFilterText2}>Mode</Text>
@@ -733,7 +731,7 @@ const handleApplyFilterboxFilters = (filters) => {
                     setIsModalVisible(true);
                   }
                 }}
-                style={{ marginTop: 0 }}
+                style={{ marginTop: -5 }}
                 value={isVegOnly}
               />
 

@@ -17,10 +17,10 @@ export default function TabLayout() {
   const { width } = Dimensions.get('window');
   
   // Calculate responsive sizes based on screen width
-  // const tabBarHeight = width < 400 ? 70 : 80;
+  const tabBarHeight = width < 400 ? 70 : 80;
   const iconSize = width < 400 ? 25 : 27;
-  const fontSize = width < 400 ? 12 : 15;
-  const tabBarPadding = width < 400 ? 3 : 5;
+  const fontSize = 16;
+  const tabBarPadding = width < 400 ? 4 : 6;
 
   return (
     // <SafeAreaView style={{ flex: 1 }} >
@@ -31,7 +31,7 @@ export default function TabLayout() {
           // marginBottom: width < 400 ? 10 : 15,
           paddingBottom: tabBarPadding,
           paddingTop: tabBarPadding,
-          height: 65,
+          height: tabBarHeight,
         },
         // tabBarItemStyle: {
         //   paddingVertical: 4,
@@ -45,8 +45,10 @@ export default function TabLayout() {
           tabBarLabel: ({ focused }) => (
             <Text style={{ 
               fontFamily: focused ? 'outfit-bold' : 'outfit',
+              fontWeight: '500',
               color: focused ? '#e23845' : 'gray',
               fontSize: fontSize,
+              lineHeight: fontSize,
               marginTop: 2,
             }}>
               Take Away
@@ -54,7 +56,7 @@ export default function TabLayout() {
           ),
           tabBarIcon: ({ focused }) => (
             <Ionicons 
-              name="fast-food-outline" 
+              name="fast-food-sharp" 
               size={iconSize} 
               color={focused ? '#e23845' : 'grey'} 
             />
@@ -69,8 +71,10 @@ export default function TabLayout() {
           tabBarLabel: ({ focused }) => (
             <Text style={{ 
               fontFamily: focused ? 'outfit-bold' : 'outfit',
+              fontWeight: '500',
               color: focused ? '#e23845' : 'gray',
               fontSize: fontSize,
+              lineHeight: fontSize,
               marginTop: 2,
             }}>
               Dining
@@ -78,7 +82,7 @@ export default function TabLayout() {
           ),
           tabBarIcon: ({ focused }) => (
             <MaterialIcons 
-              name="restaurant" 
+              name="restaurant-menu" 
               size={iconSize} 
               color={focused ? '#e23845' : 'grey'} 
             />
@@ -93,8 +97,10 @@ export default function TabLayout() {
           tabBarLabel: ({ focused }) => (
             <Text style={{ 
               fontFamily: focused ? 'outfit-bold' : 'outfit',
+              fontWeight: '500',
               color: focused ? '#e23845' : 'gray',
               fontSize: fontSize,
+              lineHeight: fontSize,
               marginTop: 2,
             }}>
               Tiffin
@@ -117,8 +123,10 @@ export default function TabLayout() {
           tabBarLabel: ({ focused }) => (
             <Text style={{ 
               fontFamily: focused ? 'outfit-bold' : 'outfit',
+              fontWeight: '500',
               color: focused ? '#e23845' : 'gray',
               fontSize: fontSize,
+              lineHeight: fontSize,
               marginTop: 2,
             }}>
               Live Shows

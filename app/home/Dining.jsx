@@ -731,13 +731,11 @@ export default function TakeAway() {
           </View>
 
           <View style={styles.searchAndVegContainer}>
-           <View style={{width:"100%"}}>
               <SearchBar
-              query={query}
-              setQuery={setQuery}
-              onSearch={handleSearch}
-            />
-            </View>
+                query={query}
+                setQuery={setQuery}
+                onSearch={handleSearch}
+              />
             <View style={styles.vegFilterContainer}>
               <Text style={styles.vegFilterText}>Veg</Text>
               <Text style={styles.vegFilterText2}>Mode</Text>
@@ -752,7 +750,7 @@ export default function TakeAway() {
                     setIsModalVisible(true);
                   }
                 }}
-                style={{ marginTop: 0 }}
+                style={{ marginTop: -5 }}
                 value={isVegOnly}
               />
 

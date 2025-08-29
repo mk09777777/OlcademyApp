@@ -64,23 +64,24 @@ export default styles = StyleSheet.create({
    vegFilterContainer: {
     flexDirection: "column",
     alignItems: 'center',
-    justifyContent:"flex-start"
-
+    justifyContent:"flex-start",
+    marginLeft: 10,
   },  
   vegFilterText: {
-    // marginLeft: 10, // If you uncomment this, it adds space from the icon
-    fontSize: 14,
-    fontFamily: 'outfit',
+    fontSize: 16,
     fontWeight: 'bold',
     color: '#333',
+    textAlign: 'center',
+    fontFamily: 'outfit',
+    fontWeight: '500',
   },
    vegFilterText2: {
-    // marginLeft: 10, // If you uncomment this, it adds space from the icon
-    fontSize: 12,
+    fontSize: 14,
     fontWeight: '900',
     fontFamily: 'outfit',
     color: '#333',
-    marginBottom:0
+    textAlign: 'center',
+    fontFamily: 'outfit',
   },
   // veg On Modal
   VegBack:{
@@ -224,16 +225,22 @@ export default styles = StyleSheet.create({
     alignItems: 'center',
     marginVertical: 0,
   },
-  line: {
+ line: {
     flex: 1,
     height: 1,
-    backgroundColor: '#ccc',
+    backgroundColor: '#FF002E',
   },
+	separatorText: {
+		fontFamily: 'outfit',
+		fontSize: 13,
+		color: '#222222',
+    marginHorizontal: 7
+	},
   sectionTitleText: {
-    marginHorizontal: 10,
-    fontSize: 15,
-        fontFamily: 'outfit-bold',
-    color: '#524e4eff',
+   	fontFamily: 'outfit',
+		fontSize: 13,
+		color: '#222222',
+    marginHorizontal: 7
   },
   filterButton: {
   flexDirection: 'row',

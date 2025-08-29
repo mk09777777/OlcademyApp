@@ -5,9 +5,9 @@ const windowWidth = Dimensions.get('window').width
 
 export const styles = StyleSheet.create({
   container: {
-      flex: 1,
+    flex: 1,
     backgroundColor: '#fff',
-    padding:15
+    padding: 15
   },
   topContainer: {
     flexDirection: 'row',
@@ -33,22 +33,26 @@ export const styles = StyleSheet.create({
     borderRadius: 10,
   },
   separatorRow: {
-		flexDirection: 'row',
-		alignItems: 'center',
-		marginTop: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 10,
     marginBottom: 10
-	  },
+  },
   line: {
     flex: 1,
     height: 1,
-    backgroundColor: '#ccc',
+    backgroundColor: '#FF002E',
+  },
+  separatorText: {
+    fontFamily: 'outfit',
+    fontSize: 13,
+    color: '#222222',
+
   },
   searchAndVegContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginTop: 0,
-    minHeight: 0,
     // Add horizontal padding to this container to give space on the sides
     // paddingHorizontal: 20, // This will apply padding to the search bar and veg filter
   },
@@ -58,8 +62,6 @@ export const styles = StyleSheet.create({
     // width: 300, // Remove this fixed width as it conflicts with flex: 1
   },
   searchBar: {
-    paddingVertical: 4,
-    paddingHorizontal: 10,
     borderRadius: 50,
     backgroundColor: '#f0f0f0',
     // width: 50, // <--- Remove or significantly increase this fixed width
@@ -68,104 +70,106 @@ export const styles = StyleSheet.create({
     // width: '80%', // Example: 80% of its parent's available width
     // width: 250, // Example: a fixed larger pixel width
   },
-   vegFilterContainer: {
+  vegFilterContainer: {
     flexDirection: "column",
     alignItems: 'center',
-    justifyContent:"flex-start"
-
-  },  
+    justifyContent: "flex-start",
+    marginLeft: 10,
+  },
   vegFilterText: {
-    // marginLeft: 10, // If you uncomment this, it adds space from the icon
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: 'bold',
     color: '#333',
+    textAlign: 'center',
+    fontFamily: 'outfit',
+    fontWeight: '500',
   },
-   vegFilterText2: {
-    // marginLeft: 10, // If you uncomment this, it adds space from the icon
-    fontSize: 12,
+  vegFilterText2: {
+    fontSize: 14,
     fontWeight: '900',
     color: '#333',
-    marginBottom:0
+    textAlign: 'center',
+    fontFamily: 'outfit',
   },
   // veg On Modal
-  VegBack:{
-    backgroundColor:"#ffff",
-    alignContent:"center",
-    justifyContent:"center",
-    alignItems:"center",
-    flex:1
+  VegBack: {
+    backgroundColor: "#ffff",
+    alignContent: "center",
+    justifyContent: "center",
+    alignItems: "center",
+    flex: 1
   },
-  VegImg:{
-    width:90,
-    height:90,
+  VegImg: {
+    width: 90,
+    height: 90,
   },
-  VegText:{
-    fontSize:16,
-    color:"black",
-    fontWeight:"600",
-    marginTop:15,
+  VegText: {
+    fontSize: 16,
+    color: "black",
+    fontWeight: "600",
+    marginTop: 15,
 
   },
   //Turn off modal
-  modalBackground:{
-        backgroundColor:"rgba(0, 0, 0, 0.53)",
-        display:"flex",
-        justifyContent:"center",
-        flex:1
+  modalBackground: {
+    backgroundColor: "rgba(0, 0, 0, 0.53)",
+    display: "flex",
+    justifyContent: "center",
+    flex: 1
   },
-  modalV:{
-    backgroundColor:"#ffff",
-    borderRadius:10,
-    flexDirection:"column",
-    marginRight:10,
-    padding:10,
-    marginLeft:20,
-    marginRight:20,
-    alignItems:"center"
-    
+  modalV: {
+    backgroundColor: "#ffff",
+    borderRadius: 10,
+    flexDirection: "column",
+    marginRight: 10,
+    padding: 10,
+    marginLeft: 20,
+    marginRight: 20,
+    alignItems: "center"
+
   },
-  closeButton:{
-    padding:10,
-    marginLeft:10,
-    marginRight:10,
-    backgroundColor:"red",
-    borderRadius:7,
-    marginTop:10,
-    justifyContent:"center",
-    alignItems:"center",
-    
+  closeButton: {
+    padding: 10,
+    marginLeft: 10,
+    marginRight: 10,
+    backgroundColor: "red",
+    borderRadius: 7,
+    marginTop: 10,
+    justifyContent: "center",
+    alignItems: "center",
+
   },
-   KeepUsingButton:{
-    padding:10,
-    marginLeft:10,
-    marginRight:10,
-    backgroundColor:"white",
-    borderRadius:7,
-    marginTop:10,
-    justifyContent:"center",
-    alignItems:"center",
-    
+  KeepUsingButton: {
+    padding: 10,
+    marginLeft: 10,
+    marginRight: 10,
+    backgroundColor: "white",
+    borderRadius: 7,
+    marginTop: 10,
+    justifyContent: "center",
+    alignItems: "center",
+
   },
-  imageView:{
-    marginTop:10,
-    justifyContent:"center",
-    alignItems:"center"
+  imageView: {
+    marginTop: 10,
+    justifyContent: "center",
+    alignItems: "center"
   },
-  imageE:{
-    height:70,
-    width:70
+  imageE: {
+    height: 70,
+    width: 70
   },
   collectionContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
   },
-	separatorText: {
-		fontFamily: 'outfit',
-		fontSize: 14,
-		color: '#ccc',
+  separatorText: {
+    fontFamily: 'outfit',
+    fontSize: 13,
+    color: '#222222',
     marginHorizontal: 7
-	},
+  },
   filterContainer: {
     marginBottom: 10
   },
@@ -183,7 +187,7 @@ export const styles = StyleSheet.create({
     fontSize: 14,
     fontFamily: 'outfit-medium',
   },
-  
+
   selectedFilterButton: {
     backgroundColor: '#e23845',
   },
@@ -285,18 +289,18 @@ export const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   collectionImage: {
-   width: 160,
-  height: 130,
-  justifyContent: 'flex-end',  
-  padding: 10, 
-  borderRadius: 12,
-  overflow: 'hidden',
+    width: 160,
+    height: 130,
+    justifyContent: 'flex-end',
+    padding: 10,
+    borderRadius: 12,
+    overflow: 'hidden',
   },
   collectionImageStyle: {
     borderRadius: 10,
   },
   collectionOverlay: {
-    backgroundColor: 'rgba(0, 0, 0, 0.5)', 
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
     padding: 10,
     alignItems: 'center',
     flexWrap: 'wrap',
@@ -308,21 +312,21 @@ export const styles = StyleSheet.create({
     fontFamily: 'outfit-bold',
     textAlign: 'center',
   },
-  restaurantlength:{
+  restaurantlength: {
     color: '#fff',
   },
-  
+
   campaignsContainer: {
     flexGrow: 0,
     overflow: 'hidden'
   },
-   campaignsImage:{
-    height: 0.18*windowHeight,
-   },
+  campaignsImage: {
+    height: 0.18 * windowHeight,
+  },
   campaignsCard: {
     margin: 10,
-    width: 0.85*windowWidth,
-    height: 0.20*windowHeight,
+    width: 0.85 * windowWidth,
+    height: 0.20 * windowHeight,
     borderRadius: 10
   },
   searchResultsContainer: {
