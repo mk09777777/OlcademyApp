@@ -25,12 +25,14 @@ const FilterModal = ({
   const maxPrice = 100;
 
   const FILTER_OPTIONS = {
-    SORT_BY: [
-      {  label: "Rating: High to Low", value: "rating-desc" },
-      { label: "Rating: Low to High", value: "rating-asc" },
-      { label: "Price: High to Low", value: "costHighToLow" },
-      { label: "Price: Low to High", value: "costLowToHigh" },
-    ],
+  SORT_BY: [
+    { label: 'Rating: High to Low', value: 'rating-desc' },
+    { label: 'Rating: Low to High', value: 'rating-asc' },
+    { label: 'Price: High to Low', value: 'costHighToLow' },
+    { label: 'Price: Low to High', value: 'costLowToHigh' },
+    { label: 'Distance: Near to Far', value: 'distance-asc' },
+    { label: 'Distance: Far to Near', value: 'distance-desc' },
+  ],
     CATEGORY: [
       { label: "Vegetarian", value: "veg" },
       { label: "Non-Vegetarian", value: "non-veg" },
@@ -39,11 +41,22 @@ const FilterModal = ({
       { label: "Open Now", value: "openNow" },
       { label: "Top Rated", value: "topRated" },
     ],
+    CUISINE: [
+      { label: "Punjabi", value: "Punjabi" },
+      { label: "Swaminarayan", value: "Swaminarayan" },
+      { label: "Gujarati", value: "Gujarati" },
+      { label: "South Indian", value: "South indian" },
+      { label: "Rajasthani", value: "Rajasthani" },
+      { label: "Marathi", value: "Marathi" },
+      { label: "Jain", value: "Jain" },
+      { label: "Indian", value: "indian" },
+    ],
   };
 
   const filterTabs = [
     { label: "Sort By", value: "sortBy" },
     { label: "Category", value: "category" },
+    { label: "Cuisine", value: "cuisine" }, 
     { label: "Rating", value: "rating" },
     { label: "Price Range", value: "price" },
     { label: "Special", value: "special" },
@@ -70,9 +83,10 @@ const FilterModal = ({
     let count = 0;
     if (localFilters.sortBy) count++;
     if (localFilters.category) count++;
+    if (localFilters.cuisine) count++; 
     if (localFilters.minRating && localFilters.minRating > 0) count++;
-    if (localFilters.priceRange && 
-        (localFilters.priceRange[0] !== minPrice || localFilters.priceRange[1] !== maxPrice)) count++;
+    if (localFilters.priceRange &&
+      (localFilters.priceRange[0] !== minPrice || localFilters.priceRange[1] !== maxPrice)) count++;
     if (localFilters.special) count++;
     return count;
   };
@@ -103,6 +117,7 @@ const FilterModal = ({
       sortBy: null,
       category: null,
       minRating: 0,
+      cuisine: null,
       priceRange: [minPrice, maxPrice],
       special: null,
     });
@@ -176,6 +191,31 @@ const FilterModal = ({
             ))}
           </ScrollView>
         );
+      case "cuisine":
+        return (
+          <ScrollView style={styles.optionsContainer}>
+            {FILTER_OPTIONS.CUISINE.map((option) => (
+              <Pressable
+                key={option.value}
+                style={[
+                  styles.option,
+                  localFilters.cuisine === option.value && styles.activeOption,
+                ]}
+                onPress={() => handleFilterChange("cuisine", option.value)}
+              >
+                <View style={styles.optionContent}>
+                  {renderRadioButton(localFilters.cuisine === option.value)}
+                  <Text style={[
+                    styles.optionText,
+                    localFilters.cuisine === option.value && styles.activeOptionText,
+                  ]}>
+                    {option.label}
+                  </Text>
+                </View>
+              </Pressable>
+            ))}
+          </ScrollView>
+        );
       case "rating":
         return (
           <View style={styles.sliderContainer}>
@@ -214,6 +254,7 @@ const FilterModal = ({
             </View>
           </View>
         );
+
       case "price":
         return (
           <View style={styles.sliderContainer}>
@@ -221,9 +262,9 @@ const FilterModal = ({
               Price Range: ${localFilters.priceRange[0]} - ${localFilters.priceRange[1]}
             </Text>
             <View style={styles.rangeSliderContainerm}>
-             <Text style={styles.rangeSliderMinMax}>${minPrice}</Text>
+              <Text style={styles.rangeSliderMinMax}>${minPrice}</Text>
               <Text style={styles.rangeSliderMinMax}>${maxPrice}</Text>
-             </View>
+            </View>
             <View style={styles.rangeSliderContainer}>
               <Slider
                 style={styles.rangeSlider}
@@ -279,7 +320,7 @@ const FilterModal = ({
       <View style={styles.modalOverlay}>
         <View style={styles.filterBoxWrapper}>
           <View style={styles.header}>
-            <View style={{flexDirection: 'row', alignItems: 'center'}}>
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
               <Text style={styles.headerText}>Filters</Text>
               {getFilterCount() > 0 && (
                 <View style={styles.filterCountBadge}>
@@ -325,14 +366,14 @@ const FilterModal = ({
           </View>
 
           <View style={styles.footer}>
-            <TouchableOpacity 
-              style={styles.clearBtn} 
+            <TouchableOpacity
+              style={styles.clearBtn}
               onPress={handleClearAll}
             >
               <Text style={styles.clearBtnText}>Clear All</Text>
             </TouchableOpacity>
-            <TouchableOpacity 
-              style={styles.applyBtn} 
+            <TouchableOpacity
+              style={styles.applyBtn}
               onPress={handleApply}
             >
               <Text style={styles.applyBtnText}>Apply Filters</Text>
@@ -375,6 +416,7 @@ const styles = StyleSheet.create({
     borderBottomColor: "#e0e0e0",
   },
   headerText: {
+        fontFamily: 'outfit',
     fontSize: 20,
     fontWeight: "bold",
   },
@@ -385,10 +427,12 @@ const styles = StyleSheet.create({
     backgroundColor: "#e23845",
   },
   tabText: {
+        fontFamily: 'outfit',
     fontSize: 16,
     color: "#666",
   },
   activeTabText: {
+        fontFamily: 'outfit',
     color: "white",
     fontWeight: "500",
   },
@@ -412,11 +456,13 @@ const styles = StyleSheet.create({
     backgroundColor: "#f4f4f4ff",
   },
   optionText: {
+        fontFamily: 'outfit-medium',
     fontSize: 14,
     color: "#333",
     marginLeft: 12,
   },
   activeOptionText: {
+        fontFamily: 'outfit',
     color: "#e23845",
     fontWeight: "500",
   },
@@ -452,6 +498,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   applyBtnText: {
+        fontFamily: 'outfit',
     color: "white",
     fontWeight: "bold",
   },
@@ -465,6 +512,7 @@ const styles = StyleSheet.create({
     marginLeft: 8,
   },
   filterCountText: {
+        fontFamily: 'outfit',
     color: 'white',
     fontSize: 12,
     fontWeight: 'bold',
@@ -493,8 +541,9 @@ const styles = StyleSheet.create({
     borderLeftColor: "#e23845",
   },
   tabText: {
+        fontFamily: 'outfit-bold',
     color: "#757575",
-    fontSize: 14, 
+    fontSize: 15,
   },
   sliderContainer: {
     padding: 10,
@@ -505,6 +554,7 @@ const styles = StyleSheet.create({
     height: 40,
   },
   sliderValueText: {
+        fontFamily: 'outfit-bold',
     fontSize: 16,
     marginBottom: 16,
     color: '#333',
@@ -523,6 +573,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#e23845',
   },
   ratingStepText: {
+        fontFamily: 'outfit',
     fontSize: 14,
     color: '#666',
   },
