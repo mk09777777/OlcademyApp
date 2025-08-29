@@ -49,7 +49,7 @@ const TiffinOrderCard = ({
               <Text style={styles.restaurantName} numberOfLines={2} ellipsizeMode="tail">
                 {tiffinName}
               </Text>
-              <Text style={styles.priceText}>${item.totalPrice?.toFixed(2)}</Text>
+             
             </View>
           </View>
           <TouchableOpacity onPress={handleFavoritePress}>
@@ -108,16 +108,17 @@ const TiffinOrderCard = ({
                 </Text>
               </View>
             </View>
-            <TouchableOpacity
+        <TouchableOpacity
               style={styles.viewDetailsButton}
-             onPress={() => onPress(item)} 
+              onPress={() => onPress(item)}
               hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
             >
-              <Text style={styles.viewDetailsButtonText}>View Details</Text>
+              <Text style={styles.priceText}>${item.totalPrice?.toFixed(2)}</Text>
+              <Entypo name="chevron-right" size={22} color="#aaa" />
             </TouchableOpacity>
           </View>
-              <TouchableOpacity
-                    style={styles.viewDetailButton}
+              {/* <TouchableOpacity
+                    style={styles.viewDetailsButton}
                       onPress={() => router.push({
                               pathname: "/screens/Userrating",
                               params: {
@@ -128,8 +129,8 @@ const TiffinOrderCard = ({
                               }
                             })}
                   >
-                    <Text style={styles.viewDetails}>Review</Text>
-                  </TouchableOpacity>
+                    <Text style={styles.viewDetail}>Review</Text>
+                  </TouchableOpacity> */}
         </View>
       </TouchableOpacity>
 
