@@ -20,7 +20,7 @@ const Whatsonyou = () => {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>What You Mind in SPICE TIFFINS</Text>
+        <Text style={styles.title}>WHAT'S ON YOUR MIND?</Text>
         <View style={styles.underline} />
       </View>
       <ScrollView 
@@ -58,11 +58,10 @@ const styles = StyleSheet.create({
     marginBottom: 15,
   },
   title: {
-    fontSize: 14,
-    color: '#3333',
-    letterSpacing: 1,
-    textTransform: 'uppercase',
-    marginBottom: 5,
+    fontFamily: 'outfit',
+		fontSize: 16,
+		color: '#222222',
+    marginHorizontal: 7
   },
   underline: {
     width: 50,

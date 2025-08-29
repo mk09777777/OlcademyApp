@@ -37,7 +37,6 @@ export const styles = StyleSheet.create({
   },
   searchAndVegContainer: {
     flexDirection: 'row',
-    alignItems: 'center',
     justifyContent: 'space-between',
     marginTop: 0,
     minHeight: 0,
@@ -63,21 +62,23 @@ export const styles = StyleSheet.create({
    vegFilterContainer: {
     flexDirection: "column",
     alignItems: 'center',
-    justifyContent:"flex-start"
-
+    justifyContent:"flex-start",
+    marginLeft: 10,
   },  
   vegFilterText: {
-    // marginLeft: 10, // If you uncomment this, it adds space from the icon
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: 'bold',
     color: '#333',
+    textAlign: 'center',
+    fontFamily: 'outfit',
+    fontWeight: '500',
   },
    vegFilterText2: {
-    // marginLeft: 10, // If you uncomment this, it adds space from the icon
-    fontSize: 12,
+    fontSize: 14,
     fontWeight: '900',
     color: '#333',
-    marginBottom:0
+    textAlign: 'center',
+    fontFamily: 'outfit',
   },
   // veg On Modal
   VegBack:{
@@ -156,12 +157,12 @@ export const styles = StyleSheet.create({
   line: {
     flex: 1,
     height: 1,
-    backgroundColor: '#ccc',
+    backgroundColor: '#FF002E',
   },
 	separatorText: {
 		fontFamily: 'outfit',
-		fontSize: 14,
-		color: '#ccc',
+		fontSize: 13,
+		color: '#222222',
     marginHorizontal: 7
 	},
   filterContainer: {

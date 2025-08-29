@@ -805,7 +805,8 @@ const FetchRecentlyViewData = useCallback(async () => {
             onSearch={handleSearch}
           />
           <View style={styles.vegFilterContainer}>
-            <Text style={styles.vegFilterText}>Veg Mode</Text>
+            <Text style={styles.vegFilterText}>Veg</Text>
+            <Text style={styles.vegFilterText2}>Mode</Text>
             <Switch
               trackColor={{ false: "#767577", true: "#8BC34A" }}
               thumbColor="#f4f3f4"
@@ -816,7 +817,7 @@ const FetchRecentlyViewData = useCallback(async () => {
                   setIsModalVisible(true);
                 }
               }}
-              style={{ marginTop: 0 }}
+              style={{ marginTop: -5 }}
               value={isVegOnly}
             />
           </View>

@@ -6,9 +6,7 @@ import axios from 'axios';
 import { AntDesign, FontAwesome, FontAwesome5, Ionicons, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 import { useCart } from '@/context/CartContext';
 import ImageGallery from '@/components/ImageGallery';
-import { API_CONFIG } from '../../config/apiConfig';
-const API_URL = API_CONFIG.BACKEND_URL;
-
+const API_URL = 'https://backend-0wyj.onrender.com';
 const filtersData = {
   "Dietary": [
     { id: 1, label: "Vegetarian", icon: "leaf", selected: false },
@@ -36,6 +34,7 @@ export default function FirmDetailsTakeAway() {
   } = useCart();
 
   const firmId = params.firmId || params.firm;
+  console.log(firmId)
   const [menuData, setMenuData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -117,6 +116,7 @@ export default function FirmDetailsTakeAway() {
       const transformedData = {
         menuTabs: response.data.menuSections.map(tab => ({
           name: tab.tabName,
+          categoryId:tab.categoryId,
           sections: tab.sections.map(section => ({
             name: section.sectionName,
             items: section.items.map(item => ({
@@ -221,9 +221,9 @@ const UploadRecentlyViewd = async () => {
         return items.map(item => ({
           ...item,
           _id: item._id || Math.random().toString(36).substr(2, 9),
+          category: section.name || tab.name || 'Uncategorized',
           categoryId:tab.categoryId,
           subcategoryId:item.subcategoryId,
-          category: section.name || tab.name || 'Uncategorized',
           productName: item.name || 'Unnamed Item',
           description: item.description || '',
           price: item.price ?
@@ -316,6 +316,7 @@ const UploadRecentlyViewd = async () => {
 
         const cartItem = {
           itemToAdd: {
+            // categoryId,
             subcategoryId: item.subcategoryId,
             categoryId: item?.categoryId,
             productId: item?._id || item?.id,
@@ -369,7 +370,7 @@ const UploadRecentlyViewd = async () => {
                   <Text style={styles.controlButton}>-</Text>
                 </TouchableOpacity>
                 <Text style={styles.quantityText}>{quantity}</Text>
-                <TouchableOpacity onPress={handleAdd} activeOpacity={1.0}>
+                <TouchableOpacity onPress={handleIncrement  } activeOpacity={1.0}>
                   <Text style={styles.controlButton}>+</Text>
                 </TouchableOpacity>
               </View>
@@ -488,7 +489,7 @@ const UploadRecentlyViewd = async () => {
               restaurantName: firmDetails?.restaurantInfo?.name,
               averageRating: firmDetails?.restaurantInfo?.ratings?.overall,
               reviewCount: firmDetails?.restaurantInfo?.ratings?.totalReviews,
-              reviewType:"takeaway"
+              reviewType:'takeaway'
             }
           })}
           style={styles.reviewBox}
