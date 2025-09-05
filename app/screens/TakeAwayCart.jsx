@@ -633,8 +633,8 @@ UploadNotifications(orderData)
     <View style={styles.itemContainer}>
       <View style={styles.itemInfo}>
         <Text style={styles.itemText}>{item.name}</Text>
-        <Text style={styles.itemPrice}>  Item Price:-  ${(item.price || 0).toFixed(2)}</Text>
-        <Text style={styles.itemPrice}>Total Item Price:-  ${subtotal.toFixed(2)}</Text>
+        <Text style={styles.itemPrice}>Item Price:-  ${(item.price || 0).toFixed(2)}</Text>
+        <Text style={styles.itemPrices}>Total Item Price:-  ${subtotal.toFixed(2)}</Text>
       </View>
       <View style={styles.controls}>
         <TouchableOpacity
@@ -730,9 +730,8 @@ UploadNotifications(orderData)
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scroll}>
+         <Text style={styles.title}>Your Cart</Text>
         <View style={styles.cartSummary}>
-          <Text style={styles.title}>Your Cart</Text>
-
           {cartItems.length === 0 ? (
             <View style={styles.emptyCartContainer}>
               <Image
@@ -748,13 +747,10 @@ UploadNotifications(orderData)
               renderItem={renderItem}
               renderSectionHeader={renderRestaurantHeader}
               scrollEnabled={false}
-              contentContainerStyle={{ paddingBottom: 20 }}
             />
           )}
         </View>
-
-        <View style={styles.card}>
-          <View style={styles.promotionContainer}>
+     <View style={styles.promotionContainer}>
             <Text style={styles.sectionTitle}>Promotion</Text>
             {!appliedOffer ? (
               <TouchableOpacity
@@ -788,122 +784,92 @@ UploadNotifications(orderData)
               </TouchableOpacity>
             )}
           </View>
+        <View style={styles.card}>
+     
 
           {/* Tiffin-specific fields */}
           {isTiffinOrder && (
-            <View>
-              <View style={{ marginTop: 10, marginBottom: 10, }}>
-                {cartItems[0]?.selectedDeliveryTimeSlot ? (
-                  <View style={{
-                    backgroundColor: '#ebf8ff',
-                    borderColor: '#90cdf4',
-                    borderWidth: 1,
-                    borderRadius: 6,
-                    padding: 10,
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    shadowColor: '#000',
-                    shadowOffset: { width: 0, height: 1 },
-                    shadowOpacity: 0.1,
-                    shadowRadius: 2,
-                  }}>
-                    {/* <Text style={{ fontSize: 20, marginRight: 12 }}>⏰</Text> */}
-                    <Text style={{ fontWeight: '600', fontSize: 16, color: '#2b6cb0' }}>
-                      Delivery Time: {cartItems[0]?.selectedDeliveryTimeSlot}
-                    </Text>
-                  </View>
-                ) : (
-                  <Text style={{
-                    color: '#718096',
-                    textAlign: 'center',
-                    paddingVertical: 16,
-                    fontSize: 14,
-                    backgroundColor: '#f7fafc',
-                    borderRadius: 6,
-                    borderColor: '#e2e8f0',
-                    borderWidth: 1,
-                  }}>
-                    Delivery time not found for tiffin.
+               <View>
+            <View >
+              {cartItems[0]?.selectedDeliveryTimeSlot ? (
+                <View style={{
+                  backgroundColor: '#ebf8ff',
+                  borderColor: '#90cdf4',
+                  borderWidth: 1,
+                  borderRadius: 6,
+                  padding: 10,
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  shadowColor: '#000',
+                  shadowOffset: { width: 0, height: 1 },
+                  shadowOpacity: 0.1,
+                  shadowRadius: 2,
+                }}>
+                  <Text style={{ fontFamily: 'outfit-bold', fontSize: 16, color: '#2b6cb0' }}>
+                    Delivery Time: {cartItems[0]?.selectedDeliveryTimeSlot}
                   </Text>
-                )}
-              </View>
-              <View style={styles.pickup}>
-                <Text style={styles.modalTitle}>Delivery Details</Text>
-                <View style={styles.container}>
-                  <Text style={styles.label}>Country Code</Text>
-                  <View style={styles.pickerContainer}>
-                    <Picker
-                      selectedValue={countryCode}
-                      style={styles.picker}
-                      onValueChange={(itemValue) => setCountryCode(itemValue)}
-                    >
-                      <Picker.Item label="India (+91)" value="+91" />
-                      <Picker.Item label="USA (+1)" value="+1" />
-                      <Picker.Item label="UK (+44)" value="+44" />
-                    </Picker>
-
-                  </View>
-
-
+                </View>
+              ) : (
+                <Text style={{
+                  color: '#718096',
+                  textAlign: 'center',
+                  paddingVertical: 10,
+                  fontSize: 14,
+                  backgroundColor: '#f7fafc',
+                  borderRadius: 6,
+                  borderColor: '#e2e8f0',
+                  borderWidth: 1,
+                }}>
+                  Delivery time not found for tiffin.
+                </Text>
+              )}
+            </View>
+            <View style={styles.pickup}>
+              <Text style={styles.modalTitle}>Delivery Details</Text>
+              <View style={styles.phone}>
+                <View style={styles.pickerContainer}>
+                  <Picker
+                    selectedValue={countryCode}
+                    style={styles.picker}
+                    onValueChange={(itemValue) => setCountryCode(itemValue)}
+                  >
+                    <Picker.Item label="+91" value="+91" />
+                    <Picker.Item label="USA (+1)" value="+1" />
+                    <Picker.Item label="UK (+44)" value="+44" />
+                  </Picker>
                 </View>
                 <TextInput
                   placeholder="Phone Number"
                   value={phoneNumber}
                   onChangeText={setPhoneNumber}
                   keyboardType="phone-pad"
-                  style={styles.input}
+                  style={styles.phoneinput}
                 />
-                {/* <TextInput
+              </View>
+
+              <TouchableOpacity
+                onPress={() => router.push('/screens/DeliveryAddress')}
+                style={styles.addressInputContainer}
+              >
+                <TextInput
                   placeholder="Delivery Address"
                   value={pickupAddress}
                   onChangeText={setPickupAddress}
                   multiline
-                  style={[styles.input, { height: 80 }]}
-                /> */}
-
-                              <TouchableOpacity
-                                onPress={() => router.push('/screens/DeliveryAddress')}
-                                style={styles.addressInputContainer}
-                              >
-                                <TextInput
-                                  placeholder="Delivery Address"
-                                  value={pickupAddress}
-                                  onChangeText={setPickupAddress}
-                                  multiline
-                                  style={[styles.input, { height: 90 }]}
-                                  editable={false}
-                                />
-                                {/* <Text style={styles.stateText}>{location.fullAddress || ''}</Text> */}
-                                {/* <Ionicons name="location-outline" size={20} color="#666" style={styles.addressIcon} /> */}
-                
-                                {/* Saved Address Label */}
-                                {/* {pickupAddress ? (
-                    <Text style={styles.savedAddressLabel}>Saved Address</Text>
-                  ) : null} */}
-                
-                                {/* Clear Address Button */}
-                                {pickupAddress ? (
-                                  <TouchableOpacity
-                                    onPress={async () => {
-                                      setPickupAddress('');
-                                      await AsyncStorage.removeItem('selectedAddress');
-                                    }}
-                                    // style={styles.clearAddressButton}
-                                  >
-                                    {/* <Text style={styles.clearAddressText}>Clear</Text> */}
-                                  </TouchableOpacity>
-                                ) : null}
-                              </TouchableOpacity>
-
-                <TextInput
-                  placeholder="Special Instructions"
-                  value={specialInstructions}
-                  onChangeText={setSpecialInstructions}
-                  multiline
-                  style={[styles.input, { height: 80 }]}
+                  style={[styles.input,]}
+                  editable={false}
                 />
-              </View>
+              </TouchableOpacity>
+
+              <TextInput
+                placeholder="Special Instructions"
+                value={specialInstructions}
+                onChangeText={setSpecialInstructions}
+                multiline
+                style={[styles.input]}
+              />
             </View>
+          </View>
           )}
 
           {/* Restaurant pickup details */}

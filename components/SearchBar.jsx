@@ -1,7 +1,9 @@
 // SearchBar.jsx
 import React from 'react';
-import { View, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
-import { MaterialCommunityIcons, MaterialIcons,Feather } from '@expo/vector-icons';
+import { View, ActivityIndicator, TouchableOpacity, StyleSheet,} from 'react-native';
+import { TextInput } from 'react-native-paper';
+import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
+// import styles from '@/styles/Collection';
 
 export default function SearchBar({ query, setQuery, isLoading, placeholder, onVoicePress }) {
   return (
