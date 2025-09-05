@@ -54,7 +54,7 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 14,
+    // paddingVertical: 10,
     borderTopColor:'#dfe6eeff',
     borderTopWidth:1,
     // borderBottomWidth: 1,
@@ -68,7 +68,7 @@ export const styles = StyleSheet.create({
      fontFamily: 'outfit-bold',
     fontSize: 18,
     color: '#2d3748',
-    marginBottom: 6,
+     marginVertical: 5,
     fontWeight: '500',
   },
   itemPrice: {
@@ -342,7 +342,7 @@ export const styles = StyleSheet.create({
     padding: 14,
     marginBottom: 16,
     fontSize: 16,
-      fontFamily: 'outfit-medium',
+    fontFamily: 'outfit-medium',
     backgroundColor: '#fff',
   },
   submitBtn: {

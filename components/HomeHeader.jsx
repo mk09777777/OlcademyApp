@@ -14,7 +14,7 @@ export default function LocationHeader() {
       <Ionicons name='location' size={24} style={styles.locationIcon} />
       <TouchableOpacity
         style={styles.locationInfo}
-        onPress={() => safeNavigation('/screens//SelectLocation')}
+        onPress={() => safeNavigation('/screens/SelectLocation')}
       >
         <View>
           <Text style={styles.cityText}>

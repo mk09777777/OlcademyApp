@@ -26,9 +26,9 @@ export const unstable_settings = {
 
 export default function RootLayout() {
   const [fontsLoaded] = useFonts({
-    'outfit': require('@/assets/fonts/Outfit-Regular.ttf'),
-    'outfit-bold': require('@/assets/fonts/Outfit-Bold.ttf'),
-    'outfit-medium': require('@/assets/fonts/Outfit-Medium.ttf'),
+    'outfit': require('@/assets/fonts/Urbanist-Regular.ttf'),
+    'outfit-bold': require('@/assets/fonts/Urbanist-Bold.ttf'),
+    'outfit-medium': require('@/assets/fonts/Urbanist-Medium.ttf'),
   });
 
   if (!fontsLoaded) {
@@ -46,8 +46,6 @@ export default function RootLayout() {
           return (
             <CartProvider>
               <OffersProvider>
-
-
                 <PreferencesProvider>
                   <FirmProvider value={{ firms: [], loading: false }}>
                     <PaperProvider>
