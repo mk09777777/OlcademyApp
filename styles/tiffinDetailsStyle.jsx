@@ -229,17 +229,76 @@ reviewBox: {
   reviewBoxUpperContainer: {
     marginHorizontal:8,
     flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 12,
   },
-  reviewBoxBottomContainer: {
-    backgroundColor: 'white',
-    borderBottomLeftRadius: 10,
-    borderBottomRightRadius: 10,
-    padding: 10,
+  roundBtn: {
+    backgroundColor: 'rgba(0,0,0,0.45)',
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  heroBottomOverlay: {
+    position: 'absolute',
+    left: 12,
+    right: 12,
+    bottom: 12,
+    zIndex: 2,
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    gap: 12,
+  },
+  heroTitle: {
+    color: '#fff',
+    fontSize: 20,
+    fontWeight: '700',
+  },
+  heroMetaRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 6,
+  },
+  heroMetaText: {
+    color: '#eee',
+    fontSize: 13,
+  },
+  ratingCard: {
+    minWidth: 90,
+    alignSelf: 'flex-end',
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    paddingVertical: 8,
+    paddingHorizontal: 10,
+    borderRadius: 10,
+  },
+  ratingTop: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    justifyContent: 'center',
+  },
+  ratingValue: {
+    color: '#fff',
+    fontWeight: '700',
+    fontSize: 16,
+  },
+  ratingCount: {
+    color: '#ddd',
+    fontSize: 12,
+    textAlign: 'center',
+    marginTop: 2,
+  },
+  
+  reviewBoxUpperContainer: {
     flexDirection: 'row',
   },
+  
   reviewText: {
     fontFamily: 'outfit',
     color: 'white',
+    fontSize: 14,
     fontSize: 14,
     marginRight: 7,
   },
@@ -291,6 +350,8 @@ reviewBox: {
   contentContainer: {
     // bottom:90,
     // padding: 16,
+    // bottom:90,
+    // padding: 16,
   },
   titleContainer: {
     flexDirection: 'row',
@@ -301,6 +362,7 @@ reviewBox: {
   ratingContainer: {
     flexDirection: 'row',
     alignItems: 'center',
+    // marginBottom: 12,
     // marginBottom: 12,
   },
   rating: {
@@ -460,16 +522,17 @@ reviewBox: {
   },
   menuList: {
     padding: 10,
+    padding: 10,
 
   },
   menuItem: {
-    marginBottom: 10,
+    marginBottom: 5,
     backgroundColor: '#f7f7f7ff',
     elevation: 2,
     overflow: 'hidden',
     flexDirection: 'row',
     alignItems: 'stretch',
-    padding:15,
+    padding:5,
       borderColor:'#c1c1c1ff',
     borderWidth:0.5,
     borderRadius: 12,
@@ -485,10 +548,13 @@ reviewBox: {
     resizeMode: 'cover',
     borderColor:'#424242ff',
     borderWidth:1,
+    borderColor:'#424242ff',
+    borderWidth:1,
     borderRadius: 12,
   },
   menuItemContent: {
     flex: 1,
+    paddingHorizontal: 20,
     paddingHorizontal: 20,
     paddingVertical: 10,
     justifyContent: 'space-between',
@@ -568,6 +634,17 @@ reviewBox: {
   //   paddingVertical: 5,
   //   height: 30,
   // },
+  // addButtonc: {
+  //   bottom: 15,
+  //   // left:10,
+  //   // paddingBottom:10,
+  //   borderRadius: 10,
+  //   // backgroundColor: '#FF4B3f',
+  //   // width:130,
+  //   paddingHorizontal: 40,
+  //   paddingVertical: 5,
+  //   height: 30,
+  // },
   addButtonActive: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -582,6 +659,7 @@ reviewBox: {
     textAlign:'center'
   },
   addButtonLabelc: {
+    paddingBottom: 10,
     paddingBottom: 10,
     // color: '#fff',
     fontWeight: 'bold',
@@ -873,8 +951,8 @@ reviewBox: {
     separatorRow: {
 		flexDirection: 'row',
 		alignItems: 'center',
-		marginTop: 10,
-    marginBottom: 10
+		marginTop: 5,
+    marginBottom: 5
 	  },
   line: {
     flex: 1,
