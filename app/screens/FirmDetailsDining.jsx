@@ -2,7 +2,6 @@ import { View, Text, FlatList, TouchableOpacity, Linking, Platform, Modal, SafeA
 import { LinearGradient } from 'expo-linear-gradient'
 import React, { useEffect, useState } from 'react'
 import { useGlobalSearchParams, useRouter } from 'expo-router'
-import { styles } from '@/styles/FirmDetailsDiningStyles'
 import ProductCard from '@/components/ProductCard'
 import axios from 'axios'
 import { AntDesign, Feather, FontAwesome, FontAwesome5, Ionicons, MaterialIcons } from '@expo/vector-icons'
@@ -11,6 +10,7 @@ import ReviewCard from '@/components/ReviewCard'
 import ImageGallery from '@/components/ImageGallery'
 import MiniRecommendedCard from '@/components/MiniRecommendedCard'
 import { useSafeNavigation } from '@/hooks/navigationPage'
+import { styles } from '../../styles/FirmDetailsDiningStyles'
 
 import { API_CONFIG } from '../../config/apiConfig';
 const API_URL = API_CONFIG.BACKEND_URL;
@@ -409,28 +409,28 @@ export default function FirmDetailsDining() {
 
   if (loading) {
     return (
-      <SafeAreaView style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="red" />
-        <Text style={styles.loadingText}>Loading service details...</Text>
+      <SafeAreaView className="flex-1 justify-center items-center bg-background">
+        <ActivityIndicator size="large" color="#FF002E" />
+        <Text className="text-textsecondary font-outfit mt-4">Loading service details...</Text>
       </SafeAreaView>
     )
   }
 
   if (error) {
     return (
-      <View style={styles.container}>
-        <Text>Error: {error}</Text>
+      <View className="flex-1 bg-background">
+        <Text className="text-primary font-outfit p-4">Error: {error}</Text>
       </View>
     )
   }
 
   return (
-    <View style={styles.container}>
+    <View className="flex-1 bg-background">
       <FlatList
         data={categories}
         ListHeaderComponent={
           <View>
-            <View style={styles.imageContainer}>
+            <View className="relative h-80">
               <ImageGallery
                 style={{ backgroundColor: "rgba(0, 0, 0, 0.63)" }}
                 images={
@@ -447,11 +447,11 @@ export default function FirmDetailsDining() {
                 start={{ x: 0.5, y: 0.5 }}
                 end={{ x: 0.5, y: 1 }}
               />
-              <View style={styles.upperPannel}>
-                <TouchableOpacity onPress={() => router.back()} style={{ borderRadius: "100%", backgroundColor: "#00000066", padding: 2, alignItems: "center", justifyContent: "center" }}>
+              <View className="absolute top-4 left-4 right-4 flex-row justify-between items-center z-10">
+                <TouchableOpacity onPress={() => router.back()} className="rounded-full bg-black/40 p-2 items-center justify-center">
                   <Ionicons name='chevron-back' size={28} color='white' />
                 </TouchableOpacity>
-                <View style={styles.rightPannel}></View>
+                <View></View>
               </View>
               <View style={styles.bottomPannel}>
                 <LinearGradient
@@ -522,15 +522,15 @@ export default function FirmDetailsDining() {
                 </LinearGradient>
               </View>
             </View>
-            <View style={styles.buttonViewContainer}>
-              <TouchableOpacity style={styles.button} onPress={togglePopup}>
-                <Text style={styles.buttonText}>Book a table</Text>
+            <View className="flex-row items-center justify-between p-4 bg-white border-b border-border">
+              <TouchableOpacity className="flex-1 bg-primary py-3 rounded-lg mr-3" onPress={togglePopup}>
+                <Text className="text-white text-center font-outfit-bold">Book a table</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.button2} onPress={() => Linking.openURL(`https://www.google.com/maps/search/?api=1&query=${firmDetails?.restaurantInfo?.name || "Restaurant"}`)}>
-                <FontAwesome5 name='directions' size={22} color='#E03A48' />
+              <TouchableOpacity className="p-3 border border-primary rounded-lg mr-2" onPress={() => Linking.openURL(`https://www.google.com/maps/search/?api=1&query=${firmDetails?.restaurantInfo?.name || "Restaurant"}`)}>
+                <FontAwesome5 name='directions' size={22} color='#FF002E' />
               </TouchableOpacity>
-              <TouchableOpacity style={styles.button2} onPress={() => makeCall(firmDetails?.restaurantInfo?.phoneNo || '0123456789')}>
-                <MaterialIcons name="call" size={22} color="#E03A48" />
+              <TouchableOpacity className="p-3 border border-primary rounded-lg" onPress={() => makeCall(firmDetails?.restaurantInfo?.phoneNo || '0123456789')}>
+                <MaterialIcons name="call" size={22} color="#FF002E" />
               </TouchableOpacity>
             </View>
             <View style={styles.filterBox}>
@@ -665,20 +665,20 @@ export default function FirmDetailsDining() {
       />
 
       <Modal transparent visible={isPopupVisible} animationType="slide" onRequestClose={togglePopup}>
-        <View style={styles.modalOverlay}>
-          <View style={styles.popup}>
-            <Text style={styles.popupTitle}>Choose Number of Guests</Text>
-            <View style={styles.guestControls}>
-              <TouchableOpacity style={styles.guestButton} onPress={() => setGuests(Math.max(1, guests - 1))}>
-                <Text style={styles.guestButtonText}>-</Text>
+        <View className="flex-1 justify-center items-center bg-black/50">
+          <View className="bg-white rounded-lg p-6 mx-4 w-80">
+            <Text className="text-textprimary text-lg font-outfit-bold text-center mb-6">Choose Number of Guests</Text>
+            <View className="flex-row items-center justify-center mb-6">
+              <TouchableOpacity className="bg-border w-10 h-10 rounded-full items-center justify-center" onPress={() => setGuests(Math.max(1, guests - 1))}>
+                <Text className="text-textprimary text-xl font-outfit-bold">-</Text>
               </TouchableOpacity>
-              <Text style={styles.guestCount}>{guests}</Text>
-              <TouchableOpacity style={styles.guestButton} onPress={() => setGuests(guests + 1)}>
-                <Text style={styles.guestButtonText}>+</Text>
+              <Text className="text-textprimary text-2xl font-outfit-bold mx-8">{guests}</Text>
+              <TouchableOpacity className="bg-border w-10 h-10 rounded-full items-center justify-center" onPress={() => setGuests(guests + 1)}>
+                <Text className="text-textprimary text-xl font-outfit-bold">+</Text>
               </TouchableOpacity>
             </View>
-            <TouchableOpacity style={styles.proceedButton} onPress={handleProceed}>
-              <Text style={styles.proceedButtonText}>Proceed</Text>
+            <TouchableOpacity className="bg-primary py-3 rounded-lg" onPress={handleProceed}>
+              <Text className="text-white text-center font-outfit-bold">Proceed</Text>
             </TouchableOpacity>
           </View>
         </View>

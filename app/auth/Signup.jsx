@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Alert } from "react-native";
+import { View, Text, TextInput, TouchableOpacity, ScrollView, Alert } from "react-native";
 import axios from "axios";
 import { useNavigation } from "@react-navigation/native";
 import { Eye, EyeOff, Loader2, X as CloseIcon } from "lucide-react-native";
@@ -114,34 +114,34 @@ const handleSignup = async () => {
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Sign Up</Text>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.closeButton}>
+    <ScrollView contentContainerStyle={{ flexGrow: 1, padding: 20, backgroundColor: '#fff' }}>
+      <View className="flex-row justify-between items-center mb-5">
+        <Text className="text-2xl font-bold text-textprimary">Sign Up</Text>
+        <TouchableOpacity onPress={() => navigation.goBack()} className="p-1">
           <CloseIcon size={20} color="#000" />
         </TouchableOpacity>
       </View>
 
-      {error ? <Text style={styles.errorText}>{error}</Text> : null}
+      {error ? <Text className="text-red-500 mb-2.5 text-center">{error}</Text> : null}
 
       <TextInput
-        style={styles.inputField}
+        className="h-12 border border-border rounded-2xl px-4 mb-4 text-base"
         placeholder="Username"
         value={formData.username}
         onChangeText={(text) => handleChange("username", text)}
       />
 
       <TextInput
-        style={styles.inputField}
+        className="h-12 border border-border rounded-2xl px-4 mb-4 text-base"
         placeholder="Email Address"
         keyboardType="email-address"
         value={formData.email}
         onChangeText={(text) => handleChange("email", text)}
       />
 
-      <View style={styles.passwordInputContainer}>
+      <View className="flex-row items-center mb-4">
         <TextInput
-          style={[styles.inputField, { flex: 1 }]}
+          className="flex-1 h-12 border border-border rounded-2xl px-4 text-base"
           placeholder="Password"
           secureTextEntry={!showPassword}
           value={formData.password}
@@ -149,218 +149,79 @@ const handleSignup = async () => {
         />
         <TouchableOpacity
           onPress={() => setShowPassword((prev) => !prev)}
-          style={styles.eyeButton}
+          className="absolute right-4 p-2.5"
         >
           {showPassword ? <EyeOff size={18} color="#666" /> : <Eye size={18} color="#666" />}
         </TouchableOpacity>
       </View>
 
-      <View style={styles.checkboxContainer}>
+      <View className="flex-row items-center mb-5">
         <TouchableOpacity
-          style={[styles.checkbox, formData.accept && styles.checked]}
+          className={`w-5 h-5 border border-primary rounded mr-2.5 justify-center items-center ${
+            formData.accept ? 'bg-primary' : ''
+          }`}
           onPress={handleCheckboxChange}
         >
-          {formData.accept && <Text style={styles.checkmark}>✓</Text>}
+          {formData.accept && <Text className="text-white text-xs">✓</Text>}
         </TouchableOpacity>
-        <Text style={styles.checkboxLabel}>I agree to the Terms and Privacy Policies</Text>
+        <Text className="text-sm text-textsecondary">I agree to the Terms and Privacy Policies</Text>
       </View>
 
       <TouchableOpacity
-        style={styles.submitButton}
+        className="bg-primary p-4 rounded-2xl items-center mb-5"
         onPress={handleSignup}
         disabled={loading}
       >
         {loading ? (
-          <Loader2 size={18} color="#fff" style={styles.spinner} />
+          <Loader2 size={18} color="#fff" />
         ) : (
-          <Text style={styles.buttonText}>Create Account</Text>
+          <Text className="text-white text-base font-bold">Create Account</Text>
         )}
       </TouchableOpacity>
 
-      <View style={styles.divider}>
-        <View style={styles.dividerLine} />
-        <Text style={styles.dividerText}>or</Text>
-        <View style={styles.dividerLine} />
+      <View className="flex-row items-center my-5">
+        <View className="flex-1 h-px bg-border" />
+        <Text className="mx-2.5 text-textsecondary">or</Text>
+        <View className="flex-1 h-px bg-border" />
       </View>
 
    <TouchableOpacity
-  style={[styles.socialButton, styles.googleButton]}
+  className="flex-row items-center justify-center p-3 rounded-2xl mb-2.5 bg-white border border-border"
   onPress={signupWithGoogle}
   disabled={loading}
 >
   <MaterialIcons name="google" size={20} color="#DB4437" />
-  <Text style={styles.socialButtonText}>Continue with Google</Text>
+  <Text className="ml-2.5 text-base text-textprimary">Continue with Google</Text>
 </TouchableOpacity>
 
 <TouchableOpacity
-  style={[styles.socialButton, styles.twitterButton]}
+  className="flex-row items-center justify-center p-3 rounded-2xl mb-2.5 bg-white border border-border"
   onPress={signupWithTwitter}
   disabled={loading}
 >
   <FontAwesome name="twitter" size={20} color="#1DA1F2" />
-  <Text style={styles.socialButtonText}>Continue with Twitter</Text>
+  <Text className="ml-2.5 text-base text-textprimary">Continue with Twitter</Text>
 </TouchableOpacity>
 
 <TouchableOpacity
-  style={[styles.socialButton, styles.facebookButton]}
+  className="flex-row items-center justify-center p-3 rounded-2xl mb-2.5 bg-white border border-border"
   onPress={signupWithFacebook}
   disabled={loading}
 >
   <FontAwesome name="facebook" size={20} color="#1877F2" />
-  <Text style={styles.socialButtonText}>Continue with Facebook</Text>
+  <Text className="ml-2.5 text-base text-textprimary">Continue with Facebook</Text>
 </TouchableOpacity>
 
-      <View style={styles.loginPrompt}>
-        <Text>Already have an account? </Text>
+      <View className="flex-row justify-center mt-5">
+        <Text className="text-textprimary">Already have an account? </Text>
         <TouchableOpacity onPress={openLoginModal} disabled={loading}>
-          <Text style={styles.loginLink}>Log In</Text>
+          <Text className="text-blue-600 font-bold">Log In</Text>
         </TouchableOpacity>
       </View>
     </ScrollView>
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flexGrow: 1,
-    padding: 20,
-    backgroundColor: "#fff",
-  },
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 20,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: "bold",
-  },
-  closeButton: {
-    padding: 5,
-  },
-  errorText: {
-    color: "red",
-    marginBottom: 10,
-    textAlign: "center",
-  },
-  inputField: {
-    height: 50,
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 8,
-    paddingHorizontal: 15,
-    marginBottom: 15,
-    fontSize: 16,
-  },
-  passwordInputContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 15,
-  },
-  eyeButton: {
-    position: "absolute",
-    right: 15,
-    padding: 10,
-  },
-  checkboxContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 20,
-  },
-  checkbox: {
-    width: 20,
-    height: 20,
-    borderWidth: 1,
-    borderColor: "red",
-    borderRadius: 4,
-    marginRight: 10,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  checked: {
-    backgroundColor: "red",
-  },
-  checkmark: {
-    color: "#fff",
-    fontSize: 12,
-  },
-  checkboxLabel: {
-    fontSize: 14,
-    color: "#555",
-  },
-  submitButton: {
-    backgroundColor: "red",
-    padding: 15,
-    borderRadius: 8,
-    alignItems: "center",
-    marginBottom: 20,
-  },
-  buttonText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-spinner: {
-    animationDuration: "1s",
-    animationIterationCount: "infinite",
-    animationKeyframes: [
-        { 
-            from: { transform: [{ rotate: "0deg" }] }, 
-            to: { transform: [{ rotate: "360deg" }] } 
-        }
-    ]
-},
-  divider: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginVertical: 20,
-  },
-  dividerLine: {
-    flex: 1,
-    height: 1,
-    backgroundColor: "#ccc",
-  },
-  dividerText: {
-    marginHorizontal: 10,
-    color: "#666",
-  },
-  socialButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    padding: 12,
-    borderRadius: 8,
-    marginBottom: 10,
-  },
-  googleButton: {
-    backgroundColor: "#fff",
-    borderWidth: 1,
-    borderColor: "#ccc",
-  },
-  twitterButton: {
-    backgroundColor: "#fff",
-    borderWidth: 1,
-    borderColor: "#ccc",
-  },
-  facebookButton: {
-    backgroundColor: "#fff",
-    borderWidth: 1,
-    borderColor: "#ccc",
-  },
-  socialButtonText: {
-    marginLeft: 10,
-    fontSize: 16,
-  },
-  loginPrompt: {
-    flexDirection: "row",
-    justifyContent: "center",
-    marginTop: 20,
-  },
-  loginLink: {
-    color: "#4f46e5",
-    fontWeight: "bold",
-  },
-});
+
 
 export default Signup;

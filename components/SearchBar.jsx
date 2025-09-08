@@ -1,31 +1,31 @@
 // SearchBar.jsx
 import React from 'react';
-import { View, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
+import { View, TextInput, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { MaterialCommunityIcons, MaterialIcons,Feather } from '@expo/vector-icons';
 
 export default function SearchBar({ query, setQuery, isLoading, placeholder, onVoicePress }) {
   return (
-    <View style={styles.container}>
-      <View style={styles.searchBar}>
+    <View className="w-4/5 self-center my-2.5">
+      <View className="flex-row items-center bg-white rounded-3xl border border-border px-3 py-2 shadow-sm">
         <MaterialCommunityIcons 
           name="magnify" 
           size={24} 
           color="#6B7280" 
-          style={styles.searchIcon}
+          className="mr-2"
         />
         <TextInput
           placeholder={placeholder || "Search restaurants..."}
           value={query}
           onChangeText={setQuery}
-          style={styles.textInput}
+          className="flex-1 text-base text-textprimary font-outfit min-h-10 py-2"
           autoCorrect={false}
           autoCapitalize="none"
           returnKeyType="search"
         />
-        <View style={styles.divider} />
+        <View className="w-px h-8 bg-border mx-2" />
         <TouchableOpacity 
           onPress={onVoicePress}
-          style={styles.micButton}
+          className="p-1"
         >
           {isLoading ? (
             <ActivityIndicator size="small" color="#3B82F6" />
@@ -37,46 +37,3 @@ export default function SearchBar({ query, setQuery, isLoading, placeholder, onV
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    width: '80%',
-    alignSelf: 'center',
-    marginVertical: 10,
-  },
-  searchBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#E5E7EB',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
-  },
-  searchIcon: {
-    marginRight: 8,
-  },
-  textInput: {
-    flex: 1,
-    fontSize: 16,
-    color: '#1F2937',
-    fontFamily: 'outfit',
-    minHeight: 40,
-    paddingVertical: 8,
-  },
-  divider: {
-    width: 1,
-    height: 30,
-    backgroundColor: '#E5E7EB',
-    marginHorizontal: 8,
-  },
-  micButton: {
-    padding: 4,
-  },
-});

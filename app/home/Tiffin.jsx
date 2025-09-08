@@ -19,7 +19,6 @@ import { MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
 import { useRouter, useFocusEffect } from 'expo-router';
 import TiffinCard from '../../components/TiffinCard';
 import SearchBar from '../../components/SearchBar';
-import styles from '../../styles/tiffinstyle';
 import LocationHeader from '@/components/HomeHeader';
 import axios from 'axios';
 import MinTiffinCard from '../../components/minCardTiffin';
@@ -112,10 +111,10 @@ export default function Tiffin() {
 
   const SectionTitleWithLines = ({ title }) => {
     return (
-      <View style={styles.titleContainer}>
-        <View style={styles.line} />
-        <Text style={styles.sectionTitleText}>{title}</Text>
-        <View style={styles.line} />
+      <View className="flex-row items-center my-4">
+        <View className="flex-1 h-px bg-primary" />
+        <Text className="font-outfit text-xs text-textprimary mx-2">{title}</Text>
+        <View className="flex-1 h-px bg-primary" />
       </View>
     );
   };
@@ -545,16 +544,16 @@ const FetchRecentlyViewData = useCallback(async () => {
   const renderSection = ({ title, subtitle, data, viewAllRoute, emptyMessage, isVertical, customSubtitleComponent }) => {
     if (!data || data.length === 0) {
       return (
-        <View style={styles.sectionContainer}>
-          <Text style={styles.emptyMessage}>{emptyMessage}</Text>
+        <View className="p-4">
+          <Text className="text-center text-textsecondary">{emptyMessage}</Text>
         </View>
       );
     }
 
     return (
-      <View style={styles.sectionContainer}>
+      <View className="mb-4">
         <SectionTitleWithLines title={title} />
-        <View style={styles.sectionHeader}>
+        <View className="flex-row justify-between items-center mb-2">
           {viewAllRoute && (
             <TouchableOpacity onPress={() => safeNavigation({
               pathname: viewAllRoute,
@@ -564,7 +563,6 @@ const FetchRecentlyViewData = useCallback(async () => {
                 searchQuery
               }
             })}>
-              {/* <Text style={styles.viewAllText}>View All</Text> */}
             </TouchableOpacity>
           )}
         </View>
@@ -576,7 +574,7 @@ const FetchRecentlyViewData = useCallback(async () => {
           horizontal={!isVertical}
           showsHorizontalScrollIndicator={!isVertical}
           scrollEnabled={true}
-          contentContainerStyle={isVertical ? styles.verticalListContainer : styles.horizontalListContainer}
+          contentContainerStyle={isVertical ? { paddingBottom: 20 } : { paddingHorizontal: 10 }}
         />
       </View>
     );
@@ -585,7 +583,7 @@ const FetchRecentlyViewData = useCallback(async () => {
   const renderMainContent = () => {
     if (isSearching) {
       return (
-        <View style={styles.loadingContainer}>
+        <View className="flex-1 justify-center items-center">
           <ActivityIndicator size="large" color="#e23845" />
         </View>
       );
@@ -593,13 +591,13 @@ const FetchRecentlyViewData = useCallback(async () => {
 
     if (query.trim() && searchResults.length === 0 && !isSearching) {
       return (
-        <View style={styles.emptyContainer}>
-          <Text style={styles.emptyText}>No results found for "{query}"</Text>
+        <View className="flex-1 justify-center items-center p-4">
+          <Text className="text-center text-textsecondary mb-4">No results found for "{query}"</Text>
           <TouchableOpacity
-            style={styles.retryButton}
+            className="bg-primary px-6 py-3 rounded-2xl"
             onPress={() => setQuery('')}
           >
-            <Text style={styles.retryButtonText}>Clear Search</Text>
+            <Text className="text-white font-outfit-bold">Clear Search</Text>
           </TouchableOpacity>
         </View>
       );
@@ -632,35 +630,33 @@ const FetchRecentlyViewData = useCallback(async () => {
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
-          style={styles.quickFiltersContainer}
-          contentContainerStyle={styles.quickFiltersContent}
+          className="mb-4"
+          contentContainerStyle={{ paddingHorizontal: 16 }}
         >
           <Pressable
-            style={styles.filterButton}
+            className="flex-row items-center px-3 py-2 mr-2 rounded-full border border-primary"
             onPress={() => setShowFilters(true)}
           >
             <MaterialCommunityIcons name="filter" size={20} color="#e23845" />
-            <Text style={styles.filterButtonText}>Filters</Text>
+            <Text className="ml-1 text-sm font-outfit text-textprimary">Filters</Text>
           </Pressable>
 
           {QUICK_FILTERS.map((filter) => (
             <TouchableOpacity
               key={filter.name}
-              style={[
-                styles.filterButton,
-                activeQuickFilters.includes(filter.name) && styles.activeQuickFilter
-              ]}
+              className={`flex-row items-center px-3 py-2 mr-2 rounded-full border border-primary ${
+                activeQuickFilters.includes(filter.name) ? 'bg-primary' : ''
+              }`}
               onPress={() => handleQuickFilter(filter.name)}
             >
               <MaterialCommunityIcons
                 name={filter.icon}
                 size={16}
-                color={activeQuickFilters.includes(filter.name) ? '#e23845' : '#666'}
+                color={activeQuickFilters.includes(filter.name) ? '#fff' : '#666'}
               />
-              <Text style={[
-                styles.quickFilterText,
-                activeQuickFilters.includes(filter.name) && styles.activeQuickFilterText
-              ]}>
+              <Text className={`ml-1 text-sm font-outfit ${
+                activeQuickFilters.includes(filter.name) ? 'text-white' : 'text-textprimary'
+              }`}>
                 {filter.name}
               </Text>
             </TouchableOpacity>
@@ -755,7 +751,7 @@ const FetchRecentlyViewData = useCallback(async () => {
 
   if (isLoading) {
     return (
-      <View style={styles.loadingContainer}>
+      <View className="flex-1 justify-center items-center">
         <ActivityIndicator size="large" color="#e23845" />
       </View>
     );
@@ -776,37 +772,35 @@ const FetchRecentlyViewData = useCallback(async () => {
   // }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView className="flex-1 bg-background">
       {/* Header Section */}
-      <View style={styles.headerSection}>
-        <View style={styles.topContainer}>
-          <View style={styles.locationContainer}>
+      <View className="bg-white p-4">
+        <View className="flex-row justify-between items-center">
+          <View className="flex-1">
             <LocationHeader />
           </View>
-          <View style={{ display: "flex", flexDirection: "row", marginRight: 10, marginTop: 10, }}>
+          <View className="flex-row mr-2.5 mt-2.5">
             <TouchableOpacity
-              style={styles.profileButton}
               onPress={() => router.push('/screens/NoficationsPage')}
             >
-              <Ionicons name='notifications-circle-sharp' size={38} style={{ color: '#e23845', marginRight: 10 }} />
+              <Ionicons name='notifications-circle-sharp' size={38} color='#e23845' style={{ marginRight: 10 }} />
             </TouchableOpacity>
             <TouchableOpacity
-              style={styles.profileButton}
               onPress={() => router.push('/screens/User')}
             >
-              <Ionicons name='person-circle' size={40} style={{ color: '#e23845' }} />
+              <Ionicons name='person-circle' size={40} color='#e23845' />
             </TouchableOpacity>
           </View>
         </View>
-        <View style={styles.searchAndVegContainer}>
+        <View className="flex-row items-center justify-between mt-4">
           <SearchBar
             query={query}
             setQuery={setQuery}
             onSearch={handleSearch}
           />
-          <View style={styles.vegFilterContainer}>
-            <Text style={styles.vegFilterText}>Veg</Text>
-            <Text style={styles.vegFilterText2}>Mode</Text>
+          <View className="flex-col items-center justify-start ml-2.5">
+            <Text className="text-base font-outfit-medium text-textsecondary text-center">Veg</Text>
+            <Text className="text-sm font-outfit-bold text-textsecondary text-center">Mode</Text>
             <Switch
               trackColor={{ false: "#767577", true: "#8BC34A" }}
               thumbColor="#f4f3f4"
@@ -827,22 +821,22 @@ const FetchRecentlyViewData = useCallback(async () => {
             animationType="fade"
             onRequestClose={() => setIsModalVisible(false)}
           >
-            <View style={styles.modalBackground}>
-              <View style={styles.modalV}>
-                <View style={styles.imageView}>
+            <View className="bg-black/50 flex-1 justify-center">
+              <View className="bg-white rounded-2.5 flex-col mx-5 p-2.5 items-center">
+                <View className="mt-2.5 justify-center items-center">
                   <Image
-                    style={styles.imageE}
+                    className="h-18 w-18"
                     source={require('../../assets/images/error1.png')}
                   />
                 </View>
-                <Text style={{ color: "black", fontWeight: "bold", fontSize: 20, marginTop: 5 }}>Switch off Veg Mode?</Text>
-                <Text style={{ color: "black", fontWeight: "400", marginTop1: 10, fontSize: 15, marginTop: 10 }}>You'll see all restaurants, including those</Text>
-                <Text >serving non-veg dishes</Text>
+                <Text className="text-textprimary font-bold text-xl mt-1">Switch off Veg Mode?</Text>
+                <Text className="text-textprimary font-normal text-base mt-2.5">You'll see all restaurants, including those</Text>
+                <Text className="text-textprimary">serving non-veg dishes</Text>
                 <TouchableOpacity onPress={() => setIsModalVisible(false)}>
-                  <Text style={{ color: "red", fontSize: 15, fontWeight: "500", marginTop: 20 }}>Switch off</Text>
+                  <Text className="text-red-500 text-base font-medium mt-5">Switch off</Text>
                 </TouchableOpacity>
-                <TouchableOpacity onPress={handleKeepUsing} style={styles.KeepUsingButton}>
-                  <Text style={{ color: "black", fontSize: 15, fontWeight: "500" }}>keep using it</Text>
+                <TouchableOpacity onPress={handleKeepUsing} className="p-2.5 mx-2.5 bg-white rounded-lg mt-2.5 justify-center items-center">
+                  <Text className="text-textprimary text-base font-medium">keep using it</Text>
                 </TouchableOpacity>
               </View>
             </View>

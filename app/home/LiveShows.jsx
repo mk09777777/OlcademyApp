@@ -1,6 +1,5 @@
 import { View, Text, FlatList, ImageBackground, TouchableOpacity, Image } from 'react-native'
 import React from 'react'
-import { styles } from '@/styles/LiveShowsStyles'
 import { Ionicons } from '@expo/vector-icons'
 import SearchBar from '@/components/SearchBar'
 import { useRouter } from 'expo-router'
@@ -40,51 +39,36 @@ export default function LiveShows() {
     return parseInt(parts[2], 10)
   }
   return (
-    <View
-      style={styles.container}
-    >
-      <View
-        style={styles.upperPannel}
-      >
-        <Text
-          style={styles.headerText}
-        >
+    <View className="flex-1 bg-white p-4">
+      <View className="flex-row justify-between items-center mb-4">
+        <Text className="text-2xl font-outfit-bold text-textprimary">
           Explore Events
         </Text>
         <TouchableOpacity 
-                       style={styles.profileButton}
                        onPress={() => safeNavigation('/screens/User')}
                      >
-                      <Ionicons name='person-circle' size={40} style={{color: '#e23845'}}/>
+                      <Ionicons name='person-circle' size={40} color='#e23845'/>
                      </TouchableOpacity>
       </View>
       <SearchBar/>
-      <View
-        style={styles.separatorRow}
-      >
-        <View 
-          style={styles.line}
-        />
-        <Text
-          style={styles.separatorText}
-        >
+      <View className="flex-row items-center mt-2.5 mb-2.5">
+        <View className="flex-1 h-px bg-primary" />
+        <Text className="font-outfit text-xs text-textprimary mx-2">
           FEATURED
         </Text>
-        <View 
-          style={styles.line}
-        />
+        <View className="flex-1 h-px bg-primary" />
       </View>
       <View>
         <FlatList
           horizontal={true}
           showsHorizontalScrollIndicator={false}
           pagingEnabled={true}
-          contentContainerStyle={styles.featuredContainer}
+          contentContainerStyle={{ paddingHorizontal: 10 }}
           keyExtractor={(item) => item.id}
           data={Events}
           renderItem={({ item }) => (
             <TouchableOpacity
-              style={styles.featuredCard}
+              className="w-80 h-48 mx-2"
               onPress={() => {
                 safeNavigation({
                   pathname: 'screens/EventDetails',
@@ -94,38 +78,24 @@ export default function LiveShows() {
             >
               <ImageBackground 
                 source={item.image} 
-                style={styles.featured}
+                className="w-full h-full rounded-5xl overflow-hidden"
                 borderRadius={20}
               >
-                <View
-                  style={styles.dateCardContainer}
-                >
-                  <View
-                    style={styles.dateCard}
-                  >
-                    <Text
-                      style={styles.month}
-                    >
+                <View className="absolute top-4 left-4">
+                  <View className="bg-white rounded-lg p-2 items-center">
+                    <Text className="text-xs font-outfit-bold text-primary">
                       {getMonth(item.startingTime)}
                     </Text>
-                    <Text
-                      style={styles.day}
-                    >
+                    <Text className="text-lg font-outfit-bold text-textprimary">
                       {getDay(item.startingTime)}
                     </Text>
                   </View>
                 </View>
-                <View
-                  style={styles.featuredCardBottom}
-                >
-                  <Text
-                    style={styles.featuredEventType}
-                  >
+                <View className="absolute bottom-4 left-4 right-4">
+                  <Text className="text-xs font-outfit text-white mb-1">
                     {item.type}
                   </Text>
-                  <Text
-                    style={styles.featuredEventTitle}
-                  >
+                  <Text className="text-xl font-outfit-bold text-white">
                     {item.title}
                   </Text>
                 </View>
@@ -134,31 +104,21 @@ export default function LiveShows() {
           )}
         />
       </View>
-      <View
-        style={styles.container1}
-      >
-        <View
-          style={styles.separatorRow}
-        >
-          <View 
-            style={styles.line}
-          />
-          <Text
-            style={styles.separatorText}
-          >
+      <View className="flex-1 mt-4">
+        <View className="flex-row items-center mt-2.5 mb-2.5">
+          <View className="flex-1 h-px bg-primary" />
+          <Text className="font-outfit text-xs text-textprimary mx-2">
             ALL SHOWS
           </Text>
-          <View 
-            style={styles.line}
-          />
+          <View className="flex-1 h-px bg-primary" />
         </View>
         <FlatList
-        contentContainerStyle={styles.allShowsContainer}
+        contentContainerStyle={{ paddingBottom: 20 }}
         keyExtractor={(item) => item.id}
         data={Events}
         renderItem={({ item }) => (
           <TouchableOpacity
-            style={styles.allShowsCard}
+            className="flex-row bg-white rounded-3xl mb-4 p-4 shadow-sm"
             onPress={() => {
               safeNavigation({
                 pathname: 'screens/EventDetails',
@@ -168,24 +128,16 @@ export default function LiveShows() {
           >
             <Image 
               source={item.image} 
-              style={styles.allShowsImage}
+              className="w-20 h-20 rounded-2xl"
             />
-            <View
-              style={styles.allShowsCardDetails}
-            >
-              <Text
-                style={styles.allShowsCardType}
-              >
+            <View className="flex-1 ml-4 justify-center">
+              <Text className="text-xs font-outfit text-primary mb-1">
                 {item.type}
               </Text>
-              <Text
-                style={styles.allShowsCardTitle}
-              >
+              <Text className="text-lg font-outfit-bold text-textprimary mb-1">
                 {item.title}
               </Text>
-              <Text
-                style={styles.allShowsCardDate}
-              >
+              <Text className="text-sm font-outfit text-textsecondary">
                 {item.startingTime}
               </Text>
             </View>

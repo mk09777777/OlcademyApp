@@ -1,6 +1,6 @@
 import { View, Text, TextInput, FlatList, TouchableOpacity, Image } from 'react-native'
 import React, { useEffect, useState } from 'react'
-import { styles } from '@/styles/SelectCountryCodesStyles'
+
 import CountryList from 'country-list-with-dial-code-and-flag'
 import { Ionicons } from '@expo/vector-icons'
 import { useRouter } from 'expo-router'
@@ -28,9 +28,7 @@ export default function SelectCountryCode() {
     });
   }
   return (
-    <View
-      style={styles.container}
-    >
+    <View className="flex-1 bg-background p-4">
       <TouchableOpacity
         onPress={() => {
           router.back()
@@ -39,7 +37,7 @@ export default function SelectCountryCode() {
       <Ionicons name="arrow-back" size={24} color="black" />
       </TouchableOpacity>
       <TextInput
-        style={styles.searchBar}
+        className="bg-white border border-border rounded-lg p-3 mb-4 text-textprimary font-outfit"
         placeholder="Search for a country"
         value={searchText}
         onChangeText={handleSearch}
@@ -49,22 +47,18 @@ export default function SelectCountryCode() {
         keyExtractor={(item, index) => index.toString()}
         renderItem={({ item }) => (
           <TouchableOpacity
-            style={styles.listItem}
+            className="flex-row items-center p-4 bg-white mb-2 rounded-lg border border-border"
             onPress={() => handleSelect(item)}
           >
             <Image 
               source={require('../assets/images/food.jpg')}
-              style={styles.countryIcon}
+              className="w-8 h-8 rounded mr-3"
             >
             </Image>
-            <Text 
-              style={styles.itemText}
-            >
+            <Text className="flex-1 text-textprimary font-outfit text-base">
               {item.name}
             </Text>
-            <Text
-              style={styles.itemText}
-            >
+            <Text className="text-textsecondary font-outfit text-base">
               {item.data.dial_code}
             </Text>
           </TouchableOpacity>

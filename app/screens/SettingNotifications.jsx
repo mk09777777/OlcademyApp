@@ -1,6 +1,6 @@
 import React, { Fragment, useEffect, useRef, useState } from "react";
 import { View, Text, ScrollView, Switch, Modal, TouchableOpacity, ToastAndroid, Platform } from "react-native";
-import NotifcationStyles from "../../styles/SettingNotificationStyles";
+
 import Ionicons from '@expo/vector-icons/Ionicons';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
@@ -149,32 +149,30 @@ export default function NotificationSettings() {
                 </Modal>
             )}
 
-            <View style={NotifcationStyles.background}>
+            <View className="flex-1 bg-background">
                 <ScrollView>
-                    <View style={NotifcationStyles.NotficationContainer}>
-                        <View style={NotifcationStyles.PushnotificationContainer}>
-                            <Text style={NotifcationStyles.NotificationText}>Enable all</Text>
+                    <View className="bg-white p-4 mb-4 border-b border-border">
+                        <View className="flex-row justify-between items-center mb-2">
+                            <Text className="text-textprimary font-outfit-bold text-lg">Enable all</Text>
                             <Switch
-                                style={NotifcationStyles.togglebutton}
                                 value={enableAll}
                                 onValueChange={onToggleEnableAll}
                                 trackColor={{ false: '#767577', true: '#ffdbdf' }}
                                 thumbColor={enableAll ? '#ea4c5f' : '#fff'}
                             />
                         </View>
-                        <Text style={NotifcationStyles.NotificationText2}>Activate all notifications</Text>
+                        <Text className="text-textsecondary font-outfit text-sm">Activate all notifications</Text>
                     </View>
 
-                    <View style={NotifcationStyles.NotficationContainer2}>
-                        <Text style={NotifcationStyles.NotificationText}>Promos and offers</Text>
-                        <Text style={NotifcationStyles.NotificationText2}>Receive updates about coupons, promotions, and money-saving offers</Text>
-                        <View style={NotifcationStyles.PushnotificationContainer2}>
-                            <View style={NotifcationStyles.notificationTextcontainer}>
+                    <View className="bg-white p-4 mb-4">
+                        <Text className="text-textprimary font-outfit-bold text-lg mb-2">Promos and offers</Text>
+                        <Text className="text-textsecondary font-outfit text-sm mb-4">Receive updates about coupons, promotions, and money-saving offers</Text>
+                        <View className="flex-row justify-between items-center mb-3">
+                            <View className="flex-row items-center">
                                 <MaterialIcons name="notifications-active" size={24} color={promosPush ? "#ea4c5f" : "black"} />
-                                <Text style={NotifcationStyles.NotificationText3}>Push</Text>
+                                <Text className="text-textprimary font-outfit ml-2">Push</Text>
                             </View>
                             <Switch
-                                style={NotifcationStyles.togglebutton}
                                 value={promosPush}
                                 onValueChange={setPromosPush}
                                 trackColor={{ false: '#767577', true: '#ffdbdf' }}
@@ -183,13 +181,12 @@ export default function NotificationSettings() {
                             />
                         </View>
 
-                        <View style={NotifcationStyles.PushnotificationContainer3}>
-                            <View style={NotifcationStyles.notificationTextcontainer}>
+                        <View className="flex-row justify-between items-center">
+                            <View className="flex-row items-center">
                                 <FontAwesome5 name="whatsapp" size={24} color={promosWhatsapp ? "#ea4c5f" : "black"} />
-                                <Text style={NotifcationStyles.NotificationText3}>Whatsapp</Text>
+                                <Text className="text-textprimary font-outfit ml-2">Whatsapp</Text>
                             </View>
                             <Switch
-                                style={NotifcationStyles.togglebutton}
                                 value={promosWhatsapp}
                                 onValueChange={setPromosWhatsapp}
                                 trackColor={{ false: '#767577', true: '#ffdbdf' }}
@@ -199,16 +196,15 @@ export default function NotificationSettings() {
                         </View>
                     </View>
 
-                    <View style={NotifcationStyles.NotficationContainer2}>
-                        <Text style={NotifcationStyles.NotificationText}>Social notifications</Text>
-                        <Text style={NotifcationStyles.NotificationText2}>Get notified when someone follows you or interacts with your posts</Text>
-                        <View style={NotifcationStyles.PushnotificationContainer}>
-                            <View style={NotifcationStyles.notificationTextcontainer}>
+                    <View className="bg-white p-4 mb-4">
+                        <Text className="text-textprimary font-outfit-bold text-lg mb-2">Social notifications</Text>
+                        <Text className="text-textsecondary font-outfit text-sm mb-4">Get notified when someone follows you or interacts with your posts</Text>
+                        <View className="flex-row justify-between items-center">
+                            <View className="flex-row items-center">
                                 <MaterialIcons name="notifications-active" size={24} color={socialPush ? "#ea4c5f" : "black"} />
-                                <Text style={NotifcationStyles.NotificationText3}>Push</Text>
+                                <Text className="text-textprimary font-outfit ml-2">Push</Text>
                             </View>
                             <Switch
-                                style={NotifcationStyles.togglebutton}
                                 value={socialPush}
                                 onValueChange={setSocialPush}
                                 trackColor={{ false: '#767577', true: '#ffdbdf' }}
@@ -218,16 +214,15 @@ export default function NotificationSettings() {
                         </View>
                     </View>
 
-                    <View style={NotifcationStyles.NotficationContainer2}>
-                        <Text style={NotifcationStyles.NotificationText}>Orders and purchases</Text>
-                        <Text style={NotifcationStyles.NotificationText2}>Receive updates about your orders and memberships</Text>
-                        <View style={NotifcationStyles.PushnotificationContainer2}>
-                            <View style={NotifcationStyles.notificationTextcontainer}>
+                    <View className="bg-white p-4 mb-4">
+                        <Text className="text-textprimary font-outfit-bold text-lg mb-2">Orders and purchases</Text>
+                        <Text className="text-textsecondary font-outfit text-sm mb-4">Receive updates about your orders and memberships</Text>
+                        <View className="flex-row justify-between items-center mb-3">
+                            <View className="flex-row items-center">
                                 <MaterialIcons name="notifications-active" size={24} color={ordersPush ? "#ea4c5f" : "black"} />
-                                <Text style={NotifcationStyles.NotificationText3}>Push</Text>
+                                <Text className="text-textprimary font-outfit ml-2">Push</Text>
                             </View>
                             <Switch
-                                style={NotifcationStyles.togglebutton}
                                 value={ordersPush}
                                 onValueChange={setOrdersPush}
                                 trackColor={{ false: '#767577', true: '#ffdbdf' }}
@@ -236,13 +231,12 @@ export default function NotificationSettings() {
                             />
                         </View>
 
-                        <View style={NotifcationStyles.PushnotificationContainer3}>
-                            <View style={NotifcationStyles.notificationTextcontainer}>
+                        <View className="flex-row justify-between items-center">
+                            <View className="flex-row items-center">
                                 <FontAwesome5 name="whatsapp" size={24} color={ordersWhatsapp ? "#ea4c5f" : "black"} />
-                                <Text style={NotifcationStyles.NotificationText3}>Whatsapp</Text>
+                                <Text className="text-textprimary font-outfit ml-2">Whatsapp</Text>
                             </View>
                             <Switch
-                                style={NotifcationStyles.togglebutton}
                                 value={ordersWhatsapp}
                                 onValueChange={setOrdersWhatsapp}
                                 trackColor={{ false: '#767577', true: '#ffdbdf' }}
@@ -252,16 +246,16 @@ export default function NotificationSettings() {
                         </View>
                     </View>
 
-                    <View style={{ padding: 50 }} />
+                    <View className="p-12" />
                 </ScrollView>
 
                 {buttonActive ? (
-                    <TouchableOpacity onPress={submitNotificationSettings} style={NotifcationStyles.SavechangesButtonActive}>
-                        <Text style={NotifcationStyles.savechangesTextAtive}>Save Changes</Text>
+                    <TouchableOpacity onPress={submitNotificationSettings} className="bg-primary p-4 m-4 rounded-lg">
+                        <Text className="text-white font-outfit-bold text-center">Save Changes</Text>
                     </TouchableOpacity>
                 ) : (
-                    <View style={NotifcationStyles.SavechangesButton}>
-                        <Text style={NotifcationStyles.savechangesText}>Save Changes</Text>
+                    <View className="bg-gray-300 p-4 m-4 rounded-lg">
+                        <Text className="text-textsecondary font-outfit-bold text-center">Save Changes</Text>
                     </View>
                 )}
             </View>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, Image } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, ScrollView, Image } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import Colors from '../../components/constants/Colors';
 import { useAuth } from '../../context/AuthContext';
@@ -145,103 +145,96 @@ const ProfileScreen = () => {
 
 
   return (
-    <View style={styles.container}>
+    <View className="flex-1 bg-background">
           <BackRouting  />  
       {/* Header with Profile Image */}
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
-        <View style={styles.header}>
+      <ScrollView contentContainerStyle={{ padding: 16, paddingTop: 20 }}>
+        <View className="items-center p-5 mt-2.5">
           {user?.profilePicture ? (
             <Image
               source={{ uri: user.profilePicture }}
-              style={styles.profileImage}
+              className="w-30 h-30 rounded-full mb-2.5"
             />
           ) : (
-            <View style={styles.profileCircle}>
-              <Text style={styles.profileInitial}>{profileInitial}</Text>
-
+            <View className="w-30 h-30 rounded-full bg-light justify-center items-center border-2 border-white shadow-md">
+              <Text className="text-3xl text-primary font-outfit-bold">{profileInitial}</Text>
             </View>
           )}
-          {/* <FontAwesome6 name="edit" size={20} color="red" style={styles.editIon} /> */}
         </View>
 
 
         {/* Name Field */}
-        <View style={styles.DetailsContainer}>
-          <View style={styles.labelContainer}>
-            <AntDesign name="user" size={18} color="#f04f5f" style={styles.labelImage} />
-            <Text style={styles.label}>Name</Text>
+        <View className="p-5 flex-col justify-start mx-2.5 bg-white rounded-lg shadow-sm">
+          <View className="flex-row justify-start items-center mt-2.5">
+            <AntDesign name="user" size={18} color="#FF002E" className="ml-2.5 mt-1" />
+            <Text className="text-sm text-textsecondary mb-1 font-outfit ml-2 mt-2.5">Name</Text>
           </View>
-          <View style={styles.fieldContainer}>
+          <View className="mb-1 mx-2.5 p-2 rounded-lg border border-border flex-row justify-between items-center mt-1">
             {isEditing ? (
               <TextInput
-                style={styles.input}
+                className="text-base text-textprimary py-1 flex-1 font-outfit"
                 value={localProfile.name}
                 onChangeText={(text) => handleChange('name', text)}
               />
             ) : (
-              <Text style={styles.value}>{localProfile.name || 'Not set'}</Text>
+              <Text className="text-base text-textprimary font-outfit">{localProfile.name || 'Not set'}</Text>
             )}
           </View>
-          <View style={styles.divider} />
 
           {/* Email Field */}
-          <View style={styles.labelContainer}>
-            <Fontisto name="email" size={18} color="#f04f5f" style={styles.labelImage} />
-            <Text style={styles.label}>Email</Text>
+          <View className="flex-row justify-start items-center mt-2.5">
+            <Fontisto name="email" size={18} color="#FF002E" className="ml-2.5 mt-1" />
+            <Text className="text-sm text-textsecondary mb-1 font-outfit ml-2 mt-2.5">Email</Text>
           </View>
-          <View style={styles.fieldContainer}>
-            <View style={styles.row}>
-             
-                <Text style={styles.value}>{localProfile.email || 'Not set'}</Text>
-              
+          <View className="mb-1 mx-2.5 p-2 rounded-lg border border-border flex-row justify-between items-center mt-1">
+            <View className="flex-row items-center flex-1">
+                <Text className="text-base text-textprimary font-outfit">{localProfile.email || 'Not set'}</Text>
             </View>
           </View>
-          <View style={styles.divider} />
 
           {/* Mobile Field */}
-          <View style={styles.labelContainer}>
-            <Ionicons name="call-outline" size={18} color="#f04f5f" style={styles.labelImage} />
-            <Text style={styles.label}>Mobile</Text>
+          <View className="flex-row justify-start items-center mt-2.5">
+            <Ionicons name="call-outline" size={18} color="#f04f5f" className="ml-2.5 mt-1" />
+            <Text className="text-sm text-textsecondary mb-1 font-normal ml-2 mt-2.5">Mobile</Text>
           </View>
-          <View style={styles.fieldContainer}>
-            <View style={styles.row}>
+          <View className="mb-1 mx-2.5 p-2 rounded-2xl border border-border flex-row justify-between items-center mt-1">
+            <View className="flex-row items-center flex-1">
               {isEditing ? (
                 <TextInput
-                  style={[styles.input, styles.flex1]}
+                  className="text-base text-textprimary py-1 flex-1"
                   value={localProfile.mobile}
                   onChangeText={(text) => handleChange('mobile', text)}
                   keyboardType="phone-pad"
                 />
               ) : (
-                <Text style={styles.value}>{localProfile.mobile || 'Not set'}</Text>
+                <Text className="text-base text-textprimary font-normal">{localProfile.mobile || 'Not set'}</Text>
               )}
             </View>
             {isEditing && (
               <TouchableOpacity onPress={() => handleChange('mobile', '')}>
-                <Text style={styles.changeText}>CLEAR</Text>
+                <Text className="text-blue-500 text-sm font-medium ml-2">CLEAR</Text>
               </TouchableOpacity>
             )}
           </View>
-          <View style={styles.divider} />
 
           {/* Date of Birth Field */}
-          <View style={styles.labelContainer}>
-            <Fontisto name="date" size={18} color="#f04f5f" style={styles.labelImage} />
-            <Text style={styles.label}>Date of birth</Text>
+          <View className="flex-row justify-start items-center mt-2.5">
+            <Fontisto name="date" size={18} color="#f04f5f" className="ml-2.5 mt-1" />
+            <Text className="text-sm text-textsecondary mb-1 font-normal ml-2 mt-2.5">Date of birth</Text>
           </View>
-          <View style={styles.fieldContainer}>
+          <View className="mb-1 mx-2.5 p-2 rounded-2xl border border-border flex-row justify-between items-center mt-1">
             {isEditing ? (
               <TouchableOpacity
-                style={styles.flex1}
+                className="flex-1"
                 onPress={() => {
                   setFieldToUpdate('dob');
                   setShowDobPicker(true);
                 }}
               >
-                <Text style={styles.value}>{formatDate(localProfile.dob)}</Text>
+                <Text className="text-base text-textprimary font-normal">{formatDate(localProfile.dob)}</Text>
               </TouchableOpacity>
             ) : (
-              <Text style={styles.value}>{formatDate(localProfile.dob)}</Text>
+              <Text className="text-base text-textprimary font-normal">{formatDate(localProfile.dob)}</Text>
             )}
             {showDobPicker && (
               <DateTimePicker
@@ -252,15 +245,14 @@ const ProfileScreen = () => {
               />
             )}
           </View>
-          <View style={styles.divider} />
 
           {/* Anniversary Field */}
-          <View style={styles.labelContainer}>
-            <Fontisto name="date" size={18} color="#f04f5f" style={styles.labelImage} />
-            <Text style={styles.label}>Anniversary</Text>
+          <View className="flex-row justify-start items-center mt-2.5">
+            <Fontisto name="date" size={18} color="#f04f5f" className="ml-2.5 mt-1" />
+            <Text className="text-sm text-textsecondary mb-1 font-normal ml-2 mt-2.5">Anniversary</Text>
           </View>
-          <View style={styles.fieldContainer}>
-            <Text style={styles.value}>{formatDate(localProfile.anniversary)}</Text>
+          <View className="mb-1 mx-2.5 p-2 rounded-2xl border border-border flex-row justify-between items-center mt-1">
+            <Text className="text-base text-textprimary font-normal">{formatDate(localProfile.anniversary)}</Text>
             {showAnniversaryPicker && (
               <DateTimePicker
                 value={localProfile.anniversary}
@@ -270,57 +262,55 @@ const ProfileScreen = () => {
               />
             )}
           </View>
-          <View style={styles.divider} />
 
           {/* Gender Field */}
-          <View style={styles.labelContainer}>
-            <AntDesign name="user" size={18} color="#f04f5f" style={styles.labelImage} />
-            <Text style={styles.label}>Gender</Text>
+          <View className="flex-row justify-start items-center mt-2.5">
+            <AntDesign name="user" size={18} color="#f04f5f" className="ml-2.5 mt-1" />
+            <Text className="text-sm text-textsecondary mb-1 font-normal ml-2 mt-2.5">Gender</Text>
           </View>
           {isEditing ? (
-            <View style={styles.radioContainer}>
+            <View className="flex-row justify-between mx-2.5 mb-2.5 p-2">
               <TouchableOpacity 
-                style={styles.radioButton}
+                className="flex-row items-center"
                 onPress={() => handleChange('gender', 'Male')}
               >
-                <View style={styles.radioCircle}>
-                  {localProfile.gender === 'Male' && <View style={styles.selectedRadio} />}
+                <View className="h-5 w-5 rounded-full border-2 border-primary items-center justify-center mr-1">
+                  {localProfile.gender === 'Male' && <View className="h-2.5 w-2.5 rounded-full bg-primary" />}
                 </View>
-                <Text style={styles.radioLabel}>Male</Text>
+                <Text className="text-base text-textprimary">Male</Text>
               </TouchableOpacity>
               
               <TouchableOpacity 
-                style={styles.radioButton}
+                className="flex-row items-center"
                 onPress={() => handleChange('gender', 'Female')}
               >
-                <View style={styles.radioCircle}>
-                  {localProfile.gender === 'Female' && <View style={styles.selectedRadio} />}
+                <View className="h-5 w-5 rounded-full border-2 border-primary items-center justify-center mr-1">
+                  {localProfile.gender === 'Female' && <View className="h-2.5 w-2.5 rounded-full bg-primary" />}
                 </View>
-                <Text style={styles.radioLabel}>Female</Text>
+                <Text className="text-base text-textprimary">Female</Text>
               </TouchableOpacity>
               
               <TouchableOpacity 
-                style={styles.radioButton}
+                className="flex-row items-center"
                 onPress={() => handleChange('gender', 'Other')}
               >
-                <View style={styles.radioCircle}>
-                  {localProfile.gender === 'Other' && <View style={styles.selectedRadio} />}
+                <View className="h-5 w-5 rounded-full border-2 border-primary items-center justify-center mr-1">
+                  {localProfile.gender === 'Other' && <View className="h-2.5 w-2.5 rounded-full bg-primary" />}
                 </View>
-                <Text style={styles.radioLabel}>Other</Text>
+                <Text className="text-base text-textprimary">Other</Text>
               </TouchableOpacity>
             </View>
           ) : (
-            <View style={styles.fieldContainer}>
-              <Text style={styles.value}>{localProfile.gender || 'Not set'}</Text>
+            <View className="mb-1 mx-2.5 p-2 rounded-2xl border border-border flex-row justify-between items-center mt-1">
+              <Text className="text-base text-textprimary font-normal">{localProfile.gender || 'Not set'}</Text>
             </View>
           )}
-          <View style={styles.divider} />
         </View>
 
 
         {/* Update Button */}
-        <TouchableOpacity style={styles.updateButton} onPress={handleUpdate}>
-          <Text style={styles.updateButtonText}>
+        <TouchableOpacity className="bg-primary p-3 rounded-lg items-center mt-6 mx-2.5 shadow-sm" onPress={handleUpdate}>
+          <Text className="text-white text-base font-outfit-bold">
             {isEditing ? 'SAVE PROFILE' : 'UPDATE PROFILE'}
           </Text>
         </TouchableOpacity>
@@ -329,190 +319,6 @@ const ProfileScreen = () => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f0f0f0',
-  },
-  header: {
-    alignItems: 'center',
-    padding: 20,
-    // borderBottomWidth: 1,
-    // borderBottomColor: '#e0e0e0',
-    marginTop: 10
-  },
-  editIon: {
-    position: "absolute",
-    top: 110,
-    left: 220
-  },
-  DetailsContainer: {
-    padding: 20,
-    display: "flex",
-    flexDirection: "column",
-    justifyContent: "flex-start",
-    marginLeft: 10,
-    marginRight: 10,
-    backgroundColor: "#fff",
-    borderRadius: 10,
-    elevation: 4,
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.2,
-    shadowRadius: 5,
-  },
 
-  logo: {
-    width: 90,
-    height: 90,
-    borderRadius: 45,
-  },
-  scrollContainer: {
-    padding: 16,
-    paddingTop: 20
-  },
-  // divider: {
-  //   height: 1,
-  //   backgroundColor: '#e0e0e0',
-  //   marginVertical: 12,
-  // },
-  fieldContainer: {
-    marginBottom: 4,
-    marginLeft: 10,
-    marginRight: 10,
-    padding: 8,
-    borderRadius: 8,
-    borderWidth: 0.5,
-    borderColor: "#aeb2b8",
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginTop: 5
-  },
-  labelContainer: {
-    display: "flex",
-    flexDirection: "row",
-    justifyContent: "flex-start",
-    alignItems: "center",
-    marginTop: 10,
-    alignContent: "center"
-  },
-  label: {
-    fontSize: 14,
-    color: '#aeb2b8',
-    marginBottom: 4,
-    fontWeight: '400',
-    marginLeft: 8,
-    marginTop: 10
-  },
-  labelImage: {
-    marginLeft: 10,
-    marginTop: 5
-    // marginRight:8,
-  },
-  profileCircle: {
-    width: 120,
-    height: 120,
-    borderRadius: 80,
-    backgroundColor: '#E8F0FE',
-    justifyContent: 'center',
-    alignItems: 'center',
-    // marginTop: -85,
-    borderWidth: 3,
-    borderColor: '#fff',
-    elevation: 3,
-  },
-  profileImage: {
-    width: 120,
-    height: 120,
-    borderRadius: 80,
-    marginBottom: 10,
-  },
-  profileInitial: {
-    fontSize: 32,
-    color: Colors.primary,
-    fontWeight: 'bold',
-  },
-  value: {
-    fontSize: 16,
-    color: '#000',
-    fontWeight: '400',
-  },
-  input: {
-    fontSize: 16,
-    color: '#000',
-    paddingVertical: 4,
-    flex: 1,
-  },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flex: 1,
-  },
-  flex1: {
-    flex: 1,
-  },
-  changeText: {
-    color: '#007AFF',
-    fontSize: 14,
-    fontWeight: '500',
-    marginLeft: 8,
-  },
-  updateButton: {
-    backgroundColor: '#f04f5f',
-    padding: 12,
-    borderRadius: 10,
-    alignItems: 'center',
-    marginTop: 24,
-    marginHorizontal: 10,
-    elevation: 5,
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.2,
-    shadowRadius: 5,
-  },
-  updateButtonText: {
-    color: 'white',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  radioContainer: {
-  flexDirection: 'row',
-  justifyContent: 'space-between',
-  marginHorizontal: 10,
-  marginBottom: 10,
-  padding: 8,
-},
-radioButton: {
-  flexDirection: 'row',
-  alignItems: 'center',
-},
-radioCircle: {
-  height: 20,
-  width: 20,
-  borderRadius: 10,
-  borderWidth: 2,
-  borderColor: '#f04f5f',
-  alignItems: 'center',
-  justifyContent: 'center',
-  marginRight: 5,
-},
-selectedRadio: {
-  height: 10,
-  width: 10,
-  borderRadius: 5,
-  backgroundColor: '#f04f5f',
-},
-radioLabel: {
-  fontSize: 16,
-  color: '#000',
-},
-});
 
 export default ProfileScreen;

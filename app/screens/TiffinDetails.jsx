@@ -1,15 +1,14 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, ScrollView, TouchableOpacity, SafeAreaView, Alert, RefreshControl, ActivityIndicator, Share, Image, Dimensions, Animated } from 'react-native';
-import { Text, Button, IconButton, Chip } from 'react-native-paper';
+import { View, ScrollView, TouchableOpacity, SafeAreaView, Alert, RefreshControl, ActivityIndicator, Share, Image, Dimensions, Animated, Text } from 'react-native';
+import { Button, IconButton, Chip } from 'react-native-paper';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { MaterialCommunityIcons, Ionicons, AntDesign, FontAwesome } from '@expo/vector-icons';
 import ImageGallery from '../../components/ImageGallery';
-// import MenuImage from '../../components/MenuImage';
 import { useCart } from '../../context/CartContext';
-import styles from '../../styles/tiffinDetailsStyle';
 import axios from 'axios';
 import { API_CONFIG } from '../../config/apiConfig';
+import styles from '../../styles/tiffinDetailsStyle';
 const Api_url = API_CONFIG.BACKEND_URL;
 const { width } = Dimensions.get('window');
 
@@ -473,22 +472,22 @@ const DeliveryCitiesList = ({ cities }) => {
 };
   if (loading && !service) {
     return (
-      <SafeAreaView style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#4CAF50" />
-        <Text style={styles.loadingText}>Loading service details...</Text>
+      <SafeAreaView className="flex-1 justify-center items-center bg-background">
+        <ActivityIndicator size="large" color="#FF002E" />
+        <Text className="text-textsecondary font-outfit mt-4">Loading service details...</Text>
       </SafeAreaView>
     );
   }
 
   if (error || !service) {
     return (
-      <SafeAreaView style={styles.errorContainer}>
-        <MaterialCommunityIcons name="alert-circle" size={48} color="#FF4500" />
-        <Text style={styles.errorText}>{error || 'Service not found'}</Text>
+      <SafeAreaView className="flex-1 justify-center items-center bg-background p-4">
+        <MaterialCommunityIcons name="alert-circle" size={48} color="#FF002E" />
+        <Text className="text-primary text-center font-outfit mb-4">{error || 'Service not found'}</Text>
         <Button
           mode="contained"
           onPress={fetchServiceDetails}
-          style={styles.retryButton}
+          buttonColor="#FF002E"
         >
           Try Again
         </Button>
@@ -497,7 +496,7 @@ const DeliveryCitiesList = ({ cities }) => {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView className="flex-1 bg-background">
       <ScrollView
         refreshControl={
           <RefreshControl
@@ -506,19 +505,18 @@ const DeliveryCitiesList = ({ cities }) => {
           />
         }
       >
-        <View style={styles.header}>
+        <View className="flex-row justify-between items-center p-4 bg-white">
           <IconButton
             icon="arrow-left"
             size={26}
             onPress={() => router.back()}
-            style={styles.backButton}
           />
-          <View style={styles.headerActions}>
+          <View className="flex-row items-center space-x-3">
             <TouchableOpacity onPress={() => setIsFavorite(!isFavorite)}>
               <MaterialCommunityIcons
                 name={isFavorite ? "bookmark" : "bookmark-outline"}
                 size={30}
-                color={isFavorite ? "rgba(222, 10, 10, 0.95)" : "rgba(0, 0, 0, 0.8)"}
+                color={isFavorite ? "#FF002E" : "rgba(0, 0, 0, 0.8)"}
               />
             </TouchableOpacity>
             <AntDesign
@@ -530,7 +528,7 @@ const DeliveryCitiesList = ({ cities }) => {
           </View>
         </View>
 
-        <View style={{ height: 300 }}>
+        <View className="h-80">
           <ImageGallery
             images={service.images}
             currentIndex={currentImageIndex}
@@ -695,12 +693,12 @@ const DeliveryCitiesList = ({ cities }) => {
                 ))}
               </ScrollView>
             </View> */}
-            <View style={styles.separatorRow}>
-              <View style={styles.line} />
-              <Text style={styles.separatorText}>
+            <View className="flex-row items-center my-4">
+              <View className="flex-1 h-px bg-border" />
+              <Text className="text-textsecondary font-outfit-bold mx-4 text-sm">
                 Tiffin Meals
               </Text>
-              <View style={styles.line} />
+              <View className="flex-1 h-px bg-border" />
             </View>
             <ScrollView
               showsVerticalScrollIndicator={false}
@@ -726,17 +724,16 @@ const DeliveryCitiesList = ({ cities }) => {
 
       {getTotalItems() > 0 && (
         <TouchableOpacity
-          style={styles.proceedToCartButton}
+          className="absolute bottom-0 left-0 right-0 bg-primary p-4 m-4 rounded-lg"
           onPress={() => router.push({
             pathname: '/home/Cart',
             params: {
-              // offers: JSON.stringify(offers),
               restaurantId: service.id,
               restaurantName: service.title,
             }
           })}
         >
-          <Text style={styles.proceedToCartText}>
+          <Text className="text-white text-center font-outfit-bold">
             {getTotalItems()} items | ${getSubtotal()} | Go to Cart
           </Text>
         </TouchableOpacity>

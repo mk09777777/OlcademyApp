@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import styles from '../../styles/SendFeedback';
+
 import {
   View,
   Text,
@@ -14,20 +14,20 @@ const FeedbackScreen = () => {
   const [feedback, setFeedback] = useState('');
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
+    <ScrollView contentContainerStyle={{ padding: 16, flexGrow: 1, backgroundColor: '#FEF2F2' }}>
       <BackRouting tittle= "FeedBack"/>
-      <TouchableOpacity style={styles.backButton}>
-        <Text style={styles.backArrow}>{'←'}</Text>
+      <TouchableOpacity className="mb-4">
+        <Text className="text-textprimary text-2xl font-outfit">{'←'}</Text>
       </TouchableOpacity>
 
-      <Text style={styles.title}>Send Feedback</Text>
-      <Text style={styles.description}>
+      <Text className="text-textprimary text-2xl font-outfit-bold mb-4">Send Feedback</Text>
+      <Text className="text-textsecondary text-base font-outfit mb-6">
         Tell us what you love about the app, or what we could be doing better.
       </Text>
 
-      <Text style={styles.label}>Enter feedback</Text>
+      <Text className="text-textprimary text-base font-outfit-bold mb-2">Enter feedback</Text>
       <TextInput
-        style={styles.input}
+        className="bg-white p-4 rounded-lg border border-border text-textprimary font-outfit min-h-32 mb-6"
         placeholder=""
         placeholderTextColor="#ccc"
         multiline
@@ -35,33 +35,26 @@ const FeedbackScreen = () => {
         onChangeText={setFeedback}
       />
 
-      <View style={styles.helpCard}>
+      <View className="flex-row bg-white p-4 rounded-lg border border-border mb-6">
         <Image
           source={{
             uri: 'https://cdn-icons-png.flaticon.com/512/1828/1828884.png',
           }}
-          style={styles.helpIcon}
+          className="w-12 h-12 mr-4"
         />
         <View style={{ flex: 1 }}>
-          <Text style={styles.helpTitle}>Need help with your order?</Text>
-          <Text style={styles.helpDescription}>
+          <Text className="text-textprimary font-outfit-bold text-base mb-1">Need help with your order?</Text>
+          <Text className="text-textsecondary font-outfit text-sm">
             Get instant help from our customer support team
           </Text>
         </View>
       </View>
 
       <TouchableOpacity
-        style={[
-          styles.submitButton,
-          {
-            backgroundColor: feedback.trim()
-              ? '#f0435f'
-              : '#c4c4c4',
-          },
-        ]}
+        className={`p-4 rounded-lg ${feedback.trim() ? 'bg-primary' : 'bg-gray-300'}`}
         disabled={!feedback.trim()}
       >
-        <Text style={styles.submitText}>Submit feedback</Text>
+        <Text className="text-white font-outfit-bold text-center">Submit feedback</Text>
       </TouchableOpacity>
     </ScrollView>
   );

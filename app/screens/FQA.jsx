@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, FlatList, StyleSheet, ScrollView, ActivityIndicator } from 'react-native';
+import { View, Text, TouchableOpacity, FlatList, ScrollView, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeNavigation } from '@/hooks/navigationPage';
 import BackRouting from '@/components/BackRouting';
@@ -38,39 +38,39 @@ const FAQScreen = () => {
     return (
       <View>
         <TouchableOpacity
-          style={styles.questionContainer}
+          className="flex-row justify-between items-center py-4 border-b border-border"
           onPress={() => setActiveIndex(isOpen ? null : index)}
         >
-          <Text style={styles.questionText}>{item.q}</Text>
+          <Text className="text-textprimary text-base font-outfit flex-1 mr-3">{item.q}</Text>
           <Ionicons
             name={isOpen ? 'chevron-up-outline' : 'chevron-down-outline'}
             size={20}
             color="#555"
           />
         </TouchableOpacity>
-        {isOpen && <Text style={styles.answerText}>{item.a}</Text>}
+        {isOpen && <Text className="text-textsecondary text-sm font-outfit py-3">{item.a}</Text>}
       </View>
     );
   };
 
   if (loading) {
     return (
-      <View style={[styles.container, styles.center]}>
-        <ActivityIndicator size="large" color="#e91e63" />
+      <View className="flex-1 justify-center items-center bg-background">
+        <ActivityIndicator size="large" color="#FF002E" />
       </View>
     );
   }
 
   if (error) {
     return (
-      <View style={[styles.container, styles.center]}>
-        <Text style={styles.errorText}>{error}</Text>
+      <View className="flex-1 justify-center items-center bg-background">
+        <Text className="text-primary text-base font-outfit text-center">{error}</Text>
       </View>
     );
   }
 
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView className="flex-1 bg-background p-4">
       <BackRouting />
       <FlatList
         data={faqData}
@@ -79,71 +79,17 @@ const FAQScreen = () => {
       />
   
       {/* Footer message */}
-      <View style={styles.footer}>
-        <Text style={styles.footerText}>
+      <View className="mt-5 py-5 border-t border-border mb-5">
+        <Text className="text-textsecondary text-sm font-outfit text-center leading-6">
           If you have any queries, please feel free to contact us at{' '}
-          <Text style={styles.highlight}>+91-9876543210</Text> or email us at{' '}
-          <Text style={styles.highlight}>support@zomato.com</Text>.
+          <Text className="text-primary font-outfit-bold">+91-9876543210</Text> or email us at{' '}
+          <Text className="text-primary font-outfit-bold">support@zomato.com</Text>.
         </Text>
       </View>
     </ScrollView>
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    padding: 16,
-    backgroundColor: '#fff'
-  },
-  center: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center'
-  },
-  header: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    marginBottom: 20
-  },
-  questionContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingVertical: 14,
-    borderBottomWidth: 0.5,
-    borderColor: '#ccc'
-  },
-  questionText: {
-    fontSize: 16,
-    color: '#111',
-    flex: 1,
-    marginHorizontal: 10
-  },
-  answerText: {
-    fontSize: 15,
-    color: '#555',
-    paddingVertical: 10
-  },
-  footer: {
-    marginTop: 20,
-    paddingVertical: 20,
-    borderTopWidth: 1,
-    borderColor: '#eee',
-    marginBottom:20
-  },
-  footerText: {
-    fontSize: 15,
-    color: '#444',
-    textAlign: 'center'
-  },
-  highlight: {
-    color: '#e91e63', 
-    fontWeight: '600'
-  },
-  errorText: {
-    color: '#e91e63',
-    fontSize: 16,
-    textAlign: 'center'
-  }
-});
+
 
 export default FAQScreen;

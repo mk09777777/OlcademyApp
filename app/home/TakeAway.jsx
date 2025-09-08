@@ -1,7 +1,6 @@
 import { View, Text, FlatList, Image, TouchableOpacity, Modal, ImageBackground, ActivityIndicator, ScrollView, RefreshControl, Switch } from 'react-native'
 import React, { useEffect, useMemo, useState, useRef, useCallback } from 'react'
 import BouncyCheckbox from "react-native-bouncy-checkbox";
-import { styles } from '@/styles/TakeAwayStyles'
 import { useRouter, } from 'expo-router'
 import axios from 'axios'
 import { Ionicons, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons'
@@ -675,51 +674,38 @@ const handleApplyFilterboxFilters = (filters) => {
 
 
   return (
-    <View style={styles.container}>
+    <View className="flex-1 bg-white p-4">
       {isInitialLoading ? (
-        <View style={styles.loadingContainer}>
+        <View className="flex-1 justify-center items-center">
           <ActivityIndicator size="large" color="#e23845" />
         </View>
       ) : (
         <>
-          <View style={styles.topContainer}>
-            {/* <View style={styles.locationContainer}>
-              <Ionicons name='location' size={24} style={{ paddingTop: 6, paddingRight: 7, color: '#e23845' }} />
-              <View>
-                <Text style={styles.locationName}>
-                  {location.city}
-                </Text>
-                <Text style={styles.locationAddress}>
-                  {location.state}
-                </Text>
-              </View>
-            </View> */}
+          <View className="flex-row justify-between">
          <LocationHeader />
-            <View style={{ display: "flex", flexDirection: "row", marginRight: 10 }}>
+            <View className="flex-row mr-2.5">
               <TouchableOpacity
-                style={styles.profileButton}
                 onPress={() => router.push('/screens/NoficationsPage')}
               >
-                <Ionicons name='notifications-circle-sharp' size={38} style={{ color: '#e23845', marginRight: 10 }} />
+                <Ionicons name='notifications-circle-sharp' size={38} color='#e23845' style={{ marginRight: 10 }} />
               </TouchableOpacity>
               <TouchableOpacity
-                style={styles.profileButton}
                 onPress={() => router.push('/screens/User')}
               >
-                <Ionicons name='person-circle' size={40} style={{ color: '#e23845' }} />
+                <Ionicons name='person-circle' size={40} color='#e23845' />
               </TouchableOpacity>
             </View>
           </View>
 
-          <View style={styles.searchAndVegContainer}>
+          <View className="flex-row items-center justify-between">
               <SearchBar
                 query={query}
                 setQuery={setQuery}
                 onSearch={handleSearch}
               />
-            <View style={styles.vegFilterContainer}>
-              <Text style={styles.vegFilterText}>Veg</Text>
-              <Text style={styles.vegFilterText2}>Mode</Text>
+            <View className="flex-col items-center justify-start ml-2.5">
+              <Text className="text-base font-outfit-medium text-textsecondary text-center">Veg</Text>
+              <Text className="text-sm font-outfit-bold text-textsecondary text-center">Mode</Text>
               <Switch
                 trackColor={{ false: "#767577", true: "#8BC34A" }}
                 thumbColor="#f4f3f4"
@@ -740,12 +726,12 @@ const handleApplyFilterboxFilters = (filters) => {
               visible={loadingVegData}
               onRequestClose={() => setLoadingVegData(false)}
             >
-              <View style={styles.VegBack}>
+              <View className="bg-white items-center justify-center flex-1">
                 <Image
                   source={require("../../assets/images/natural.png")}
-                  style={styles.VegImg}
+                  className="w-24 h-24"
                 />
-                <Text style={styles.VegText} >Explore veg dishes from all restaurants</Text>
+                <Text className="text-base text-textprimary font-semibold mt-4">Explore veg dishes from all restaurants</Text>
               </View>
             </Modal>
             <Modal
@@ -754,25 +740,24 @@ const handleApplyFilterboxFilters = (filters) => {
               animationType="fade"
               onRequestClose={() => setIsModalVisible(false)}
             >
-              <View style={styles.modalBackground}>
-                <View style={styles.modalV}>
-                  <View style={styles.imageView}>
+              <View className="bg-black/50 flex-1 justify-center">
+                <View className="bg-white rounded-2.5 flex-col mx-5 p-2.5 items-center">
+                  <View className="mt-2.5 justify-center items-center">
                     <Image
-                      style={styles.imageE}
+                      className="h-18 w-18"
                       source={require('../../assets/images/error1.png')}
                     />
-
                   </View>
-                  <Text style={{ color: "black", fontWeight: "bold", fontSize: 20, marginTop: 5 }}>Switch off Veg Mode?</Text>
-                  <Text style={{ color: "black", fontWeight: "400", marginTop1: 10, fontSize: 15, marginTop: 10 }}>You'll see all restaurants, including those</Text>
-                  <Text >serving non-veg dishes</Text>
+                  <Text className="text-textprimary font-bold text-xl mt-1">Switch off Veg Mode?</Text>
+                  <Text className="text-textprimary font-normal text-base mt-2.5">You'll see all restaurants, including those</Text>
+                  <Text className="text-textprimary">serving non-veg dishes</Text>
 
                   <TouchableOpacity onPress={() => setIsModalVisible(false)}>
-                    <Text style={{ color: "red", fontSize: 15, fontWeight: "500", marginTop: 20 }}>Switch off</Text>
+                    <Text className="text-red-500 text-base font-medium mt-5">Switch off</Text>
                   </TouchableOpacity>
 
-                  <TouchableOpacity onPress={() => handleKeepUsing()} style={styles.KeepUsingButton}>
-                    <Text style={{ color: "black", fontSize: 15, fontWeight: "500" }}>keep using it</Text>
+                  <TouchableOpacity onPress={() => handleKeepUsing()} className="p-2.5 mx-2.5 bg-white rounded-lg mt-2.5 justify-center items-center">
+                    <Text className="text-textprimary text-base font-medium">keep using it</Text>
                   </TouchableOpacity>
                 </View>
               </View>
@@ -780,14 +765,14 @@ const handleApplyFilterboxFilters = (filters) => {
           </View>
 
           {showProgress && (
-            <View style={styles.progressBarContainer}>
-              <View style={[styles.progressBar, { width: `${progress}%` }]} />
+            <View className="h-1 bg-gray-200 rounded-full overflow-hidden">
+              <View className="h-full bg-primary rounded-full" style={{ width: `${progress}%` }} />
             </View>
           )}
 
           {notFound && (
-            <View style={styles.notFoundContainer}>
-              <Text style={styles.notFoundText}>No restaurants found with these filters</Text>
+            <View className="p-4 items-center">
+              <Text className="text-textsecondary text-base">No restaurants found with these filters</Text>
             </View>
           )}
 
@@ -818,12 +803,12 @@ const handleApplyFilterboxFilters = (filters) => {
             ListHeaderComponent={
               query.trim() === '' ? (
                 <View>
-                  <View style={styles.separatorRow}>
-                    <View style={styles.line} />
-                    <Text style={styles.separatorText}>
+                  <View className="flex-row items-center mt-2.5 mb-2.5">
+                    <View className="flex-1 h-px bg-primary" />
+                    <Text className="font-outfit text-xs text-textprimary mx-2">
                       WHAT'S ON YOUR MIND
                     </Text>
-                    <View style={styles.line} />
+                    <View className="flex-1 h-px bg-primary" />
                   </View>
                   {whatsOnYourMind?.length > 0 && (
                     <ScrollView
@@ -834,29 +819,29 @@ const handleApplyFilterboxFilters = (filters) => {
                       <FlatList
                         data={whatsOnYourMind}
                         renderItem={({ item }) => (
-                          <TouchableOpacity style={styles.mindCard} onPress={() => router.push({
+                          <TouchableOpacity className="items-center p-2 m-1" onPress={() => router.push({
                             pathname: '/screens/OnMindScreens',
                             params: { name: item?.title }
                           })}>
-                            <Image source={item?.image} style={styles.mindImage} />
-                            <Text style={styles.mindTitle}>{item?.title}</Text>
+                            <Image source={item?.image} className="w-16 h-16 rounded-full" />
+                            <Text className="text-xs font-outfit text-textprimary mt-1 text-center">{item?.title}</Text>
                           </TouchableOpacity>
                         )}
                         keyExtractor={(item) => item?.id?.toString()}
                         numColumns={Math.ceil(whatsOnYourMind?.length / 2)}
                         showsHorizontalScrollIndicator={false}
-                        contentContainerStyle={styles.mindScrollContainer}
-                        ItemSeparatorComponent={() => <View style={styles.mindSeparator} />}
+                        contentContainerStyle={{ paddingHorizontal: 10 }}
+                        ItemSeparatorComponent={() => <View className="w-2" />}
                       />
                     </ScrollView>
                   )}
-                  <View style={{ display: "flex", marginBottom: 15 }}>
-                    <View style={styles.separatorRow}>
-                    <View style={styles.line} />
-                    <Text style={styles.separatorText}>
+                  <View className="flex mb-4">
+                    <View className="flex-row items-center mt-2.5 mb-2.5">
+                    <View className="flex-1 h-px bg-primary" />
+                    <Text className="font-outfit text-xs text-textprimary mx-2">
                       RECENTLY VIEWED
                     </Text>
-                    <View style={styles.line} />
+                    <View className="flex-1 h-px bg-primary" />
                   </View>
 
                     <FlatList
@@ -893,13 +878,13 @@ const handleApplyFilterboxFilters = (filters) => {
                   </View>
 
 
-                  <View style={{ display: "flex", marginTop: 5, marginBottom: 20 }}>
-                   <View style={styles.separatorRow}>
-                    <View style={styles.line} />
-                    <Text style={styles.separatorText}>
+                  <View className="flex mt-1 mb-5">
+                   <View className="flex-row items-center mt-2.5 mb-2.5">
+                    <View className="flex-1 h-px bg-primary" />
+                    <Text className="font-outfit text-xs text-textprimary mx-2">
                       POPULAR 
                     </Text>
-                    <View style={styles.line} />
+                    <View className="flex-1 h-px bg-primary" />
                   </View>
                     <FlatList
                       showsHorizontalScrollIndicator={false}
@@ -941,14 +926,14 @@ const handleApplyFilterboxFilters = (filters) => {
                       keyExtractor={(item, index) => item._id ? `${item._id}` : `rec-item-${index}`}
                     />
                   </View>
-                  <View style={styles.separatorRow}>
-                    <View style={styles.line} />
-                    <Text style={styles.separatorText}>
+                  <View className="flex-row items-center mt-2.5 mb-2.5">
+                    <View className="flex-1 h-px bg-primary" />
+                    <Text className="font-outfit text-xs text-textprimary mx-2">
                       ALL RESTAURANTS
                     </Text>
-                    <View style={styles.line} />
+                    <View className="flex-1 h-px bg-primary" />
                   </View>
-                  <View style={styles.filterContainer}>
+                  <View className="mb-2.5">
                     <FlatList
                       data={quickFilters}
                       horizontal
@@ -958,10 +943,9 @@ const handleApplyFilterboxFilters = (filters) => {
                         const isSelected = activeQuickFilters.includes(item.name);
                         return (
                           <TouchableOpacity
-                            style={[
-                              styles.filterButton,
-                              isSelected && styles.selectedFilterButton
-                            ]}
+                            className={`flex-row items-center px-3 py-2 mr-2 rounded-full border border-primary ${
+                              isSelected ? 'bg-primary' : ''
+                            }`}
                             onPress={() => handleQuickFilterPress(item.name)}
                             activeOpacity={0.7}
                           >
@@ -980,7 +964,9 @@ const handleApplyFilterboxFilters = (filters) => {
                                 style={{ marginRight: 4 }}
                               />
                             )}
-                            <Text style={isSelected ? styles.selectedFilterText : styles.filterText}>
+                            <Text className={`text-sm font-outfit-medium ${
+                              isSelected ? 'text-white' : 'text-textprimary'
+                            }`}>
                               {item.name}
                             </Text>
                           </TouchableOpacity>
@@ -1033,7 +1019,7 @@ const handleApplyFilterboxFilters = (filters) => {
             onEndReachedThreshold={0.5}
             ListFooterComponent={
               isLoadingMore ? (
-                <View style={styles.loadingContainer}>
+                <View className="flex-1 justify-center items-center">
                   <ActivityIndicator size="large" color="#e23845" />
                 </View>
               ) : null
@@ -1045,23 +1031,23 @@ const handleApplyFilterboxFilters = (filters) => {
             animationType="slide"
             onRequestClose={() => setSortVisible(false)}
           >
-            <View style={styles.modalOverlay}>
-              <View style={styles.modalContent}>
-                <Text style={styles.modalTitle}>Sort Options</Text>
+            <View className="flex-1 bg-black/50 justify-end">
+              <View className="bg-white rounded-t-4xl p-6">
+                <Text className="text-xl font-outfit-bold text-textprimary mb-4">Sort Options</Text>
                 <RadioButtonRN
                   data={sortOptions}
                   selectedBtn={applySort}
                   initial={selectedSortOption ? sortOptions.findIndex(opt => opt.value === selectedSortOption.value) + 1 : null}
                   box={false}
-                  textStyle={styles.radioText}
+                  textStyle={{ fontSize: 16, color: '#333' }}
                   circleSize={16}
                   activeColor='#e23845'
                 />
                 <TouchableOpacity
-                  style={styles.proceedButton}
+                  className="bg-primary p-4 rounded-2.5 items-center mt-4"
                   onPress={() => setSortVisible(false)}
                 >
-                  <Text style={styles.proceedButtonText}>Apply</Text>
+                  <Text className="text-white font-outfit-bold text-base">Apply</Text>
                 </TouchableOpacity>
               </View>
             </View>

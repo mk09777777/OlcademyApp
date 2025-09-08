@@ -14,7 +14,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Calendar } from 'react-native-calendars';
 import RNPickerSelect from 'react-native-picker-select';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import styles from '../../styles/mealCustomizationStyle';
+
 import { useCart } from '@/context/CartContext';
 
 const MealCustomizeScreen = () => {
@@ -366,15 +366,15 @@ const handleSubmit = async () => {
   };
 
   return (
-    <View style={styles.modalContainer}>
-      <View style={styles.modalHeader}>
-        <Text style={styles.modalTitle}>Customize Your Meal</Text>
-        <TouchableOpacity onPress={handleClose} style={styles.closeButton}>
+    <View className="flex-1 bg-background">
+      <View className="flex-row justify-between items-center p-4 border-b border-border bg-white">
+        <Text className="text-textprimary font-outfit-bold text-xl">Customize Your Meal</Text>
+        <TouchableOpacity onPress={handleClose} className="p-2">
           <Ionicons name="close" size={24} color="#666" />
         </TouchableOpacity>
       </View>
 
-      <ScrollView style={styles.modalScroll} contentContainerStyle={styles.scrollContent}>
+      <ScrollView className="flex-1" contentContainerStyle={{ padding: 16 }}>
       {/* <Image
   source={typeof img === 'string' ? { uri: img } : img || require('@/assets/images/food_placeholder.jpg')}
   style={styles.menuItemImage}
@@ -382,21 +382,21 @@ const handleSubmit = async () => {
   defaultSource={require('@/assets/images/food_placeholder.jpg')} 
 /> */}
        {mealItem && (
-          <View style={styles.mealContainer}>
+          <View className="flex-row bg-white rounded-lg p-4 mb-4 shadow-sm">
             <Image
               source={typeof img === 'string' ? { uri: img } : img || require('@/assets/images/food_placeholder.jpg')}
-              style={styles.menuItemImage}
+              className="w-20 h-20 rounded-lg mr-4"
               resizeMode="cover"
               defaultSource={require('@/assets/images/food_placeholder.jpg')}
             />
-            <View style={styles.mealInfo}>
-              <Text style={styles.mealName}>{mealItem.name}</Text>
-              <Text style={styles.mealPrice}>
+            <View className="flex-1">
+              <Text className="text-textprimary font-outfit-bold text-lg mb-1">{mealItem.name}</Text>
+              <Text className="text-primary font-outfit-bold text-base mb-1">
                 {state.selectedPlan ? (
                   <>
                     Price: ${state.selectedPlan.price.toFixed(2)}
                     {state.selectedPlan.days > 1 && (
-                      <Text style={styles.planDurationText}>
+                      <Text className="text-textsecondary font-outfit text-sm">
                         {' '}({state.selectedPlan.days} days)
                       </Text>
                     )}
@@ -405,15 +405,15 @@ const handleSubmit = async () => {
                   `Base Price: $${(mealItem?.basePrice || 0).toFixed(2)}`
                 )}
               </Text>
-              <Text style={styles.mealDescription}>{mealItem.description}</Text>
+              <Text className="text-textsecondary font-outfit text-sm">{mealItem.description}</Text>
             </View>
           </View>
         )}
 
-        <View style={styles.customizationForm}>
-          <View style={styles.formGroup}>
-            <Text style={styles.formLabel}>Plan Type</Text>
-            <View style={styles.dropdownContainer}>
+        <View className="bg-white rounded-lg p-4">
+          <View className="mb-4">
+            <Text className="text-textprimary font-outfit-bold text-base mb-2">Plan Type</Text>
+            <View className="border border-border rounded-lg">
               <RNPickerSelect
                 onValueChange={handlePlanChange}
                 items={Plan_TYPES}
@@ -426,10 +426,10 @@ const handleSubmit = async () => {
           </View>
 
           {state.selectedPlan && (
-            <View style={styles.formGroup}>
-              <Text style={styles.formLabel}>{getInstructionText()}</Text>
+            <View className="mb-4">
+              <Text className="text-textprimary font-outfit-bold text-base mb-2">{getInstructionText()}</Text>
               <TouchableOpacity
-                style={styles.datePreviewContainer}
+                className="flex-row justify-between items-center p-3 border border-border rounded-lg bg-background"
                 onPress={() => {
                   setTempSelectedDates({
                     startDate: state.dateRange.startDate,
@@ -439,7 +439,7 @@ const handleSubmit = async () => {
                   setShowCalendarModal(true);
                 }}
               >
-                <Text style={styles.datePreviewText}>
+                <Text className="text-textprimary font-outfit">
                   {state.dateRange.startDate
                     ? `${state.dateRange.startDate} ${calculateEndDate() ? `to ${calculateEndDate()}` : ''}`
                     : 'Select dates'}
@@ -455,10 +455,10 @@ const handleSubmit = async () => {
             transparent={true}
             onRequestClose={handleCancelDates}
           >
-            <View style={styles.calendarModalContainer}>
-              <View style={styles.calendarModalContent}>
+            <View className="flex-1 bg-black/50 justify-center p-4">
+              <View className="bg-white rounded-lg p-4">
                 <Calendar
-                  style={styles.calendarContainer}
+                  className="mb-4"
                   markedDates={getMarkedDates(tempSelectedDates)}
                   onDayPress={handleTempDayPress}
                   markingType="period"
@@ -477,28 +477,28 @@ const handleSubmit = async () => {
                     backgroundColor: '#ffffff'
                   }}
                 />
-                <View style={styles.calendarButtonsContainer}>
+                <View className="flex-row justify-end space-x-3">
                   <TouchableOpacity
-                    style={[styles.calendarButton, styles.cancelButton]}
+                    className="px-4 py-2 border border-border rounded-lg mr-3"
                     onPress={handleCancelDates}
                   >
-                    <Text style={styles.calendarButtonText}>Cancel</Text>
+                    <Text className="text-textsecondary font-outfit">Cancel</Text>
                   </TouchableOpacity>
                   <TouchableOpacity
-                    style={[styles.calendarButton, styles.applyButton]}
+                    className="px-4 py-2 bg-primary rounded-lg"
                     onPress={handleApplyDates}
                     disabled={!tempSelectedDates.startDate}
                   >
-                    <Text style={styles.calendarButtonText}>Apply</Text>
+                    <Text className="text-white font-outfit-bold">Apply</Text>
                   </TouchableOpacity>
                 </View>
               </View>
             </View>
           </Modal>
 
-          <View style={styles.formGroup}>
-            <Text style={styles.formLabel}>Delivery Time</Text>
-            <View style={styles.dropdownContainer}>
+          <View className="mb-4">
+            <Text className="text-textprimary font-outfit-bold text-base mb-2">Delivery Time</Text>
+            <View className="border border-border rounded-lg">
               <RNPickerSelect
                 onValueChange={handleTimeSlotChange}
                 items={TIME_SLOTS}
@@ -509,11 +509,11 @@ const handleSubmit = async () => {
               />
             </View>
           </View>
-          <View style={styles.formGroup}>
-            <Text style={styles.formLabel}>Quantity</Text>
-            <View style={styles.quantityContainer}>
+          <View className="mb-4">
+            <Text className="text-textprimary font-outfit-bold text-base mb-2">Quantity</Text>
+            <View className="flex-row items-center justify-center">
               <TouchableOpacity
-                style={styles.quantityButton}
+                className="w-10 h-10 bg-primary rounded-full items-center justify-center"
                 onPress={() => setState(prev => ({
                   ...prev,
                   quantity: Math.max(1, prev.quantity - 1)
@@ -521,9 +521,9 @@ const handleSubmit = async () => {
               >
                 <Ionicons name="remove" size={20} color="#4CAF50" />
               </TouchableOpacity>
-              <Text style={styles.quantityText}>{state.quantity}</Text>
+              <Text className="text-textprimary font-outfit-bold text-lg mx-6">{state.quantity}</Text>
               <TouchableOpacity
-                style={styles.quantityButton}
+                className="w-10 h-10 bg-primary rounded-full items-center justify-center"
                 onPress={() => setState(prev => ({
                   ...prev,
                   quantity: prev.quantity + 1
@@ -536,19 +536,16 @@ const handleSubmit = async () => {
         </View>
       </ScrollView>
 
-      <View style={styles.actionBar}>
+      <View className="p-4 bg-white border-t border-border">
         <TouchableOpacity
-          style={[
-            styles.submitButton,
-            (!state.selectedPlan || !state.selectedTimeSlots.length) && styles.submitButtonDisabled
-          ]}
+          className={`p-4 rounded-lg ${(!state.selectedPlan || !state.selectedTimeSlots.length) ? 'bg-gray-300' : 'bg-primary'}`}
           onPress={handleSubmit}
           disabled={!state.selectedPlan || !state.selectedTimeSlots.length || state.isLoading}
         >
           {state.isLoading ? (
             <ActivityIndicator color="white" />
           ) : (
-            <Text style={styles.submitButtonText}>
+            <Text className="text-white font-outfit-bold text-center text-lg">
               ${calculateTotal().total.toFixed(2)}
             </Text>
           )}

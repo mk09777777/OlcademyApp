@@ -5,7 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useGlobalSearchParams, useRouter } from 'expo-router';
 import DateTimePicker from 'react-native-ui-datepicker';
 import dayjs from 'dayjs';
-import InputBoxStyles from '../../styles/InputBox';
+import InputBoxStyles from '../../styles/InputBox.js';
 import { useSafeNavigation } from '@/hooks/navigationPage';
 import { Schedule } from '@/components/Schedule';
 import { API_CONFIG } from '../../config/apiConfig';
@@ -100,7 +100,7 @@ export default function SelectDateTime() {
       !contact ||
       !email.endsWith('@gmail.com') ||
       isNaN(contact) ||
-      contact.length !== 10
+      contact.toString().length !== 10
     ) {
       Alert.alert('Invalid Input', 'Please enter valid name, email and 10-digit contact number.');
       return;
@@ -112,7 +112,7 @@ export default function SelectDateTime() {
       params: {
         firmId,
         firmName,
-        date: new Date(date).toDateString(),
+        date: date.toISOString(),
         guestCount,
         time: selectedTime || selectedScheduleTime,
         name,
@@ -265,13 +265,13 @@ export default function SelectDateTime() {
         visible={inputModal}
         onRequestClose={toggleInputModal}
       >
-        <View style={InputBoxStyles.background}>
-          <View style={InputBoxStyles.inputContainer}>
-            <View style={InputBoxStyles.headingContainer}>
-              <Text style={InputBoxStyles.headingText}>Enter your details</Text>
+        <View className="flex-1 justify-center bg-black/50">
+          <View className="bg-white mx-4 p-4 rounded-lg">
+            <View className="items-center p-2">
+              <Text className="text-xl font-outfit-bold text-textprimary">Enter your details</Text>
             </View>
             <TextInput
-              style={InputBoxStyles.inputBox}
+              className="mt-2 p-3 border border-gray-300 rounded-lg font-outfit"
               placeholder="Enter your name"
               value={name}
               onChangeText={setname}
@@ -279,18 +279,18 @@ export default function SelectDateTime() {
             <TextInput
               value={email}
               onChangeText={setEmail}
-              style={InputBoxStyles.inputBox}
+              className="mt-2 p-3 border border-gray-300 rounded-lg font-outfit"
               placeholder="Enter your email"
             />
             <TextInput
               value={contact}
               onChangeText={setcontact}
-              style={InputBoxStyles.inputBox}
+              className="mt-2 p-3 border border-gray-300 rounded-lg font-outfit"
               placeholder="Enter your contact"
               keyboardType='numeric'
             />
-            <TouchableOpacity onPress={handleConfirm} style={InputBoxStyles.ConfirmButton}>
-              <Text style={InputBoxStyles.ConfirmText}>Confirm</Text>
+            <TouchableOpacity onPress={handleConfirm} className="mt-5 bg-primary p-3 rounded-lg items-center">
+              <Text className="text-white font-outfit-bold text-base">Confirm</Text>
             </TouchableOpacity>
           </View>
         </View>

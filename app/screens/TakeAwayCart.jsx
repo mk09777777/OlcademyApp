@@ -15,7 +15,6 @@ import {
   Pressable,
   TouchableWithoutFeedback
 } from 'react-native';
-import { styles } from '@/styles/TakeAwayCartStyles';
 import {
   MaterialIcons,
   Feather,
@@ -611,18 +610,18 @@ UploadNotifications(orderData)
   };
 
   const renderRestaurantHeader = ({ section }) => (
-    <View style={styles.restaurantHeader}>
+    <View className="flex-row items-center p-4 bg-white border-b border-border">
       {section.image && (
         <Image
           source={{ uri: section.image }}
-          style={styles.restaurantImage}
+          className="w-12 h-12 rounded-lg mr-3"
         />
       )}
-      <View style={styles.restaurantHeaderText}>
-        <Text style={styles.restaurantName} numberOfLines={1} ellipsizeMode="tail">
+      <View className="flex-1">
+        <Text className="text-textprimary font-outfit-bold text-base" numberOfLines={1} ellipsizeMode="tail">
           {section.name}
         </Text>
-        <Text style={styles.restaurantAddress} numberOfLines={2} ellipsizeMode="tail">
+        <Text className="text-textsecondary font-outfit text-sm" numberOfLines={2} ellipsizeMode="tail">
           {section.address}
         </Text>
       </View>
@@ -630,29 +629,29 @@ UploadNotifications(orderData)
   );
 
   const renderItem = ({ item }) => (
-    <View style={styles.itemContainer}>
-      <View style={styles.itemInfo}>
-        <Text style={styles.itemText}>{item.name}</Text>
-        <Text style={styles.itemPrice}>  Item Price:-  ${(item.price || 0).toFixed(2)}</Text>
-        <Text style={styles.itemPrice}>Total Item Price:-  ${subtotal.toFixed(2)}</Text>
+    <View className="flex-row items-center p-4 bg-white border-b border-border">
+      <View className="flex-1">
+        <Text className="text-textprimary font-outfit-bold text-base mb-1">{item.name}</Text>
+        <Text className="text-textsecondary font-outfit text-sm">  Item Price:-  ${(item.price || 0).toFixed(2)}</Text>
+        <Text className="text-primary font-outfit-bold text-sm">Total Item Price:-  ${subtotal.toFixed(2)}</Text>
       </View>
-      <View style={styles.controls}>
+      <View className="flex-row items-center">
         <TouchableOpacity
           onPress={() => handleQuantityChange(item.productId || item._id || item.id, -1)}
-          style={styles.controlButton}
+          className="w-8 h-8 bg-primary rounded items-center justify-center mr-2"
         >
-          <Text style={styles.controlButtonText}>-</Text>
+          <Text className="text-white font-outfit-bold">-</Text>
         </TouchableOpacity>
-        <Text style={styles.quantityText}>{item.quantity}</Text>
+        <Text className="text-textprimary font-outfit-bold text-base mx-3">{item.quantity}</Text>
         <TouchableOpacity
           onPress={() => handleQuantityChange(item.productId || item._id || item.id, 1)}
-          style={styles.controlButton}
+          className="w-8 h-8 bg-primary rounded items-center justify-center mr-2"
         >
-          <Text style={styles.controlButtonText}>+</Text>
+          <Text className="text-white font-outfit-bold">+</Text>
         </TouchableOpacity>
         <TouchableOpacity
           onPress={() => handleRemove(item.productId || item._id || item.id)}
-          style={styles.deleteButton}
+          className="p-2"
         >
           <MaterialIcons name='delete-outline' size={24} color={'red'} />
         </TouchableOpacity>
@@ -666,45 +665,45 @@ UploadNotifications(orderData)
       transparent={true}
       onRequestClose={() => setIsPromoOpen(false)}
     >
-      <View style={styles.modalOverlay}>
-        <View style={[styles.modalContent, { padding: 20, maxHeight: '80%' }]}>
-          <Text style={[styles.modalTitle, { marginBottom: 20 }]}>Promotions</Text>
+      <View className="flex-1 bg-black/50 justify-center">
+        <View className="bg-white rounded-lg p-5 mx-4 max-h-4/5">
+          <Text className="text-textprimary font-outfit-bold text-xl mb-5">Promotions</Text>
 
           <View style={{ flexDirection: 'row', marginBottom: 20 }}>
             <TextInput
               placeholder="Enter promo code"
               value={manualPromoCode}
               onChangeText={setManualPromoCode}
-              style={[styles.input, { flex: 1, marginRight: 10 }]}
+              className="flex-1 border border-border rounded-lg p-3 mr-2 text-textprimary font-outfit"
             />
             <TouchableOpacity
-              style={[styles.confirmButton, { paddingHorizontal: 20 }]}
+              className="bg-primary px-5 py-3 rounded-lg"
               onPress={handleManualCodeApply}
             >
-              <Text style={styles.confirmButtonText}>Apply</Text>
+              <Text className="text-white font-outfit-bold">Apply</Text>
             </TouchableOpacity>
           </View>
 
           <ScrollView>
             {filteredOffers.length > 0 ? (
               filteredOffers.map((offer) => (
-                <View key={`${offer._id}-${offer.source}`} style={styles.promoCard}>
-                  <Text style={styles.promoName}>{offer.name || `Offer ${offer.code}`}</Text>
-                  {offer.code && <Text style={styles.promoCode}>Code: {offer.code}</Text>}
-                  <Text style={styles.promoDiscount}>
+                <View key={`${offer._id}-${offer.source}`} className="bg-background p-4 rounded-lg mb-3 border border-border">
+                  <Text className="text-textprimary font-outfit-bold text-base mb-1">{offer.name || `Offer ${offer.code}`}</Text>
+                  {offer.code && <Text className="text-textsecondary font-outfit text-sm mb-1">Code: {offer.code}</Text>}
+                  <Text className="text-primary font-outfit-bold text-sm mb-2">
                     Discount: {offer.offerType === "percentage"
                       ? `${offer.discountValue}%`
                       : `$${offer.discountValue.toFixed(2)}`}
                   </Text>
                   <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 10 }}>
-                    <Text style={styles.promoDate}>
+                    <Text className="text-textsecondary font-outfit text-xs">
                       Valid until: {formatPromoDate(offer.endDate)}
                     </Text>
                     <TouchableOpacity
-                      style={styles.promoApplyButton}
+                      className="bg-primary px-3 py-1 rounded"
                       onPress={() => handleApplyOffer(offer)}
                     >
-                      <Text style={styles.promoApplyButtonText}>Apply</Text>
+                      <Text className="text-white font-outfit text-sm">Apply</Text>
                     </TouchableOpacity>
                   </View>
                 </View>
@@ -717,10 +716,10 @@ UploadNotifications(orderData)
           </ScrollView>
 
           <TouchableOpacity
-            style={[styles.closeButton, { marginTop: 20 }]}
+            className="bg-border p-3 rounded-lg mt-5"
             onPress={() => setIsPromoOpen(false)}
           >
-            <Text style={styles.closeButtonText}>Close</Text>
+            <Text className="text-textprimary font-outfit-bold text-center">Close</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -728,18 +727,18 @@ UploadNotifications(orderData)
   );
 
   return (
-    <SafeAreaView style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scroll}>
-        <View style={styles.cartSummary}>
-          <Text style={styles.title}>Your Cart</Text>
+    <SafeAreaView className="flex-1 bg-background">
+      <ScrollView contentContainerStyle={{ paddingBottom: 100 }}>
+        <View className="bg-white p-4 mb-4">
+          <Text className="text-textprimary text-xl font-outfit-bold mb-4">Your Cart</Text>
 
           {cartItems.length === 0 ? (
-            <View style={styles.emptyCartContainer}>
+            <View className="items-center py-12">
               <Image
-                style={styles.emptyCartImage}
+                className="w-32 h-32 mb-4"
                 source={require('@/assets/images/empty_cart.png')}
               />
-              <Text style={styles.emptyCartText}>Your cart is empty!</Text>
+              <Text className="text-textsecondary font-outfit text-lg">Your cart is empty!</Text>
             </View>
           ) : (
             <SectionList
@@ -753,38 +752,38 @@ UploadNotifications(orderData)
           )}
         </View>
 
-        <View style={styles.card}>
-          <View style={styles.promotionContainer}>
-            <Text style={styles.sectionTitle}>Promotion</Text>
+        <View className="bg-white p-4 mb-4 rounded-lg">
+          <View className="mb-4">
+            <Text className="text-textprimary font-outfit-bold text-lg mb-3">Promotion</Text>
             {!appliedOffer ? (
               <TouchableOpacity
-                style={styles.addPromoButton}
+                className="border border-primary rounded-lg p-3"
                 onPress={() => setIsPromoOpen(true)}
               >
-                <Text style={styles.addPromoButtonText}>Add promo code</Text>
+                <Text className="text-primary font-outfit text-center">Add promo code</Text>
               </TouchableOpacity>
             ) : (
-              <View style={styles.appliedPromoContainer}>
+              <View className="flex-row justify-between items-center bg-green-50 p-3 rounded-lg">
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                  <Text style={styles.emoji}>🎉</Text>
-                  <Text style={styles.appliedPromoText}>
+                  <Text className="text-lg mr-2">🎉</Text>
+                  <Text className="text-green-700 font-outfit text-sm flex-1">
                     You saved ${discount.toFixed(2)} with '{appliedOffer.code || appliedOffer.name}'
                   </Text>
                 </View>
                 <TouchableOpacity
                   onPress={() => setAppliedOffer(null)}
-                  style={styles.removePromoButton}
+                  className="w-6 h-6 bg-red-500 rounded-full items-center justify-center"
                 >
-                  <Text style={styles.removePromoButtonText}>×</Text>
+                  <Text className="text-white font-outfit-bold">×</Text>
                 </TouchableOpacity>
               </View>
             )}
             {appliedOffer && (
               <TouchableOpacity
-                style={styles.viewAllCouponsButton}
+                className="mt-2"
                 onPress={() => setIsPromoOpen(true)}
               >
-                <Text style={styles.viewAllCouponsText}>View all coupons</Text>
+                <Text className="text-primary font-outfit text-sm">View all coupons</Text>
               </TouchableOpacity>
             )}
           </View>
@@ -827,14 +826,14 @@ UploadNotifications(orderData)
                   </Text>
                 )}
               </View>
-              <View style={styles.pickup}>
-                <Text style={styles.modalTitle}>Delivery Details</Text>
-                <View style={styles.container}>
-                  <Text style={styles.label}>Country Code</Text>
-                  <View style={styles.pickerContainer}>
+              <View className="bg-white p-4 rounded-lg mb-4">
+                <Text className="text-textprimary font-outfit-bold text-lg mb-4">Delivery Details</Text>
+                <View className="mb-4">
+                  <Text className="text-textprimary font-outfit-bold text-sm mb-2">Country Code</Text>
+                  <View className="border border-border rounded-lg">
                     <Picker
                       selectedValue={countryCode}
-                      style={styles.picker}
+                      className="h-12"
                       onValueChange={(itemValue) => setCountryCode(itemValue)}
                     >
                       <Picker.Item label="India (+91)" value="+91" />
@@ -851,7 +850,7 @@ UploadNotifications(orderData)
                   value={phoneNumber}
                   onChangeText={setPhoneNumber}
                   keyboardType="phone-pad"
-                  style={styles.input}
+                  className="border border-border rounded-lg p-3 text-textprimary font-outfit mb-4"
                 />
                 {/* <TextInput
                   placeholder="Delivery Address"
@@ -863,14 +862,14 @@ UploadNotifications(orderData)
 
                               <TouchableOpacity
                                 onPress={() => router.push('/screens/DeliveryAddress')}
-                                style={styles.addressInputContainer}
+                                className="mb-4"
                               >
                                 <TextInput
                                   placeholder="Delivery Address"
                                   value={pickupAddress}
                                   onChangeText={setPickupAddress}
                                   multiline
-                                  style={[styles.input, { height: 90 }]}
+                                  className="border border-border rounded-lg p-3 text-textprimary font-outfit h-24"
                                   editable={false}
                                 />
                                 {/* <Text style={styles.stateText}>{location.fullAddress || ''}</Text> */}
@@ -900,7 +899,7 @@ UploadNotifications(orderData)
                   value={specialInstructions}
                   onChangeText={setSpecialInstructions}
                   multiline
-                  style={[styles.input, { height: 80 }]}
+                  className="border border-border rounded-lg p-3 text-textprimary font-outfit h-20"
                 />
               </View>
             </View>
@@ -986,25 +985,25 @@ UploadNotifications(orderData)
       </ScrollView >
 
       {/* Bottom Bar */}
-      < View style={styles.footer} >
-        <View style={styles.paymentMethod}>
+      <View className="absolute bottom-0 left-0 right-0 bg-white p-4 border-t border-border flex-row items-center justify-between">
+        <View className="flex-row items-center">
           <MaterialCommunityIcons name="credit-card-outline" size={20} color="#333" />
-          <View style={{ marginLeft: 8 }}>
-            <Text style={styles.payUsing}>PAY USING</Text>
-            <Text style={styles.payMethod}>Pay on delivery</Text>
-            <Text style={styles.subLabel}>UPI / Cash</Text>
+          <View className="ml-2">
+            <Text className="text-textsecondary text-xs font-outfit">PAY USING</Text>
+            <Text className="text-textprimary font-outfit-bold">Pay on delivery</Text>
+            <Text className="text-textsecondary text-xs font-outfit">UPI / Cash</Text>
           </View>
         </View>
 
         <TouchableOpacity
-          style={[styles.placeOrderBtn, isCartEmpty && styles.disabledButton]}
+          className={`px-6 py-3 rounded-lg ${isCartEmpty ? 'bg-border' : 'bg-primary'}`}
           onPress={handlePlaceOrder}
           disabled={isCartEmpty}
         >
-          <Text style={styles.totalText}>${(Number(total) || 0).toFixed(2)} TOTAL</Text>
-          <Text style={styles.placeText}>Place Order</Text>
+          <Text className="text-white font-outfit-bold text-sm">${(Number(total) || 0).toFixed(2)} TOTAL</Text>
+          <Text className="text-white font-outfit text-xs">Place Order</Text>
         </TouchableOpacity>
-      </View >
+      </View>
       {renderPromoModal()}
       {/* Schedule Delivery Modal */}
       {
@@ -1025,8 +1024,8 @@ UploadNotifications(orderData)
         transparent={true}
         onRequestClose={() => setBillModalVisible(false)}
       >
-        <View style={styles.modalOverlay}>
-          <View style={[styles.modalContent, { paddingBottom: 20 }]}>
+        <View className="flex-1 justify-center items-center bg-black/50">
+          <View className="bg-white rounded-lg p-6 mx-4 w-80 max-h-96">
             {appliedOffer && (
               <>
                 <Text style={styles.modalTitle}>You saved ${discount.toFixed(2)} on this order</Text>

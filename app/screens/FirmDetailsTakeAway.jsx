@@ -1,24 +1,30 @@
 import { View, Text, TouchableOpacity, FlatList, Image, Modal, ActivityIndicator, Alert, ScrollView } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import React, { useEffect, useState } from 'react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { styles } from '@/styles/FirmDetailsTakeAwayStyles';
 import axios from 'axios';
 import { AntDesign, FontAwesome, FontAwesome5, Ionicons, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 import { useCart } from '@/context/CartContext';
 import ImageGallery from '@/components/ImageGallery';
-const API_URL = 'https://backend-0wyj.onrender.com';
-const filtersData = {
-  "Dietary": [
-    { id: 1, label: "Vegetarian", icon: "leaf", selected: false },
-    { id: 2, label: "Vegan", icon: "leaf-outline", selected: false },
-    { id: 3, label: "Gluten Free", icon: "nutrition-outline", selected: false },
-  ],
-  "Cuisine": [
-    { id: 4, label: "Italian", icon: "pizza-outline", selected: false },
-    { id: 5, label: "Indian", icon: "restaurant-outline", selected: false },
-    { id: 6, label: "Chinese", icon: "fast-food-outline", selected: false },
-  ],
-};
+import OffersCard from '@/components/OffersCard';
+
+
+import { API_CONFIG } from '../../config/apiConfig';
+const API_BASE_URL = API_CONFIG.BACKEND_URL;
+const API_URL = API_CONFIG.BACKEND_URL;
+// Commented out filtersData as it's not being used
+// const filtersData = {
+//   "Dietary": [
+//     { id: 1, label: "Vegetarian", icon: "leaf", selected: false },
+//     { id: 2, label: "Vegan", icon: "leaf-outline", selected: false },
+//     { id: 3, label: "Gluten Free", icon: "nutrition-outline", selected: false },
+//   ],
+//   "Cuisine": [
+//     { id: 4, label: "Italian", icon: "pizza-outline", selected: false },
+//     { id: 5, label: "Indian", icon: "restaurant-outline", selected: false },
+//     { id: 6, label: "Chinese", icon: "fast-food-outline", selected: false },
+//   ],
+// };
 
 export default function FirmDetailsTakeAway() {
   const params = useLocalSearchParams();
@@ -34,64 +40,37 @@ export default function FirmDetailsTakeAway() {
   } = useCart();
 
   const firmId = params.firmId || params.firm;
-  console.log(firmId)
   const [menuData, setMenuData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [firmDetails, setFirmDetails] = useState(null);
   const [toggleBookmark, setToggleBookmark] = useState(false);
   const [offersVisible, setOffersVisible] = useState(false);
-  const [filterVisible, setFilterVisible] = useState(false);
+  // Commented out filterVisible state as it's not being used
+  //const [filterVisible, setFilterVisible] = useState(false);
   const [expandedOffer, setExpandedOffer] = useState(null);
-  const [isExpanded, setIsExpanded]=useState();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [offers, setOffers] = useState([
-    {
-      _id: "1",
-      name: "Caffè Coco",
-      code: "Coco24",
-      offerType: "percentage",
-      discountValue: 11,
-      minOrder: "₹300"
-    },
-    {
-      _id: "2",
-      name: "Italy",
-      code: "Italy24",
-      offerType: "flat",
-      discountValue: 16,
-      minOrder: "₹500"
-    }
-  ]);
-
-  const filters = [
-    { name: "Filter", icon: "filter" },
-    { name: "Veg", icon: "leaf" },
-    { name: "Non-veg", icon: "nutrition" },
-    { name: "Spicy", icon: "flame" },
-    { name: "Popular", icon: "trending-up" }
+  const offers = [
+    { id: 1, title: "Flat 10% Off on Orders Above 399", validity: "Valid till 15th February" },
+    { id: 2, title: "Flat 20% Off on Orders Upto 200", validity: "Valid till 28th February" },
+    { id: 3, title: "Items @99", validity: "Valid Today" }
   ];
 
-  useEffect(() => {
-    const fetchOffers = async () => {
-      try {
-        const response = await fetch(
-          `${API_URL}/api/offers/takeaway/offer/${firmId}`
-        );
-        const data = await response.json();
-        console.log(data, "offerdata");
-        setOffers(data);
-      } catch (error) {
-        console.error("Error fetching offers:", error);
-      }
-    };
-    fetchOffers();
-  }, []);
+  // Commented out filters array as it's not being used
+  //const filters = [
+    //{ name: "Filter", icon: "filter" },
+    //{ name: "Veg", icon: "leaf" },
+    //{ name: "Non-veg", icon: "nutrition" },
+    //{ name: "Spicy", icon: "flame" },
+    //{ name: "Popular", icon: "trending-up" }
+  //];
+
+
 
   const fetchRestaurantDetails = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`${API_URL}/firm/getOne/${firmId}`, {
+      const response = await axios.get(`${API_BASE_URL}/firm/getOne/${firmId}`, {
         timeout: 5000,
       });
       setFirmDetails(response.data);
@@ -109,14 +88,13 @@ export default function FirmDetailsTakeAway() {
     try {
       setLoading(true);
       const response = await axios.get(
-        `${API_URL}/firm/restaurants/menu-sections-items/${firmId}`,
+        `${API_BASE_URL}/firm/restaurants/menu-sections-items/${firmId}`,
         { timeout: 5000 }
       );
 
       const transformedData = {
         menuTabs: response.data.menuSections.map(tab => ({
           name: tab.tabName,
-          categoryId:tab.categoryId,
           sections: tab.sections.map(section => ({
             name: section.sectionName,
             items: section.items.map(item => ({
@@ -159,37 +137,19 @@ export default function FirmDetailsTakeAway() {
   };
 
 
-const UploadRecentlyViewd = async () => {
-  try {
-    const restId = firmId;
-    if (!restId) {
-      console.warn("No restaurant ID available for recently viewed tracking");
-      return;
-    }
-
-    const response = await axios.post(
-      `${API_URL}/firm/recently-viewed/${restId}`,
-      {},
-      { 
-        withCredentials: true,
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      }
-    );
-
-    if (response.status !== 200 && response.status !== 201) {
-      throw new Error(`Unexpected status code: ${response.status}`);
-    }
-
-    console.log("Recently viewed uploaded successfully:", response.data);
-  } catch (err) {
-    console.error("Failed to upload recently viewed:", err);
-    if (err.response) {
-      console.error("Response data:", err.response.data);
+  const UploadRecentlyViewd = async () => {
+    try {
+      // getSimilar()
+      const restId = firmId
+      if (!restId) return
+      await axios.post(`${API_URL}/firm/recently-viewed/${restId}`, null, {
+        withCredentials: true
+      });
+      console.log("recently viewed uploaded successfully")
+    } catch (err) {
+      console.error("Failed to upload recently viewed:", err)
     }
   }
-};
 
 
   useEffect(() => {
@@ -222,8 +182,6 @@ const UploadRecentlyViewd = async () => {
           ...item,
           _id: item._id || Math.random().toString(36).substr(2, 9),
           category: section.name || tab.name || 'Uncategorized',
-          categoryId:tab.categoryId,
-          subcategoryId:item.subcategoryId,
           productName: item.name || 'Unnamed Item',
           description: item.description || '',
           price: item.price ?
@@ -255,180 +213,172 @@ const UploadRecentlyViewd = async () => {
     setCollapsed((prev) => ({ ...prev, [category]: !prev[category] }));
   };
 
-  const [filter, setFilter] = useState(filtersData);
-  const [selectedFilter, setSelectedFilter] = useState([]);
-  const [addError, setAddError] = useState(null);
+  // Commented out filter-related states and functions
+  //const [filter, setFilter] = useState(filtersData);
+  //const [selectedFilter, setSelectedFilter] = useState([]);
+  //const [addError, setAddError] = useState(null);
 
-  const toggleFilter = (category, filterId) => {
-    setFilter((prevFilters) => ({
-      ...prevFilters,
-      [category]: prevFilters[category].map((filter) =>
-        filter.id === filterId ? { ...filter, selected: !filter.selected } : filter
-      ),
-    }));
-  };
+  //const toggleFilter = (category, filterId) => {
+    //setFilter((prevFilters) => ({
+      //...prevFilters,
+      //[category]: prevFilters[category].map((filter) =>
+        //filter.id === filterId ? { ...filter, selected: !filter.selected } : filter
+      //),
+    //}));
+  //};
 
-  const clearFilters = () => {
-    setFilter((prevFilters) =>
-      Object.keys(prevFilters).reduce((acc, category) => {
-        acc[category] = prevFilters[category].map((filter) => ({
-          ...filter,
-          selected: false,
-        }));
-        return acc;
-      }, {})
-    );
-  };
+  //const clearFilters = () => {
+    //setFilter((prevFilters) =>
+      //Object.keys(prevFilters).reduce((acc, category) => {
+        //acc[category] = prevFilters[category].map((filter) => ({
+          //...filter,
+          //selected: false,
+        //}));
+        //return acc;
+      //}, {})
+    //);
+  //};
 
-  const handleFilterPress = (filterName) => {
-    if (filterName === 'Filter') {
-      setFilterVisible(true);
-    } else {
-      setSelectedFilter((prevFilters) =>
-        prevFilters.includes(filterName)
-          ? prevFilters.filter((filter) => filter !== filterName)
-          : [...prevFilters, filterName]
-      );
+  // Commented out handleFilterPress function
+  //const handleFilterPress = (filterName) => {
+    //if (filterName === 'Filter') {
+      //setFilterVisible(true);
+    //} else {
+      //setSelectedFilter((prevFilters) =>
+        //prevFilters.includes(filterName)
+          //? prevFilters.filter((filter) => filter !== filterName)
+          //: [...prevFilters, filterName]
+      //);
+    //}
+  //};
+
+  // Commented out selectedCount as it's not being used
+  //const selectedCount = Object.values(filter).flat().filter((f) => f.selected).length;
+
+const renderItem = ({ item }) => {
+  const cartItems = getCartItems();
+  const cartItem = cartItems.find(cartItem =>
+    cartItem.productId === (item._id || item.id)
+  );
+  const quantity = cartItem?.quantity || 0;
+
+  const handleAdd = async () => {
+    try {
+      const priceValue = item?.price
+        ? (typeof item.price === 'string'
+          ? parseFloat(item.price.replace(/[^0-9.]/g, ''))
+          : item.price)
+        : 8;
+
+      const cartItem = {
+        itemToAdd: {
+          productId: item?._id || item?.id,
+          name: item?.productName || item?.name || 'Unknown Item',
+          description: item?.description || '',
+          price: priceValue,
+          quantity: 1,
+          img: item?.image_urls?.[0] || require('@/assets/images/food_placeholder.jpg'),
+          foodType: item?.foodType || "veg",
+          sourceEntityId: firmId,
+          itemType: "firm",
+          sourceEntityName: "Firm",
+          productModelType: "Firm",
+        }
+      };
+
+      await addToCart(cartItem);
+    } catch (error) {
+      console.error('Add to cart error:', error);
     }
   };
 
-  const selectedCount = Object.values(filter).flat().filter((f) => f.selected).length;
-
-  const renderItem = ({ item }) => {
-    const cartItems = getCartItems();
-    const cartItem = cartItems.find(cartItem =>
-      cartItem.productId === (item._id || item.id)
-    );
-    const quantity = cartItem?.quantity || 0;
-
-    const handleAdd = async () => {
-      try {
-        setAddError(null);
-        const priceValue = item?.price
-          ? (typeof item.price === 'string'
-            ? parseFloat(item.price.replace(/[^0-9.]/g, ''))
-            : item.price)
-          : 8;
-
-        // if (isNaN(priceValue) || priceValue <= 0) {
-        //   throw new Error('Invalid price value');
-        // }
-
-        const cartItem = {
-          itemToAdd: {
-            // categoryId,
-            subcategoryId: item.subcategoryId,
-            categoryId: item?.categoryId,
-            productId: item?._id || item?.id,
-            name: item?.productName || item?.name || 'Unknown Item',
-            description: item?.description || '',
-            price: 8,
-            quantity: 1,
-            img: item?.image_urls?.[0] || require('@/assets/images/food_placeholder.jpg'),
-            foodType: item?.foodType || "veg",
-            sourceEntityId: firmId,
-            itemType: "firm",
-            sourceEntityName: "Firm",
-            productModelType: "Firm",
-          }
-        };
-
-        await addToCart(cartItem);
-      } catch (error) {
-        setAddError('Failed to add item. Please try again.');
-        console.error('Add to cart error:', error);
-      }
-    };
-
-    const handleIncrement = () => {
-      const itemId = item._id || item.id;
-      if (itemId) {
-        handleQuantityChange(itemId, 1);
-      }
-    };
-
-    const handleDecrement = () => {
-      const itemId = item._id || item.id;
-      if (itemId) {
-        handleQuantityChange(itemId, -1);
-      }
-    };
-
-    return (
-      <View style={styles.itemContainer}>
-        <View style={styles.imageContainer}>
-          <Image
-            source={item?.image_urls?.[0]
-              ? { uri: item.image_urls[0] }
-              : require('@/assets/images/food_placeholder.jpg')}
-            style={styles.image}
-          />
-          <View style={styles.cartControls}>
-            {quantity > 0 ? (
-              <View style={styles.quantityControls}>
-                <TouchableOpacity onPress={handleDecrement}>
-                  <Text style={styles.controlButton}>-</Text>
-                </TouchableOpacity>
-                <Text style={styles.quantityText}>{quantity}</Text>
-                <TouchableOpacity onPress={handleIncrement  } activeOpacity={1.0}>
-                  <Text style={styles.controlButton}>+</Text>
-                </TouchableOpacity>
-              </View>
-            ) : (
-              <TouchableOpacity
-                style={styles.addButton}
-                onPress={handleAdd}
-                activeOpacity={1.0}
-              >
-                <Text style={styles.addButtonText}>ADD</Text>
-              </TouchableOpacity>
-            )}
-          </View>
-        </View>
-        <View style={styles.details}>
-          <Text style={styles.title}>{item?.productName || item?.name || 'Unnamed Item'}</Text>
-          <Text style={styles.description}>{item?.description || ''}</Text>
-          <Text style={styles.price}>{item?.price || 'Price not available'}</Text>
-          {item.variations?.length > 0 && (
-            <View style={styles.variationsContainer}>
-              {item.variations.map((variation, index) => (
-                <Text key={index} style={styles.variationText}>
-                  {variation.name}: {variation.price}
-                </Text>
-              ))}
-            </View>
-          )}
-        </View>
-      </View>
-    );
+  const handleIncrement = () => {
+    const itemId = item._id || item.id;
+    if (itemId) handleQuantityChange(itemId, 1);
   };
+
+  const handleDecrement = () => {
+    const itemId = item._id || item.id;
+    if (itemId) handleQuantityChange(itemId, -1);
+  };
+
+  return (
+    <View className="flex-row p-4 bg-white mb-2 rounded-lg shadow-sm">
+      {/* Left side: Image */}
+      <View className="w-20 h-20 mr-4">
+        <Image
+          source={item?.image_urls?.[0]
+            ? { uri: item.image_urls[0] }
+            : require('@/assets/images/food_placeholder.jpg')}
+          className="w-full h-full rounded-lg"
+        />
+      </View>
+
+      {/* Right side: Details */}
+      <View className="flex-1">
+        <Text className="text-textprimary font-outfit-bold text-base mb-1">{item?.productName || item?.name || 'Unnamed Item'}</Text>
+        <Text className="text-primary font-outfit-bold text-lg mb-1">{item?.price || 'Price not available'}</Text>
+        <Text className="text-textsecondary font-outfit text-sm mb-2">{item?.description || ''}</Text>
+
+        {item.variations?.length > 0 && (
+          <View className="mb-2">
+            {item.variations.map((variation, index) => (
+              <Text key={index} className="text-textsecondary font-outfit text-xs">
+                {variation.name}: {variation.price}
+              </Text>
+            ))}
+          </View>
+        )}
+
+        {/* ADD / Quantity Controls at bottom */}
+        {quantity > 0 ? (
+  <View className="flex-row items-center bg-primary rounded-lg">
+    <TouchableOpacity onPress={handleDecrement}>
+      <Text className="text-white font-outfit-bold text-lg px-3 py-1">-</Text>
+    </TouchableOpacity>
+    <Text className="text-white font-outfit-bold text-base px-3">{quantity}</Text>
+    <TouchableOpacity onPress={handleIncrement}>
+      <Text className="text-white font-outfit-bold text-lg px-3 py-1">+</Text>
+    </TouchableOpacity>
+  </View>
+) : (
+  <TouchableOpacity className="bg-primary px-4 py-2 rounded-lg" onPress={handleAdd} activeOpacity={1.0}>
+    <Text className="text-white font-outfit-bold text-sm">ADD</Text>
+  </TouchableOpacity>
+)}
+      </View>
+    </View>
+  );
+};
+
 
   if (loading) {
     return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#0000ff" />
+      <View className="flex-1 justify-center items-center bg-background">
+        <ActivityIndicator size="large" color="#FF002E" />
       </View>
     );
   }
 
   if (error) {
     return (
-      <View style={styles.errorContainer}>
-        <Text style={styles.errorText}>{error}</Text>
+      <View className="flex-1 justify-center items-center bg-background p-4">
+        <Text className="text-primary text-center font-outfit mb-4">{error}</Text>
         <TouchableOpacity
-          style={styles.retryButton}
+          className="bg-primary px-6 py-3 rounded-lg"
           onPress={() => router.back()}
         >
-          <Text style={styles.retryButtonText}>Go Back</Text>
+          <Text className="text-white font-outfit-bold">Go Back</Text>
         </TouchableOpacity>
       </View>
     );
   }
 
   return (
-    <View style={styles.container}>
-      <View style={{ height: 180 }}>
+    <View className="flex-1 bg-background">
+      <View className="relative h-80">
         <ImageGallery
+          style={{ backgroundColor: "rgba(0, 0, 0, 0.63)" }}
           images={
             firmDetails?.image_urls?.length > 0
               ? firmDetails.image_urls
@@ -437,148 +387,118 @@ const UploadRecentlyViewd = async () => {
           currentIndex={currentImageIndex}
           onIndexChange={(index) => setCurrentImageIndex(index)}
         />
-      </View>
-
-      <View style={styles.upperPannel}>
-        <TouchableOpacity onPress={() => router.back()}>
-          <Ionicons name='chevron-back' size={30} />
-        </TouchableOpacity>
-
-        <View style={styles.rightPannel}>
-          <TouchableOpacity>
-            <AntDesign name='sharealt' size={30} />
+        <LinearGradient
+          colors={['transparent', 'rgba(0, 0, 0, 0.8)']}
+          className="absolute inset-0"
+          start={{ x: 0.5, y: 0.5 }}
+          end={{ x: 0.5, y: 1 }}
+        />
+        <View className="absolute top-4 left-4 right-4 flex-row justify-between items-center z-10">
+          <TouchableOpacity onPress={() => router.back()} className="rounded-full bg-black/40 p-2 items-center justify-center">
+            <Ionicons name='chevron-back' size={28} color='white' />
           </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => setToggleBookmark(!toggleBookmark)}
-            style={{ marginLeft: 10 }}
-          >
-            {toggleBookmark ?
-              <Ionicons name='bookmark' size={30} /> :
-              <Ionicons name='bookmark-outline' size={30} />
-            }
-          </TouchableOpacity>
-        </View>
-      </View>
-
-      <View style={styles.bttomPannel}>
-        <View>
-          <TouchableOpacity
-            onPress={() => router.push({
-              pathname: '/screens/RestaurantDetailsScreen',
-              params: { restaurant: JSON.stringify(firmDetails) }
-            })}
-          >
-            <Text style={styles.restaurantName}>
-              {firmDetails?.restaurantInfo?.name || "Restaurant"}
-            </Text>
-          </TouchableOpacity>
-          <Text style={styles.restaurantAddress}>
-            {firmDetails?.restaurantInfo?.address}
-          </Text>
-          <View style={styles.cuisineContainer}>
-            <Text style={styles.cuisineText}>
-              {firmDetails?.restaurantInfo?.cuisines?.join(", ")}
-            </Text>
+          <View className="flex-row items-center">
+            <TouchableOpacity>
+              <AntDesign name='sharealt' size={28} color='white' />
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => setToggleBookmark(!toggleBookmark)}
+              className="ml-3"
+            >
+              {toggleBookmark ?
+                <Ionicons name='bookmark' size={28} color='white' /> :
+                <Ionicons name='bookmark-outline' size={28} color='white' />
+              }
+            </TouchableOpacity>
           </View>
         </View>
-        <TouchableOpacity
-          onPress={() => router.push({
-            pathname: "/screens/Reviewsall",
-            params: {
-              firmId: firmId,
-              restaurantName: firmDetails?.restaurantInfo?.name,
-              averageRating: firmDetails?.restaurantInfo?.ratings?.overall,
-              reviewCount: firmDetails?.restaurantInfo?.ratings?.totalReviews,
-              reviewType:'takeaway'
-            }
-          })}
-          style={styles.reviewBox}
-        >
-          <View style={styles.reviewBoxTopContainer}>
-            <View style={styles.reviewBoxUpperContainer}>
-              <Text style={styles.reviewText}>
-                {firmDetails?.restaurantInfo?.ratings?.overall || "4.5"}
-              </Text>
-              <FontAwesome name="star" size={24} color="white" />
-            </View>
-          </View>
-          <View style={styles.reviewBoxBottomContainer}>
-            <Text style={styles.reviewCount}>
-              {firmDetails?.restaurantInfo?.ratings?.totalReviews}
-            </Text>
-            <Text style={styles.reviewCount}>Reviews</Text>
-          </View>
-        </TouchableOpacity>
-      </View>
-    <View style={styles.offersContainer}>
-        <TouchableOpacity
-          onPress={() => setIsExpanded(!isExpanded)}
-          style={styles.offersHeaderContainer}
-        >
-          <Text style={styles.offersHeader}>Available Offers</Text>
-          <Text style={styles.dropdownIcon}>
-            {isExpanded ? '▲' : '▼'}
-          </Text>
-        </TouchableOpacity>
-
-        {isExpanded && (
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.offersTrack}
+        <View className="absolute bottom-0 left-0 right-0">
+          <LinearGradient
+            colors={["#18181800", "#18181866", "#181818CC"]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 0, y: 1 }}
+            style={{ flexDirection: "row", width: "100%", justifyContent: "space-between" }}
           >
-            {offers?.map((offer) => {
-              const discountText =
-                offer.offerType === "percentage"
-                  ? `${offer.discountValue}% OFF`
-                  : `Flat $${offer.discountValue} OFF`;
-
-              const isPercentageOffer = offer.offerType === "percentage";
-
-              return (
+            <View className="p-2">
+              <View>
                 <TouchableOpacity
-                  key={offer._id}
-                  activeOpacity={0.8}
+                  onPress={() => router.push({
+                    pathname: '/screens/RestaurantDetailsScreen',
+                    params: { restaurant: JSON.stringify(firmDetails) }
+                  })}
                 >
-                  <View style={[
-                    styles.offerCard,
-                    isPercentageOffer ? styles.percentageOffer : styles.flatOffer
-                  ]}>
-                    <View style={styles.offerBadge}>
-                      <Text style={styles.offerBadgeText}>
-                        {isPercentageOffer ? 'HOT' : 'FLAT'}
-                      </Text>
-                    </View>
-
-                    <Text style={styles.offerTitle} numberOfLines={1}>
-                      {offer.name}
-                    </Text>
-
-                    <Text style={styles.offerDiscount}>
-                      {discountText}
-                    </Text>
-
-                    <View style={styles.offerCodeContainer}>
-                      <Text style={styles.offerCodeText}>
-                        Use code:
-                      </Text>
-                      <Text style={styles.offerCode}>
-                        {offer.code}
-                      </Text>
-                    </View>
-                  </View>
+                  <Text className="text-white font-outfit-bold text-xl mb-1">
+                    {firmDetails?.restaurantInfo?.name || "Restaurant"}
+                  </Text>
                 </TouchableOpacity>
-              );
-            })}
-          </ScrollView>
-        )}
-      </View>
-      <View style={styles.separatorRow}>
-        <View style={styles.line} />
-        <Text style={styles.separatorText}>MENU</Text>
-        <View style={styles.line} />
+                <Text className="text-white/80 font-outfit text-sm mb-1">
+                  {firmDetails?.restaurantInfo?.address}
+                </Text>
+                <Text className="text-white/80 font-outfit text-sm mb-1">
+                  {Array.isArray(firmDetails?.restaurantInfo?.cuisines)
+                    ? firmDetails.restaurantInfo.cuisines.join(' • ')
+                    : firmDetails?.restaurantInfo?.cuisines || 'Italian • Dessert'}
+                </Text>
+                <Text className="text-white/80 font-outfit text-sm">
+                  {firmDetails?.restaurantInfo?.priceRange || '₹1010 for Two'}
+                </Text>
+              </View>
+            </View>
+
+            <TouchableOpacity
+              onPress={() => router.push({
+                pathname: "/screens/Reviewsall",
+                params: {
+                  firmId: firmId,
+                  restaurantName: firmDetails?.restaurantInfo?.name,
+                  averageRating: firmDetails?.restaurantInfo?.ratings?.overall,
+                  reviewCount: firmDetails?.restaurantInfo?.ratings?.totalReviews
+                }
+              })}
+              className="bg-white/20 rounded-lg p-3 items-center justify-center"
+            >
+              <View className="flex-row items-center mb-1">
+                <View className="flex-row items-center">
+                  <Text className="text-white font-outfit-bold text-lg mr-1">
+                    {firmDetails?.restaurantInfo?.ratings?.overall?.toFixed(1) || '4.5'}
+                  </Text>
+                  <FontAwesome name='star' size={18} color='white' />
+                </View>
+              </View>
+              <View className="items-center">
+                <Text className="text-white/80 font-outfit text-xs">
+                  {firmDetails?.restaurantInfo?.ratings?.totalReviews || '725'}
+                </Text>
+                <Text className="text-white/80 font-outfit text-xs">Reviews</Text>
+              </View>
+            </TouchableOpacity>
+          </LinearGradient>
+        </View>
       </View>
 
+      <View className="flex-row items-center my-4">
+        <View className="flex-1 h-px bg-border" />
+        <Text className="text-textsecondary font-outfit-bold mx-4 text-sm">Offers</Text>
+        <View className="flex-1 h-px bg-border" />
+      </View>
+      <View className="mb-5">
+        <FlatList
+          data={offers}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          keyExtractor={item => item.id.toString()}
+          renderItem={({ item }) => <OffersCard offerTitle={item.title} offerValidity={item.validity} />}
+          contentContainerStyle={{ paddingHorizontal: 10 }}
+        />
+      </View>
+
+      <View className="flex-row items-center my-4">
+        <View className="flex-1 h-px bg-border" />
+        <Text className="text-textsecondary font-outfit-bold mx-4 text-sm">MENU</Text>
+        <View className="flex-1 h-px bg-border" />
+      </View>
+
+      {/* Commented out filter container section */}
       {/* <View style={styles.filterContainer}>
         <FlatList
           data={filters}
@@ -638,10 +558,10 @@ const UploadRecentlyViewd = async () => {
         data={categories}
         keyExtractor={(category) => category}
         renderItem={({ item: category }) => (
-          <View style={styles.categoryContainer}>
-            <TouchableOpacity style={styles.categoryHeader} onPress={() => toggleCategory(category)}>
-              <Text style={styles.categoryTitle}>{category}</Text>
-              <Text style={styles.toggleIcon}>{collapsed[category] ? "▼" : "▲"}</Text>
+          <View className="mb-4">
+            <TouchableOpacity className="flex-row justify-between items-center p-4 bg-white border-b border-border" onPress={() => toggleCategory(category)}>
+              <Text className="text-textprimary font-outfit-bold text-lg">{category}</Text>
+              <Text className="text-textsecondary font-outfit text-lg">{collapsed[category] ? "▼" : "▲"}</Text>
             </TouchableOpacity>
             {!collapsed[category] && (
               <FlatList
@@ -656,7 +576,7 @@ const UploadRecentlyViewd = async () => {
 
       {getTotalItems() > 0 && (
         <TouchableOpacity
-          style={styles.proceedToCartButton}
+          className="absolute bottom-0 left-0 right-0 bg-primary p-4 m-4 rounded-lg"
           onPress={() => router.push({
             pathname: 'screens/TakeAwayCart',
             params: {
@@ -666,45 +586,45 @@ const UploadRecentlyViewd = async () => {
             }
           })}
         >
-          <Text style={styles.proceedToCartText}>
+          <Text className="text-white text-center font-outfit-bold">
             {getTotalItems()} items | ${getSubtotal()} | Go to Cart
           </Text>
         </TouchableOpacity>
       )}
 
       <Modal visible={offersVisible} transparent animationType="slide">
-        <View style={styles.offerModalOverlay}>
-          <View style={styles.offerModalContainer}>
-            <Text style={styles.offerHeader}>Offers at {firmDetails?.restaurantInfo?.name || "Restaurant"}</Text>
-            <Text style={styles.offerSubHeader}>Restaurant Coupons</Text>
+        <View className="flex-1 bg-black/50 justify-end">
+          <View className="bg-white rounded-t-3xl p-6 max-h-4/5">
+            <Text className="text-textprimary font-outfit-bold text-xl mb-2">Offers at {firmDetails?.restaurantInfo?.name || "Restaurant"}</Text>
+            <Text className="text-textsecondary font-outfit text-base mb-4">Restaurant Coupons</Text>
             <FlatList
               data={offers}
-              keyExtractor={(item) => item.id}
+              keyExtractor={(item) => item._id || item.id}
               renderItem={({ item }) => (
-                <View style={styles.offerCard}>
+                <View className="bg-background border border-border rounded-lg p-4 mb-3">
                   <TouchableOpacity
-                    style={styles.offerHeader}
+                    className="flex-row items-center justify-between"
                     onPress={() =>
-                      setExpandedOffer(expandedOffer === item.id ? null : item.id)
+                      setExpandedOffer(expandedOffer === item._id ? null : item._id)
                     }
                   >
                     <Ionicons name={item.icon} size={22} color="#007BFF" />
-                    <Text style={styles.offerTitle}>{item.title}</Text>
+                    <Text className="text-textprimary font-outfit-bold text-base flex-1 mx-3">{item.title}</Text>
                     <Ionicons
                       name={expandedOffer === item.id ? "chevron-up" : "chevron-down"}
                       size={22}
                       color="#333"
                     />
                   </TouchableOpacity>
-                  {expandedOffer === item.id && (
-                    <View style={styles.offerExpandedContent}>
+                  {expandedOffer === item._id && (
+                    <View className="mt-3 pt-3 border-t border-border">
                       {item.code && (
-                        <Text style={styles.offerCodeText}>Use code {item?.code} | above {item?.minOrder}</Text>
+                        <Text className="text-primary font-outfit-bold text-sm mb-2">Use code {item?.code} | above {item?.minOrder}</Text>
                       )}
-                      {item.details.map((detail, index) => (
-                        <View key={index} style={styles.offerDetailItem}>
+                      {item.details?.map((detail, index) => (
+                        <View key={index} className="flex-row items-center mb-1">
                           <Ionicons name="checkmark-circle-outline" size={18} color="green" />
-                          <Text style={styles.offerDetailText}>{detail}</Text>
+                          <Text className="text-textsecondary font-outfit text-sm ml-2">{detail}</Text>
                         </View>
                       ))}
                     </View>
@@ -712,14 +632,15 @@ const UploadRecentlyViewd = async () => {
                 </View>
               )}
             />
-            <TouchableOpacity onPress={() => setOffersVisible(false)} style={styles.offerCloseButton}>
-              <Text style={styles.offerCloseButtonText}>Close</Text>
+            <TouchableOpacity onPress={() => setOffersVisible(false)} className="bg-primary p-4 rounded-lg mt-4">
+              <Text className="text-white font-outfit-bold text-center">Close</Text>
             </TouchableOpacity>
           </View>
         </View>
       </Modal>
 
-      <Modal visible={filterVisible} transparent animationType="slide">
+      {/* Commented out filter modal section */}
+      {/* <Modal visible={filterVisible} transparent animationType="slide">
         <View style={styles.filterOverlay}>
           <View style={styles.filterModalContainer}>
             <Text style={styles.filterHeader}>Filters and Sorting</Text>
@@ -773,7 +694,7 @@ const UploadRecentlyViewd = async () => {
             </View>
           </View>
         </View>
-      </Modal>
+      </Modal> */}
     </View>
   );
 }

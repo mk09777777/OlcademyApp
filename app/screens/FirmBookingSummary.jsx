@@ -1,9 +1,7 @@
 import { View, Text, TouchableOpacity, ScrollView, Modal, Alert } from 'react-native'
 import React, { Fragment, useEffect, useRef, useState } from 'react'
 import { useGlobalSearchParams, useRouter } from 'expo-router'
-import { styles } from '@/styles/FirmBookingStyles'
 import { Ionicons } from '@expo/vector-icons'
-import BookingSummaryStyles from "../../styles/bookinsummary"
 import Feather from '@expo/vector-icons/Feather';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
@@ -123,6 +121,8 @@ fetchInitialSettings()
       email: email,
       mobileNumber: updatedData?.contact || contact,
     };
+
+    console.log('📋 Original format order data:', orderData);
 
     try {
       const response = await axios.post(
@@ -286,80 +286,75 @@ fetchInitialSettings()
     // </View>
     <Fragment>
       <ScrollView>
-        <View
-          style={styles.upperPannel}
-        >
+        <View className="flex-row items-center mb-6">
           <TouchableOpacity
-            style={styles.backButton}
+            className="pr-4 mr-2"
             onPress={() => { router.back() }}
           >
             <Ionicons name='arrow-back' size={24} />
           </TouchableOpacity>
           <View>
-            <Text
-              style={styles.pageHeader}
-            >
+            <Text className="font-bold text-2xl text-gray-800 mb-1">
               Booking Summary
             </Text>
           </View>
         </View>
-        <View style={BookingSummaryStyles.background}>
-          <View style={BookingSummaryStyles.headerContainer}>
-            <Text style={BookingSummaryStyles.headingText}>
+        <View className="bg-gray-50 flex-1">
+          <View className="p-4">
+            <Text className="text-gray-700 text-center mb-1">
               Cover charge of ₹125 will be adjusted with your final
             </Text>
-            <Text style={BookingSummaryStyles.headingText}>
+            <Text className="text-gray-700 text-center mb-4">
               Bill payment at the restaurant
             </Text>
           </View>
-          <View style={BookingSummaryStyles.BillingDetailContainer}>
-            <View style={BookingSummaryStyles.summary1Container}>
+          <View className="bg-white mx-4 rounded-lg p-4 mb-4">
+            <View className="flex-row items-center mb-3">
               <Feather name="calendar" size={18} color="#525259" />
-              <Text style={BookingSummaryStyles.Text1}>{date} at {time}</Text>
+              <Text className="ml-3 text-gray-700">{date} at {time}</Text>
             </View>
-            <View style={BookingSummaryStyles.summary3Container}>
+            <View className="flex-row items-center mb-3">
               <AntDesign name="addusergroup" size={18} color="#525259" />
-              <Text style={BookingSummaryStyles.Text1}>{guestCount} guests</Text>
+              <Text className="ml-3 text-gray-700">{guestCount} guests</Text>
             </View>
-            <View style={BookingSummaryStyles.summary2Container}>
-              <Ionicons name="location-outline" size={20} color="#525259" style={{ marginTop: 9 }} />
-              <View style={BookingSummaryStyles.TextAddContainer}>
-                <Text style={BookingSummaryStyles.TextAdd1}>{firmName}</Text>
-                <Text style={BookingSummaryStyles.TextAdd2}>{firmadd}</Text>
+            <View className="flex-row items-start mb-3">
+              <Ionicons name="location-outline" size={20} color="#525259" className="mt-2" />
+              <View className="ml-3 flex-1">
+                <Text className="text-gray-800 font-medium">{firmName}</Text>
+                <Text className="text-gray-600 text-sm">{firmadd}</Text>
               </View>
             </View>
-            <View style={BookingSummaryStyles.summary2Container}>
-              <MaterialIcons name="local-offer" size={20} color="#525259" style={{ marginTop: 9 }} />
-              <View style={BookingSummaryStyles.TextAddContainer}>
-                <Text style={BookingSummaryStyles.TextAdd1}>Flat {parsedOffer?.discountValue ?? 0}% OFF on total bill</Text>
-                <Text style={BookingSummaryStyles.TextAdd2}>Pay bill between 6:15 PM - 12:15 </Text>
+            <View className="flex-row items-start mb-3">
+              <MaterialIcons name="local-offer" size={20} color="#525259" className="mt-2" />
+              <View className="ml-3 flex-1">
+                <Text className="text-gray-800 font-medium">Flat {parsedOffer?.discountValue ?? 0}% OFF on total bill</Text>
+                <Text className="text-gray-600 text-sm">Pay bill between 6:15 PM - 12:15</Text>
               </View>
             </View>
-            <View style={BookingSummaryStyles.summary4Container}>
-              <View style={BookingSummaryStyles.TextAddContainer}>
-                <Text style={BookingSummaryStyles.TextAdd11}>Cover charge to be paid</Text>
-                <Text style={BookingSummaryStyles.TextAdd21}> Cover charge: Flat {parsedOffer?.discountValue ?? 0}% OFF</Text>
+            <View className="flex-row justify-between items-center border-t pt-3">
+              <View>
+                <Text className="text-gray-800 font-medium">Cover charge to be paid</Text>
+                <Text className="text-gray-600 text-sm">Cover charge: Flat {parsedOffer?.discountValue ?? 0}% OFF</Text>
               </View>
-              <View style={BookingSummaryStyles.TextAddContainer}>
-                <Text style={BookingSummaryStyles.TextAdd11}>₹125</Text>
-                <Text style={BookingSummaryStyles.TextAdd21}>₹125</Text>
+              <View className="items-end">
+                <Text className="text-gray-800 font-medium">₹125</Text>
+                <Text className="text-gray-600 text-sm">₹125</Text>
               </View>
             </View>
           </View>
           {reqeststate ?
-            <View style={BookingSummaryStyles.addrequestContainer}>
-              <View style={BookingSummaryStyles.addrequestStartActive}>
-
-                <Text style={BookingSummaryStyles.requestText}>Special request</Text>
-                <Text style={BookingSummaryStyles.requestText2}>{requestDataa.data}:{requestDataa.item}</Text>
+            <View className="bg-white mx-4 rounded-lg p-4 mb-4 flex-row justify-between items-center">
+              <View className="flex-1">
+                <Text className="text-gray-800 font-medium">Special request</Text>
+                <Text className="text-gray-600 text-sm">{requestDataa.data}:{requestDataa.item}</Text>
               </View>
               <TouchableOpacity onPress={handleDelete}>
                 <AntDesign name="delete" size={22} color="#2e7e5e" />
               </TouchableOpacity>
-            </View> : <TouchableOpacity onPress={toggleRequestModal} style={BookingSummaryStyles.addrequestContainer}>
-              <View style={BookingSummaryStyles.addrequestStart}>
+            </View> : <TouchableOpacity onPress={toggleRequestModal} className="bg-white mx-4 rounded-lg p-4 mb-4 flex-row justify-between items-center">
+              <View className="flex-row items-center">
                 <Ionicons name="add-circle-outline" size={26} color="black" />
-                <Text style={BookingSummaryStyles.requestText}>Add special request</Text>
+                <Text className="ml-3 text-gray-800">Add special request</Text>
               </View>
               <Ionicons name="chevron-forward" size={22} color="black" />
             </TouchableOpacity>}
@@ -371,37 +366,37 @@ fetchInitialSettings()
           >
             <AddRequest toggle={toggleRequestModal} data={handleRequestData} />
           </Modal>
-          <View style={BookingSummaryStyles.Divider}>
-            <View style={BookingSummaryStyles.line} />
-            <Text style={BookingSummaryStyles.SeperateText}>RESTAURANT TERMS</Text>
-            <View style={BookingSummaryStyles.line} />
+          <View className="flex-row items-center mx-4 my-4">
+            <View className="flex-1 h-px bg-gray-300" />
+            <Text className="mx-4 text-gray-600 text-sm font-medium">RESTAURANT TERMS</Text>
+            <View className="flex-1 h-px bg-gray-300" />
           </View>
-          <View style={BookingSummaryStyles.TermsContainer}>
-            <View style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
-              <FontAwesome name="circle" size={8} color="black" style={{ marginLeft: 10 }} />
-              <Text style={BookingSummaryStyles.TermsText}>No offers allowed for stag entries</Text>
+          <View className="bg-white mx-4 rounded-lg p-4 mb-4">
+            <View className="flex-row items-center">
+              <FontAwesome name="circle" size={8} color="black" className="ml-2" />
+              <Text className="ml-3 text-gray-700">No offers allowed for stag entries</Text>
             </View>
-            <View style={{ display: "flex", flexDirection: "row", alignItems: "center", marginTop: 10 }}>
-              <FontAwesome name="circle" size={8} color="black" style={{ marginLeft: 10 }} />
-              <Text style={BookingSummaryStyles.TermsText}>Stag entry as per restaurant policy</Text>
+            <View className="flex-row items-center mt-2">
+              <FontAwesome name="circle" size={8} color="black" className="ml-2" />
+              <Text className="ml-3 text-gray-700">Stag entry as per restaurant policy</Text>
             </View>
           </View>
-          <View style={BookingSummaryStyles.Divider}>
-            <View style={BookingSummaryStyles.line} />
-            <Text style={BookingSummaryStyles.SeperateText}>YOUR DETAILS</Text>
-            <View style={BookingSummaryStyles.line} />
+          <View className="flex-row items-center mx-4 my-4">
+            <View className="flex-1 h-px bg-gray-300" />
+            <Text className="mx-4 text-gray-600 text-sm font-medium">YOUR DETAILS</Text>
+            <View className="flex-1 h-px bg-gray-300" />
           </View>
-          <View style={BookingSummaryStyles.DetailsContainer}>
-            <View style={BookingSummaryStyles.TextAddContainer}>
-              <Text style={BookingSummaryStyles.TextAdd1}>
+          <View className="bg-white mx-4 rounded-lg p-4 mb-4 flex-row justify-between items-center">
+            <View>
+              <Text className="text-gray-800 font-medium">
                 {updatedData?.name || name}
               </Text>
-              <Text style={BookingSummaryStyles.EditText2}>
+              <Text className="text-gray-600 text-sm">
                 {updatedData?.contact || contact}
               </Text>
             </View>
             <TouchableOpacity onPress={toggleInputModal}>
-              <Text style={BookingSummaryStyles.EditText}>Edit</Text>
+              <Text className="text-red-500 font-medium">Edit</Text>
             </TouchableOpacity>
           </View>
           <Modal
@@ -412,29 +407,25 @@ fetchInitialSettings()
           >
             <InputModalEdit name2={updatedData ? updatedData.name : name} contact2={updatedData ? updatedData.contact : contact} update={handleUpdated} toggle={toggleInputModal} />
           </Modal>
-          <View style={{ padding: 60 }}></View>
+          <View className="p-16"></View>
         </View>
 
       </ScrollView>
-      <View style={BookingSummaryStyles.payContainer}>
-        <View style={BookingSummaryStyles.paymentDetailsContainer}>
-          <Text style={BookingSummaryStyles.payText1}>Amazon Pay</Text>
-          <Text style={BookingSummaryStyles.payText2}>Balance: ₹5</Text>
+      <View className="bg-white border-t border-gray-200 p-4">
+        <View className="flex-row justify-between items-center mb-3">
+          <Text className="text-gray-800 font-medium">Amazon Pay</Text>
+          <Text className="text-gray-600">Balance: ₹5</Text>
         </View>
-        <View style={BookingSummaryStyles.PayButton}>
-
-          <TouchableOpacity style={BookingSummaryStyles.PayButton} onPress={handleSubmit}>
-            <View style={BookingSummaryStyles.paymentDetailsContainer}>
-              <Text style={BookingSummaryStyles.payText3}>₹50.00</Text>
-              <Text style={BookingSummaryStyles.payText32}>TOTAL</Text>
-            </View>
-            <View style={{ display: "flex", flexDirection: "row", marginRight: 6, alignItems: "center" }}>
-              <Text style={BookingSummaryStyles.payText4}>Pay Bill </Text>
-              <Ionicons name="caret-forward-outline" size={18} color="white" />
-            </View>
-          </TouchableOpacity>
-
-        </View>
+        <TouchableOpacity className="bg-red-500 rounded-lg p-4 flex-row justify-between items-center" onPress={handleSubmit}>
+          <View>
+            <Text className="text-white font-bold text-lg">₹50.00</Text>
+            <Text className="text-white text-sm">TOTAL</Text>
+          </View>
+          <View className="flex-row items-center mr-2">
+            <Text className="text-white font-medium mr-1">Pay Bill</Text>
+            <Ionicons name="caret-forward-outline" size={18} color="white" />
+          </View>
+        </TouchableOpacity>
       </View>
     </Fragment>
   )

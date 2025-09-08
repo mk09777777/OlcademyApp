@@ -4,9 +4,7 @@ import SelectCountryCode from '@/components/SelectCountryCode'
 
 export default function SearchCountryCode() {
   return (
-    <View
-        style={{flex: 1}}
-    >
+    <View className="flex-1">
       <SelectCountryCode/>
     </View>
   )

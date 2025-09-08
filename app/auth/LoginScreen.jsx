@@ -1,7 +1,6 @@
 import { View, Text, TouchableOpacity, TextInput, SafeAreaView, ScrollView, ActivityIndicator, Alert } from 'react-native'
 import React, { useEffect, useState, useRef } from 'react'
 import { Ionicons } from '@expo/vector-icons'
-import { styles } from '@/styles/LoginScreenStyles'
 import { useRouter } from 'expo-router'
 import { useAuth } from '@/context/AuthContext';
 import axios from 'axios'
@@ -191,13 +190,11 @@ const handleLogin = async () => {
   }
 
   return (
-    <SafeAreaView
-      style={styles.container}
-    >
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
-        <View style={styles.content}>
-          <View style={styles.header}>
-            <Text style={styles.title}>
+    <SafeAreaView className="flex-1 bg-white justify-center p-5">
+      <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: 'center' }}>
+        <View>
+          <View className="flex-row justify-between items-center mb-5">
+            <Text className="text-2xl font-bold text-textsecondary">
               {currentView === 'login' && 'Login'}
               {currentView === 'otp' && 'Verify Email'}
               {currentView === 'resetPassword' && 'Reset Password'}
@@ -205,11 +202,11 @@ const handleLogin = async () => {
           </View>
 
           {currentView === 'login' && (
-            <View style={styles.formContainer}>
-              {error ? <Text style={styles.errorText}>{error}</Text> : null}
+            <View className="w-full">
+              {error ? <Text className="text-red-500 text-sm mb-2.5">{error}</Text> : null}
 
               <TextInput
-                style={styles.inputField}
+                className="border border-border rounded-2.5 p-4 mb-4 text-base"
                 placeholder="Email Address"
                 value={formData.email}
                 onChangeText={(text) => handleChange('email', text)}
@@ -217,9 +214,9 @@ const handleLogin = async () => {
                 autoCapitalize="none"
               />
 
-              <View style={styles.passwordInputContainer}>
+              <View className="flex-row items-center border-border rounded-2.5 mb-4">
                 <TextInput
-                  style={[styles.inputField, { flex: 1 }]}
+                  className="flex-1 border border-border rounded-2.5 p-4 text-base"
                   placeholder="Password"
                   value={formData.password}
                   onChangeText={(text) => handleChange('password', text)}
@@ -227,7 +224,7 @@ const handleLogin = async () => {
                 />
                 <TouchableOpacity
                   onPress={() => setShowPassword(prev => !prev)}
-                  style={styles.eyeButton}
+                  className="p-2.5"
                 >
                   <Ionicons
                     name={showPassword ? 'eye-off' : 'eye'}
@@ -237,18 +234,15 @@ const handleLogin = async () => {
                 </TouchableOpacity>
               </View>
 
-              <View style={styles.optionsRow}>
-                <View style={styles.rememberMeContainer}>
+              <View className="flex-row justify-between items-center mb-5">
+                <View className="flex-row items-center">
                   <TouchableOpacity
                     onPress={() => setRememberMe(!rememberMe)}
-                    style={[
-                      styles.checkbox,
-                      rememberMe && styles.checkboxChecked,
-                    ]}
+                    className={`w-5 h-5 border border-border rounded justify-center items-center mr-2 ${rememberMe ? 'bg-primary border-primary' : ''}`}
                   >
-                    {rememberMe && <Text style={styles.checkmark}>✓</Text>}
+                    {rememberMe && <Text className="text-white text-xs">✓</Text>}
                   </TouchableOpacity>
-                  <Text style={styles.rememberMeText}>Remember Me</Text>
+                  <Text className="text-sm text-textsecondary">Remember Me</Text>
                 </View>
                 <TouchableOpacity
                   onPress={handleForgotPassword}
@@ -257,7 +251,7 @@ const handleLogin = async () => {
                   {otpLoading ? (
                     <ActivityIndicator size="small" color="#000" />
                   ) : (
-                    <Text style={styles.forgotPasswordLink}>
+                    <Text className="text-sm text-primary">
                       Forgot password?
                     </Text>
                   )}
@@ -265,56 +259,56 @@ const handleLogin = async () => {
               </View>
 
               <TouchableOpacity
-                style={styles.submitButton}
+                className="bg-primary p-4 rounded-2.5 items-center mb-5"
                 onPress={handleLogin}
                 disabled={loading}
               >
                 {loading ? (
                   <ActivityIndicator color="#fff" />
                 ) : (
-                  <Text style={styles.submitButtonText}>Log In</Text>
+                  <Text className="text-white text-base font-bold">Log In</Text>
                 )}
               </TouchableOpacity>
 
-              <View style={styles.divider}>
-                <View style={styles.dividerLine} />
-                <Text style={styles.dividerText}>or</Text>
-                <View style={styles.dividerLine} />
+              <View className="flex-row items-center my-5">
+                <View className="flex-1 h-px bg-border" />
+                <Text className="mx-2.5 text-textsecondary text-sm">or</Text>
+                <View className="flex-1 h-px bg-border" />
               </View>
 
               <TouchableOpacity
-                style={styles.socialButton}
+                className="border border-border p-4 rounded-2.5 items-center mb-2.5"
                 onPress={LoginWithGoogle}
                 disabled={loading}
               >
-                <Text style={styles.socialButtonText}>
+                <Text className="text-base text-textsecondary">
                   Continue with Google
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={styles.socialButton}
+                className="border border-border p-4 rounded-2.5 items-center mb-2.5"
                 onPress={LoginWithTwitter}
                 disabled={loading}
               >
-                <Text style={styles.socialButtonText}>
+                <Text className="text-base text-textsecondary">
                   Continue with Twitter
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={styles.socialButton}
+                className="border border-border p-4 rounded-2.5 items-center mb-2.5"
                 onPress={LoginWithFacebook}
                 disabled={loading}
               >
-                <Text style={styles.socialButtonText}>
+                <Text className="text-base text-textsecondary">
                   Continue with Facebook
                 </Text>
               </TouchableOpacity>
 
-              <View style={styles.signupPrompt}>
-                <Text style={styles.detailsText}>
+              <View className="flex-row justify-center mt-2.5">
+                <Text className="text-sm text-textsecondary">
                   Don't have an Account? 
                   <Text
-                    style={styles.registerButton}
+                    className="text-sm text-primary font-bold"
                     onPress={() => router.navigate('/auth/Signup')}
                   >
                     Register
@@ -325,24 +319,24 @@ const handleLogin = async () => {
           )}
 
           {currentView === 'otp' && (
-            <View style={styles.otpSection}>
-              <Text style={styles.subtext}>
+            <View className="w-full items-center">
+              <Text className="text-sm text-textsecondary mb-5 text-center">
                 Enter the 6-digit code sent to{' '}
-                <Text style={{ fontWeight: 'bold' }}>{formData.email}</Text>.
+                <Text className="font-bold">{formData.email}</Text>.
               </Text>
 
               {otpError ? (
-                <Text style={[styles.errorText, { textAlign: 'center' }]}>
+                <Text className="text-red-500 text-sm mb-2.5 text-center">
                   {otpError}
                 </Text>
               ) : null}
 
-              <View style={styles.otpInputContainer}>
+              <View className="flex-row justify-between mb-5 w-full">
                 {otpArray.map((digit, index) => (
                   <TextInput
                     key={index}
                     ref={el => (otpRefs.current[index] = el)}
-                    style={styles.otpInput}
+                    className="w-11 h-11 border border-border rounded-2.5 text-center text-lg"
                     keyboardType="numeric"
                     maxLength={1}
                     value={digit}
@@ -354,19 +348,19 @@ const handleLogin = async () => {
               </View>
 
               <TouchableOpacity
-                style={styles.submitButton}
+                className="bg-primary p-4 rounded-2.5 items-center mb-5 w-full"
                 onPress={verifyOtp}
                 disabled={otpLoading || otpArray.join('').length !== 6}
               >
                 {otpLoading ? (
                   <ActivityIndicator color="#fff" />
                 ) : (
-                  <Text style={styles.submitButtonText}>Verify Code</Text>
+                  <Text className="text-white text-base font-bold">Verify Code</Text>
                 )}
               </TouchableOpacity>
 
-              <View style={styles.resendContainer}>
-                <Text style={styles.resendText}>Didn't receive code?</Text>
+              <View className="flex-row justify-center mt-2.5">
+                <Text className="text-sm text-textsecondary mr-1">Didn't receive code?</Text>
                 <TouchableOpacity
                   onPress={resendOtp}
                   disabled={resendDisabled || otpLoading}
@@ -374,7 +368,7 @@ const handleLogin = async () => {
                   {otpLoading && !resendDisabled ? (
                     <ActivityIndicator size="small" color="#000" />
                   ) : (
-                    <Text style={styles.resendLink}>
+                    <Text className="text-sm text-primary font-bold">
                       {resendDisabled
                         ? `Resend in ${formatTime(timer)}`
                         : 'Resend Code'}
@@ -386,14 +380,14 @@ const handleLogin = async () => {
           )}
 
           {currentView === 'resetPassword' && (
-            <View style={styles.resetPasswordSection}>
-              <Text style={styles.subtext}>Create a new secure password.</Text>
+            <View className="w-full">
+              <Text className="text-sm text-textsecondary mb-5 text-center">Create a new secure password.</Text>
 
-              {error ? <Text style={styles.errorText}>{error}</Text> : null}
+              {error ? <Text className="text-red-500 text-sm mb-2.5">{error}</Text> : null}
 
-              <View style={styles.passwordInputContainer}>
+              <View className="flex-row items-center border-border rounded-2.5 mb-4">
                 <TextInput
-                  style={[styles.inputField, { flex: 1 }]}
+                  className="flex-1 border border-border rounded-2.5 p-4 text-base"
                   placeholder="New Password"
                   value={newPassword}
                   onChangeText={setNewPassword}
@@ -401,9 +395,9 @@ const handleLogin = async () => {
                 />
               </View>
 
-              <View style={styles.passwordInputContainer}>
+              <View className="flex-row items-center border-border rounded-2.5 mb-4">
                 <TextInput
-                  style={[styles.inputField, { flex: 1 }]}
+                  className="flex-1 border border-border rounded-2.5 p-4 text-base"
                   placeholder="Confirm New Password"
                   value={confirmPassword}
                   onChangeText={setConfirmPassword}
@@ -412,14 +406,14 @@ const handleLogin = async () => {
               </View>
 
               <TouchableOpacity
-                style={styles.submitButton}
+                className="bg-primary p-4 rounded-2.5 items-center mb-5"
                 onPress={resetPassword}
                 disabled={resetLoading}
               >
                 {resetLoading ? (
                   <ActivityIndicator color="#fff" />
                 ) : (
-                  <Text style={styles.submitButtonText}>Reset Password</Text>
+                  <Text className="text-white text-base font-bold">Reset Password</Text>
                 )}
               </TouchableOpacity>
             </View>

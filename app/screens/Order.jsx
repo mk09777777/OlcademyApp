@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, Text, SafeAreaView } from 'react-native';
+import { View, Text, SafeAreaView } from 'react-native';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import TakeawayOrdersScreen from './TakeWayOrderScreen';
 import TiffinOrdersScreen from './TiffinOrderScreen';
@@ -10,18 +10,14 @@ const Tab = createMaterialTopTabNavigator();
 
 export default function OrderScreen() {
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView className="flex-1 bg-white">
       <BackRouting tittle ="Your Order"/>
-      {/* <View style={styles.header}>
-        <Text style={styles.headerTitle}>My Orders</Text>
-        <Ionicons name="notifications-outline" size={24} color="#333" />
-      </View> */}
       
       <Tab.Navigator
         screenOptions={{
-          tabBarActiveTintColor: '#fc8019',
+          tabBarActiveTintColor: '#FF002E',
           tabBarInactiveTintColor: '#666',
-          tabBarIndicatorStyle: { backgroundColor: '#fc8019' },
+          tabBarIndicatorStyle: { backgroundColor: '#FF002E' },
           tabBarLabelStyle: { fontSize: 14, fontWeight: '500', textTransform: 'none' },
           tabBarStyle: { elevation: 0, shadowOpacity: 0, borderBottomWidth: 1, borderBottomColor: '#f0f0f0' },
         }}
@@ -47,24 +43,3 @@ export default function OrderScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: '#fff',
-    borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
-  },
-  headerTitle: {
-    fontSize: 20,
-    fontWeight: '600',
-    color: '#333',
-  },
-});

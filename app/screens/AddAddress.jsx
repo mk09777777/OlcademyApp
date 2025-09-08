@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/Feather';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
@@ -52,47 +52,45 @@ export default function AddAddressScreen() {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Delivery details</Text>
+    <View className="flex-1 p-5 bg-white">
+      <Text className="text-xl font-outfit-bold mb-4 text-textprimary">Delivery details</Text>
 
-      <Text style={styles.addressPreview}>{address || 'No address selected yet'}</Text>
+      <Text className="mb-5 text-textsecondary text-base font-outfit">{address || 'No address selected yet'}</Text>
 
       <TouchableOpacity
         onPress={handleSelectFromMap}
-        style={styles.mapButton}
+        className="flex-row items-center justify-between bg-white p-4 rounded-lg mb-6 border border-border shadow-sm"
       >
-        <View style={styles.mapButtonContent}>
-          <Icon name="map-pin" size={20} color="#f23e3e" />
-          <Text style={styles.mapButtonText}>Select location from the map</Text>
+        <View className="flex-row items-center">
+          <Icon name="map-pin" size={20} color="#FF002E" />
+          <Text className="ml-3 font-outfit text-textprimary text-base">Select location from the map</Text>
         </View>
         <Icon name="chevron-right" size={20} color="#aaa" />
       </TouchableOpacity>
 
-      <Text style={styles.label}>Additional address details*</Text>
-      <Text style={styles.subLabel}>E.g. Floor, House no.</Text>
+      <Text className="mb-2 text-textsecondary text-sm font-outfit">Additional address details*</Text>
+      <Text className="mb-3 text-xs text-textsecondary font-outfit">E.g. Floor, House no.</Text>
       <TextInput
         placeholder="Enter additional details"
         value={additionalDetails}
         onChangeText={setAdditionalDetails}
-        style={styles.input}
+        className="border border-border p-4 rounded-lg mb-6 text-base bg-light font-outfit"
       />
 
-      <Text style={styles.sectionTitle}>Save address as</Text>
-      <View style={styles.tagContainer}>
+      <Text className="font-outfit text-base mb-4 text-textprimary">Save address as</Text>
+      <View className="flex-row mb-8">
         {tagOptions.map(({ type, icon }) => (
           <TouchableOpacity
             key={type}
             onPress={() => setSelectedType(type)}
-            style={[
-              styles.tag,
-              selectedType === type && styles.selectedTag
-            ]}
+            className={`flex-row items-center py-3 px-4 mr-3 border rounded-full ${
+              selectedType === type ? 'border-primary bg-light' : 'border-border bg-white'
+            }`}
           >
             {icon}
-            <Text style={[
-              styles.tagText,
-              selectedType === type && styles.selectedTagText
-            ]}>
+            <Text className={`ml-2 font-outfit ${
+              selectedType === type ? 'text-primary font-outfit-bold' : 'text-textsecondary'
+            }`}>
               {type}
             </Text>
           </TouchableOpacity>
@@ -101,130 +99,14 @@ export default function AddAddressScreen() {
 
       <TouchableOpacity
         onPress={handleUploadAddress}
-        style={[
-          styles.saveButton,
-          !isAddressFilled && styles.disabledButton,
-          isAdditionalDetailsFilled && styles.activeButton
-        ]}
+        className={`py-4 items-center rounded-lg mt-3 ${
+          !isAddressFilled ? 'bg-border' : isAdditionalDetailsFilled ? 'bg-primary' : 'bg-primary'
+        }`}
         disabled={!isAddressFilled}
       >
-        <Text style={styles.saveButtonText}>Save address</Text>
+        <Text className="text-white font-outfit-bold text-base">Save address</Text>
       </TouchableOpacity>
     </View>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 20,
-    backgroundColor: '#fff',
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 15,
-    color: '#333',
-  },
-  addressPreview: {
-    marginBottom: 20,
-    color: '#666',
-    fontSize: 16,
-  },
-  mapButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    backgroundColor: '#fff',
-    padding: 15,
-    borderRadius: 10,
-    marginBottom: 25,
-    borderWidth: 1,
-    borderColor: '#e0e0e0',
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-  },
-  mapButtonContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  mapButtonText: {
-    marginLeft: 10,
-    fontWeight: '500',
-    color: '#333',
-    fontSize: 16,
-  },
-  label: {
-    marginBottom: 6,
-    color: '#666',
-    fontSize: 14,
-  },
-  subLabel: {
-    marginBottom: 10,
-    fontSize: 12,
-    color: '#999',
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: '#ddd',
-    padding: 14,
-    borderRadius: 10,
-    marginBottom: 25,
-    fontSize: 16,
-    backgroundColor: '#fafafa',
-  },
-  sectionTitle: {
-    fontWeight: '500',
-    marginBottom: 15,
-    fontSize: 16,
-    color: '#333',
-  },
-  tagContainer: {
-    flexDirection: 'row',
-    marginBottom: 30,
-  },
-  tag: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 10,
-    paddingHorizontal: 16,
-    marginRight: 12,
-    borderWidth: 1,
-    borderRadius: 30,
-    borderColor: '#ddd',
-    backgroundColor: '#fff',
-  },
-  selectedTag: {
-    borderColor: '#f23e3e',
-    backgroundColor: '#ffe6e6',
-  },
-  tagText: {
-    marginLeft: 8,
-    color: '#555',
-  },
-  selectedTagText: {
-    color: '#f23e3e',
-    fontWeight: 'bold',
-  },
-  saveButton: {
-    backgroundColor: '#f23e3e', // Zomato-like red color
-    paddingVertical: 16,
-    alignItems: 'center',
-    borderRadius: 10,
-    marginTop: 10,
-  },
-  disabledButton: {
-    backgroundColor: '#cccccc',
-  },
-  activeButton: {
-    backgroundColor: '#cb202d', 
-  },
-  saveButtonText: {
-    color: 'white',
-    fontWeight: 'bold',
-    fontSize: 16,
-  },
-});

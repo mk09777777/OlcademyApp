@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import {
-  StyleSheet,
   View,
   Text,
   TouchableOpacity,
@@ -192,51 +191,30 @@ export default function TakeawayOrdersScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      {/* Search Bar */}
-      {/* <View style={styles.searchContainer}>
-        <Ionicons name="search" size={20} color="#666" style={styles.searchIcon} />
-        <TextInput
-          style={styles.searchInput}
-          placeholder="Search by restaurant or dish"
-          placeholderTextColor="#666"
-          value={searchQuery}
-          onChangeText={setSearchQuery}
-        />
-        {searchQuery ? (
-          <TouchableOpacity onPress={() => setSearchQuery('')}>
-            <Ionicons name="close-circle" size={20} color="#666" />
-          </TouchableOpacity>
-        ) : (
-          <TouchableOpacity>
-            <Ionicons name="mic" size={20} color="#666" />
-          </TouchableOpacity>
-        )}
-      </View> */}
-
+    <SafeAreaView className="flex-1 bg-background">
       {/* Tabs */}
-      <View style={styles.tabContainer}>
+      <View className="flex-row bg-white px-4 mb-2">
         <TouchableOpacity
-          style={[styles.tab, activeTab === 'all' && styles.activeTab]}
+          className={`flex-1 py-3 items-center border-b-2 ${activeTab === 'all' ? 'border-primary' : 'border-transparent'}`}
           onPress={() => setActiveTab('all')}
         >
-          <Text style={[styles.tabText, activeTab === 'all' && styles.activeTabText]}>
+          <Text className={`font-outfit ${activeTab === 'all' ? 'text-primary font-outfit-bold' : 'text-textsecondary'}`}>
             All Orders
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
-          style={[styles.tab, activeTab === 'active' && styles.activeTab]}
+          className={`flex-1 py-3 items-center border-b-2 ${activeTab === 'active' ? 'border-primary' : 'border-transparent'}`}
           onPress={() => setActiveTab('active')}
         >
-          <Text style={[styles.tabText, activeTab === 'active' && styles.activeTabText]}>
+          <Text className={`font-outfit ${activeTab === 'active' ? 'text-primary font-outfit-bold' : 'text-textsecondary'}`}>
             Active
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
-          style={[styles.tab, activeTab === 'past' && styles.activeTab]}
+          className={`flex-1 py-3 items-center border-b-2 ${activeTab === 'past' ? 'border-primary' : 'border-transparent'}`}
           onPress={() => setActiveTab('past')}
         >
-          <Text style={[styles.tabText, activeTab === 'past' && styles.activeTabText]}>
+          <Text className={`font-outfit ${activeTab === 'past' ? 'text-primary font-outfit-bold' : 'text-textsecondary'}`}>
             Past Orders
           </Text>
         </TouchableOpacity>
@@ -247,24 +225,24 @@ export default function TakeawayOrdersScreen() {
 
       {/* Orders List */}
       {loading && orders.length === 0 ? (
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#fc8019" />
+        <View className="flex-1 justify-center items-center">
+          <ActivityIndicator size="large" color="#FF002E" />
         </View>
       ) : (
         <FlatList
           data={getFilteredOrders()}
           renderItem={renderOrderItem}
           keyExtractor={(item) => item._id}
-          contentContainerStyle={styles.ordersList}
+          contentContainerStyle={{ padding: 16, paddingBottom: 80 }}
           ListEmptyComponent={
             !error && (
-              <View style={styles.emptyContainer}>
+              <View className="items-center justify-center p-8">
                 <Image
                   source={require('../../assets/images/logo.jpg')}
-                  style={styles.emptyImage}
+                  className="w-30 h-30 mb-4 opacity-70"
                   resizeMode="contain"
                 />
-                <Text style={styles.emptyText}>
+                <Text className="text-base text-textsecondary font-outfit">
                   {activeTab === 'all'
                     ? 'No orders found'
                     : activeTab === 'active'
@@ -285,100 +263,3 @@ export default function TakeawayOrdersScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f8f8f8',
-  },
-  searchContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    margin: 16,
-    padding: 12,
-    backgroundColor: '#fff',
-    borderRadius: 8,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-  },
-  searchIcon: {
-    marginRight: 8,
-  },
-  searchInput: {
-    flex: 1,
-    fontSize: 16,
-    color: '#333',
-  },
-  tabContainer: {
-    flexDirection: 'row',
-    backgroundColor: '#fff',
-    paddingHorizontal: 16,
-    marginBottom: 8,
-  },
-  tab: {
-    flex: 1,
-    paddingVertical: 12,
-    alignItems: 'center',
-    borderBottomWidth: 2,
-    borderBottomColor: 'transparent',
-  },
-  activeTab: {
-    borderBottomColor: '#fc8019',
-  },
-  tabText: {
-    fontSize: 14,
-    color: '#666',
-    fontWeight: '500',
-  },
-  activeTabText: {
-    color: '#fc8019',
-  },
-  ordersList: {
-    padding: 16,
-    paddingBottom: 80,
-  },
-  emptyContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 32,
-  },
-  emptyImage: {
-    width: 120,
-    height: 120,
-    marginBottom: 16,
-    opacity: 0.7,
-  },
-  emptyText: {
-    fontSize: 16,
-    color: '#666',
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  loadingFooter: {
-    paddingVertical: 20,
-  },
-  errorContainer: {
-    padding: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  errorText: {
-    color: 'red',
-    marginBottom: 10,
-    textAlign: 'center',
-  },
-  retryButton: {
-    backgroundColor: '#fc8019',
-    padding: 10,
-    borderRadius: 5,
-  },
-  retryButtonText: {
-    color: 'white',
-    fontWeight: 'bold',
-  },
-});

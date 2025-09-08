@@ -1,6 +1,5 @@
 import React, { Fragment, useState } from "react";
 import {View,Text, TouchableOpacity, Modal} from "react-native";
-import SettingStyles from "../../styles/Settingstyles";
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { router } from "expo-router";
 import BackRouting from "@/components/BackRouting";
@@ -16,14 +15,12 @@ const toggleEmailModal=()=>{
     return(
         <Fragment>
             <BackRouting tittle="Account Settings"/>
-            <View style={SettingStyles.backgrond}>
-            {/* <Ionicons name="arrow-back" size={26} color="black" style={SettingStyles.backIcon} />
-            <Text style={SettingStyles.Heading1}>Settings</Text> */}
-            <TouchableOpacity onPress={()=>safeNavigation("/screens/DeleteAccount")} style={SettingStyles.SettinContainer11}>
-                <Text style={SettingStyles.settinText1}>Delete account</Text>
+            <View className="flex-1 bg-background p-4">
+            <TouchableOpacity onPress={()=>safeNavigation("/screens/DeleteAccount")} className="bg-white p-4 rounded-lg mb-3 border border-border">
+                <Text className="text-primary text-base font-outfit">Delete account</Text>
             </TouchableOpacity>
-            <TouchableOpacity onPress={toggleEmailModal} style={SettingStyles.SettinContainer21}>
-                <Text style={SettingStyles.settinText1}>change email</Text>
+            <TouchableOpacity onPress={toggleEmailModal} className="bg-white p-4 rounded-lg mb-3 border border-border">
+                <Text className="text-textprimary text-base font-outfit">change email</Text>
 
             </TouchableOpacity>
             <Modal 

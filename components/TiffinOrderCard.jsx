@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity, Image, StyleSheet, Modal, ScrollView } fr
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useAuth } from '@/context/AuthContext';
-import  {styles } from '../styles/TiffinOrderCardstyle';
+
 const TiffinOrderCard = ({ 
   item, 
   formatDate, 
@@ -33,20 +33,20 @@ const TiffinOrderCard = ({
   return (
     <View>
       <TouchableOpacity
-        style={styles.orderCard}
+        className="bg-white rounded-lg p-4 mb-4 shadow-sm border border-border"
          onPress={() => onPress(item)} 
         activeOpacity={0.8}
       >
-        <View style={styles.restaurantHeader}>
-          <View style={styles.restaurantInfo}>
+        <View className="flex-row justify-between items-center mb-3">
+          <View className="flex-row items-center flex-1">
             <Image
               source={{ uri: tiffinImage }}
-              style={styles.restaurantImage}
+              className="w-16 h-16 rounded-lg mr-3"
               onError={() => console.log("Image load error")}
               resizeMode="cover"
             />
-            <View style={styles.restaurantDetails}>
-              <Text style={styles.restaurantName} numberOfLines={2} ellipsizeMode="tail">
+            <View className="flex-1">
+              <Text className="text-textprimary font-outfit-bold text-lg" numberOfLines={2} ellipsizeMode="tail">
                 {tiffinName}
               </Text>
              
@@ -61,27 +61,27 @@ const TiffinOrderCard = ({
           </TouchableOpacity>
         </View>
 
-        <View style={styles.cardContent}>
-          <View style={styles.orderItems}>
+        <View>
+          <View className="mb-3">
             {item.items?.map((orderItem, idx) => {
               const mealType = orderItem.mealType?.name || "Tiffin Meal";
               const quantity = orderItem.quantity || 1;
               const isVegetarian = orderItem.foodType?.toLowerCase().includes('veg');
 
               return (
-                <View key={`${idx}`} style={styles.orderItemt}>
+                <View key={`${idx}`} className="flex-row items-center mb-2">
                   {isVegetarian ? (
-                    <View style={styles.vegIcon}>
-                      <View style={styles.vegIconInner} />
+                    <View className="w-4 h-4 border-2 border-green-500 rounded mr-2 items-center justify-center">
+                      <View className="w-2 h-2 bg-green-500 rounded" />
                     </View>
                   ) : (
-                    <View style={[styles.vegIcon, styles.nonVegIcon]}>
-                      <View style={[styles.vegIconInner, styles.nonVegIconInner]} />
+                    <View className="w-4 h-4 border-2 border-red-500 rounded mr-2 items-center justify-center">
+                      <View className="w-2 h-2 bg-red-500 rounded" />
                     </View>
                   )}
 
                   <Text
-                    style={styles.itemText}
+                    className="text-textprimary font-outfit text-sm flex-1"
                     numberOfLines={1}
                     ellipsizeMode="tail"
                   >
@@ -92,28 +92,26 @@ const TiffinOrderCard = ({
             })}
           </View>
 
-          <View style={styles.cardFooter}>
+          <View className="flex-row justify-between items-center">
             <View>
-              <Text style={styles.orderDate}>
+              <Text className="text-textsecondary font-outfit text-sm">
                 {formatDate(item?.orderTime)} at {formatTime(item?.orderTime)}
               </Text>
               <View>
                 <Text
-                  style={[
-                    styles.orderStatus,
-                    { color: getStatusColor(item.status) },
-                  ]}
+                  className="font-outfit-bold text-sm"
+                  style={{ color: getStatusColor(item.status) }}
                 >
                   {item.status || 'Status unknown'}
                 </Text>
               </View>
             </View>
         <TouchableOpacity
-              style={styles.viewDetailsButton}
+              className="flex-row items-center"
               onPress={() => onPress(item)}
               hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
             >
-              <Text style={styles.priceText}>${item.totalPrice?.toFixed(2)}</Text>
+              <Text className="text-primary font-outfit-bold text-lg mr-2">${item.totalPrice?.toFixed(2)}</Text>
               <Entypo name="chevron-right" size={22} color="#aaa" />
             </TouchableOpacity>
           </View>
@@ -142,15 +140,15 @@ const TiffinOrderCard = ({
           transparent={true}
           onRequestClose={closeOrderDetails}
         >
-          <View style={styles.modalOverlay}>
-            <View style={styles.modalContainer}>
-              <ScrollView style={styles.modalContent}>
+          <View className="flex-1 bg-black/50 justify-center">
+            <View className="bg-white rounded-t-3xl max-h-4/5 m-4">
+              <ScrollView className="p-4">
                 {/* Modal Header */}
-                <View style={styles.modalHeader}>
-                     <TouchableOpacity onPress={closeOrderDetails} style={styles.closeButton}>
+                <View className="flex-row justify-between items-center mb-4 pb-4 border-b border-border">
+                     <TouchableOpacity onPress={closeOrderDetails} className="p-2">
                     <Ionicons name="close" size={26} color="#666" />
                   </TouchableOpacity>
-                  <Text style={styles.modalTitle}>Order Details</Text>
+                  <Text className="text-textprimary font-outfit-bold text-xl">Order Details</Text>
                
                 </View>
                 <View style={styles.paymentRow}>

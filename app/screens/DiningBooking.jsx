@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { ScrollView, Text, View, TouchableOpacity, FlatList, Modal } from 'react-native';
 import { useRouter } from 'expo-router';
 import axios from 'axios';
-import styles from '../../styles/DiningBooking';
 import BackRouting from '@/components/BackRouting';
 import BookingCard from '../../Card/TableBookingCard';
 import { useSafeNavigation } from '@/hooks/navigationPage';
@@ -80,17 +79,17 @@ const BookingsScreen = () => {
   });
 
   return (
-    <View style={styles.container}>
+    <View className="flex-1 bg-background">
 
       <BackRouting tittle="Booking Details" />
-      <View style={styles.tabContainer}>
+      <View className="flex-row bg-white border-b border-border">
         <TabButton title="ALL" isActive={activeTab === 'ALL'} onPress={() => setActiveTab('ALL')} />
         <TabButton title="Accepted Bookings" isActive={activeTab === 'Table booking'} onPress={() => setActiveTab('Table booking')} />
         <TabButton title="Experiences" isActive={activeTab === 'Experiences'} onPress={() => setActiveTab('Experiences')} />
       </View>
-      <ScrollView style={styles.bookingsList}>
+      <ScrollView className="flex-1 p-4">
         {loading ? (
-          <Text style={styles.loadingText}>Loading bookings...</Text>
+          <Text className="text-textsecondary text-center font-outfit mt-8">Loading bookings...</Text>
         ) : filteredBookings.length > 0 ? (
           <FlatList
             data={filteredBookings}
@@ -112,8 +111,8 @@ const BookingsScreen = () => {
           />
 
         ) : (
-          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-            <Text style={{ fontSize: 20, color: 'black', fontWeight: 'bold' }}>No Bookings Accepted Yet</Text>
+          <View className="flex-1 justify-center items-center">
+            <Text className="text-xl text-textprimary font-outfit-bold">No Bookings Accepted Yet</Text>
           </View>
         )}
       </ScrollView>
@@ -140,8 +139,8 @@ const BookingsScreen = () => {
 };
 
 const TabButton = ({ title, isActive, onPress }) => (
-  <TouchableOpacity style={[styles.tab, isActive && styles.activeTab]} onPress={onPress}>
-    <Text style={[styles.tabText, isActive && styles.activeTabText]}>{title}</Text>
+  <TouchableOpacity className={`flex-1 py-4 items-center ${isActive ? 'border-b-2 border-primary' : ''}`} onPress={onPress}>
+    <Text className={`font-outfit text-sm ${isActive ? 'text-primary font-outfit-bold' : 'text-textsecondary'}`}>{title}</Text>
   </TouchableOpacity>
 );
 

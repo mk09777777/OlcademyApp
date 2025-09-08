@@ -57,28 +57,28 @@ const NotificationItem = ({ notification, onDelete }) => {
   };
 
   return (
-    <View style={styles.itemContainer}>
-      <View style={styles.deleteButton}>
+    <View className="overflow-hidden my-2 rounded-lg bg-white shadow-sm">
+      <View className="absolute right-0 w-20 h-full bg-primary justify-center items-center rounded-lg">
         <TouchableOpacity onPress={handleDelete}>
           <MaterialCommunityIcons name="trash-can-outline" size={20} color="white" />
         </TouchableOpacity>
       </View>
 
       <Animated.View
-        style={[styles.notificationContainer, { transform: [{ translateX }] }]}
+        className="flex-row items-center py-4 px-4 bg-white"
         {...panResponder.panHandlers}
       >
         <MaterialCommunityIcons
           name="cart-check"
           size={20}
           color="#e23744"
-          style={styles.icon}
+          className="mr-3"
         />
-        <View style={styles.content}>
-          <Text style={styles.title}>{notification.title}</Text>
-          <Text style={styles.message}>{notification.description}</Text>
+        <View className="flex-1">
+          <Text className="text-textprimary font-outfit-bold text-base mb-1">{notification.title}</Text>
+          <Text className="text-textsecondary font-outfit text-sm leading-5">{notification.description}</Text>
         </View>
-        <Text style={styles.time}>{notification.time}</Text>
+        <Text className="text-textsecondary font-outfit text-xs ml-3 self-start">{notification.time}</Text>
       </Animated.View>
     </View>
   );
@@ -154,15 +154,15 @@ export default function NotificationPage() {
   );
 
   return (
-    <View style={styles.container}>
+    <View className="flex-1 bg-white px-4">
       <BackRouting tittle="Notifications" />
       
 
       {Array.isArray(notifications) && notifications.length > 0 ? (
         <View>
-          <View style={{ flexDirection: "row", justifyContent: "flex-end", marginRight: 20, marginTop: 10 }}>
+          <View className="flex-row justify-end mr-5 mt-2">
         <TouchableOpacity onPress={clearAllNotifications}>
-          <Text style={{ color: "#f04f5f", fontWeight: "bold" }}>Clear All</Text>
+          <Text className="text-primary font-outfit-bold">Clear All</Text>
         </TouchableOpacity>
       </View>
           <FlatList
@@ -175,9 +175,9 @@ export default function NotificationPage() {
       ) : (
         <TouchableOpacity
           // onPress={() => safeNavigation("/screens/DiningBookingDetails")}
-          style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+          className="flex-1 justify-center items-center"
         >
-          <Text style={{ fontSize: 20, color: "black", fontWeight: "bold" }}>
+          <Text className="text-textprimary text-xl font-outfit-bold">
             No Notifications found
           </Text>
         </TouchableOpacity>

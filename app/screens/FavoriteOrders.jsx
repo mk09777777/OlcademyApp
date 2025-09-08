@@ -1,11 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, FlatList, SafeAreaView, ActivityIndicator, TouchableOpacity,Image } from 'react-native';
 import { Ionicons,MaterialCommunityIcons } from '@expo/vector-icons';
-import styles from '../../styles/FavoriteOrder';
 import axios from 'axios';
 import TakeawayOrderCard from '../../Card/TakewayCard';
 import TiffinOrderCard from '../../components/TiffinOrderCard';
- // Add this import
 
 import { API_CONFIG } from '../../config/apiConfig';
 const SERVER_URL = API_CONFIG.BACKEND_URL;
@@ -208,20 +206,20 @@ const prepareOrderData = (order) => {
   const renderFooter = () => {
     if (!loading) return null;
     return (
-      <View style={styles.loadingFooter}>
-        <ActivityIndicator size="small" color="#fc8019" />
+      <View className="py-4">
+        <ActivityIndicator size="small" color="#FF002E" />
       </View>
     );
   };
 
   const renderError = () => (
-    <View style={styles.errorContainer}>
-      <Text style={styles.errorText}>{error}</Text>
+    <View className="flex-1 items-center justify-center p-4">
+      <Text className="text-primary text-center font-outfit mb-4">{error}</Text>
       <TouchableOpacity 
-        style={styles.retryButton} 
+        className="bg-primary px-6 py-3 rounded-lg" 
         onPress={() => fetchOrders(1, activeTab === 'Takeaway' ? 'Firm' : 'Tiffin')}
       >
-        <Text style={styles.retryButtonText}>Retry</Text>
+        <Text className="text-white font-outfit-bold">Retry</Text>
       </TouchableOpacity>
     </View>
   );
@@ -251,24 +249,24 @@ const prepareOrderData = (order) => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView className="flex-1 bg-background">
       {/* Tabs */}
-      <View style={styles.tabContainer}>
+      <View className="flex-row bg-white border-b border-border">
         <TouchableOpacity
-          style={[styles.tab, activeTab === 'Takeaway' && styles.activeTab]}
+          className={`flex-1 flex-row items-center justify-center py-4 ${activeTab === 'Takeaway' ? 'border-b-2 border-primary' : ''}`}
           onPress={() => setActiveTab('Takeaway')}
         >
-          <Ionicons name="fast-food-outline" size={24} color='#fc8019' />
-          <Text style={[styles.tabText, activeTab === 'Takeaway' && styles.activeTabText]}>
+          <Ionicons name="fast-food-outline" size={24} color='#FF002E' />
+          <Text className={`ml-2 font-outfit ${activeTab === 'Takeaway' ? 'text-primary font-outfit-bold' : 'text-textsecondary'}`}>
             Takeaway
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
-          style={[styles.tab, activeTab === 'Tiffin' && styles.activeTab]}
+          className={`flex-1 flex-row items-center justify-center py-4 ${activeTab === 'Tiffin' ? 'border-b-2 border-primary' : ''}`}
           onPress={() => setActiveTab('Tiffin')}
         >
-           <MaterialCommunityIcons name="food-takeout-box-outline" size={24} color='#fc8019' />
-          <Text style={[styles.tabText, activeTab === 'Tiffin' && styles.activeTabText]}>
+           <MaterialCommunityIcons name="food-takeout-box-outline" size={24} color='#FF002E' />
+          <Text className={`ml-2 font-outfit ${activeTab === 'Tiffin' ? 'text-primary font-outfit-bold' : 'text-textsecondary'}`}>
             Tiffin
           </Text>
         </TouchableOpacity>
@@ -279,24 +277,24 @@ const prepareOrderData = (order) => {
 
       {/* Orders List */}
       {loading && orders.length === 0 ? (
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#fc8019" />
+        <View className="flex-1 items-center justify-center">
+          <ActivityIndicator size="large" color="#FF002E" />
         </View>
       ) : (
         <FlatList
           data={orders}
           renderItem={renderItem}
           keyExtractor={(item) => item._id}
-          contentContainerStyle={styles.ordersList}
+          contentContainerStyle={{ padding: 16 }}
           ListEmptyComponent={
             !error && (
-              <View style={styles.emptyContainer}>
+              <View className="flex-1 items-center justify-center py-12">
                 <Image 
                   source={require('../../assets/images/logo.jpg')} 
-                  style={styles.emptyImage}
+                  className="w-24 h-24 mb-4"
                   resizeMode="contain"
                 />
-                <Text style={styles.emptyText}>No favorite {activeTab.toLowerCase()} orders found</Text>
+                <Text className="text-textsecondary text-center font-outfit">No favorite {activeTab.toLowerCase()} orders found</Text>
               </View>
             )
           }

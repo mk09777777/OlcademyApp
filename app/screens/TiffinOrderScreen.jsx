@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { StyleSheet, View, Text, FlatList, ActivityIndicator, Modal, TextInput, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, FlatList, ActivityIndicator, Modal, TextInput, TouchableOpacity, ScrollView } from 'react-native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import axios from 'axios';
 import TiffinOrderCard from '../../components/TiffinOrderCard';
@@ -270,16 +270,16 @@ export default function TiffinOrdersScreen() {
   );
 
   return (
-    <View style={styles.container}>
+    <View className="p-2.5 flex-1 bg-background">
       {/* Secondary Tabs */}
-      <View style={styles.secondaryTabContainer}>
+      <View className="flex-row bg-white px-3 py-2.5 border-b border-border">
         {secondaryTabs.map(tab => (
           <TouchableOpacity
             key={tab.id}
-            style={[styles.secondaryTab, secondaryTab === tab.id && styles.activeSecondaryTab]}
+            className={`flex-1 items-center py-2 border-b-2 ${secondaryTab === tab.id ? 'border-primary' : 'border-transparent'}`}
             onPress={() => setSecondaryTab(tab.id)}
           >
-            <Text style={[styles.secondaryTabText, secondaryTab === tab.id && styles.activeSecondaryTabText]}>
+            <Text className={`text-sm ${secondaryTab === tab.id ? 'text-primary font-outfit-bold' : 'text-textsecondary font-outfit'}`}>
               {tab.label}
             </Text>
           </TouchableOpacity>
@@ -288,34 +288,34 @@ export default function TiffinOrdersScreen() {
 
       {/* Orders List */}
       {initialLoad && loading ? (
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#08a742" />
-          <Text style={styles.loadingText}>Loading your orders...</Text>
+        <View className="flex-1 justify-center items-center">
+          <ActivityIndicator size="large" color="#FF002E" />
+          <Text className="mt-2.5 text-textsecondary font-outfit">Loading your orders...</Text>
         </View>
       ) : error ? (
-        <View style={styles.errorContainer}>
-          <Text style={styles.errorText}>{error}</Text>
-          <Text style={styles.errorSubtext}>Please refresh the page or try again later.</Text>
+        <View className="p-5 bg-red-50 m-5 rounded-lg items-center">
+          <Text className="text-red-800 font-outfit-bold mb-1">{error}</Text>
+          <Text className="text-textsecondary text-xs font-outfit">Please refresh the page or try again later.</Text>
         </View>
       ) : bookings.length === 0 ? (
-        <View style={styles.emptyContainer}>
-          <Text style={styles.emptyText}>No orders found!</Text>
-          <Text style={styles.emptySubtext}>It looks like you haven't placed any orders yet.</Text>
+        <View className="items-center justify-center p-10">
+          <Text className="text-base text-textsecondary mb-2 font-outfit-bold">No orders found!</Text>
+          <Text className="text-sm text-textsecondary font-outfit">It looks like you haven't placed any orders yet.</Text>
         </View>
       ) : (
         <FlatList
           data={filterBookings()}
           renderItem={renderOrderItem}
           keyExtractor={(item) => item._id}
-          contentContainerStyle={styles.bookingsList}
+          contentContainerStyle={{ padding: 10 }}
           ListFooterComponent={
             loading ? (
-              <View style={styles.loadingMoreContainer}>
-                <ActivityIndicator size="small" color="#08a742" />
-                <Text style={styles.loadingMoreText}>Loading more orders...</Text>
+              <View className="p-4 items-center">
+                <ActivityIndicator size="small" color="#FF002E" />
+                <Text className="mt-2 text-textsecondary font-outfit">Loading more orders...</Text>
               </View>
             ) : !hasMore && bookings.length > 0 ? (
-              <Text style={styles.noMoreOrdersText}>You've seen all your tiffin orders.</Text>
+              <Text className="text-center p-4 text-textsecondary font-outfit">You've seen all your tiffin orders.</Text>
             ) : null
           }
           onEndReached={handleLoadMore}
@@ -332,11 +332,11 @@ export default function TiffinOrdersScreen() {
         transparent={true}
         onRequestClose={closeCancelModal}
       >
-        <View style={styles.modalOverlay}>
-          <View style={styles.cancelModalContainer}>
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Cancel Order #{selectedOrder?._id.slice(-6)}</Text>
-              <TouchableOpacity onPress={closeCancelModal} style={styles.closeButton}>
+        <View className="flex-1 bg-black/50 justify-center items-center">
+          <View className="bg-white rounded-lg w-11/12 max-h-4/5 p-4">
+            <View className="flex-row justify-between items-center mb-4 border-b border-border pb-3">
+              <Text className="text-xl font-outfit-bold text-textprimary">Cancel Order #{selectedOrder?._id.slice(-6)}</Text>
+              <TouchableOpacity onPress={closeCancelModal} className="p-1">
                 <Ionicons name="close" size={24} color="#666" />
               </TouchableOpacity>
             </View>
@@ -389,177 +389,3 @@ export default function TiffinOrdersScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    padding: 10,
-    flex: 1,
-    backgroundColor: '#f8f9fa',
-  },
-  secondaryTabContainer: {
-    flexDirection: 'row',
-    backgroundColor: 'white',
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
-  },
-  secondaryTab: {
-    flex: 1,
-    alignItems: 'center',
-    paddingVertical: 8,
-    borderBottomWidth: 2,
-    borderBottomColor: 'transparent',
-  },
-  activeSecondaryTab: {
-    borderBottomColor: '#08a742',
-  },
-  secondaryTabText: {
-    fontSize: 15,
-    color: '#666',
-  },
-  activeSecondaryTabText: {
-    color: '#08a742',
-    fontWeight: '500',
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  loadingText: {
-    marginTop: 10,
-    color: '#666',
-  },
-  errorContainer: {
-    padding: 20,
-    backgroundColor: '#FFEBEE',
-    margin: 20,
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  errorText: {
-    color: '#C62828',
-    fontWeight: 'bold',
-    marginBottom: 5,
-  },
-  errorSubtext: {
-    color: '#666',
-    fontSize: 12,
-  },
-  emptyContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 40,
-  },
-  emptyText: {
-    fontSize: 16,
-    color: '#666',
-    marginBottom: 8,
-    fontWeight: 'bold',
-  },
-  emptySubtext: {
-    fontSize: 14,
-    color: '#999',
-  },
-  bookingsList: {
-    padding: 10,
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  cancelModalContainer: {
-    backgroundColor: 'white',
-    borderRadius: 12,
-    width: '90%',
-    maxHeight: '80%',
-    padding: 16,
-  },
-  modalHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
-    paddingBottom: 12,
-  },
-  modalTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#333',
-  },
-  closeButton: {
-    padding: 4,
-  },
-  modalContent: {
-    flexGrow: 1,
-  },
-  cancelModalText: {
-    fontSize: 16,
-    color: '#666',
-    marginBottom: 16,
-  },
-  cancelReasonInput: {
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
-    padding: 12,
-    minHeight: 120,
-    marginBottom: 16,
-    textAlignVertical: 'top',
-  },
-  cancelModalButtons: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 16,
-  },
-  cancelModalButton: {
-    flex: 1,
-    padding: 12,
-    borderRadius: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  cancelModalButtonSecondary: {
-    backgroundColor: '#f5f5f5',
-    marginRight: 8,
-  },
-  cancelModalButtonPrimary: {
-    backgroundColor: '#E53935',
-    marginLeft: 8,
-  },
-  cancelModalButtonSecondaryText: {
-    color: '#666',
-    fontWeight: '600',
-  },
-  cancelModalButtonPrimaryText: {
-    color: 'white',
-    fontWeight: '600',
-  },
-  errorMessage: {
-    color: '#C62828',
-    marginBottom: 16,
-    textAlign: 'center',
-  },
-  successMessage: {
-    color: '#08a742',
-    marginBottom: 16,
-    textAlign: 'center',
-  },
-  loadingMoreContainer: {
-    padding: 16,
-    alignItems: 'center',
-  },
-  loadingMoreText: {
-    marginTop: 8,
-    color: '#666',
-  },
-  noMoreOrdersText: {
-    textAlign: 'center',
-    padding: 16,
-    color: '#999',
-  },
-});
