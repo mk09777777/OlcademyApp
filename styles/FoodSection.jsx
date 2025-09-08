@@ -11,6 +11,7 @@ const styles = StyleSheet.create({
     },
     headerTitle: {
       fontSize: 18,
+      fontFamily: "outfit-bold",
       fontWeight: '600',
       color: Colors.text,
     },

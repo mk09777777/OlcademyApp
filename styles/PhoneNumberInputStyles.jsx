@@ -40,6 +40,7 @@ export const styles = StyleSheet.create({
 		fontFamily: 'outfit-medium',
     letterSpacing: 4,
 		fontSize: 16,
+		fontFamily: "outfit-medium",
 		padding: 15,
 		flex: 1
 	},

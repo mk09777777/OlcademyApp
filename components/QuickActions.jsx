@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity } from 'react-native';
 import { Ionicons} from '@expo/vector-icons';
 import Colors from '../components/constants/Colors';
 import { router } from 'expo-router';
+import BackRouting from './BackRouting';
 import { useSafeNavigation } from '@/hooks/navigationPage';
 export default function QuickActions() {
   const { safeNavigation } = useSafeNavigation();

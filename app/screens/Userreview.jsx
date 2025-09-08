@@ -200,7 +200,7 @@ const handleSubmit = async () => {
         </View>
       </View>
 
-      <Text style={styles.label}>What impressed you?</Text>
+      <Text style={styles.label}>Select Tag</Text>
       <View style={styles.optionContainer}>
         {feedbackOptions.map((option) => (
           <TouchableOpacity
@@ -370,6 +370,8 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
     marginBottom: 20,
+    background: "#FCF7F7",
+
   },
   optionButton: {
     borderColor: "#ccc",
@@ -464,7 +466,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   submitButton: {
-    backgroundColor: "#007e33",
+    backgroundColor: "#EB2933", 
     padding: 16,
     borderRadius: 8,
     marginBottom: 30,

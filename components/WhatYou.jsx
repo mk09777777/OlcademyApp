@@ -58,6 +58,12 @@ const styles = StyleSheet.create({
     marginBottom: 15,
   },
   title: {
+    fontFamily: 'outfit-Bold',
+    fontSize: 14,
+    color: '#3333',
+    letterSpacing: 1,
+    textTransform: 'uppercase',
+    marginBottom: 5,
     fontFamily: 'outfit',
 		fontSize: 16,
 		color: '#222222',

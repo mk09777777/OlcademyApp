@@ -37,19 +37,18 @@ const styles = StyleSheet.create({
 },
 
 title: {
-  flex: 1,   
-  fontFamily:'outfit-bold',
+  flex: 1,                    // take available width
   fontSize: 16,
+  fontWeight: "bold",
   color: "#000",
   marginRight: 10,
   flexWrap: "wrap",
 },
 overlayContainer: {
   position: "absolute",
-  backgroundColor:'#30303044',
   bottom: 0,
-  left: 0,
-  right: 0,
+  left: 10,
+  right: 10,
   flexDirection: "row",
   justifyContent: "space-between",
   alignItems: "flex-start",
@@ -57,58 +56,61 @@ overlayContainer: {
 
 titleWrapper: {
   flex: 1, // takes remaining space beside review box
-  margin:10,
+  marginRight: 10,
 },
 
 titleText: {
- fontFamily:'outfit-bold',
   fontSize: 16,
+  fontWeight: "bold",
   color: "#fff",
 },
+reviewBox: {
+  marginTop: 20,
+  bottom: 20,
+  minWidth: 70,
+  borderRadius: 10,
+  right: 10,
+  borderWidth: 1,
+  borderColor: '#ccc',
+  overflow: 'hidden',   // ensures children match rounded corners
+},
 
-// reviewBoxTopContainer: {
-//   alignItems: "center",
-//   width: 80,
-//   marginBottom: 2,
-// },
+reviewBoxTopContainer: {
+  backgroundColor: 'green',
+  padding: 10,
+},
 
-// reviewBoxUpperContainer: {
-//   flexDirection: "row",
-//   alignItems: "center",
-//   margin:20,
-// },
+reviewBoxBottomContainer: {
+  backgroundColor: 'white',
+  padding: 10,
+  flexDirection: 'row',
+},
+
+
+
+reviewBoxUpperContainer: {
+  flexDirection: "row",
+  alignItems: "center",
+},
 
 reviewText: {
-   fontFamily:'outfit',
   fontSize: 14,
   color: "#fff",
   marginRight: 4,
 },
 
-reviewBoxBottomContainer: {
-  alignItems: "center",
-},
+
 
 reviewCount: {
-   fontFamily:'outfit',
-  fontSize: 14,
+  fontSize: 12,
   color: "#fff",
 },
 
-reviewBox: {
-  borderRadius: 8,
-  paddingVertical: 6,
-  paddingHorizontal: 10,
-  alignItems: "center",
-  justifyContent: "center",
-  minWidth: 60,
-},
+
 
   infoRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginHorizontal:10,
-        marginBottom: 10,
   },
   backgroundImage: {
     width: '100%',
@@ -122,10 +124,14 @@ reviewBox: {
   overlayContent: {
     padding: 10,
   },
+  title: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
   infoText: {
     color: '#fff',
     fontSize: 14,
-    fontFamily:'outfit-bold'
   },
   loadingText: {
     marginTop: 16,
@@ -156,78 +162,6 @@ reviewBox: {
     left: 10,
     right: 10,
     zIndex: 2,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: 12,
-  },
-  roundBtn: {
-    backgroundColor: 'rgba(0,0,0,0.45)',
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  heroBottomOverlay: {
-    position: 'absolute',
-    left: 12,
-    right: 12,
-    bottom: 12,
-    zIndex: 2,
-    flexDirection: 'row',
-    alignItems: 'flex-end',
-    gap: 12,
-  },
-  heroTitle: {
-    fontFamily:'outfit-bold',
-    color: '#fff',
-    fontSize: 20,
-  },
-  heroMetaRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 6,
-  },
-  heroMetaText: {
-    color: '#eee',
-    fontSize: 13,
-     fontFamily:'outfit',
-  },
-  ratingCard: {
-    minWidth: 90,
-    alignSelf: 'flex-end',
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    paddingVertical: 8,
-    paddingHorizontal: 10,
-    borderRadius: 10,
-  },
-  ratingTop: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    justifyContent: 'center',
-  },
-  ratingValue: {
-    color: '#fff',
-    fontSize: 16,
-     fontFamily:'outfit-bold',
-  },
-  ratingCount: {
-    color: '#ddd',
-    fontSize: 12,
-    textAlign: 'center',
-         fontFamily:'outfit',
-    marginTop: 2,
-  },
-  reviewBoxTopContainer: {
-    backgroundColor: 'green',
-    padding: 10,
-    borderTopLeftRadius: 10,
-    borderTopRightRadius: 10
-  },
-  reviewBoxUpperContainer: {
-    marginHorizontal:8,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -307,26 +241,16 @@ reviewBox: {
     fontSize: 14,
     textAlign: 'center'
   },
-  // reviewBox: {
-  //   marginTop: 20,
-  //   bottom: 20,
-  //   minWidth: 70,
-  //   borderRadius: 10,
-  //   right: 10,
-  //   // left:300,
-  //   borderWidth: 1,
-  //   borderColor: '#ccc'
-  // },
+  
   errorText: {
     fontSize: 18,
-      fontFamily: 'outfit',
-    color: '#ff0000ff',
+    color: '#FF4500',
     marginVertical: 16,
     textAlign: 'center',
   },
   retryButton: {
     marginTop: 10,
-    backgroundColor: '#ff0000ff',
+    backgroundColor: '#FF4500',
   },
   header: {
     flexDirection: 'row',
@@ -358,7 +282,13 @@ reviewBox: {
     alignItems: 'center',
     marginBottom: 8,
   },
-
+  title: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginRight: 8,
+    // color:'#ffffffff',
+    maxWidth: '80%',
+  },
   ratingContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -376,26 +306,27 @@ reviewBox: {
   },
   ratingText: {
     marginLeft: 4,
-     fontFamily: 'outfit-medium',
-    fontSize:14,
+    fontWeight: 'bold',
   },
   description: {
-      fontFamily: 'outfit-medium',
     fontSize: 14,
     color: '#444',
     marginBottom: 14,
-    lineHeight: 20,
+    lineHeight: 24,
   },
   descriptions: {
-      fontFamily: 'outfit',
     fontSize: 16,
+    // fontWeight: 'bold',
     color: '#444',
     marginBottom: 16,
-    lineHeight: 20,
+    lineHeight: 24,
   },
-  infoTextt: {
-    fontFamily: 'outfit-medium',
-    fontSize:14,
+  infoRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  infoText: {
     marginLeft: 8,
     color: '#666',
   },
@@ -427,22 +358,26 @@ reviewBox: {
   checkoutButtonDisabled: {
     opacity: 0.5,
   },
+  checkoutButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
   checkoutButtonPrice: {
     color: '#fff',
     fontSize: 16,
-      fontFamily: 'outfit',
     fontWeight: 'bold',
   },
   TermsContainer: {
     padding: 20,
-    backgroundColor: '#ffffffff',
+    backgroundColor: '#f9f9f9',
     // marginBottom: 10,
   },
   addOnModalContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.5)',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   addOnModalContent: {
     backgroundColor: 'white',
@@ -451,18 +386,38 @@ reviewBox: {
     width: '80%',
   },
   addOnModalTitle: {
-      fontFamily: 'outfit',
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 15,
     textAlign: 'center',
   },
   addOnItemName: {
-      fontFamily: 'outfit',
     fontSize: 16,
     fontWeight: 'bold',
     textAlign: 'center',
     marginBottom: 5,
+  },
+  addOnItemPrice: {
+    fontSize: 16,
+    color: '#4CAF50',
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  quantityControls: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginVertical: 20,
+  },
+  quantityButton: {
+    padding: 10,
+    borderRadius: 5,
+    backgroundColor: '#f8f8f8',
+  },
+  quantityText: {
+    marginHorizontal: 20,
+    fontSize: 18,
+    fontWeight: 'bold',
   },
   addOnModalButtons: {
     flexDirection: 'row',
@@ -474,11 +429,22 @@ reviewBox: {
     flex: 1,
     marginRight: 10,
   },
+  submitButton: {
+    backgroundColor: '#4CAF50',
+    flex: 1,
+    marginLeft: 10,
+  },
   menuImageContainer: {
     marginVertical: 10,
     padding: 16,
     // backgroundColor: '#f9f9f9',
     borderRadius: 8,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 12,
+    color: '#333',
   },
   // menuImage: {
   //   width: '100%',
@@ -490,9 +456,99 @@ reviewBox: {
     width: width * 0.4,
     borderRadius: 20,
   },
+  customizeButton: {
+    backgroundColor: '#4CAF50',
+    padding: 15,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginVertical: 16,
+  },
+  customizeButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
+  cartButton: {
+    position: 'absolute',
+    bottom: 20,
+    right: 20,
+    backgroundColor: '#4CAF50',
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 30,
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+  },
+  cartButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
+    marginLeft: 8,
+    fontSize: 16,
+  },
+  cartBadge: {
+    backgroundColor: 'red',
+    borderRadius: 10,
+    width: 20,
+    height: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginLeft: 8,
+  },
+  cartBadgeText: {
+    color: 'white',
+    fontSize: 12,
+    fontWeight: 'bold',
+  },
   container: {
     flex: 2,
     // backgroundColor: '#f8f8f8',
+  },
+  filterContainer: {
+    flexDirection: 'row',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
+  },
+  filterButton: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    marginRight: 8,
+    borderRadius: 20,
+    backgroundColor: '#f0f0f0',
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  filterButtonSelected: {
+    backgroundColor: '#f0f0f0',
+  },
+  filterButtonText: {
+    color: '#666',
+    fontWeight: '500',
+    marginLeft: 4,
+  },
+  vegFilterButton: {
+    backgroundColor: '#4CAF50',
+  },
+  vegFilterButtonSelected: {
+    backgroundColor: '#4CAF50',
+  },
+  vegFilterText: {
+    color: '#fff',
+  },
+  nonVegFilterButton: {
+    backgroundColor: '#FF4B3A',
+  },
+  nonVegFilterButtonSelected: {
+    backgroundColor: '#FF4B3A',
+  },
+  nonVegFilterText: {
+    color: '#fff',
   },
   menuCategories: {
     paddingVertical: 12,
@@ -515,7 +571,6 @@ reviewBox: {
   categoryButtonText: {
     color: '#666',
     fontWeight: '500',
-     fontFamily: 'outfit',
   },
   categoryButtonTextSelected: {
     color: '#fff',
@@ -536,15 +591,16 @@ reviewBox: {
       borderColor:'#c1c1c1ff',
     borderWidth:0.5,
     borderRadius: 12,
-
+    width: 370,
+    height: 100,
   },
   menuItemImageContainer: {
-    width: 100,
-    height: 100,
+    width: 120,
+    height: 130,
   },
   menuItemImage: {
-    width: '100%',
-    height: 100,
+    width: 80,
+    height: 80,
     resizeMode: 'cover',
     borderColor:'#424242ff',
     borderWidth:1,
@@ -574,14 +630,13 @@ reviewBox: {
   },
   menuItemTitle: {
     fontSize: 16,
-     fontFamily: 'outfit-bold',
+    fontWeight: 'bold',
     color: '#333',
     flexShrink: 1,
     flexWrap: 'wrap',
   },
   menuItemDescription: {
-    fontSize: 14,
-     fontFamily: 'outfit',
+    fontSize: 13,
     color: '#666',
     marginBottom: 8,
     lineHeight: 18,
@@ -598,9 +653,14 @@ reviewBox: {
   },
   menuItemPrice: {
     fontSize: 16,
-     fontFamily: 'outfit-bold',
-    color: '#000000',
-    // marginBottom: 8,
+    fontWeight: 'bold',
+    color: '#FF4B3A',
+    marginBottom: 8,
+  },
+  customizableText: {
+    fontSize: 12,
+    color: '#4CAF50',
+    fontWeight: 'bold',
   },
   menuItemActions: {
     flexDirection: 'row',
@@ -613,15 +673,15 @@ reviewBox: {
     marginRight: 12,
   },
   addButton: {
-    bottom: 15,
-    left: 200,
+    bottom: 20,
+    left: 250,
     // paddingBottom:10,
     borderRadius: 10,
-    backgroundColor: '#E03A48',
-    // width: 100,
-    paddingHorizontal: 30,
-    paddingVertical: 8,
-    height:35,
+    backgroundColor: '#FF4B3f',
+    width: 100,
+    paddingHorizontal: 20,
+    paddingVertical: 4,
+    height: 30,
   },
   // addButtonc: {
   //   bottom: 15,
@@ -654,8 +714,8 @@ reviewBox: {
   addButtonLabel: {
     // paddingBottom:10,
     color: '#fff',
+    fontWeight: 'bold',
     fontSize: 14,
-     fontFamily: 'outfit-medium',
     textAlign:'center'
   },
   addButtonLabelc: {
@@ -664,14 +724,12 @@ reviewBox: {
     // color: '#fff',
     fontWeight: 'bold',
     fontSize: 12,
-     fontFamily: 'outfit',
   },
   quantityText: {
     // bottom:10,
     color: '#000000',
     marginRight: 8,
     fontSize: 18,
-     fontFamily: 'outfit',
   },
   vegIndicator: {
     marginRight: 6,
@@ -752,7 +810,6 @@ reviewBox: {
     color: '#fff',
     fontWeight: 'bold',
     fontSize: 16,
-     fontFamily: 'outfit',
     textAlign: 'center',
   },
   quantityControls: {
@@ -790,8 +847,30 @@ reviewBox: {
   },
   checkoutQuantity: {
     fontSize: 14,
-    
     color: '#666',
+  },
+  customizeContainer: {
+    marginTop: 20,
+    padding: 16,
+    backgroundColor: '#f9f9f9',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#e0e0e0',
+  },
+  customizeDescription: {
+    fontSize: 14,
+    color: '#666',
+    marginBottom: 16,
+    lineHeight: 20,
+  },
+  customizeButton: {
+    backgroundColor: '#4CAF50',
+    borderRadius: 8,
+    paddingVertical: 8,
+  },
+  customizeButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
   },
   proceedToCartButton: {
     backgroundColor: '#e23845',
@@ -816,7 +895,7 @@ reviewBox: {
     backgroundColor: '#FFF',
     // borderRadius: 12,
     padding: 16,
-    marginBottom: 10,
+    marginBottom: 16,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
@@ -824,8 +903,6 @@ reviewBox: {
     elevation: 3,
   },
   headerContainer: {
-    padding:10,
-    backgroundColor:'#dcdada7d',
     // bottom:100,
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -851,7 +928,6 @@ reviewBox: {
   },
   label: {
     fontSize: 14,
-    fontFamily: 'outfit',
     color: '#666',
     marginBottom: 10,
     fontWeight: '500',
@@ -860,28 +936,31 @@ reviewBox: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     //  paddingHorizontal: 10,
-    gap: 6,
+    gap: 8,
   },
   cityPill: {
-    backgroundColor: '#FDE7E9',
+    backgroundColor: 'background: rgba(253, 231, 233, 1)',
     borderRadius: 16,
     paddingVertical: 8,
-    paddingHorizontal: 8,
+    paddingHorizontal: 12,
     marginBottom: 8,
   },
   cityText: {
-    fontFamily: 'outfit-medium',
-    fontSize: 14,
+    fontSize: 12,
     color: '#333',
   },
   togglePill: {
     backgroundColor: '#e3f2fd',
     borderRadius: 16,
     paddingVertical: 6,
-    // paddingHorizontal: 14,
+    paddingHorizontal: 14,
     alignSelf: 'flex-start',
   },
-
+  toggleText: {
+    fontSize: 12,
+    color: '#1976d2',
+    fontWeight: '500',
+  },
   moreLessPill: {
     backgroundColor: '#e3f2fd',
     borderRadius: 16,
@@ -889,8 +968,7 @@ reviewBox: {
     paddingHorizontal: 12,
   },
   moreLessText: {
-    fontFamily: 'outfit-medium',
-    fontSize: 14,
+    fontSize: 13,
     color: '#1976d2',
     fontWeight: '500',
   },
@@ -906,7 +984,6 @@ reviewBox: {
     elevation: 3,
   },
   sectionTitle: {
-    fontFamily: 'outfit-bold',
     fontSize: 18,
     fontWeight: '600',
     color: '#2c3e50',
@@ -924,21 +1001,18 @@ reviewBox: {
     borderLeftColor: '#4a90e2',
   },
   offerTitle: {
-        fontFamily: 'outfit',
     fontSize: 16,
     fontWeight: '600',
     color: '#2c3e50',
     marginBottom: 4,
   },
   offerDescription: {
-        fontFamily: 'outfit',
     fontSize: 14,
     color: '#7f8c8d',
     marginBottom: 8,
     lineHeight: 20,
   },
   offerCode: {
-        fontFamily: 'outfit',
     fontSize: 14,
     fontWeight: '700',
     color: '#27ae60',
@@ -968,3 +1042,4 @@ reviewBox: {
 });
 
 export default styles;
+ 

@@ -742,4 +742,4 @@ const DeliveryCitiesList = ({ cities }) => {
   );
 };
 
-export default TiffinDetails;
+export default TiffinDetails;  

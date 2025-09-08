@@ -7,7 +7,7 @@ export const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: 'white',
-    padding: 15
+    padding: 5
   },
   topContainer: {
     flexDirection: 'row',
@@ -27,6 +27,7 @@ export const styles = StyleSheet.create({
   locationAddress: {
     fontFamily: 'outfit',
     fontSize: 14,
+    fontFamily: 'outfit',
     color: 'gray'
   },
   offerBanner: {
@@ -66,7 +67,9 @@ export const styles = StyleSheet.create({
     marginLeft: 10,
   },  
   vegFilterText: {
-    fontSize: 16,
+    // marginLeft: 10, // If you uncomment this, it adds space from the icon
+    fontSize: 14,
+    fontFamily: 'outfit',
     fontWeight: 'bold',
     color: '#333',
     textAlign: 'center',
@@ -74,7 +77,9 @@ export const styles = StyleSheet.create({
     fontWeight: '500',
   },
    vegFilterText2: {
-    fontSize: 14,
+    // marginLeft: 10, // If you uncomment this, it adds space from the icon
+    fontSize: 12,
+    fontFamily: 'outfit',
     fontWeight: '900',
     color: '#333',
     textAlign: 'center',
@@ -93,6 +98,7 @@ export const styles = StyleSheet.create({
     height:90,
   },
   VegText:{
+    fontFamily: 'outfit',
     fontSize:16,
     color:"black",
     fontWeight:"600",
@@ -151,7 +157,7 @@ export const styles = StyleSheet.create({
   separatorRow: {
 		flexDirection: 'row',
 		alignItems: 'center',
-		marginTop: 10,
+		marginTop: 0,
     marginBottom: 10
 	  },
   line: {
@@ -179,6 +185,7 @@ export const styles = StyleSheet.create({
     borderColor: '#e23845',
   },
   filterText: {
+    fontFamily: 'outfit-medium',
     fontSize: 14,
     fontWeight: '500',
   },

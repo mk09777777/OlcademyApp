@@ -35,6 +35,7 @@ export default StyleSheet.create({
   },
   emptyStateTitle: {
     fontSize: 18,
+    fontFamily: 'outfit-bold ',
     fontWeight: 'bold',
     color: Colors.text,
     marginBottom: 8,
@@ -65,6 +66,7 @@ export default StyleSheet.create({
   },
   emptyTitle: {
     fontSize: 20,
+    fontFamily: 'outfit-bold ',
     fontWeight: 'bold',
     color: Colors.text,
     marginBottom: 8,
@@ -72,6 +74,7 @@ export default StyleSheet.create({
   },
   emptySubtitle: {
     fontSize: 14,
+    fontFamily: 'outfit-medium ',
     color: Colors.textLight,
     textAlign: 'center',
     marginBottom: 24,
@@ -88,6 +91,7 @@ export default StyleSheet.create({
     color: Colors.background,
     fontWeight: 'bold',
     fontSize: 14,
+    fontFamily: 'outfit-medium ',
   },
   // Collection Card Styles (commented out in component)
   collectionCard: {
@@ -111,12 +115,14 @@ export default StyleSheet.create({
   },
   collectionTitle: {
     fontSize: 20,
+    fontFamily: 'outfit-bold ',
     fontWeight: 'bold',
     color: Colors.text,
     marginBottom: 8,
   },
   collectionInfo: {
     fontSize: 14,
+    fontFamily: 'outfit-medium ',
     color: Colors.textLight,
     marginBottom: 4,
   },
@@ -132,6 +138,7 @@ export default StyleSheet.create({
   },
   headerTitle: {
     fontSize: 18,
+    fontFamily: 'outfit-bold ',
     fontWeight: 'bold',
     color: Colors.text,
   },

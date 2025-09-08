@@ -402,23 +402,7 @@ export default function Reviewsall() {
           <MaterialCommunityIcons name="share-outline" size={32} color="black" style={ZomatoStyles.headingImg2} />
         </View>
 
-        <View style={ZomatoStyles.TotalRatingContainer}>
-          <View style={ZomatoStyles.ratingStartcontainer}>
-            <View style={ZomatoStyles.RatingsContainer}>
-              <Text style={ZomatoStyles.RatingText}>{params.averageRating}</Text>
-              <AntDesign name="star" size={11} color="white" style={ZomatoStyles.RatingImg} />
-            </View>
-            <Text style={ZomatoStyles.TotalText}>{params.reviewCount || "0"} RATED</Text>
-          </View>
-
-          <TouchableOpacity onPress={togglevisible}>
-            <Text style={ZomatoStyles.TotalText2}>How are ratings calculated? <AntDesign name="caretright" size={10} color="black" /></Text>
-          </TouchableOpacity>
-
-          <Modal animationType="slide" transparent={true} visible={calculatedboxvisible} onRequestClose={togglevisible}>
-            <RatingsCalculated toggle={togglevisible} />
-          </Modal>
-        </View>
+        
 
         <View style={ZomatoStyles.SearchContainer}>
           <AntDesign name="search1" size={24} color="#E91E63" style={ZomatoStyles.searchImg} />
@@ -477,7 +461,7 @@ export default function Reviewsall() {
           </View>
         }
         renderItem={({ item }) => (
-          <View>
+          <View style={ZomatoStyles.commentMainContainer}>
             <View style={ZomatoStyles.commentcontainer}>
               <View style={ZomatoStyles.commentheadingcontainer}>
                 <View style={ZomatoStyles.ratingStartcontainer}>
@@ -518,9 +502,7 @@ export default function Reviewsall() {
               )} */}
               <View style={ZomatoStyles.LikeCommentCalculateContainer}>
                 <Text style={ZomatoStyles.commentText2}>{getDaysAgo(item.createdAt)}</Text>
-                <Text style={ZomatoStyles.commentText2}>
-                  {item.likes || 0} helpful votes, {item.commentsCount || 0} comments
-                </Text>
+                
               </View>
             </View>
             <View style={ZomatoStyles.commenttabscontainer}>
@@ -533,7 +515,7 @@ export default function Reviewsall() {
                   size={20}
                   color={item.isLiked ? "#E91E63" : "black"}
                 />
-                <Text style={[ZomatoStyles.commenttabtext, item.isLiked && {color: "#E91E63"}]}>Helpful</Text>
+                <Text style={[ZomatoStyles.commenttabtext, item.isLiked && {color: "#E91E63"}]}>{item.likes || 0}  </Text>
               </TouchableOpacity>
              <TouchableOpacity
   onPress={() => {
@@ -557,7 +539,7 @@ export default function Reviewsall() {
     color="black"
     style={ZomatoStyles.likeimage}
   />
-  <Text style={ZomatoStyles.commenttabtext}>Comment</Text>
+  <Text style={ZomatoStyles.commenttabtext}> Comment</Text>
 </TouchableOpacity>
               <TouchableOpacity style={ZomatoStyles.commenttabbox}>
                 <Fontisto name="share" size={20} color="black" style={ZomatoStyles.likeimage} />

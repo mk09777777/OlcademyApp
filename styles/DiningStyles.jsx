@@ -20,6 +20,7 @@ export const styles = StyleSheet.create({
   locationName: {
     fontFamily: 'outfit-medium',
     fontSize: 16,
+    
   },
   locationAddress: {
     fontFamily: 'outfit',
@@ -79,6 +80,7 @@ export const styles = StyleSheet.create({
   vegFilterText: {
     fontSize: 16,
     fontWeight: 'bold',
+    fontFamily: 'outfit-medium',
     color: '#333',
     textAlign: 'center',
     fontFamily: 'outfit',
@@ -103,11 +105,12 @@ export const styles = StyleSheet.create({
     width: 90,
     height: 90,
   },
-  VegText: {
-    fontSize: 16,
-    color: "black",
-    fontWeight: "600",
-    marginTop: 15,
+  VegText:{
+    fontSize:16,
+    color:"black",
+    fontWeight:"600",
+    fontFamily: 'outfit-bold',
+    marginTop:15,
 
   },
   //Turn off modal
@@ -367,6 +370,7 @@ export const styles = StyleSheet.create({
   searchResultName: {
     fontSize: 14,
     fontWeight: '500',
+    fontFamily: 'outfit-bold',
     color: '#333',
   },
   searchResultRating: {
@@ -376,6 +380,7 @@ export const styles = StyleSheet.create({
   },
   searchResultRatingText: {
     fontSize: 12,
+    fontFamily: 'outfit',
     color: '#666',
     marginLeft: 4,
   },

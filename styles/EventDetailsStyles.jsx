@@ -29,6 +29,7 @@ export  const styles = StyleSheet.create({
   titleText: {
     fontFamily: 'outfit',
     fontSize: 26,
+    fontFamily: 'outfit-bold ',
     color: 'white',
     paddingHorizontal: 10
   },
@@ -36,11 +37,13 @@ export  const styles = StyleSheet.create({
     paddingHorizontal: 10,
     fontFamily: 'outfit',
     fontSize: 18,
+    fontFamily: 'outfit-bold ',
     color: 'white',
   },
   descriptionText: {
     fontFamily: 'outfit',
     fontSize: 16,
+    fontFamily: 'outfit-medium ',
     color: 'gray',
     paddingHorizontal: 10,
     marginTop: 15
@@ -50,6 +53,7 @@ export  const styles = StyleSheet.create({
     fontFamily: 'outfit-medium',
     marginTop: 5,
     fontSize: 14,
+    fontFamily: 'outfit-medium ',
     paddingHorizontal: 10
   },
   locatioText: {
@@ -79,7 +83,8 @@ export  const styles = StyleSheet.create({
   propertyType: {
     fontFamily: 'outfit',
     color: 'gray',
-    fontSize: 15
+    fontSize: 15,
+    fontFamily: 'outfit-medium ',
   },
   propertyValue: {
     fontFamily: 'outfit',
@@ -105,7 +110,9 @@ export  const styles = StyleSheet.create({
   },
   price: {
     fontFamily: 'outfit',
-    fontSize: 23
+    fontSize: 23,
+    fontFamily: 'outfit-bold ',
+
   },
   bookingButton: {
     backgroundColor: '#e23845',
@@ -117,11 +124,13 @@ export  const styles = StyleSheet.create({
   bookingButtonText: {
     fontFamily: 'outfit',
     fontSize: 23,
+    fontFamily: 'outfit-bold ',
     color: 'white'
   },
   subHeading: {
     fontFamily: 'outfit',
     fontSize: 23,
+    fontFamily: 'outfit-bold ',
     marginHorizontal: 10,
     marginVertical: 20,
   },

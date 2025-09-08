@@ -6,11 +6,13 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 22,
+    fontFamily: 'outfit-bold ',
     fontWeight: 'bold',
     marginBottom: 8,
   },
   subtitle: {
     fontSize: 16,
+    fontFamily: 'outfit-medium ',
     color: 'gray',
     marginBottom: 12,
   },
@@ -37,15 +39,18 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
     fontSize: 15,
+    fontFamily: 'outfit-medium ',
   },
   offer: {
     textAlign: 'center',
     fontSize: 14,
+    fontFamily: 'outfit-medium ',
     marginVertical: 4,
   },
   expiry: {
     textAlign: 'center',
     fontSize: 12,
+    fontFamily: 'outfit ',
     color: 'gray',
   },
   button: {

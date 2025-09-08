@@ -3,8 +3,9 @@ import axios from 'axios';
 // import AsyncStorage from '@react-native-async-storage/async-storage';
 import { NativeEventEmitter } from 'react-native';
 import { API_CONFIG } from '../config/apiConfig';
+import EventEmitter from 'eventemitter3';
+const cartEventEmitter = new EventEmitter();
 
-const cartEventEmitter = new NativeEventEmitter();
 const CartContext = createContext();
 
 const CartProvider = ({ children }) => {
@@ -29,7 +30,7 @@ const CartProvider = ({ children }) => {
 
   const api = useMemo(() => {
     const instance = axios.create({
-
+      
       baseURL: `${API_CONFIG.BACKEND_URL}/api`,
       withCredentials: true,
       timeout: 5000,
@@ -91,7 +92,7 @@ const CartProvider = ({ children }) => {
           };
           return acc;
         }, {}) || {};
-// console.log('caet',response.data)
+console.log('caet',response.data)
         setCart(cartItems);
         setCarts(response.data);
         setCartCount(response.data.items?.reduce((sum, item) => sum + item.quantity, 0) || 0);

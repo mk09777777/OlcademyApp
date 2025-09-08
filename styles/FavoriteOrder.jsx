@@ -57,16 +57,19 @@ const styles = StyleSheet.create({
     },
     restaurantName: {
       fontSize: 16,
+      fontFamily: 'outfit-medium ',
       fontWeight: '600',
       color: '#333',
       marginBottom: 4,
     },
     location: {
       fontSize: 14,
+      fontFamily: 'outfit-medium ',
       color: '#666',
     },
     amount: {
       fontSize: 16,
+      fontFamily: 'outfit-medium ',
       fontWeight: '600',
       color: '#333',
       marginLeft: 8,
@@ -78,6 +81,7 @@ const styles = StyleSheet.create({
     },
     sectionLabel: {
       fontSize: 12,
+      fontFamily: 'outfit ',
       fontWeight: '500',
       color: '#666',
       marginBottom: 8,
@@ -87,6 +91,7 @@ const styles = StyleSheet.create({
     },
     itemText: {
       fontSize: 14,
+      fontFamily: 'outfit-medium ',
       color: '#333',
       marginBottom: 4,
     },
@@ -95,6 +100,7 @@ const styles = StyleSheet.create({
     },
     orderDateTime: {
       fontSize: 14,
+      fontFamily: 'outfit-medium ',
       color: '#333',
     },
     orderFooter: {
@@ -104,6 +110,7 @@ const styles = StyleSheet.create({
     },
     statusText: {
       fontSize: 14,
+      fontFamily: 'outfit-medium ',
       fontWeight: '500',
     },
     rejectedStatus: {
@@ -119,6 +126,7 @@ const styles = StyleSheet.create({
     },
     repeatButtonText: {
       fontSize: 14,
+      fontFamily: 'outfit-medium ',
       color: '#666',
       marginLeft: 4,
     },
@@ -140,11 +148,13 @@ activeTab: {
 },
 tabText: {
   fontSize: 16,
+  fontFamily: 'outfit-medium ',
   color: '#666',
 },
 activeTabText: {
   color: '#fc8019',
   fontWeight: '600',
+  fontFamily: 'outfit-medium ',
 },
   });
   export default styles;

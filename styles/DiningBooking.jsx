@@ -7,7 +7,7 @@ const styles = StyleSheet.create({
     tabText: { textAlign: 'center', color: '#757575' },
     activeTabText: { color: '#000', fontWeight: 'bold' },
     bookingsList: { marginTop: 16 },
-    sectionTitle: { fontSize: 18, fontWeight: 'bold', marginBottom: 16 },
-    loadingText: { fontSize: 16, textAlign: 'center', marginTop: 32 },
+    sectionTitle: { fontSize: 18, fontFamily: 'outfit-bold ', fontWeight: 'bold', marginBottom: 16 },
+    loadingText: { fontSize: 16, fontFamily: 'outfit-medium ', textAlign: 'center', marginTop: 32 },
   });
   export default styles;

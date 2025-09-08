@@ -18,6 +18,7 @@ const styles=StyleSheet.create({
       },
       formTitle: {
         fontSize: 20,
+        fontFamily: 'outfit-bold ',
         fontWeight: 'bold',
         marginBottom: 20,
         textAlign: 'center',
@@ -28,6 +29,7 @@ const styles=StyleSheet.create({
       },
       inputLabel: {
         fontSize: 16,
+        fontFamily: 'outfit-medium ',
         marginBottom: 5,
         color: '#333',
       },
@@ -37,6 +39,7 @@ const styles=StyleSheet.create({
         borderRadius: 5,
         padding: 10,
         fontSize: 16,
+        fontFamily: 'outfit-medium ',
       },
       buttonGroup: {
         flexDirection: 'row',
@@ -58,11 +61,13 @@ const styles=StyleSheet.create({
       },
       cancelButtonText: {
         color: '#666',
+        fontFamily: 'outfit-bold ',
         fontWeight: 'bold',
       },
       submitButtonText: {
         color: 'white',
         fontWeight: 'bold',
+        fontFamily: 'outfit-bold ',
       },
     });
     

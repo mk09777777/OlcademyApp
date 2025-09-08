@@ -12,9 +12,9 @@ const MiniRecommendedCard = ({ name, address, image, rating, onPress }) => {
 
 
   return (
-    <TouchableOpacity activeOpacity={0.8} onPress={onPress} className="mb-2.5">
-      <View className="mx-1 bg-white rounded-5xl overflow-hidden shadow-lg w-40 mb-0.5 border border-gray-200">
-        <View className="relative" style={{ height: 120 }}>
+    <TouchableOpacity activeOpacity={0.8} onPress={onPress} style={{ marginBottom: 0}}>
+      <View style={styles.card}>
+        <View style={styles.imageContainer}>
           <ImageBackground
             source={
               image?.[0]
@@ -49,6 +49,114 @@ const MiniRecommendedCard = ({ name, address, image, rating, onPress }) => {
   );
 };
 
+const styles = StyleSheet.create({
+  card: {
+    marginHorizontal: 5,
+    backgroundColor: COLORS.SURFACE,
+    borderRadius: 19,
+    overflow: 'hidden',
+    shadowColor: '#b2babb',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+    width: 160,
+    marginBottom: 0,
+  },
+  imageContainer: {
+    position: 'relative',
+    height: 120,
+  },
+ badge: {
+  position: 'absolute',
+  bottom: 90,
+  left: 0,
+  height: 20,
+  width: 140,
+  borderRadius: 0,
+  display: "flex",
+  flexDirection: "column",
 
+  // ✅ Android shadow
+  elevation: 10,
+
+  // ✅ iOS shadow
+  shadowColor: '#000',
+  shadowOffset: { width: 0, height: 0 },
+  shadowOpacity: 0.25,
+  shadowRadius: 3.84,
+  backgroundColor: "#fff", // required for shadow to show
+}
+,
+  badgeTitle: {
+   color: '#fff',
+    fontSize: 12,
+    fontWeight: 'bold',
+    marginTop:1,
+    marginLeft:4,
+    fontFamily:"outfit-bold",
+  },
+  badgeOffer: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: 'bold',
+  },
+  image: {
+    width: '100%',
+    height: '100%',
+  },
+  content: {
+    padding: SPACING.MD,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+  },
+  textContent: {
+    flex: 1,
+    marginRight: SPACING.MD,
+    fontFamily:"outfit-medium"
+  },
+  title: {
+    fontSize: 16,
+    fontWeight: '800',
+    color: COLORS.TEXT_PRIMARY,
+    marginBottom: SPACING.XS,
+    marginTop: 5,
+    fontFamily:"outfit-bold"
+  },
+  distance: {
+    fontSize: 12,
+    color: COLORS.TEXT_SECONDARY,
+
+  },
+  bookmarkButton: {
+    position: 'absolute',
+    top: SPACING.MD,
+    right: SPACING.MD,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: 'rgba(0, 0, 0, 0.4)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 1,
+  },
+  ratingBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgb(4, 116, 19)',
+    borderRadius: 6,
+    paddingHorizontal: 2,
+    paddingVertical: 0,
+    marginTop: 25  
+  },
+  ratingText: {
+    color: 'white',
+    fontSize: 14,
+    fontWeight: '600',
+    marginLeft: 0,
+    marginRight: 0
+  },
+});
 
 export default MiniRecommendedCard;

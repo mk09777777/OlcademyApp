@@ -70,6 +70,7 @@ export default styles = StyleSheet.create({
   vegFilterText: {
     fontSize: 16,
     fontWeight: 'bold',
+    fontFamily: 'outfit-bold',
     color: '#333',
     textAlign: 'center',
     fontFamily: 'outfit',
@@ -97,6 +98,7 @@ export default styles = StyleSheet.create({
   },
   VegText:{
     fontSize:16,
+    fontFamily: 'outfit-bold',
     color:"black",
     fontWeight:"600",
         fontFamily: 'outfit',
@@ -127,7 +129,7 @@ export default styles = StyleSheet.create({
   },
   filterChipText: {
     fontSize: 10,
-        fontFamily: 'outfit',
+    fontFamily: 'outfit',
     color: '#333',
   },
   filterButton: {
@@ -142,6 +144,7 @@ export default styles = StyleSheet.create({
   filterButtonText: {
     marginLeft: 4,
     fontSize: 12,
+    fontFamily: 'outfit-medium',
     color: '#666',
   },
   sectionContainer: {
@@ -155,14 +158,15 @@ export default styles = StyleSheet.create({
     marginBottom: 10,
   },
   sectionTitle: {
-    fontFamily: 'outfit-medium',
-    fontSize: 22,
+    fontSize: 20,
+    fontFamily: 'outfit-bold',
     fontWeight: 'bold',
     color: '#333',
   },
   sectionSubtitle: {
         fontFamily: 'outfit',
     fontSize: 14,
+    fontFamily: 'outfit-medium',
     color: '#666',
     marginTop: 4,
   },
@@ -175,6 +179,7 @@ export default styles = StyleSheet.create({
   viewAllText: {
     color: '#fff',
     fontSize: 12,
+    fontFamily: 'outfit',
     fontWeight: '600',
   },
   emptyMessage: {
@@ -203,19 +208,21 @@ export default styles = StyleSheet.create({
   },
   loadingTitle: {
     marginTop: 12,
+    fontFamily: 'outfit-bold',
     fontSize: 16,
         fontFamily: 'outfit',
     fontWeight: 'bold',
     color: COLORS.TEXT_PRIMARY,
   },
   loadingSubtext: {
-        fontFamily: 'outfit',
+    fontFamily: 'outfit-medium',
     fontSize: 14,
     color: COLORS.TEXT_SECONDARY,
     marginTop: 4,
   },
   loadingText: {
     marginTop: 12,
+    fontFamily: 'outfit-bold',
     fontSize: 16,
         fontFamily: 'outfit',
     color: COLORS.TEXT_PRIMARY,
@@ -237,10 +244,11 @@ export default styles = StyleSheet.create({
     marginHorizontal: 7
 	},
   sectionTitleText: {
-   	fontFamily: 'outfit',
-		fontSize: 13,
-		color: '#222222',
-    marginHorizontal: 7
+    marginHorizontal: 10,
+    fontFamily: 'outfit-medium',
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#333',
   },
   filterButton: {
   flexDirection: 'row',
@@ -278,6 +286,7 @@ filterModalHeader: {
 },
 filterModalTitle: {
   fontSize: 20,
+  fontFamily: 'outfit-bold',
   fontWeight: 'bold',
 },
 filterScrollView: {
@@ -288,7 +297,7 @@ filterSection: {
 },
 filterSectionTitle: {
   fontSize: 16,
-      fontFamily: 'outfit',
+  fontFamily: 'outfit-bold',
   fontWeight: '600',
   marginBottom: 10,
 },
@@ -367,7 +376,7 @@ activeQuickFilter: {
 },
 quickFilterText: {
   marginLeft: 5,
-  fontSize: 14,
+  fontSize: 12,
   fontFamily: 'outfit',
   color: '#666',
 },

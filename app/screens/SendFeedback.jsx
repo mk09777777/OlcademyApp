@@ -14,14 +14,12 @@ const FeedbackScreen = () => {
   const [feedback, setFeedback] = useState('');
 
   return (
-    <ScrollView contentContainerStyle={{ padding: 16, flexGrow: 1, backgroundColor: '#FEF2F2' }}>
-      <BackRouting tittle= "FeedBack"/>
-      <TouchableOpacity className="mb-4">
-        <Text className="text-textprimary text-2xl font-outfit">{'←'}</Text>
-      </TouchableOpacity>
+    <ScrollView contentContainerStyle={styles.container}>
+      <BackRouting style={styles.backButtonFeedBack}tittle= "FeedBack"/>
+      
 
-      <Text className="text-textprimary text-2xl font-outfit-bold mb-4">Send Feedback</Text>
-      <Text className="text-textsecondary text-base font-outfit mb-6">
+      <Text style={styles.title}>Send Feedback</Text>
+      <Text style={styles.description}>
         Tell us what you love about the app, or what we could be doing better.
       </Text>
 

@@ -770,13 +770,19 @@ export default function TakeAway() {
                   <Text className="text-textprimary font-bold text-xl mt-1">Switch off Veg Mode?</Text>
                   <Text className="text-textprimary font-normal text-base mt-2.5">You'll see all restaurants, including those</Text>
                   <Text className="text-textprimary">serving non-veg dishes</Text>
+                  <Text style={{ color: "black", fontWeight: "bold", fontSize: 20, marginTop: 5, fontFamily: 'outfit-bold', }}>Switch off Veg Mode?</Text>
+                  <Text style={{ color: "black", fontWeight: "400", marginTop1: 10, fontSize: 15, marginTop: 10, fontFamily: 'outfit-medium', }}>You'll see all restaurants, including those</Text>
+                  <Text >serving non-veg dishes</Text>
 
                   <TouchableOpacity onPress={() => setIsModalVisible(false)}>
                     <Text className="text-red-500 text-base font-medium mt-5">Switch off</Text>
+                    <Text style={{ color: "red", fontSize: 15, fontWeight: "500", marginTop: 20, fontFamily: 'outfit-bold', }}>Switch off</Text>
                   </TouchableOpacity>
 
                   <TouchableOpacity onPress={() => handleKeepUsing()} className="p-2.5 mx-2.5 bg-white rounded-lg mt-2.5 justify-center items-center">
                     <Text className="text-textprimary text-base font-medium">keep using it</Text>
+                  <TouchableOpacity onPress={() => handleKeepUsing()} style={styles.KeepUsingButton}>
+                    <Text style={{ color: "black", fontSize: 15, fontWeight: "500", fontFamily: 'outfit-medium', }}>keep using it</Text>
                   </TouchableOpacity>
                 </View>
               </View>
