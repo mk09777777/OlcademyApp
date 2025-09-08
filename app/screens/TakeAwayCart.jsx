@@ -747,7 +747,6 @@ UploadNotifications(orderData)
               renderItem={renderItem}
               renderSectionHeader={renderRestaurantHeader}
               scrollEnabled={false}
-              contentContainerStyle={{ paddingBottom: 20 }}
             />
           )}
         </View>
@@ -787,6 +786,8 @@ UploadNotifications(orderData)
               </TouchableOpacity>
             )}
           </View>
+        <View style={styles.card}>
+     
 
           {/* Tiffin-specific fields */}
           {isTiffinOrder && (
@@ -852,13 +853,7 @@ UploadNotifications(orderData)
                   keyboardType="phone-pad"
                   className="border border-border rounded-lg p-3 text-textprimary font-outfit mb-4"
                 />
-                {/* <TextInput
-                  placeholder="Delivery Address"
-                  value={pickupAddress}
-                  onChangeText={setPickupAddress}
-                  multiline
-                  style={[styles.input, { height: 80 }]}
-                /> */}
+              </View>
 
                               <TouchableOpacity
                                 onPress={() => router.push('/screens/DeliveryAddress')}

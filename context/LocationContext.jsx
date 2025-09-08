@@ -17,51 +17,7 @@ export const LocationProvider = ({ children }) => {
     fullAddress: '',
   });
   const [recentlyAdds, setRecentlyAdds] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const getDeviceLocation = async () => {
-    try {
-      const { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== 'granted') {
-        console.log('Location permission denied');
-        return null;
-      }
 
-      const { coords } = await Location.getCurrentPositionAsync({});
-      return coords;
-    } catch (error) {
-      console.error('Error getting device location:', error);
-      return null;
-    }
-  };
-  const reverseGeocode = async (latitude, longitude) => {
-    try {
-      const reverseGeocode = await Location.reverseGeocodeAsync({
-        latitude,
-        longitude,
-      });
-      
-      if (reverseGeocode.length > 0) {
-        const location = reverseGeocode[0];
-        return {
-          city: location.city || '',
-          state: location.region || '',
-          country: location.country || '',
-          lat: latitude.toString(),
-          lon: longitude.toString(),
-          fullAddress: `${location.name || ''} ${location.street || ''}, ${location.city || ''}, ${location.region || ''}, ${location.country || ''}`.trim(),
-          area: location.district || '',
-          street: location.street || '',
-          houseNumber: location.name || '',
-        };
-      }
-    } catch (error) {
-      console.error('Error in reverse geocoding:', error);
-    }
-    
-    return null;
-  };
-
-  // Initialize location
   useEffect(() => {
     const initializeLocation = async () => {
       try {
@@ -148,13 +104,7 @@ export const LocationProvider = ({ children }) => {
   };
 
   return (
-    <LocationContext.Provider value={{ 
-      location, 
-      setLocation: updateLocation, 
-      recentlyAdds, 
-      setRecentlyAdds,
-      isLoading 
-    }}>
+    <LocationContext.Provider value={{ location, setLocation, recentlyAdds, setRecentlyAdds }}>
       {children}
     </LocationContext.Provider>
   );

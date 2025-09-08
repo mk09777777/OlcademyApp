@@ -385,16 +385,29 @@ export default function TakeAway() {
     fetchInitialData();
   }, []);
 
-  const FetchRecentlyViewData = useCallback(async () => {
-    try {
-      const response = await axios.get(`${Api_url}/firm/getrecently-viewed`, {
-        withCredentials: true
-      });
-      setRecentlyViewdData(response.data.recentlyViewed || []);
-    } catch (error) {
-      // console.error('Error fetching recently viewed data:', error);
-    }
-  }, []);
+const FetchRecentlyViewData = useCallback(async () => {
+  try {
+    const response = await axios.get(`${Api_url}/firm/getrecently-viewed`, {
+      withCredentials: true
+    });
+    const firmItems = response.data.recentlyViewed
+      ?.filter(item => item.itemType === "Firm")
+      ?.map(item => ({
+        _id: item.itemId,
+        restaurantInfo: {
+          name: item.firmInfo?.name,
+          address: item.firmInfo?.address,
+          ratings: item.firmInfo?.ratings,
+          image_urls: item.firmInfo?.image_urls
+        }
+      })) || [];
+
+    setRecentlyViewdData(firmItems);
+  } catch (error) {
+    console.error('Error fetching recently viewed data:', error);
+    setRecentlyViewdData([]);
+  }
+}, []);
 
   const sortPopularData = useCallback(() => {
     const sorted = randomData.filter(

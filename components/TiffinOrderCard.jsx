@@ -22,7 +22,7 @@ const TiffinOrderCard = ({
    const firmId = firstItem.sourceEntityId?._id;
    console.log(firmId)
   const tiffinImage = firstItem.img || "https://placehold.co/150x150/e0f2f7/00796b?text=Tiffin";
-    const { user, profileData, api } = useAuth();
+  const { user, profileData, api } = useAuth();
   const currentUserData = profileData?.email ? profileData : (user ? { username: user } : null);
   const handleFavoritePress = () => {
     if (onToggleFavorite) {

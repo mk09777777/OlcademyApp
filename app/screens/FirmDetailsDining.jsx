@@ -92,18 +92,37 @@ export default function FirmDetailsDining() {
     }
   }
 
-  const UploadRecentlyViewed = async () => {
-    try {
-      const restId = firmId
-      if (!restId) return
-      await axios.post(`${API_URL}/firm/recently-viewed/${restId}`, null, {
-        withCredentials: true
-      })
-      console.log("recently viewed uploaded successfully")
-    } catch (err) {
-      console.error("Failed to upload recently viewed:", err)
+const UploadRecentlyViewd = async () => {
+  try {
+    const restId = firmId;
+    if (!restId) {
+      console.warn("No restaurant ID available for recently viewed tracking");
+      return;
+    }
+
+    const response = await axios.post(
+      `${API_URL}/firm/recently-viewed/${restId}`,
+      {},
+      { 
+        withCredentials: true,
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+
+    if (response.status !== 200 && response.status !== 201) {
+      throw new Error(`Unexpected status code: ${response.status}`);
+    }
+
+    console.log("Recently viewed uploaded successfully:", response.data);
+  } catch (err) {
+    console.error("Failed to upload recently viewed:", err);
+    if (err.response) {
+      console.error("Response data:", err.response.data);
     }
   }
+};
 
   const getSimilar = async () => {
     setLoading(true)
