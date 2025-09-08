@@ -92,7 +92,7 @@ export default function FirmDetailsDining() {
     }
   }
 
-const UploadRecentlyViewd = async () => {
+const UploadRecentlyViewed = async () => {
   try {
     const restId = firmId;
     if (!restId) {

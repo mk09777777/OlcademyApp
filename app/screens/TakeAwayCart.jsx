@@ -786,108 +786,91 @@ UploadNotifications(orderData)
               </TouchableOpacity>
             )}
           </View>
-        <View style={styles.card}>
-     
-
-          {/* Tiffin-specific fields */}
-          {isTiffinOrder && (
-            <View>
-              <View style={{ marginTop: 10, marginBottom: 10, }}>
-                {cartItems[0]?.selectedDeliveryTimeSlot ? (
-                  <View style={{
-                    backgroundColor: '#ebf8ff',
-                    borderColor: '#90cdf4',
-                    borderWidth: 1,
-                    borderRadius: 6,
-                    padding: 10,
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    shadowColor: '#000',
-                    shadowOffset: { width: 0, height: 1 },
-                    shadowOpacity: 0.1,
-                    shadowRadius: 2,
-                  }}>
-                    {/* <Text style={{ fontSize: 20, marginRight: 12 }}>⏰</Text> */}
-                    <Text style={{ fontWeight: '600', fontSize: 16, color: '#2b6cb0' }}>
-                      Delivery Time: {cartItems[0]?.selectedDeliveryTimeSlot}
+          <View>
+            {/* Tiffin-specific fields */}
+            {isTiffinOrder && (
+              <View>
+                <View style={{ marginTop: 10, marginBottom: 10, }}>
+                  {cartItems[0]?.selectedDeliveryTimeSlot ? (
+                    <View style={{
+                      backgroundColor: '#ebf8ff',
+                      borderColor: '#90cdf4',
+                      borderWidth: 1,
+                      borderRadius: 6,
+                      padding: 10,
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      shadowColor: '#000',
+                      shadowOffset: { width: 0, height: 1 },
+                      shadowOpacity: 0.1,
+                      shadowRadius: 2,
+                    }}>
+                      <Text style={{ fontWeight: '600', fontSize: 16, color: '#2b6cb0' }}>
+                        Delivery Time: {cartItems[0]?.selectedDeliveryTimeSlot}
+                      </Text>
+                    </View>
+                  ) : (
+                    <Text style={{
+                      color: '#718096',
+                      textAlign: 'center',
+                      paddingVertical: 16,
+                      fontSize: 14,
+                      backgroundColor: '#f7fafc',
+                      borderRadius: 6,
+                      borderColor: '#e2e8f0',
+                      borderWidth: 1,
+                    }}>
+                      Delivery time not found for tiffin.
                     </Text>
-                  </View>
-                ) : (
-                  <Text style={{
-                    color: '#718096',
-                    textAlign: 'center',
-                    paddingVertical: 16,
-                    fontSize: 14,
-                    backgroundColor: '#f7fafc',
-                    borderRadius: 6,
-                    borderColor: '#e2e8f0',
-                    borderWidth: 1,
-                  }}>
-                    Delivery time not found for tiffin.
-                  </Text>
-                )}
-              </View>
-              <View className="bg-white p-4 rounded-lg mb-4">
-                <Text className="text-textprimary font-outfit-bold text-lg mb-4">Delivery Details</Text>
-                <View className="mb-4">
-                  <Text className="text-textprimary font-outfit-bold text-sm mb-2">Country Code</Text>
-                  <View className="border border-border rounded-lg">
-                    <Picker
-                      selectedValue={countryCode}
-                      className="h-12"
-                      onValueChange={(itemValue) => setCountryCode(itemValue)}
-                    >
-                      <Picker.Item label="India (+91)" value="+91" />
-                      <Picker.Item label="USA (+1)" value="+1" />
-                      <Picker.Item label="UK (+44)" value="+44" />
-                    </Picker>
-
-                  </View>
-
-
+                  )}
                 </View>
-                <TextInput
-                  placeholder="Phone Number"
-                  value={phoneNumber}
-                  onChangeText={setPhoneNumber}
-                  keyboardType="phone-pad"
-                  className="border border-border rounded-lg p-3 text-textprimary font-outfit mb-4"
-                />
-              </View>
+                <View className="bg-white p-4 rounded-lg mb-4">
+                  <Text className="text-textprimary font-outfit-bold text-lg mb-4">Delivery Details</Text>
+                  <View className="mb-4">
+                    <Text className="text-textprimary font-outfit-bold text-sm mb-2">Country Code</Text>
+                    <View className="border border-border rounded-lg">
+                      <Picker
+                        selectedValue={countryCode}
+                        className="h-12"
+                        onValueChange={(itemValue) => setCountryCode(itemValue)}
+                      >
+                        <Picker.Item label="India (+91)" value="+91" />
+                        <Picker.Item label="USA (+1)" value="+1" />
+                        <Picker.Item label="UK (+44)" value="+44" />
+                      </Picker>
+                    </View>
+                  </View>
+                  <TextInput
+                    placeholder="Phone Number"
+                    value={phoneNumber}
+                    onChangeText={setPhoneNumber}
+                    keyboardType="phone-pad"
+                    className="border border-border rounded-lg p-3 text-textprimary font-outfit mb-4"
+                  />
+                </View>
 
-                              <TouchableOpacity
-                                onPress={() => router.push('/screens/DeliveryAddress')}
-                                className="mb-4"
-                              >
-                                <TextInput
-                                  placeholder="Delivery Address"
-                                  value={pickupAddress}
-                                  onChangeText={setPickupAddress}
-                                  multiline
-                                  className="border border-border rounded-lg p-3 text-textprimary font-outfit h-24"
-                                  editable={false}
-                                />
-                                {/* <Text style={styles.stateText}>{location.fullAddress || ''}</Text> */}
-                                {/* <Ionicons name="location-outline" size={20} color="#666" style={styles.addressIcon} /> */}
-                
-                                {/* Saved Address Label */}
-                                {/* {pickupAddress ? (
-                    <Text style={styles.savedAddressLabel}>Saved Address</Text>
-                  ) : null} */}
-                
-                                {/* Clear Address Button */}
-                                {pickupAddress ? (
-                                  <TouchableOpacity
-                                    onPress={async () => {
-                                      setPickupAddress('');
-                                      await AsyncStorage.removeItem('selectedAddress');
-                                    }}
-                                    // style={styles.clearAddressButton}
-                                  >
-                                    {/* <Text style={styles.clearAddressText}>Clear</Text> */}
-                                  </TouchableOpacity>
-                                ) : null}
-                              </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => router.push('/screens/DeliveryAddress')}
+                  className="mb-4"
+                >
+                  <TextInput
+                    placeholder="Delivery Address"
+                    value={pickupAddress}
+                    onChangeText={setPickupAddress}
+                    multiline
+                    className="border border-border rounded-lg p-3 text-textprimary font-outfit h-24"
+                    editable={false}
+                  />
+                  {pickupAddress ? (
+                    <TouchableOpacity
+                      onPress={async () => {
+                        setPickupAddress('');
+                        await AsyncStorage.removeItem('selectedAddress');
+                      }}
+                    >
+                    </TouchableOpacity>
+                  ) : null}
+                </TouchableOpacity>
 
                 <TextInput
                   placeholder="Special Instructions"
@@ -897,87 +880,84 @@ UploadNotifications(orderData)
                   className="border border-border rounded-lg p-3 text-textprimary font-outfit h-20"
                 />
               </View>
-            </View>
-          )}
+            )}
 
-          {/* Restaurant pickup details */}
-          {!isTiffinOrder && (
-
-            <View style={styles.container}>
+            {/* Restaurant pickup details */}
+            {!isTiffinOrder && (
+              <View className="p-4">
               {/* Delivery/Pickup Time Section */}
-              <Pressable onPress={() => setScheduleModalVisible(true)}>
-                <View style={styles.row}>
-                  <Feather name="clock" size={20} color="#333" />
-                  <View style={styles.info}>
-                    <Text style={styles.locationTitle}>Pickup Time</Text>
-                    <Text style={styles.locationAddress}>
-                      Standard (Approx. 30 Mins)
-                    </Text>
-                    <Text style={styles.locationSubAddress}>
-                      {
-                        selectedScheduleTime
-                          ? `Scheduled: ${new Date(selectedScheduleTime).toLocaleDateString("en-IN", {
-                            day: 'numeric',
-                            month: 'short',
-                            year: 'numeric'
-                          })} at ${new Date(selectedScheduleTime).toLocaleTimeString("en-IN", {
-                            hour: "2-digit",
-                            minute: "2-digit",
-                            hour12: true,
-                          })}`
-                          : "Schedule for later"
-                      }
-                    </Text>
-
-                    {/* <Text style={styles.link}>Want this later? Schedule it</Text> */}
+                <Pressable onPress={() => setScheduleModalVisible(true)}>
+                  <View className="flex-row items-center p-4">
+                    <Feather name="clock" size={20} color="#333" />
+                    <View className="flex-1 ml-3">
+                      <Text className="text-textprimary font-outfit-bold text-base">Pickup Time</Text>
+                      <Text className="text-textsecondary font-outfit text-sm">
+                        Standard (Approx. 30 Mins)
+                      </Text>
+                      <Text className="text-textsecondary font-outfit text-xs">
+                        {
+                          selectedScheduleTime
+                            ? `Scheduled: ${new Date(selectedScheduleTime).toLocaleDateString("en-IN", {
+                              day: 'numeric',
+                              month: 'short',
+                              year: 'numeric'
+                            })} at ${new Date(selectedScheduleTime).toLocaleTimeString("en-IN", {
+                              hour: "2-digit",
+                              minute: "2-digit",
+                              hour12: true,
+                            })}`
+                            : "Schedule for later"
+                        }
+                      </Text>
+                    </View>
+                    <Entypo name="chevron-right" size={20} color="#aaa" />
                   </View>
-                  <Entypo name="chevron-right" size={20} color="#aaa" />
-                </View>
-              </Pressable>
+                </Pressable>
 
-              {/* Location Section */}
-              <View style={styles.locationContainer}>
-                <Feather name="map-pin" size={18} color="#333" style={styles.icon} />
-                <View style={styles.locationDetails}>
-                  <Text style={styles.locationTitle}>Pickup Location</Text>
-                  <Text style={styles.locationAddress}>
-                    {taxDetails[0]?.name || 'Restaurant Name'}
-                  </Text>
-                  <Text style={styles.locationSubAddress}>
-                    {taxDetails[0]?.address || '123 Main St, City, State'}
-                  </Text>
+                {/* Location Section */}
+                <View className="flex-row items-center p-4">
+                  <Feather name="map-pin" size={18} color="#333" className="mr-3" />
+                  <View className="flex-1">
+                    <Text className="text-textprimary font-outfit-bold text-base">Pickup Location</Text>
+                    <Text className="text-textsecondary font-outfit text-sm">
+                      {taxDetails[0]?.name || 'Restaurant Name'}
+                    </Text>
+                    <Text className="text-textsecondary font-outfit text-xs">
+                      {taxDetails[0]?.address || '123 Main St, City, State'}
+                    </Text>
+                  </View>
                 </View>
               </View>
-            </View>
-          )}
+            )}
 
-          {/* Total Bill */}
-          <TouchableOpacity style={styles.row} onPress={() => setBillModalVisible(true)}>
-            <MaterialCommunityIcons name="receipt" size={18} color="#333" />
-            <View style={styles.info}>
-              <View style={styles.billRow}>
-                {appliedOffer && (
-                  <Text style={styles.striked}>${subtotal.toFixed(2)}</Text>
-                )}
-                <Text style={styles.boldPrice}>${(Number(total) || 0).toFixed(2)} </Text>
-                {appliedOffer && (
-                  <View style={styles.badge}>
-                    <Text style={styles.badgeText}>You saved ${discount.toFixed(2)}</Text>
-                  </View>
-                )}
+            {/* Total Bill */}
+            <TouchableOpacity className="flex-row items-center p-4" onPress={() => setBillModalVisible(true)}>
+              <MaterialCommunityIcons name="receipt" size={18} color="#333" />
+              <View className="flex-1 ml-3">
+                <View className="flex-row items-center">
+                  {appliedOffer && (
+                    <Text className="line-through text-textsecondary">${subtotal.toFixed(2)}</Text>
+                  )}
+                  <Text className="text-textprimary font-outfit-bold text-lg">${(Number(total) || 0).toFixed(2)} </Text>
+                  {appliedOffer && (
+                    <View className="bg-green-100 px-2 py-1 rounded ml-2">
+                      <Text className="text-green-700 text-xs">You saved ${discount.toFixed(2)}</Text>
+                    </View>
+                  )}
+                </View>
+                <Text className="text-textsecondary text-sm">Incl. taxes, charges & donation</Text>
               </View>
-              <Text style={styles.subLabel}>Incl. taxes, charges & donation</Text>
-            </View>
-            <Entypo name="chevron-right" size={20} color="#aaa" />
-          </TouchableOpacity>
+              <Entypo name="chevron-right" size={20} color="#aaa" />
+            </TouchableOpacity>
+
+            {/* Cancellation Policy */}
+            <Text className="text-textprimary font-outfit-bold text-sm mb-2 px-4">CANCELLATION POLICY</Text>
+            <Text className="text-textsecondary text-sm px-4 mb-4">
+              Help us reduce food waste by avoiding cancellations after placing your order. A 100% cancellation fee will be applied.
+            </Text>
+          </View>
         </View>
-
-        {/* Cancellation Policy */}
-        <Text style={styles.cancelTitle}>CANCELLATION POLICY</Text>
-        <Text style={styles.cancelText}>
-          Help us reduce food waste by avoiding cancellations after placing your order. A 100% cancellation fee will be applied.
-        </Text>
-      </ScrollView >
+      </ScrollView>
 
       {/* Bottom Bar */}
       <View className="absolute bottom-0 left-0 right-0 bg-white p-4 border-t border-border flex-row items-center justify-between">
@@ -1023,39 +1003,34 @@ UploadNotifications(orderData)
           <View className="bg-white rounded-lg p-6 mx-4 w-80 max-h-96">
             {appliedOffer && (
               <>
-                <Text style={styles.modalTitle}>You saved ${discount.toFixed(2)} on this order</Text>
-                <Text style={styles.modalSub}>Applied coupon: {appliedOffer.code}</Text>
+                <Text className="text-textprimary font-outfit-bold text-lg mb-2">You saved ${discount.toFixed(2)} on this order</Text>
+                <Text className="text-textsecondary font-outfit text-sm mb-4">Applied coupon: {appliedOffer.code}</Text>
               </>
             )}
-            <Text style={styles.billSummaryTitle}>Bill Summary</Text>
+            <Text className="text-textprimary font-outfit-bold text-lg mb-4">Bill Summary</Text>
 
-            <View style={styles.billRowItem}>
-              <Text style={styles.billLabel}>Item total</Text>
-              <Text style={styles.billValue}>${(subtotal || 0).toFixed(2)}</Text>
+            <View className="flex-row justify-between items-center mb-2">
+              <Text className="text-textsecondary font-outfit text-sm">Item total</Text>
+              <Text className="text-textprimary font-outfit text-sm">${(subtotal || 0).toFixed(2)}</Text>
             </View>
 
             {appliedOffer && (
-              <View style={styles.billRowItem}>
-                <Text style={styles.billLabel}>Discount ({appliedOffer.code})</Text>
-                <Text style={[styles.billValue, { color: 'green' }]}>-${discount.toFixed(2)}</Text>
+              <View className="flex-row justify-between items-center mb-2">
+                <Text className="text-textsecondary font-outfit text-sm">Discount ({appliedOffer.code})</Text>
+                <Text className="text-green-600 font-outfit text-sm">-${discount.toFixed(2)}</Text>
               </View>
             )}
 
             {!isTiffinOrder && (
-              <View style={styles.billRowItem}>
-                <Text style={styles.billLabel}>Delivery partner fee</Text>
-                <Text style={styles.billValue}>${deliveryFee.toFixed(2)}</Text>
+              <View className="flex-row justify-between items-center mb-2">
+                <Text className="text-textsecondary font-outfit text-sm">Delivery partner fee</Text>
+                <Text className="text-textprimary font-outfit text-sm">${deliveryFee.toFixed(2)}</Text>
               </View>
             )}
 
-            {/* <View style={styles.billRowItem}>
-              <Text style={styles.billLabel}>Platform fee</Text>
-              <Text style={styles.billValue}>${platformFee.toFixed(2)}</Text>
-            </View> */}
-
-            <View style={styles.billRowItem}>
-              <Text style={styles.billLabel}>GST Charges</Text>
-              <Text style={styles.billValue}>
+            <View className="flex-row justify-between items-center mb-2">
+              <Text className="text-textsecondary font-outfit text-sm">GST Charges</Text>
+              <Text className="text-textprimary font-outfit text-sm">
                 ${typeof gstAmount === 'number' ? gstAmount.toFixed(2) : '0.00'}
               </Text>
             </View>
@@ -1115,36 +1090,36 @@ UploadNotifications(orderData)
             )}
 
             {carts?.taxDetails?.map((tax, index) => (
-              <View key={`tax-detail-${index}`} style={styles.taxDetailRow}>
-                <Text style={styles.billLabel}>
+              <View key={`tax-detail-${index}`} className="flex-row justify-between items-center mb-2">
+                <Text className="text-textsecondary font-outfit text-sm">
                   {tax.appliedTaxes[0]?.name} (
                   {carts.avgFirmSubcategoryTax === "0.00%"
                     ? "5%"
                     : carts.avgFirmSubcategoryTax}
                   )
                 </Text>
-                <Text style={styles.billValue}>
+                <Text className="text-textprimary font-outfit text-sm">
                   ${tax.gstAmount?.toFixed(2)}
                 </Text>
               </View>
             ))}
 
-            <View style={[styles.billRowItem, { marginTop: 10 }]}>
-              <Text style={[styles.billLabel, { fontWeight: 'bold' }]}>Grand Total</Text>
-              <Text style={[styles.billValue, { fontWeight: 'bold' }]}>${total.toFixed(2)}</Text>
+            <View className="flex-row justify-between items-center mt-4 pt-2 border-t border-border">
+              <Text className="text-textprimary font-outfit-bold text-base">Grand Total</Text>
+              <Text className="text-textprimary font-outfit-bold text-base">${total.toFixed(2)}</Text>
             </View>
 
             {appliedOffer && (
-              <View style={styles.savingsContainer}>
-                <Text style={styles.savingsText}>You saved ${discount.toFixed(2)} on this order</Text>
+              <View className="bg-green-50 p-3 rounded-lg mt-4">
+                <Text className="text-green-700 font-outfit text-sm text-center">You saved ${discount.toFixed(2)} on this order</Text>
               </View>
             )}
 
             <TouchableOpacity
-              style={styles.closeButton}
+              className="bg-primary p-4 rounded-lg mt-4"
               onPress={() => setBillModalVisible(false)}
             >
-              <Text style={styles.closeButtonText}>Close</Text>
+              <Text className="text-white font-outfit-bold text-center">Close</Text>
             </TouchableOpacity>
           </View>
         </View>

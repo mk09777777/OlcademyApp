@@ -794,8 +794,6 @@ const FetchRecentlyViewData = useCallback(async () => {
 
                   <TouchableOpacity onPress={() => handleKeepUsing()} className="p-2.5 mx-2.5 bg-white rounded-lg mt-2.5 justify-center items-center">
                     <Text className="text-textprimary text-base font-medium">keep using it</Text>
-                  <TouchableOpacity onPress={() => handleKeepUsing()} style={styles.KeepUsingButton}>
-                    <Text style={{ color: "black", fontSize: 15, fontWeight: "500", fontFamily: 'outfit-medium', }}>keep using it</Text>
                   </TouchableOpacity>
                 </View>
               </View>

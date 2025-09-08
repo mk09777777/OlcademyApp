@@ -17,6 +17,7 @@ export const LocationProvider = ({ children }) => {
     fullAddress: '',
   });
   const [recentlyAdds, setRecentlyAdds] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const initializeLocation = async () => {
@@ -104,7 +105,7 @@ export const LocationProvider = ({ children }) => {
   };
 
   return (
-    <LocationContext.Provider value={{ location, setLocation, recentlyAdds, setRecentlyAdds }}>
+    <LocationContext.Provider value={{ location, setLocation, recentlyAdds, setRecentlyAdds, isLoading }}>
       {children}
     </LocationContext.Provider>
   );
