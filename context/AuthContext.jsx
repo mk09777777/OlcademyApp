@@ -26,20 +26,35 @@ export const AuthProvider = ({ children }) => {
         const userData = await AsyncStorage.getItem('userData');
         if (userData) {
           const parsedUser = JSON.parse(userData);
-          const response = await api.get('/api/user');
-
-          if (response.data?.user) {
-            setIsAuthenticated(true);
-            setUser(parsedUser);
-            const profileResponse = await api.get('/api/profile');
-            setProfileData(profileResponse.data);
-          } else {
+          console.log('Checking auth for user:', parsedUser.email);
+          
+          try {
+            const response = await api.get('/api/user');
+            
+            if (response.data?.user || response.data?.success) {
+              setIsAuthenticated(true);
+              setUser(parsedUser);
+              
+              // Try to get profile data, but don't fail auth if it fails
+              try {
+                const profileResponse = await api.get('/api/profile');
+                setProfileData(profileResponse.data);
+              } catch (profileError) {
+                console.warn('Profile fetch failed:', profileError.message);
+              }
+            } else {
+              throw new Error('User validation failed');
+            }
+          } catch (apiError) {
+            console.log('API validation failed, clearing auth:', apiError.message);
             await AsyncStorage.removeItem('userData');
             setIsAuthenticated(false);
             setUser(null);
             router.replace('/auth/LoginScreen'); 
           }
         } else {
+          console.log('No stored user data, redirecting to login');
+          setIsAuthenticated(false);
           router.replace('/auth/LoginScreen'); 
         }
       } catch (error) {
@@ -57,12 +72,23 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (userData) => {
     try {
+      console.log('Setting user data:', userData);
       await AsyncStorage.setItem('userData', JSON.stringify(userData));
       setIsAuthenticated(true);
       setUser(userData);
+      
+      // Try to fetch profile data after login
+      try {
+        const profileResponse = await api.get('/api/profile');
+        setProfileData(profileResponse.data);
+      } catch (profileError) {
+        console.warn('Profile fetch after login failed:', profileError.message);
+      }
+      
       router.replace('home');
     } catch (error) {
       console.error('Login error:', error);
+      throw error;
     }
   };
 

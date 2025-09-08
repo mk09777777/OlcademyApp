@@ -4,6 +4,7 @@ import { Ionicons} from '@expo/vector-icons';
 import Colors from '../components/constants/Colors';
 import styles from '../styles/QuickSection';
 import { router } from 'expo-router';
+import BackRouting from './BackRouting';
 import { useSafeNavigation } from '@/hooks/navigationPage';
 export default function QuickActions() {
   const { safeNavigation } = useSafeNavigation();

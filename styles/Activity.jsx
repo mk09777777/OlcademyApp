@@ -20,6 +20,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 20,
     fontWeight: '600',
+    fontFamily: 'outfit-bold',
     color: '#333',
   },
   headerRight: {
@@ -70,6 +71,7 @@ const styles = StyleSheet.create({
       color: '#1A73E8',
     },
      username: {
+      paddingBottom: 10,
       fontSize: 24,
       fontWeight: 'bold',
       marginVertical: 5,

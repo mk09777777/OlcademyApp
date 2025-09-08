@@ -15,10 +15,8 @@ const FeedbackScreen = () => {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <BackRouting tittle= "FeedBack"/>
-      <TouchableOpacity style={styles.backButton}>
-        <Text style={styles.backArrow}>{'←'}</Text>
-      </TouchableOpacity>
+      <BackRouting style={styles.backButtonFeedBack}tittle= "FeedBack"/>
+      
 
       <Text style={styles.title}>Send Feedback</Text>
       <Text style={styles.description}>

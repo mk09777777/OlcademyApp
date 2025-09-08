@@ -34,6 +34,7 @@ const NotificationpageStyles = StyleSheet.create({
   },
   title: {
     fontSize: 16,
+    fontFamily: "outfit-medium",
     fontWeight: '600',
     color: '#1a1a1a',
     marginBottom: 4,

@@ -29,12 +29,14 @@ const createStyles = (theme = {}) => {
     },
     planTitle: {
       fontSize: 20,
+      fontFamily: "outfit-bold",
       fontWeight: 'bold',
       color: textColor,
       marginBottom: 4,
     },
     planDescription: {
       fontSize: 14,
+      fontFamily: "outfit-medium",
       color: '#666',
       maxWidth: '70%',
     },
@@ -53,10 +55,12 @@ priceRow: {
 },
 priceLabel: {
   fontSize: 14,
+  fontFamily: "outfit-medium",
   color: '#666',
 },
 priceValue: {
   fontSize: 14,
+  fontFamily: "outfit-medium",
   color: '#333',
   fontWeight: '500',
 },
@@ -73,11 +77,13 @@ totalRow: {
 },
 totalLabel: {
   fontSize: 16,
+  fontFamily: "outfit-medium",
   fontWeight: '600',
   color: '#333',
 },
 totalValue: {
   fontSize: 16,
+  fontFamily: "outfit-medium",
   fontWeight: '600',
   color: '#4CAF50',
 },
@@ -93,11 +99,13 @@ totalValue: {
     },
     planPrice: {
       fontSize: 24,
+      fontFamily: "outfit-bold",
       fontWeight: 'bold',
       color: primaryColor,
     },
     planDuration: {
       fontSize: 16,
+      fontFamily: "outfit-medium",
       color: '#666',
       marginLeft: 4,
     },
@@ -111,6 +119,7 @@ totalValue: {
     savingsText: {
       color: '#fff',
       fontSize: 12,
+      fontFamily: "outfit",
       fontWeight: 'bold',
     },
     mealsContainer: {
@@ -118,6 +127,7 @@ totalValue: {
     },
     sectionTitle: {
       fontSize: 16,
+      fontFamily: "outfit-bold",
       fontWeight: 'bold',
       color: textColor,
       marginBottom: 8,
@@ -130,6 +140,7 @@ totalValue: {
     mealText: {
       marginLeft: 8,
       fontSize: 14,
+      fontFamily: "outfit-bold",
       color: '#666',
     },
     featuresContainer: {
@@ -143,6 +154,7 @@ totalValue: {
     featureText: {
       marginLeft: 8,
       fontSize: 14,
+      fontFamily: "outfit-bold",
       color: '#666',
     },
     subscribeButton: {
@@ -153,6 +165,7 @@ totalValue: {
     subscribeButtonText: {
       color: '#fff',
       fontSize: 16,
+      fontFamily: "outfit-bold",
       fontWeight: 'bold',
       textAlign: 'center',
     },

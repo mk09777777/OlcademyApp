@@ -185,8 +185,9 @@ export default function SelectLocation({ placeholder = "Enter area, landmark ...
 
   return (
     <SafeAreaView style={styles.container}>
-      <BackRouting style={{ backgroundColor: '#f0f0f0'  }} title='Select Location' />
-      <ScrollView keyboardShouldPersistTaps="handled" style={styles.container} >
+      <BackRouting style={{ backgroundColor: '#ffffffff', fontFamily: 'outfit-bold',}} tittle='Select Location' />
+      <ScrollView keyboardShouldPersistTaps="handled" style={{ backgroundColor: '#ffffffff' }}>
+        {/* <Text style={styles.header}>Select Location</Text> */}
         <View style={styles.searchContainer}>
           <TextInput
             mode="outlined"
@@ -199,8 +200,11 @@ export default function SelectLocation({ placeholder = "Enter area, landmark ...
                 text.length > 2 ? fetchSuggestions(text) : setSuggestions([]);
               }, 500));
             }}
-            style={styles.searchInput}
-            theme={{ colors: { text: '#000' } }}
+            style={[styles.searchInput, { color: '#000' }]}
+            theme={{
+              colors: { text: '#000', onSurface: '#000', primary: '#E41E3F', placeholder: '#666' }
+            }}
+            placeholderTextColor="#666"
             left={<TextInput.Icon icon="magnify" />}
             right={
               loading ? (
@@ -240,7 +244,7 @@ export default function SelectLocation({ placeholder = "Enter area, landmark ...
             style={styles.addBtn}
             onPress={() => safeNavigation({ pathname: '/MapPicker' })}
           >
-            <Text style={{ color: 'white', fontSize: 26 }}>+</Text>
+            <Text style={{ color: 'white', fontSize: 26, fontFamily: 'outfit-bold',}}>+</Text>
             <Text style={styles.addBtnTxt}> Add Address</Text>
           </TouchableOpacity>
           <TouchableOpacity
@@ -278,8 +282,8 @@ export default function SelectLocation({ placeholder = "Enter area, landmark ...
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#ffffffff',paddingTop:10, },
-  header: { fontSize: 20, fontWeight: '600', margin: 20 },
+  container: { flex: 1, backgroundColor: '#f0f0' },
+  header: { fontSize: 20, fontWeight: '600', margin: 20, fontFamily: 'outfit-medium' },
   searchContainer: { paddingHorizontal: 20, marginBottom: 10, borderRadius: 20 },
   searchInput: { backgroundColor: '#fff', fontFamily:'outfit-medium', fontSize:15, },
   addBtn: {
@@ -293,7 +297,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     marginTop: 10
   },
-  addBtnTxt: { color: '#fff' ,fontFamily:'outfit-bold', fontSize:14,},
+  addBtnTxt: { color: '#fff', fontWeight: 'bold', fontFamily: 'outfit-bold', },
   suggestionList: { backgroundColor: '#fff', maxHeight: 150, marginHorizontal: 20 },
   suggestionItem: { padding: 10, borderBottomWidth: 1, borderBottomColor: '#ddd' },
   suggestionText: { color: '#000' ,fontFamily:'outfit-bold', fontSize:14,},
@@ -306,7 +310,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 3
   },
-  useLocationTxt: { color: '#000', fontSize: 15 ,fontFamily:'outfit-bold'},
+  useLocationTxt: { color: '#000', fontWeight: 'bold', fontSize: 15, fontFamily: 'outfit' },
   separatorRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -318,7 +322,8 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: '#999999',
     marginHorizontal: 7,
-    fontFamily:'outfit-bold'
+    fontWeight: "500",
+    fontFamily: 'outfit-bold',
   },
   RecentlyContainer: {
     flexDirection: "row",
@@ -341,13 +346,15 @@ const styles = StyleSheet.create({
   RecText1: {
     color: "black",
     fontSize: 16,
-        fontFamily:'outfit-bold',
+    fontWeight: "500",
+    fontFamily: 'outfit-medium',
   },
   RecText2: {
     color: "black",
         fontFamily:'outfit-medium',
     fontSize: 14,
     fontWeight: "400",
-    marginTop: 4
+    marginTop: 4,
+    fontFamily: 'outfit-medium',
   }
 });

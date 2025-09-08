@@ -67,11 +67,13 @@ const styles = StyleSheet.create({
   },
   mainTabText: {
     fontSize: 15,
+    fontFamily: 'outfit-medium ',
     fontWeight: '600',
     color: '#666666',
   },
   subTabText: {
     fontSize: 14,
+    fontFamily: 'outfit-medium ',
     fontWeight: '500',
     color: '#666666',
   },
@@ -111,11 +113,13 @@ const styles = StyleSheet.create({
   },
   eventTypeText: {
     fontSize: 12,
+    fontFamily: 'outfit ',
     fontWeight: '500',
     color: '#666666',
   },
   eventTitle: {
     fontSize: 18,
+    fontFamily: 'outfit-bold ',
     fontWeight: 'bold',
     color: '#333333',
     marginBottom: 8,
@@ -127,6 +131,7 @@ const styles = StyleSheet.create({
   },
   eventInfoText: {
     fontSize: 14,
+    fontFamily: 'outfit-medium ',
     color: '#666666',
     marginLeft: 8,
   },
@@ -159,6 +164,7 @@ const styles = StyleSheet.create({
   },
   modalEventTitle: {
     fontSize: 24,
+    fontFamily: 'outfit-bold ',
     fontWeight: 'bold',
     color: '#FFFFFF',
     marginBottom: 8,
@@ -183,6 +189,7 @@ const styles = StyleSheet.create({
   liveText: {
     color: '#FFFFFF',
     fontSize: 12,
+    fontFamily: 'outfit ',
     fontWeight: 'bold',
   },
 
@@ -208,6 +215,7 @@ const styles = StyleSheet.create({
   registerButtonText: {
     color: '#FFFFFF',
     fontSize: 16,
+    fontFamily: 'outfit-medium ',
     fontWeight: 'bold',
   },
   likeButton: {
@@ -236,6 +244,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 18,
+    fontFamily: 'outfit-bold ',
     fontWeight: 'bold',
     marginBottom: 12,
     color: '#333333',
@@ -243,6 +252,7 @@ const styles = StyleSheet.create({
   sectionText: {
     fontSize: 15,
     lineHeight: 22,
+    fontFamily: 'outfit-medium ',
     color: '#555555',
   },
 
@@ -254,6 +264,7 @@ const styles = StyleSheet.create({
   },
   locationText: {
     fontSize: 15,
+    fontFamily: 'outfit-medium ',
     color: '#333333',
     marginLeft: 8,
   },
@@ -267,6 +278,7 @@ const styles = StyleSheet.create({
   mapButtonText: {
     color: '#333333',
     fontSize: 16,
+    fontFamily: 'outfit-medium ',
     fontWeight: '600',
   },
   liveStreamButton: {
@@ -280,6 +292,7 @@ const styles = StyleSheet.create({
   liveStreamButtonText: {
     color: '#FFFFFF',
     fontSize: 16,
+    fontFamily: 'outfit-medium ',
     fontWeight: '600',
   },
   buttonIcon: {
@@ -303,6 +316,7 @@ const styles = StyleSheet.create({
   },
   performerInitials: {
     fontSize: 18,
+    fontFamily: 'outfit-bold ',
     fontWeight: 'bold',
     color: '#E91E63',
   },
@@ -311,6 +325,7 @@ const styles = StyleSheet.create({
   },
   performerName: {
     fontSize: 16,
+    fontFamily: 'outfit-medium ',
     fontWeight: 'bold',
     color: '#333333',
   },
@@ -334,6 +349,7 @@ const styles = StyleSheet.create({
   },
   scheduleTime: {
     fontSize: 14,
+    fontFamily: 'outfit-medium ',
     fontWeight: '500',
     color: '#E91E63',
     backgroundColor: '#FFFFFF',
@@ -359,12 +375,14 @@ const styles = StyleSheet.create({
   },
   scheduleTitle: {
     fontSize: 16,
+    fontFamily: 'outfit-medium ',
     fontWeight: 'bold',
     color: '#333333',
     marginBottom: 4,
   },
   scheduleDescription: {
     fontSize: 14,
+    fontFamily: 'outfit-medium ',
     color: '#666666',
   },
 
@@ -379,6 +397,7 @@ const styles = StyleSheet.create({
   },
   infoText: {
     fontSize: 15,
+    fontFamily: 'outfit-medium ',
     color: '#444444',
   },
 
@@ -386,6 +405,7 @@ const styles = StyleSheet.create({
   loadingText: {
     marginTop: 10,
     fontSize: 16,
+    fontFamily: 'outfit-medium ',
     color: '#555',
   },
 
@@ -396,6 +416,7 @@ const styles = StyleSheet.create({
   },
   attendeeCount: {
     fontSize: 14,
+    fontFamily: 'outfit-medium ',
     color: '#666666',
     marginLeft: 6,
   },
@@ -410,12 +431,14 @@ const styles = StyleSheet.create({
   viewButtonText: {
     color: '#E91E63',
     fontSize: 14,
+    fontFamily: 'outfit-medium ',
     fontWeight: '600',
   },
 
   // Event Date
   eventDate: {
     fontSize: 14,
+    fontFamily: 'outfit-medium ',
     color: '#EEEEEE',
     marginBottom: 8,
   },

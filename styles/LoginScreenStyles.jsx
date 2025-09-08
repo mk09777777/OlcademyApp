@@ -5,7 +5,7 @@ export const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: 'rgb(255, 255, 255)',
     justifyContent: 'center',
-    padding:20,
+    padding: 20,
   },
   scrollContainer: {
     flexGrow: 1,
@@ -26,6 +26,7 @@ export const styles = StyleSheet.create({
   },
   title: {
     fontSize: 24,
+    fontFamily: "outfit-bold",
     fontWeight: 'bold',
     color: '#333',
   },
@@ -84,10 +85,12 @@ export const styles = StyleSheet.create({
   },
   rememberMeText: {
     fontSize: 14,
+    fontFamily: "outfit-medium",
     color: '#666',
   },
   forgotPasswordLink: {
     fontSize: 14,
+    fontFamily: "outfit-medium",
     color: '#e23845',
   },
   submitButton: {
@@ -100,6 +103,7 @@ export const styles = StyleSheet.create({
   submitButtonText: {
     color: 'white',
     fontSize: 16,
+    fontFamily: "outfit-medium",
     fontWeight: 'bold',
   },
   divider: {
@@ -116,6 +120,7 @@ export const styles = StyleSheet.create({
     marginHorizontal: 10,
     color: '#666',
     fontSize: 14,
+    fontFamily: "outfit-medium",
   },
   socialButton: {
     borderWidth: 1,
@@ -127,6 +132,7 @@ export const styles = StyleSheet.create({
   },
   socialButtonText: {
     fontSize: 16,
+    fontFamily: "outfit-medium",
     color: '#333',
   },
   signupPrompt: {
@@ -136,17 +142,20 @@ export const styles = StyleSheet.create({
   },
   signupPromptText: {
     fontSize: 14,
+    fontFamily: "outfit-medium",
     color: '#666',
     marginRight: 5,
   },
   signupLink: {
     fontSize: 14,
+    fontFamily: "outfit-medium",
     color: '#e23845',
     fontWeight: 'bold',
   },
   errorText: {
     color: 'red',
     fontSize: 14,
+    fontFamily: "outfit-medium",
     marginBottom: 10,
   },
   // OTP Section Styles
@@ -156,6 +165,7 @@ export const styles = StyleSheet.create({
   },
   subtext: {
     fontSize: 14,
+    fontFamily: "outfit-medium",
     color: '#666',
     marginBottom: 20,
     textAlign: 'center',
@@ -174,6 +184,7 @@ export const styles = StyleSheet.create({
     borderRadius: 10,
     textAlign: 'center',
     fontSize: 18,
+    fontFamily: "outfit-bold",
   },
   resendContainer: {
     flexDirection: 'row',
@@ -182,11 +193,13 @@ export const styles = StyleSheet.create({
   },
   resendText: {
     fontSize: 14,
+    fontFamily: "outfit-medium",
     color: '#666',
     marginRight: 5,
   },
   resendLink: {
     fontSize: 14,
+    fontFamily: "outfit-medium",
     color: '#e23845',
     fontWeight: 'bold',
   },

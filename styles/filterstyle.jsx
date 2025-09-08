@@ -44,6 +44,7 @@ export default styles = StyleSheet.create({
     },
     modalTitle: {
         fontSize: 20,
+        fontFamily: 'outfit-bold ',
         fontWeight: 'bold',
         color: '#333',
     },
@@ -77,6 +78,7 @@ export default styles = StyleSheet.create({
     sidebarItemText: {
         marginLeft: 10,
         fontSize: 14,
+        fontFamily: 'outfit-medium ',
         color: '#555',
         fontWeight: '500',
     },
@@ -103,6 +105,7 @@ export default styles = StyleSheet.create({
     },
     chipText: {
         fontSize: 12,
+        fontFamily: 'outfit ',
     },
     modalFooter: {
         flexDirection: 'row',
@@ -125,6 +128,7 @@ export default styles = StyleSheet.create({
     resetButtonText: {
         color: '#e23845',
         fontSize: 10,
+        fontFamily: 'outfit ',
          fontWeight: 'bold',
     },
     applyButton: {
@@ -140,10 +144,12 @@ export default styles = StyleSheet.create({
     applyButtonText: {
         color: 'white',
         fontSize: 16,
+        fontFamily: 'outfit-medium ',
         fontWeight: 'bold',
     },
     emptyOptionsText: {
         fontSize: 16,
+        fontFamily: 'outfit-medium ',
         color: '#777',
         textAlign: 'center',
         marginTop: 50,

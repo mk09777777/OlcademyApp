@@ -13,6 +13,7 @@ import { useNavigation } from '@react-navigation/native';
 import { Ionicons, FontAwesome, MaterialCommunityIcons } from '@expo/vector-icons';
 import styles from '../../styles/Activity';
 import { useAuth } from '../../context/AuthContext';
+import BackRouting from '@/components/BackRouting';
 import { router } from 'expo-router';
 
 const ActivityPage = () => {
@@ -656,6 +657,7 @@ const ActivityPage = () => {
 
   return (
     <View style={styles.container}>
+      <BackRouting tittle="Activity"/>
       <ScrollView>
         <View style={styles.profileHeader}>
           <View style={styles.headerBackground}>

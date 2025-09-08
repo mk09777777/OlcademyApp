@@ -23,6 +23,7 @@ const CommentStyles = StyleSheet.create({
     },
     headingText: {
         color: "black",
+        fontFamily: 'outfit-bold ',
         fontSize: 18,
         fontWeight: "bold",
 
@@ -77,6 +78,7 @@ const CommentStyles = StyleSheet.create({
     PostActive: {
         color: "blue",
         fontSize: 16,
+        fontFamily: 'outfit-medium ',
         marginRight: 14,
      
     },
@@ -88,6 +90,7 @@ const CommentStyles = StyleSheet.create({
     },
     commentName: {
         color: "black",
+        fontFamily: 'outfit-medium ',
         fontSize: 16,
      
     },
@@ -95,11 +98,13 @@ const CommentStyles = StyleSheet.create({
         marginTop: 10,
         color: "black",
         fontSize: 16,
+        fontFamily: 'outfit-medium ',
    
     },
     commenttime: {
         color: "#6b7280ef",
         fontSize: 16,
+        fontFamily: 'outfit-medium ',
         marginTop: 10,
     }
 });

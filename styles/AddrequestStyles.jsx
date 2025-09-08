@@ -36,6 +36,7 @@ const AddStyles = StyleSheet.create({
     Text1:{
         marginLeft:10,
         marginTop:10,
+        fontFamily: 'outfit-medium',
         fontSize:18,
         fontWeight:"500",
         color:"#1b1d1f"
@@ -80,6 +81,7 @@ const AddStyles = StyleSheet.create({
         backgroundColor:"#ebfbf0"
     },
     selectText:{
+        fontFamily: 'outfit',
         fontSize:16,
         fontWeight:"500",
         color:"#2d3136"
@@ -88,12 +90,14 @@ const AddStyles = StyleSheet.create({
         marginTop:10,
         fontWeight:"400",
         fontSize:14,
+        fontFamily: 'outfit',
         color:"#9899a0",
         marginLeft:10
     },
     InfoText2:{
         fontWeight:"400",
         fontSize:14,
+        fontFamily: 'outfit',
         color:"#9899a0",
         marginLeft:10
     },
@@ -110,6 +114,7 @@ const AddStyles = StyleSheet.create({
     submitText:{
         fontSize:16,
         fontWeight:"400",
+        fontFamily: 'outfit',
         color:"#afb3b8"
     },
     submitButtonActive:{
@@ -124,6 +129,7 @@ const AddStyles = StyleSheet.create({
     },
     submitTextActive:{
         fontSize:16,
+        fontFamily: 'outfit',
         fontWeight:"400",
         color:"white"
     }

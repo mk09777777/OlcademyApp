@@ -107,15 +107,18 @@ image: {
   title: {
      width:200,
     fontSize: 16,
+    fontFamily: "outfit-medium",
     fontWeight: 'bold'
   },
   price: {
     fontSize: 14,
+    fontFamily: "outfit-medium",
     fontWeight: 'light-bold'
   },
   description: {
     width:200,
     fontSize: 14,
+    fontFamily: "outfit-medium",
     color: '#666'
   },
   separatorRow: {
@@ -133,6 +136,7 @@ image: {
 		fontFamily: 'outfit',
 		fontSize: 14,
 		color: '#ccc',
+    fontFamily: "outfit-medium",
     marginHorizontal: 7
 	},
   buttonBar: {
@@ -152,6 +156,7 @@ image: {
   buttonText: {
     fontFamily: 'outfit-medium',
     fontSize: 18,
+    fontFamily: "outfit-bold",
     color: 'white',
   },
   cartControls: {
@@ -167,10 +172,12 @@ image: {
   },
   cartButtonText: {
     fontSize: 16,
+    fontFamily: "outfit-medium",
     fontWeight: 'bold',
   },
   itemCount: {
     fontSize: 16,
+    fontFamily: "outfit-medium",
     fontWeight: 'bold',
   },
     addButton: {
@@ -192,6 +199,7 @@ addButtonText: {
   color: '#e23845',                 // red text
   fontWeight: 'bold',
   fontSize: 16,
+  fontFamily: "outfit-medium",
 },
 
   proceedToCartButton: {
@@ -204,6 +212,7 @@ addButtonText: {
   controlButton: {
     fontFamily: 'outfit-bold',
     fontSize: 24,
+    fontFamily: "outfit-bold",
     color: '#e23845',
     paddingHorizontal: 10,
   },
@@ -211,6 +220,7 @@ addButtonText: {
     fontFamily: 'outfit-bold',
     color: 'white',
     fontSize: 16,
+    fontFamily: "outfit-medium",
     textAlign: 'center',
   },
   quantityControls: {
@@ -237,10 +247,12 @@ addButtonText: {
   },
   offersHeader: {
     fontSize: 18,
+    fontFamily: "outfit-bold",
     fontWeight: 'bold',
   },
   dropdownIcon: {
     fontSize: 14,
+    fontFamily: "outfit-medium",
     color: '#666',
   },
   offersTrack: {
@@ -278,15 +290,18 @@ addButtonText: {
   },
   offerBadgeText: {
     fontSize: 10,
+    fontFamily: "outfit",
     fontWeight: 'bold',
   },
   offerTitle: {
     fontSize: 14,
+    fontFamily: "outfit-medium",
     fontWeight: '600',
     marginBottom: 5,
   },
   offerDiscount: {
     fontSize: 16,
+    fontFamily: "outfit-medium",
     fontWeight: 'bold',
     color: '#2a7f19',
     marginBottom: 5,
@@ -297,10 +312,12 @@ addButtonText: {
   },
   offerCodeText: {
     fontSize: 12,
+    fontFamily: "outfit",
     color: '#666',
   },
   offerCode: {
     fontSize: 12,
+    fontFamily: "outfit",
     fontWeight: 'bold',
     marginLeft: 5,
     color: '#2a7f19',
@@ -322,6 +339,7 @@ addButtonText: {
   },
   filterText: {
     fontSize: 14,
+    fontFamily: "outfit-medium",
     fontFamily: 'outfit-medium',
   },
   

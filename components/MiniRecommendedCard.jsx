@@ -31,7 +31,7 @@ const MiniRecommendedCard = ({ name, address, image, rating, onPress }) => {
 
 
   return (
-    <TouchableOpacity activeOpacity={0.8} onPress={onPress} style={{ marginBottom: 10 }}>
+    <TouchableOpacity activeOpacity={0.8} onPress={onPress} style={{ marginBottom: 0}}>
       <View style={styles.card}>
         <View style={styles.imageContainer}>
           <ImageBackground
@@ -108,7 +108,7 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 3,
     width: 160,
-    marginBottom: 2,
+    marginBottom: 0,
   },
   imageContainer: {
     position: 'relative',
@@ -129,7 +129,7 @@ const styles = StyleSheet.create({
 
   // ✅ iOS shadow
   shadowColor: '#000',
-  shadowOffset: { width: 0, height: 8 },
+  shadowOffset: { width: 0, height: 0 },
   shadowOpacity: 0.25,
   shadowRadius: 3.84,
   backgroundColor: "#fff", // required for shadow to show
@@ -194,15 +194,15 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgb(4, 116, 19)',
     borderRadius: 6,
     paddingHorizontal: 2,
-    paddingVertical: 2,
-    marginTop: 25
+    paddingVertical: 0,
+    marginTop: 25  
   },
   ratingText: {
     color: 'white',
     fontSize: 14,
     fontWeight: '600',
-    marginLeft: 2,
-    marginRight: 3
+    marginLeft: 0,
+    marginRight: 0
   },
 });
 

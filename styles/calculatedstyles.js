@@ -35,6 +35,7 @@ const CalculatedStyles = StyleSheet.create({
     },
     headingText: {
         fontSize: 18,
+        fontFamily: 'outfit-medium',
         color: "black",
         fontWeight: "bold"
     },
@@ -56,6 +57,7 @@ const CalculatedStyles = StyleSheet.create({
     {
         color:"black",
         fontSize:14,
+        fontFamily: 'outfit',
         fontWeight:"bold",
         padding:10
     },
@@ -72,6 +74,7 @@ const CalculatedStyles = StyleSheet.create({
     },
     okayText:{
         color:"white",
+        fontFamily: 'outfit',
         fontSize:14,
         fontWeight:"bold",
     }

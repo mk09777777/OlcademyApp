@@ -123,6 +123,7 @@ export const styles = StyleSheet.create({
   },
   offerSubHeader: {
     fontSize: 12,
+    fontFamily: 'outfit',
     color: "gray",
     marginBottom: 10,
   },

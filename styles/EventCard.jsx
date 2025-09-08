@@ -23,12 +23,14 @@ export const styles = StyleSheet.create({
     },
     title: {
       fontSize: 20,
+      fontFamily: 'outfit-bold ',
       fontWeight: '600',
       color: colors.text,
       flex: 1,
     },
     price: {
       fontSize: 18,
+      fontFamily: 'outfit-bold ',
       fontWeight: '600',
       color: colors.primary,
     },
@@ -61,6 +63,7 @@ export const styles = StyleSheet.create({
     tagText: {
       color: colors.darkGray,
       fontSize: 14,
+      fontFamily: 'outfit-medium ',
     },
     button: {
       backgroundColor: colors.primary,
@@ -71,6 +74,7 @@ export const styles = StyleSheet.create({
     },
     buttonText: {
       color: colors.white,
+      fontFamily: 'outfit-bold ',
       fontWeight: '600',
     },
   });

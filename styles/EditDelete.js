@@ -32,6 +32,7 @@ const EditDeleteStykes = StyleSheet.create({
     },
     headingText: {
         fontSize: 18,
+        fontFamily: 'outfit-bold ',
         color: "black",
         fontWeight: "bold"
     },
@@ -55,11 +56,13 @@ const EditDeleteStykes = StyleSheet.create({
     buttonText1:{
         color:"black",
         fontSize: 16,
+        fontFamily: 'outfit-medium ',
         fontWeight:"bold"
     },
     buttonText2:{
         color:"#6b7280ef",
         fontSize: 12,
+        fontFamily: 'outfit ',
         marginTop:5
     },
     buttonImg:{

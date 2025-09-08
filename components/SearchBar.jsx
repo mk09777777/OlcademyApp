@@ -1,6 +1,6 @@
 // SearchBar.jsx
 import React from 'react';
-import { View, ActivityIndicator, TouchableOpacity, StyleSheet,} from 'react-native';
+import { View, ActivityIndicator, TouchableOpacity, StyleSheet, } from 'react-native';
 import { TextInput } from 'react-native-paper';
 import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 // import styles from '@/styles/Collection';
@@ -14,23 +14,24 @@ export default function SearchBar({ query, setQuery, isLoading, placeholder, onV
         value={query}
         onChangeText={setQuery}
         left={
-          <TextInput.Icon 
+          <TextInput.Icon
+
             icon={() => (
-              <MaterialCommunityIcons 
-                name="magnify" 
-                size={24} 
-                color="#6B7280" 
+              <MaterialCommunityIcons
+                name="magnify"
+                size={24}
+                color="#6B7280"
               />
-            )} 
+            )}
           />
         }
         right={
           isLoading ? (
             <TextInput.Icon
               icon={() => (
-                <ActivityIndicator 
-                  size="small" 
-                  color="#6B7280" 
+                <ActivityIndicator
+                  size="small"
+                  color="#6B7280"
                 />
               )}
             />
@@ -43,32 +44,34 @@ export default function SearchBar({ query, setQuery, isLoading, placeholder, onV
           ) : (
             <TextInput.Icon
               icon={() => (
-                <TouchableOpacity 
+                <TouchableOpacity
                   onPress={onVoicePress}
                   style={styles.voiceButton}
                 >
-                  <MaterialIcons 
-                    name="keyboard-voice" 
-                    size={24} 
-                    color="#3B82F6" 
+                  <MaterialIcons
+                    name="keyboard-voice"
+                    size={24}
+                    color="#3B82F6"
                   />
                 </TouchableOpacity>
               )}
             />
           )
         }
-        style={styles.searchInput}
+        style={[styles.searchInput, { color: '#1F2937' }]}   // 👈 force text color
         outlineColor="#E5E7EB"
         activeOutlineColor="#3B82F6"
         autoCorrect={false}
         autoCapitalize="none"
         returnKeyType="search"
+        placeholderTextColor="#9CA3AF"  
         theme={{
           roundness: 12,
           colors: {
             primary: '#3B82F6',
             background: '#FFFFFF',
-            text: '#1F2937',
+            text: '#1F2937',   
+            onSurface: '#1F2937', 
             placeholder: '#9CA3AF',
           }
         }}
@@ -79,13 +82,14 @@ export default function SearchBar({ query, setQuery, isLoading, placeholder, onV
 const styles = StyleSheet.create({
   searchContainer: {
     marginVertical: 10,
-    width: '80%',
+    width: '70%',
     paddingHorizontal: 7,
   },
   searchInput: {
     backgroundColor: '#fff',
     fontFamily: 'outfit',
     fontSize: 14,
+    color: '#1F2937',
   },
   icon: {
     justifyContent: 'center',

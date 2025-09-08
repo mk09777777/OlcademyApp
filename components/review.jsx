@@ -10,7 +10,7 @@ import Fontisto from '@expo/vector-icons/Fontisto';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import axios from "axios";
 import { useRouter } from "expo-router";
-
+import { API_CONFIG } from '../config/apiConfig';
 const Review = (props) => {
   const {
     data: {
@@ -28,7 +28,7 @@ const Review = (props) => {
 
   const fetchReview = async () => {
     try {
-import { API_CONFIG } from '../config/apiConfig';
+
       const response = await axios.get(`${API_CONFIG.BACKEND_URL}/api/reviews/${_id}`, {
         withCredentials: true
       });

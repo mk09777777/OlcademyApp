@@ -765,16 +765,16 @@ const handleApplyFilterboxFilters = (filters) => {
                     />
 
                   </View>
-                  <Text style={{ color: "black", fontWeight: "bold", fontSize: 20, marginTop: 5 }}>Switch off Veg Mode?</Text>
-                  <Text style={{ color: "black", fontWeight: "400", marginTop1: 10, fontSize: 15, marginTop: 10 }}>You'll see all restaurants, including those</Text>
+                  <Text style={{ color: "black", fontWeight: "bold", fontSize: 20, marginTop: 5, fontFamily: 'outfit-bold' }}>Switch off Veg Mode?</Text>
+                  <Text style={{ color: "black", fontWeight: "400", marginTop1: 10, fontSize: 15,fontFamily: 'outfit-medium', marginTop: 10 }}>You'll see all restaurants, including those</Text>
                   <Text >serving non-veg dishes</Text>
 
                   <TouchableOpacity onPress={() => setIsModalVisible(false)}>
-                    <Text style={{ color: "red", fontSize: 15, fontWeight: "500", marginTop: 20 }}>Switch off</Text>
+                    <Text style={{ color: "red", fontSize: 15, fontWeight: "500", marginTop: 20, fontFamily: 'outfit-bold' }}>Switch off</Text>
                   </TouchableOpacity>
 
                   <TouchableOpacity onPress={() => handleKeepUsing()} style={styles.KeepUsingButton}>
-                    <Text style={{ color: "black", fontSize: 15, fontWeight: "500" }}>keep using it</Text>
+                    <Text style={{ color: "black", fontSize: 15, fontWeight: "500", fontFamily: 'outfit-medium' }}>keep using it</Text>
                   </TouchableOpacity>
                 </View>
               </View>
@@ -852,7 +852,7 @@ const handleApplyFilterboxFilters = (filters) => {
                       />
                     </ScrollView>
                   )}
-                  <View style={{ display: "flex", marginBottom: 15 }}>
+                  <View style={{ display: "flex", marginBottom: 0 }}>
                     <View style={styles.separatorRow}>
                     <View style={styles.line} />
                     <Text style={styles.separatorText}>
@@ -895,7 +895,7 @@ const handleApplyFilterboxFilters = (filters) => {
                   </View>
 
 
-                  <View style={{ display: "flex", marginTop: 5, marginBottom: 20 }}>
+                  <View style={{ display: "flex", marginTop: 0, marginBottom: 0 }}>
                    <View style={styles.separatorRow}>
                     <View style={styles.line} />
                     <Text style={styles.separatorText}>

@@ -8,7 +8,6 @@ import ImageGallery from '../../components/ImageGallery';
 import { useCart } from '../../context/CartContext';
 import styles from '../../styles/tiffinDetailsStyle';
 import axios from 'axios';
-import { API_CONFIG } from '../../config/apiConfig';
 
 const { width } = Dimensions.get('window');
 
@@ -82,7 +81,7 @@ const TiffinDetails = () => {
       setRefreshing(true);
       setError(null);
 
-      const response = await axios.get(`${API_CONFIG.BACKEND_URL}/api/get-tiffin/${tiffinId}`);
+      const response = await axios.get(`https://backend-0wyj.onrender.com/api/get-tiffin/${tiffinId}`);
       const { success, tiffin } = response.data;
 
       if (success && tiffin) {
@@ -742,4 +741,4 @@ const TiffinDetails = () => {
   );
 };
 
-export default TiffinDetails;
+export default TiffinDetails;  

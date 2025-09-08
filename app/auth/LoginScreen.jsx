@@ -36,6 +36,60 @@ export default function LoginScreen() {
     if (otpError) setOtpError('')
   }
 
+  // Timer effect for OTP
+  useEffect(() => {
+    let interval
+    if (showOtp && timer > 0) {
+      interval = setInterval(() => {
+        setTimer(prev => {
+          if (prev <= 1) {
+            setResendDisabled(false)
+            return 0
+          }
+          return prev - 1
+        })
+      }, 1000)
+    }
+    return () => clearInterval(interval)
+  }, [showOtp, timer])
+
+  const handleOtpChange = (index, text) => {
+    if (text.length > 1) return
+    
+    const newOtpArray = [...otpArray]
+    newOtpArray[index] = text
+    setOtpArray(newOtpArray)
+    
+    if (text && index < 5) {
+      otpRefs.current[index + 1]?.focus()
+    }
+    
+    clearError()
+  }
+
+  const handleOtpKeyPress = (index, e) => {
+    if (e.nativeEvent.key === 'Backspace' && !otpArray[index] && index > 0) {
+      otpRefs.current[index - 1]?.focus()
+    }
+  }
+
+  const resendOtp = async () => {
+    setOtpLoading(true)
+    try {
+      await axios.post(`${Api_url}/api/send-email-otp`, { 
+        email: formData.email 
+      })
+      setTimer(60)
+      setResendDisabled(true)
+      setOtpArray(Array(6).fill(''))
+      setOtpError('')
+    } catch (error) {
+      setOtpError(error.response?.data?.message || 'Failed to resend OTP')
+    } finally {
+      setOtpLoading(false)
+    }
+  }
+
   const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60)
     const secs = seconds % 60
@@ -56,10 +110,12 @@ const handleLogin = async () => {
 
   setLoading(true);
   try {
+    console.log('Attempting login with:', { email: formData.email, rememberMe });
+    
     const response = await axios.post(
       `${Api_url}/api/login`, 
       {
-        email: formData.email,
+        email: formData.email.trim().toLowerCase(),
         password: formData.password,
         rememberMe
       },
@@ -72,16 +128,28 @@ const handleLogin = async () => {
       }
     );
 
-    if (response.data.message === "Login successful!") {
-      // Ensure we have the user data before navigating
-      await AsyncStorage.setItem('userData', JSON.stringify(response.data.user));
-      login(response.data.user);
+    console.log('Login response:', response.data);
+
+    if (response.data.success || response.data.message === "Login successful!") {
+      const userData = response.data.user || response.data.data;
+      if (userData) {
+        await AsyncStorage.setItem('userData', JSON.stringify(userData));
+        login(userData);
+      } else {
+        setError('Login successful but user data not received');
+      }
     } else {
       setError(response.data.message || 'Login failed');
     }
   } catch (error) {
+    console.error('Login error:', error.response?.data || error.message);
+    
     if (error.response?.status === 401) {
-      setError('Invalid credentials. Please try again.');
+      setError('Invalid email or password. Please check your credentials.');
+    } else if (error.response?.status === 400) {
+      setError(error.response?.data?.message || 'Invalid request. Please check your input.');
+    } else if (error.response?.status >= 500) {
+      setError('Server error. Please try again later.');
     } else {
       setError(error.response?.data?.message || 'Login error. Please try again.');
     }
