@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { ScrollView, View, TouchableOpacity, Text, Image } from 'react-native';
 import { router } from 'expo-router';
-import styles from '../../styles/Collection';
 import EventCollection from '@/components/EventCollection';
 import TiffinCollection from '@/components/TiffinCollection';
 import DiningCollection from '@/components/DiningCollection';
@@ -31,72 +30,63 @@ const Collection = () => {
   };
 
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView className="flex-1 bg-white">
          <BackRouting/>
-      <View style={styles.headerBackground}>
+      <View className="h-62.5">
 {/*      
-        <Image source={require('../../../assets/images/tiffin.jpg')} style={styles.headerImage} /> */}
+        <Image source={require('../../../assets/images/tiffin.jpg')} className="w-full h-full" style={{ resizeMode: 'cover' }} /> */}
         
       </View>
         <ScrollView 
           horizontal 
           showsHorizontalScrollIndicator={false}
-          // contentContainerStyle={styles.offersTrack}
         >
-      <View style={styles.tabContainer}>
+      <View className="flex-row py-3.75 px-2.5 bg-white border-b border-gray-200">
         <TouchableOpacity
-          style={[
-            styles.tabButton,
-            currentScreen === '' && styles.activeTab
-          ]}
+          className={`px-4 py-2 mx-1 rounded-full ${
+            currentScreen === '' ? 'bg-red-50 border border-red-500' : 'bg-gray-100'
+          }`}
           onPress={() => setCurrentScreen('TakewayCollection')}
         >
-          <Text style={[
-            styles.tabText,
-            currentScreen === 'TakewayCollection' && styles.activeTabText
-          ]}>
+          <Text className={`text-sm ${
+            currentScreen === 'TakewayCollection' ? 'text-red-500 font-bold' : 'text-gray-600 font-medium'
+          }`}>
             TakewayCollection
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
-          style={[
-            styles.tabButton,
-            currentScreen === 'DiningCollection' && styles.activeTab
-          ]}
+          className={`px-4 py-2 mx-1 rounded-full ${
+            currentScreen === 'DiningCollection' ? 'bg-red-50 border border-red-500' : 'bg-gray-100'
+          }`}
           onPress={() => setCurrentScreen('DiningCollection')}
         >
-          <Text style={[
-            styles.tabText,
-            currentScreen === 'DiningCollection' && styles.activeTabText
-          ]}>
+          <Text className={`text-sm ${
+            currentScreen === 'DiningCollection' ? 'text-red-500 font-bold' : 'text-gray-600 font-medium'
+          }`}>
             DiningCollection
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
-          style={[
-            styles.tabButton,
-            currentScreen === 'TiffinCollection' && styles.activeTab
-          ]}
+          className={`px-4 py-2 mx-1 rounded-full ${
+            currentScreen === 'TiffinCollection' ? 'bg-red-50 border border-red-500' : 'bg-gray-100'
+          }`}
           onPress={() => setCurrentScreen('TiffinCollection')}
         >
-          <Text style={[
-            styles.tabText,
-            currentScreen === 'TiffinCollection' && styles.activeTabText
-          ]}>
+          <Text className={`text-sm ${
+            currentScreen === 'TiffinCollection' ? 'text-red-500 font-bold' : 'text-gray-600 font-medium'
+          }`}>
             TiffinCollection
           </Text>
         </TouchableOpacity>
         {/* <TouchableOpacity
-          style={[
-            styles.tabButton,
-            currentScreen === 'EventCollection' && styles.activeTab
-          ]}
+          className={`px-4 py-2 mx-1 rounded-full ${
+            currentScreen === 'EventCollection' ? 'bg-red-50 border border-red-500' : 'bg-gray-100'
+          }`}
           onPress={() => setCurrentScreen('EventCollection')}
         >
-          <Text style={[
-            styles.tabText,
-            currentScreen === 'EventCollection' && styles.activeTabText
-          ]}>
+          <Text className={`text-sm ${
+            currentScreen === 'EventCollection' ? 'text-red-500 font-bold' : 'text-gray-600 font-medium'
+          }`}>
             EventCollection
           </Text>
         </TouchableOpacity> */}
@@ -109,3 +99,31 @@ const Collection = () => {
 };
 
 export default Collection;
+
+/* Original CSS Reference:
+const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: '#fff' },
+  headerBackground: { height: 250 },
+  headerImage: { width: '100%', height: '100%', resizeMode: 'cover' },
+  tabContainer: { flexDirection: 'row', paddingVertical: 15, paddingHorizontal: 10, backgroundColor: '#fff', borderBottomWidth: 1, borderBottomColor: '#eee' },
+  tabButton: { paddingHorizontal: 16, paddingVertical: 8, marginHorizontal: 4, borderRadius: 20, backgroundColor: '#f8f8f8' },
+  activeTab: { backgroundColor: '#ffe5e8', borderWidth: 1, borderColor: '#E41E3F' },
+  tabText: { fontSize: 14, fontFamily: 'outfit-medium', color: '#666' },
+  activeTabText: { color: '#E41E3F', fontFamily: 'outfit-bold' },
+  searchContainer: { padding: 16, backgroundColor: '#fff', borderBottomWidth: 1, borderBottomColor: '#eee' },
+  searchInput: { backgroundColor: '#fff' },
+  collectionContainer: { padding: 16 },
+  collectionCard: { backgroundColor: '#fff', borderRadius: 12, marginBottom: 16, overflow: 'hidden', elevation: 3, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4, width: '100%' },
+  collectionImage: { width: '100%', height: 140, resizeMode: 'cover' },
+  collectionContent: { padding: 16 },
+  gridContainer: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', paddingHorizontal: 2 },
+  cardWrapper: { width: '48%', marginBottom: 15 },
+  collectionTitle: { fontSize: 16, fontFamily: 'outfit-bold', color: '#333', marginBottom: 4 },
+  collectionInfo: { fontSize: 12, fontFamily: 'outfit', color: '#666' },
+  emptyState: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 40 },
+  emptyStateText: { fontSize: 16, fontFamily: 'outfit-medium', color: '#999', textAlign: 'center', marginTop: 16 },
+  offersTrack: { paddingLeft: 16 },
+  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
+  modalContent: { backgroundColor: '#fff', borderTopLeftRadius: 20, borderTopRightRadius: 20, padding: 20, maxHeight: '80%' }
+});
+*/

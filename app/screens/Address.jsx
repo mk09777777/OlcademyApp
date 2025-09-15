@@ -156,49 +156,48 @@ export default function AddressScreen() {
   };
 
   const AddressCard = ({ address }) => (
-    <View style={styles.addressCardContainer}>
-
+    <View className="relative mb-4">
       {selectedAddressId === address._id && (
-        <View style={styles.dropdownMenu}>
+        <View className="absolute right-0 top-0 bg-white rounded-lg shadow-lg z-10 w-35">
           <TouchableOpacity
-            style={styles.dropdownItem}
+            className="px-4 py-3"
             onPress={() => handleEditPress(address)}
           >
-            <Text style={styles.dropdownText}>Edit</Text>
+            <Text className="text-base text-gray-800">Edit</Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={styles.dropdownItem}
+            className="px-4 py-3"
             onPress={() => handleDeletePress(address)}
           >
-            <Text style={[styles.dropdownText, styles.deleteText]}>Delete</Text>
+            <Text className="text-base text-red-500 font-medium">Delete</Text>
           </TouchableOpacity>
         </View>
       )}
-      <TouchableOpacity style={styles.addressCard} activeOpacity={1}>
-        <View style={styles.addressHeader}>
-          <View style={styles.addressTypeContainer}>
+      <TouchableOpacity className="bg-white rounded-xl p-4 border border-gray-200 shadow-sm" activeOpacity={1}>
+        <View className="flex-row justify-between mb-3">
+          <View className="flex-row items-center">
             {getAddressIcon(address.service_area)}
-            <Text style={styles.addressType}>
+            <Text className="text-base font-semibold text-gray-800 ml-2.5">
               {typeof address.service_area === 'string'
                 ? address.service_area
                 : address.service_area?.name || 'Unknown'}
             </Text>
           </View>
         </View>
-        <Text style={styles.addressText}>
+        <Text className="text-sm text-gray-600 leading-5 mb-2">
           {typeof address.address === 'string'
             ? address.address
             : address.address?.full || 'Unknown'}
         </Text>
-        <View style={styles.actionButtons}>
+        <View className="flex-row justify-end mt-2">
           <TouchableOpacity
-            style={styles.actionButton}
+            className="ml-5"
             onPress={() => handleMorePress(address._id)}
           >
             <Feather name="more-horizontal" size={20} color="#666" />
           </TouchableOpacity>
           <TouchableOpacity
-            style={styles.actionButton}
+            className="ml-5"
             onPress={() => shareAddress(address)}
           >
             <Feather name="share" size={20} color="#666" />
@@ -210,39 +209,39 @@ export default function AddressScreen() {
 
   if (isLoading) {
     return (
-      <SafeAreaView style={[styles.container, styles.loadingContainer]}>
+      <SafeAreaView className="flex-1 bg-white justify-center items-center">
         <ActivityIndicator size="large" color="#f23e3e" />
-        <Text style={styles.loadingText}>Loading your addresses...</Text>
+        <Text className="mt-4 text-gray-600 text-base">Loading your addresses...</Text>
       </SafeAreaView>
     );
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView className="flex-1 bg-white">
       <BackRouting tittle="Your Address" />
       <TouchableOpacity
-        style={styles.addAddressButton}
+        className="flex-row items-center p-4 border-b border-gray-200"
         onPress={() => safeNavigation('MapPicker')}
       >
         <Ionicons name="add" size={24} color="#f23e3e" />
-        <Text style={styles.addAddressText}>Add Address</Text>
+        <Text className="ml-3 text-base text-red-500 font-medium flex-1">Add Address</Text>
         <Ionicons name="chevron-forward" size={20} color="#999" />
       </TouchableOpacity>
-      <View style={styles.divider} />
-      <View style={styles.savedSection}>
-        <Text style={styles.savedTitle}>SAVED ADDRESSES</Text>
+      <View className="h-2 bg-gray-100" />
+      <View className="flex-1 p-4">
+        <Text className="text-sm font-bold text-gray-600 mb-4 uppercase tracking-wide">SAVED ADDRESSES</Text>
         {addresses.length === 0 ? (
-          <View style={styles.emptyState}>
+          <View className="flex-1 justify-center items-center p-10">
             <Ionicons name="location-outline" size={48} color="#ccc" />
-            <Text style={styles.emptyStateText}>No saved addresses yet</Text>
-            <Text style={styles.emptyStateSubtext}>Add your first address to get started</Text>
+            <Text className="text-lg text-gray-800 mt-4 font-medium">No saved addresses yet</Text>
+            <Text className="text-sm text-gray-600 mt-2">Add your first address to get started</Text>
           </View>
         ) : (
           <FlatList
             data={addresses}
             renderItem={({ item }) => <AddressCard address={item} />}
             keyExtractor={(item) => item._id}
-            contentContainerStyle={styles.addressList}
+            className="pb-5"
             refreshing={isLoading}
             onRefresh={fetchAddresses}
           />
@@ -256,43 +255,45 @@ export default function AddressScreen() {
         transparent={true}
         onRequestClose={() => setEditModalVisible(false)}
       >
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Edit Address</Text>
+        <View className="flex-1 justify-center bg-black/50 p-5">
+          <View className="bg-white rounded-xl p-6">
+            <Text className="text-xl font-semibold mb-6 text-gray-800 text-center">Edit Address</Text>
             <TextInput
-              style={styles.input}
+              className="border border-gray-300 rounded-lg p-3.5 mb-6 text-base bg-gray-50 min-h-[101px]"
+              style={{ textAlignVertical: 'top' }}
               value={editingAddressText}
               placeholder="Complete Address"
               onChangeText={setEditingAddressText}
               multiline
             />
-            <Text style={styles.label}>Address Type</Text>
-            <View style={styles.typeOptionsContainer}>
+            <Text className="text-base font-medium mb-3 text-gray-800">Address Type</Text>
+            <View className="flex-row flex-wrap justify-between mb-6">
               {['Home', 'Work', 'Hotel', 'Other'].map((type) => (
                 <TouchableOpacity
                   key={type}
-                  style={[
-                    styles.typeOption,
-                    editingAddressType === type && styles.selectedType
-                  ]}
+                  className={`w-[48%] flex-row items-center p-3 mb-3 border rounded-lg ${
+                    editingAddressType === type 
+                      ? 'border-red-500 bg-red-50' 
+                      : 'border-gray-300'
+                  }`}
                   onPress={() => setEditingAddressType(type)}
                 >
-                  <View style={styles.typeIcon}>
+                  <View className="mr-2">
                     {getTypeIcon(type)}
                   </View>
-                  <Text style={styles.typeText}>{type}</Text>
+                  <Text className="text-sm">{type}</Text>
                 </TouchableOpacity>
               ))}
             </View>
             <TouchableOpacity
-              style={styles.saveButton}
+              className="bg-red-500 p-4 rounded-lg items-center"
               onPress={handleSaveEdit}
               disabled={isSaving}
             >
               {isSaving ? (
                 <ActivityIndicator color="white" />
               ) : (
-                <Text style={styles.saveButtonText}>Edit Address</Text>
+                <Text className="text-white text-base font-semibold">Edit Address</Text>
               )}
             </TouchableOpacity>
           </View>
@@ -306,27 +307,27 @@ export default function AddressScreen() {
         animationType="fade"
         onRequestClose={() => setDeleteModalVisible(false)}
       >
-        <View style={styles.deleteModalContainer}>
-          <View style={styles.deleteModalContent}>
-            <Text style={styles.deleteModalTitle}>Delete this address?</Text>
-            <Text style={styles.deleteModalSubtitle}>This action cannot be undone</Text>
-            <View style={styles.deleteModalButtons}>
+        <View className="flex-1 justify-center items-center bg-black/50">
+          <View className="bg-white rounded-xl p-6 w-[85%]">
+            <Text className="text-lg font-semibold text-center mb-2 text-gray-800">Delete this address?</Text>
+            <Text className="text-sm text-gray-600 text-center mb-6">This action cannot be undone</Text>
+            <View className="flex-row justify-between gap-3">
               <TouchableOpacity
-                style={[styles.deleteModalButton, styles.deleteModalCancel]}
+                className="flex-1 p-3.5 rounded-lg items-center border border-gray-300 bg-gray-50"
                 onPress={() => setDeleteModalVisible(false)}
                 disabled={isDeleting}
               >
-                <Text style={styles.deleteModalButtonText}>Cancel</Text>
+                <Text className="text-base font-medium text-gray-800">Cancel</Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={[styles.deleteModalButton, styles.deleteModalConfirm]}
+                className="flex-1 p-3.5 rounded-lg items-center bg-red-500 border border-red-500"
                 onPress={confirmDelete}
                 disabled={isDeleting}
               >
                 {isDeleting ? (
                   <ActivityIndicator color="white" />
                 ) : (
-                  <Text style={styles.deleteModalConfirmText}>Delete</Text>
+                  <Text className="text-white font-medium">Delete</Text>
                 )}
               </TouchableOpacity>
             </View>
@@ -336,265 +337,53 @@ export default function AddressScreen() {
     </SafeAreaView>
   );
 }
+/* Original CSS Reference:
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-  },
-  loadingContainer: {
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  loadingText: {
-    marginTop: 16,
-    color: '#666',
-    fontSize: 16,
-  },
-  emptyState: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 40,
-  },
-  emptyStateText: {
-    fontSize: 18,
-    color: '#333',
-    marginTop: 16,
-    fontWeight: '500',
-  },
-  emptyStateSubtext: {
-    fontSize: 14,
-    color: '#666',
-    marginTop: 8,
-  },
-  addAddressButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
-  },
-  addAddressText: {
-    marginLeft: 12,
-    fontSize: 16,
-    color: '#f23e3e',
-    fontWeight: '500',
-    flex: 1,
-  },
-  divider: {
-    height: 8,
-    backgroundColor: '#f5f5f5',
-  },
-  savedSection: {
-    flex: 1,
-    padding: 16,
-  },
-  savedTitle: {
-    fontSize: 14,
-    fontWeight: 'bold',
-    color: '#666',
-    marginBottom: 16,
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-  },
-  addressList: {
-    paddingBottom: 20,
-  },
-  addressCardContainer: {
-    position: 'relative',
-    marginBottom: 16,
-  },
-  addressCard: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 16,
-    borderWidth: 1,
-    borderColor: '#eee',
-    elevation: 1,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-  },
-  addressHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 12,
-  },
-  addressTypeContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  addressType: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#333',
-    marginLeft: 10,
-  },
-  addressText: {
-    fontSize: 14,
-    color: '#555',
-    lineHeight: 20,
-    marginBottom: 8,
-  },
-  actionButtons: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    marginTop: 8,
-  },
-  actionButton: {
-    marginLeft: 20,
-  },
-  dropdownMenu: {
-    position: 'absolute',
-    right: 0,
-    top: 0,
-    backgroundColor: '#fff',
-    borderRadius: 8,
-    elevation: 3,
-    zIndex: 1,
-    width: 140,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-  },
-  dropdownItem: {
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-  },
-  dropdownText: {
-    fontSize: 15,
-    color: '#333',
-  },
-  deleteText: {
-    color: '#f23e3e',
-    fontWeight: '500',
-  },
-  modalContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    padding: 20,
-  },
-  modalContent: {
-    backgroundColor: 'white',
-    borderRadius: 12,
-    padding: 24,
-  },
-  modalTitle: {
-    fontSize: 20,
-    fontWeight: '600',
-    marginBottom: 24,
-    color: '#333',
-    textAlign: 'center',
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
-    padding: 14,
-    marginBottom: 24,
-    fontSize: 15,
-    backgroundColor: '#fafafa',
-    minHeight: 101,
-    textAlignVertical: 'top',
-  },
-  label: {
-    fontSize: 15,
-    fontWeight: '500',
-    marginBottom: 12,
-    color: '#333',
-  },
-  typeOptionsContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    marginBottom: 24,
-  },
-  typeOption: {
-    width: '48%',
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 12,
-    marginBottom: 12,
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
-  },
-  selectedType: {
-    borderColor: '#f23e3e',
-    backgroundColor: '#ffe6e6',
-  },
-  typeIcon: {
-    marginRight: 8,
-  },
-  typeText: {
-    fontSize: 14,
-  },
-  saveButton: {
-    backgroundColor: '#f23e3e',
-    padding: 16,
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  saveButtonText: {
-    color: 'white',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  deleteModalContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.5)',
-  },
-  deleteModalContent: {
-    backgroundColor: 'white',
-    borderRadius: 12,
-    padding: 24,
-    width: '85%',
-  },
-  deleteModalTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    textAlign: 'center',
-    marginBottom: 8,
-    color: '#333',
-  },
-  deleteModalSubtitle: {
-    fontSize: 14,
-    color: '#666',
-    textAlign: 'center',
-    marginBottom: 24,
-  },
-  deleteModalButtons: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    gap: 12,
-  },
-  deleteModalButton: {
-    flex: 1,
-    padding: 14,
-    borderRadius: 8,
-    alignItems: 'center',
-    borderWidth: 1,
-  },
-  deleteModalCancel: {
-    borderColor: '#ddd',
-    backgroundColor: '#f9f9f9',
-  },
-  deleteModalConfirm: {
-    backgroundColor: '#f23e3e',
-    borderColor: '#f23e3e',
-  },
-  deleteModalButtonText: {
-    fontSize: 15,
-    fontWeight: '500',
-    color: '#333',
-  },
-  deleteModalConfirmText: {
-    color: 'white',
-    fontWeight: '500',
-  },
+  container: { flex: 1, backgroundColor: '#fff' },
+  loadingContainer: { justifyContent: 'center', alignItems: 'center' },
+  loadingText: { marginTop: 16, color: '#666', fontSize: 16 },
+  emptyState: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 40 },
+  emptyStateText: { fontSize: 18, color: '#333', marginTop: 16, fontWeight: '500' },
+  emptyStateSubtext: { fontSize: 14, color: '#666', marginTop: 8 },
+  addAddressButton: { flexDirection: 'row', alignItems: 'center', padding: 16, borderBottomWidth: 1, borderBottomColor: '#eee' },
+  addAddressText: { marginLeft: 12, fontSize: 16, color: '#f23e3e', fontWeight: '500', flex: 1 },
+  divider: { height: 8, backgroundColor: '#f5f5f5' },
+  savedSection: { flex: 1, padding: 16 },
+  savedTitle: { fontSize: 14, fontWeight: 'bold', color: '#666', marginBottom: 16, textTransform: 'uppercase', letterSpacing: 0.5 },
+  addressList: { paddingBottom: 20 },
+  addressCardContainer: { position: 'relative', marginBottom: 16 },
+  addressCard: { backgroundColor: '#fff', borderRadius: 12, padding: 16, borderWidth: 1, borderColor: '#eee', elevation: 1, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 2 },
+  addressHeader: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 12 },
+  addressTypeContainer: { flexDirection: 'row', alignItems: 'center' },
+  addressType: { fontSize: 16, fontWeight: '600', color: '#333', marginLeft: 10 },
+  addressText: { fontSize: 14, color: '#555', lineHeight: 20, marginBottom: 8 },
+  actionButtons: { flexDirection: 'row', justifyContent: 'flex-end', marginTop: 8 },
+  actionButton: { marginLeft: 20 },
+  dropdownMenu: { position: 'absolute', right: 0, top: 0, backgroundColor: '#fff', borderRadius: 8, elevation: 3, zIndex: 1, width: 140, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4 },
+  dropdownItem: { paddingHorizontal: 16, paddingVertical: 12 },
+  dropdownText: { fontSize: 15, color: '#333' },
+  deleteText: { color: '#f23e3e', fontWeight: '500' },
+  modalContainer: { flex: 1, justifyContent: 'center', backgroundColor: 'rgba(0,0,0,0.5)', padding: 20 },
+  modalContent: { backgroundColor: 'white', borderRadius: 12, padding: 24 },
+  modalTitle: { fontSize: 20, fontWeight: '600', marginBottom: 24, color: '#333', textAlign: 'center' },
+  input: { borderWidth: 1, borderColor: '#ddd', borderRadius: 8, padding: 14, marginBottom: 24, fontSize: 15, backgroundColor: '#fafafa', minHeight: 101, textAlignVertical: 'top' },
+  label: { fontSize: 15, fontWeight: '500', marginBottom: 12, color: '#333' },
+  typeOptionsContainer: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', marginBottom: 24 },
+  typeOption: { width: '48%', flexDirection: 'row', alignItems: 'center', padding: 12, marginBottom: 12, borderWidth: 1, borderColor: '#ddd', borderRadius: 8 },
+  selectedType: { borderColor: '#f23e3e', backgroundColor: '#ffe6e6' },
+  typeIcon: { marginRight: 8 },
+  typeText: { fontSize: 14 },
+  saveButton: { backgroundColor: '#f23e3e', padding: 16, borderRadius: 8, alignItems: 'center' },
+  saveButtonText: { color: 'white', fontSize: 16, fontWeight: '600' },
+  deleteModalContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.5)' },
+  deleteModalContent: { backgroundColor: 'white', borderRadius: 12, padding: 24, width: '85%' },
+  deleteModalTitle: { fontSize: 18, fontWeight: '600', textAlign: 'center', marginBottom: 8, color: '#333' },
+  deleteModalSubtitle: { fontSize: 14, color: '#666', textAlign: 'center', marginBottom: 24 },
+  deleteModalButtons: { flexDirection: 'row', justifyContent: 'space-between', gap: 12 },
+  deleteModalButton: { flex: 1, padding: 14, borderRadius: 8, alignItems: 'center', borderWidth: 1 },
+  deleteModalCancel: { borderColor: '#ddd', backgroundColor: '#f9f9f9' },
+  deleteModalConfirm: { backgroundColor: '#f23e3e', borderColor: '#f23e3e' },
+  deleteModalButtonText: { fontSize: 15, fontWeight: '500', color: '#333' },
+  deleteModalConfirmText: { color: 'white', fontWeight: '500' }
 });
+*/

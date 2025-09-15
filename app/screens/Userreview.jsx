@@ -228,36 +228,19 @@ const handleSubmit = async () => {
       {questions.map((q) => (
         <View key={q} style={styles.questionRow}>
           <Text style={styles.question}>{q}</Text>
-          <View style={styles.thumbRow}>
-            <TouchableOpacity
-              onPress={() => setAnswers(prev => ({...prev, [q]: false}))}
-              style={[
-                styles.thumb,
-                answers[q] === false && styles.thumbSelected,
-              ]}
-              activeOpacity={0.7}
-            >
-              <MaterialIcons 
-                name="thumb-down" 
-                size={24} 
-                color={answers[q] === false ? "#2196F3" : "#ccc"} 
-              />
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => setAnswers(prev => ({...prev, [q]: true}))}
-              style={[
-                styles.thumb,
-                answers[q] === true && styles.thumbSelected,
-              ]}
-              activeOpacity={0.7}
-            >
-              <MaterialIcons 
-                name="thumb-up" 
-                size={24} 
-                color={answers[q] === true ? "#2196F3" : "#ccc"} 
-              />
-            </TouchableOpacity>
-          </View>
+          <TouchableOpacity
+            onPress={() => setAnswers(prev => ({...prev, [q]: !prev[q]}))}
+            style={[
+              styles.toggleButton,
+              answers[q] && styles.toggleButtonActive,
+            ]}
+            activeOpacity={0.7}
+          >
+            <View style={[
+              styles.toggleSlider,
+              answers[q] && styles.toggleSliderActive,
+            ]} />
+          </TouchableOpacity>
         </View>
       ))}
 
@@ -370,7 +353,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
     marginBottom: 20,
-    background: "#FCF7F7",
+     
 
   },
   optionButton: {
@@ -380,6 +363,7 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     paddingHorizontal: 14,
     margin: 5,
+    backgroundColor: "#F2E8E8",
   },
   selectedOption: {
     backgroundColor: "#e0f7e9",
@@ -393,27 +377,35 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   questionRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     marginBottom: 18,
   },
   question: {
     fontSize: 14,
     marginBottom: 8,
   },
-  thumbRow: {
-    flexDirection: "row",
-    gap: 12,
+  toggleButton: {
+    width: 50,
+    height: 25,
+    borderRadius: 15,
+    backgroundColor: "#ccc",
+    justifyContent: "center",
+    padding: 2,
   },
-  thumb: {
-    padding: 10,
-    borderWidth: 1,
-    borderRadius: 10,
-    borderColor: "#ccc",
-    minWidth: 60,
-    alignItems: "center",
+  toggleButtonActive: {
+    backgroundColor: "#34a853",
   },
-  thumbSelected: {
-    backgroundColor: "#d4f1ff",
-    borderColor: "#2196F3",
+  toggleSlider: {
+    width: 21,
+    height: 21,
+    borderRadius: 12,
+    backgroundColor: "#fff",
+    alignSelf: "flex-start",
+  },
+  toggleSliderActive: {
+    alignSelf: "flex-end",
   },
   textArea: {
     minHeight: 120,

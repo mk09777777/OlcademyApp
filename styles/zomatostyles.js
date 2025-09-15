@@ -241,13 +241,13 @@ noCommentsText: {
         marginTop: 16,
         marginLeft: 17,
         elevation: 8,
-        padding: 10
+      
     },
     otherfilters:{
         display:"flex",
         flexDirection:"column",
         justifyContent:"space-between",
-        padding:2
+       
     },
     Relevance: {
         display: "flex",
@@ -277,7 +277,7 @@ noCommentsText: {
         color: "black",
         fontWeight: "bold",
         fontSize: 11,
-        padding: 3,
+        padding: 4,
         backgroundColor: "#f2e8e8",
         borderRadius: 60,
         paddingLeft: 8,
@@ -293,7 +293,7 @@ noCommentsText: {
         flexDirection: "row",
         elevation: 3,
         borderRadius: 6,
-        padding: 8,
+        padding: 10,
         backgroundColor: "white",
         marginTop: 3,
         marginBottom: 3,
@@ -316,7 +316,13 @@ noCommentsText: {
     },
     commentMainContainer: {
       margin: 10,
-      radius: 90,
+      borderRadius: 15,
+      backgroundColor: "white",
+      elevation: 2,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.1,
+      shadowRadius: 2,
     },
     commentcontainer: {
         display: "flex",
@@ -325,7 +331,7 @@ noCommentsText: {
         marginTop:3,
         backgroundColor:"white",
         justifyContent:"space-between",
-        radius: 80,
+        borderRadius: 15,
     },
     commentheadingcontainer: {
         display: "flex",
@@ -354,7 +360,7 @@ noCommentsText: {
   shadowOffset: { width: 0, height: 2 },
   shadowOpacity: 0.2,
   shadowRadius: 4,
-  elevation: 3, // for Android
+  elevation: 3, 
   marginVertical: 15,
 },
 commentButtonContent: {

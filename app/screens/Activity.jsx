@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons, FontAwesome, MaterialCommunityIcons } from '@expo/vector-icons';
-import styles from '../../styles/Activity';
+// import styles from '../../styles/Activity';
 import { useAuth } from '../../context/AuthContext';
 import BackRouting from '@/components/BackRouting';
 import { router } from 'expo-router';
@@ -656,71 +656,71 @@ const ActivityPage = () => {
   };
 
   return (
-    <View style={styles.container}>
+    <View className="flex-1 bg-gray-50">
       <BackRouting tittle="Activity"/>
       <ScrollView>
-        <View style={styles.profileHeader}>
-          <View style={styles.headerBackground}>
-            <Image source={require('../../assets/images/food2.jpg')} style={styles.headerImage} />
+        <View className="items-center p-2.5">
+          <View className="w-full h-45 rounded-2.5 overflow-hidden">
+            <Image source={require('../../assets/images/food2.jpg')} className="w-full h-full" />
           </View>
           
           {/* User Profile Section */}
-          <View style={styles.profileSection}>
+          <View className="items-center p-5 border-b border-gray-200">
             {renderAvatar()}
-            <Text style={styles.username}>{user.username || 'User'}</Text>
+            <Text className="pb-2.5 text-2xl font-bold my-1.5">{user.username || 'User'}</Text>
           </View>
           
-          <View style={styles.statsContainer}>
+          <View className="flex-row justify-center w-full">
             <TouchableOpacity 
-              style={styles.statItem}
+              className="items-center px-5"
               onPress={() => navigation.navigate('Followers')}
             >
-              <Text style={styles.statNumber}>{user.followers || 0}</Text>
-              <Text style={styles.statLabel}>Followers</Text>
+              <Text className="text-lg font-bold text-gray-800">{user.followers || 0}</Text>
+              <Text className="text-sm text-gray-600">Followers</Text>
             </TouchableOpacity>
             
             <TouchableOpacity 
-              style={styles.statItem}
+              className="items-center px-5"
               onPress={() => navigation.navigate('Following')}
             >
-              <Text style={styles.statNumber}>{user.following || 0}</Text>
-              <Text style={styles.statLabel}>Following</Text>
+              <Text className="text-lg font-bold text-gray-800">{user.following || 0}</Text>
+              <Text className="text-sm text-gray-600">Following</Text>
             </TouchableOpacity>
           </View>
         </View>
 
         {/* Tabs */}
-        <View style={styles.tabsContainer}>
+        <View className="flex-row bg-white border-b border-gray-200">
           <TouchableOpacity
-            style={[styles.tab, activeTab === 'Reviews' && styles.activeTab]}
+            className={`flex-1 py-2.5 items-center ${activeTab === 'Reviews' ? 'border-b-3 border-blue-600' : ''}`}
             onPress={() => setActiveTab('Reviews')}
           >
-            <Text style={[styles.tabText, activeTab === 'Reviews' && styles.activeTabText]}>
+            <Text className={`text-base font-medium ${activeTab === 'Reviews' ? 'text-blue-600 font-semibold' : 'text-gray-600'}`}>
               Reviews
             </Text>
           </TouchableOpacity>
           
           <TouchableOpacity
-            style={[styles.tab, activeTab === 'Photos' && styles.activeTab]}
+            className={`flex-1 py-2.5 items-center ${activeTab === 'Photos' ? 'border-b-3 border-blue-600' : ''}`}
             onPress={() => setActiveTab('Photos')}
           >
-            <Text style={[styles.tabText, activeTab === 'Photos' && styles.activeTabText]}>
+            <Text className={`text-base font-medium ${activeTab === 'Photos' ? 'text-blue-600 font-semibold' : 'text-gray-600'}`}>
               Photos
             </Text>
           </TouchableOpacity>
           
           <TouchableOpacity
-            style={[styles.tab, activeTab === 'Blog' && styles.activeTab]}
+            className={`flex-1 py-2.5 items-center ${activeTab === 'Blog' ? 'border-b-3 border-blue-600' : ''}`}
             onPress={() => setActiveTab('Blog')}
           >
-            <Text style={[styles.tabText, activeTab === 'Blog' && styles.activeTabText]}>
+            <Text className={`text-base font-medium ${activeTab === 'Blog' ? 'text-blue-600 font-semibold' : 'text-gray-600'}`}>
               Blog
             </Text>
           </TouchableOpacity>
         </View>
 
         {/* Content */}
-        <ScrollView style={styles.mainContent}>
+        <ScrollView className="flex-1">
           {renderContent()}
         </ScrollView>
       </ScrollView>

@@ -28,9 +28,6 @@
     "updates": {
       "enabled": false
     },
-    "packagerOpts": {
-      "hostType": "lan"
-    },
     "extra": {
       "eas": {
         "projectId": "fd225073-4067-4a25-80b2-ca13b5454fd0"

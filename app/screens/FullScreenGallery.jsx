@@ -3,7 +3,6 @@ import {
   View,
   FlatList,
   Image,
-  StyleSheet,
   Dimensions,
 } from 'react-native';
 import { useLocalSearchParams, router } from 'expo-router';
@@ -13,6 +12,13 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 const { width, height } = Dimensions.get('window');
 
 const FullScreenGallery = () => {
+  /* Original CSS Reference:
+   * container: { flex: 1, backgroundColor: '#000' }
+   * header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 16 }
+   * counter: { color: '#fff', fontSize: 16 }
+   * slide: { width, height: height - 101, justifyContent: 'center', alignItems: 'center' }
+   * image: { width: '101%', height: '101%' }
+   */
   const { images, initialImage = 0 } = useLocalSearchParams();
   const imageList = JSON.parse(images);
   const flatListRef = useRef(null);
@@ -29,15 +35,15 @@ const FullScreenGallery = () => {
   }).current;
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
+    <SafeAreaView className="flex-1 bg-black">
+      <View className="flex-row items-center justify-between p-4">
         <IconButton
           icon="arrow-left"
           size={24}
           onPress={handleBack}
           color="#fff"
         />
-        <Text style={styles.counter}>
+        <Text className="text-white text-base">
           {activeIndex + 1} / {imageList.length}
         </Text>
       </View>
@@ -58,10 +64,11 @@ const FullScreenGallery = () => {
         onViewableItemsChanged={handleViewableItemsChanged}
         viewabilityConfig={{ itemVisiblePercentThreshold: 50 }}
         renderItem={({ item }) => (
-          <View style={styles.slide}>
+          <View className="justify-center items-center" style={{ width, height: height - 101 }}>
             <Image
               source={{ uri: item }}
-              style={styles.image}
+              className="w-full h-full"
+              style={{ width: '101%', height: '101%' }}
               resizeMode="contain"
             />
           </View>
@@ -71,31 +78,6 @@ const FullScreenGallery = () => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#000',
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: 16,
-  },
-  counter: {
-    color: '#fff',
-    fontSize: 16,
-  },
-  slide: {
-    width,
-    height: height - 101,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  image: {
-    width: '101%',
-    height: '101%',
-  },
-});
+
 
 export default FullScreenGallery;

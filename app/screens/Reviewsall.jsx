@@ -370,7 +370,7 @@ export default function Reviewsall() {
     }
   };
 
-  const filters = ["verified", "withPhotos", "detailedReview"];
+  const filters = ["verified", "withPhotos"];
 
   if (loading && page === 1) {
     return (
@@ -416,14 +416,6 @@ export default function Reviewsall() {
         </View>
 
         <View style={ZomatoStyles.filters}>
-          <TouchableOpacity style={ZomatoStyles.RevanceActive} onPress={togglepref}>
-            <Text style={ZomatoStyles.RelevanceText}>{pref || "Relevance"}</Text>
-            <MaterialIcons name="arrow-drop-down" size={22} color="black" style={ZomatoStyles.DropImg} />
-          </TouchableOpacity>
-          <Modal animationType="slide" transparent={true} visible={perfervisible} onRequestClose={togglepref}>
-            <Preference togglepref={togglepref} senddatatoparent={handlechildpref} message={pref} />
-          </Modal>
-
           <FlatList
             data={filters}
             keyExtractor={(item, index) => index.toString()}
@@ -434,10 +426,10 @@ export default function Reviewsall() {
                     ZomatoStyles.verified,
                     filtersActive[item] && ZomatoStyles.VerifiedActive
                   ]}>
+                    
                     <Text style={ZomatoStyles.RelevanceText}>
-                      {item === "verified" ? "Verified" : 
-                       item === "withPhotos" ? "With Photos" : 
-                       "Detailed"}
+                      <MaterialIcons name={item === "verified" ? "verified" : "photo"} size={16} color="black" />
+                      {"  "}{item === "verified" ? "Verified" : "With Photos"}
                     </Text>
                     {filtersActive[item] && <Entypo name="cross" size={20} color="black" style={ZomatoStyles.DropImg} />}
                   </View>
@@ -446,6 +438,14 @@ export default function Reviewsall() {
             )}
             horizontal={true}
           />
+          
+          <TouchableOpacity style={ZomatoStyles.RevanceActive} onPress={togglepref}>
+            <Text style={ZomatoStyles.RelevanceText}>{pref || "Relevance"}</Text>
+            <MaterialIcons name="arrow-drop-down" size={22} color="black" style={ZomatoStyles.DropImg} />
+          </TouchableOpacity>
+          <Modal animationType="slide" transparent={true} visible={perfervisible} onRequestClose={togglepref}>
+            <Preference togglepref={togglepref} senddatatoparent={handlechildpref} message={pref} />
+          </Modal>
         </View>
       </View>
 
@@ -468,15 +468,15 @@ export default function Reviewsall() {
                   <FontAwesome name="user-circle-o" size={33} color="#b5b9dc" />
                   <View style={ZomatoStyles.commentnamecontainer}>
                     <Text style={ZomatoStyles.commentName}>{item.user?.username || "Anonymous"}</Text>
-                    <Text style={ZomatoStyles.commentfollowers}>{item.user.followers} Followers</Text>
+                    <Text style={ZomatoStyles.commentfollowers}>{item.user.followers} Followers • {getDaysAgo(item.createdAt)}</Text>
                   </View>
                   <TouchableOpacity
                     onPress={() => handleFollow(item._id, item.reviewType)}
                     style={[ZomatoStyles.followButton, item.isFollowing && ZomatoStyles.followingButton]}
                   >
-                    <Text style={[ZomatoStyles.followButtonText, item.isFollowing && ZomatoStyles.followingButtonText]}>
-                      {item.isFollowing ? "Following" : "Follow"}
-                    </Text>
+                    {/* <Text style={[ZomatoStyles.followButtonText, item.isFollowing && ZomatoStyles.followingButtonText]}>
+                      {item.isFollowing : "Following" : "Follow"}
+                    </Text> */}
                   </TouchableOpacity>
                 </View>
                 <View style={ZomatoStyles.commentRatingcontainer}>
@@ -500,10 +500,7 @@ export default function Reviewsall() {
                   <Image source={{ uri: item.images[0] }} style={ZomatoStyles.commentimg} />
                 </View>
               )} */}
-              <View style={ZomatoStyles.LikeCommentCalculateContainer}>
-                <Text style={ZomatoStyles.commentText2}>{getDaysAgo(item.createdAt)}</Text>
-                
-              </View>
+              
             </View>
             <View style={ZomatoStyles.commenttabscontainer}>
               <TouchableOpacity

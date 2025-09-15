@@ -7,13 +7,13 @@ import {
   ScrollView,
   FlatList,
   Image,
-  Alert
+  Alert,
+  ActivityIndicator
 } from 'react-native';
 import { MaterialIcons, Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useCart } from '../../context/CartContext';
 import { useNavigation } from '@react-navigation/native';
-import styles from '../../styles/Checkoutstyle';
 
 const CheckoutScreen = () => {
   const navigation = useNavigation();
@@ -108,17 +108,17 @@ const CheckoutScreen = () => {
   const isCartEmpty = cartItems.length === 0;
 
   return (
-    <SafeAreaView style={styles.container}>
-      <Text style={styles.title}>Checkout</Text>
+    <SafeAreaView className="flex-1 bg-gray-100 px-4">
+      <Text className="text-2xl font-bold my-5 text-center text-gray-800">Checkout</Text>
       
-      <ScrollView contentContainerStyle={styles.contentContainer}>
+      <ScrollView className="pb-5">
         {isCartEmpty ? (
-          <View style={styles.emptyCartContainer}>
+          <View className="flex-1 justify-center items-center mt-25">
             <Image 
-              style={styles.emptyCartImage} 
+              className="w-50 h-50 mb-5" 
               source={require('../../assets/images/empty_cart.png')}
             />
-            <Text style={styles.emptyCartText}>Your cart is empty!</Text>
+            <Text className="text-lg text-gray-600">Your cart is empty!</Text>
           </View>
         ) : (
           <>
@@ -127,41 +127,41 @@ const CheckoutScreen = () => {
               scrollEnabled={false}
               keyExtractor={(item) => item.id}
               renderItem={({ item }) => (
-                <View style={styles.itemContainer}>
-                  <View style={styles.itemInfo}>
+                <View className="bg-white rounded-lg p-3 mb-2.5 shadow-sm">
+                  <View className="flex-row items-center mb-2.5">
                     {item.image && (
                       <Image
                         source={typeof item.image === 'string' ? { uri: item.image } : item.image}
-                        style={styles.itemImage}
+                        className="w-15 h-15 rounded-lg mr-3"
                         resizeMode="cover"
                       />
                     )}
-                    <View style={styles.itemTextContainer}>
-                      <Text style={styles.itemText}>{item.name}</Text>
-                      <Text style={styles.itemPrice}>₹{Number(item.price || 0).toFixed(2)}</Text>
+                    <View className="flex-1">
+                      <Text className="text-base font-medium text-gray-800">{item.name}</Text>
+                      <Text className="text-sm text-gray-600 mt-1">₹{Number(item.price || 0).toFixed(2)}</Text>
                       {item.customization && (
-                        <Text style={styles.customizedText}>Customized</Text>
+                        <Text className="text-xs text-green-500 mt-1">Customized</Text>
                       )}
                     </View>
                   </View>
-                  <View style={styles.controls}>
+                  <View className="flex-row items-center justify-between">
                     <TouchableOpacity 
                       onPress={() => decrementQuantity(item.id)}
-                      style={styles.controlButton}
+                      className="w-7.5 h-7.5 rounded-full bg-gray-100 justify-center items-center"
                       disabled={item.quantity <= 1}
                     >
-                      <Text style={[styles.controlButtonText, item.quantity <= 1 && styles.disabledControl]}>-</Text>
+                      <Text className={`text-lg text-gray-800 ${item.quantity <= 1 ? 'text-gray-300' : ''}`}>-</Text>
                     </TouchableOpacity>
-                    <Text style={styles.quantityText}>{item.quantity}</Text>
+                    <Text className="text-base font-medium mx-2.5 text-gray-800">{item.quantity}</Text>
                     <TouchableOpacity 
                       onPress={() => incrementQuantity(item.id)}
-                      style={styles.controlButton}
+                      className="w-7.5 h-7.5 rounded-full bg-gray-100 justify-center items-center"
                     >
-                      <Text style={styles.controlButtonText}>+</Text>
+                      <Text className="text-lg text-gray-800">+</Text>
                     </TouchableOpacity>
                     <TouchableOpacity 
                       onPress={() => removeFromCart(item.id)}
-                      style={styles.deleteButton}
+                      className="p-1.25"
                     >
                       <MaterialIcons name='delete-outline' size={24} color={'red'} />
                     </TouchableOpacity>
@@ -170,32 +170,32 @@ const CheckoutScreen = () => {
               )}
             />
 
-            <View style={styles.billDetails}>
-              <View style={styles.billRow}>
-                <Text style={styles.billLabel}>Subtotal</Text>
-                <Text style={styles.billValue}>₹{subtotal.toFixed(2)}</Text>
+            <View className="bg-white rounded-lg p-4 mt-2.5 shadow-sm">
+              <View className="flex-row justify-between mb-2">
+                <Text className="text-sm text-gray-600">Subtotal</Text>
+                <Text className="text-sm text-gray-800">₹{subtotal.toFixed(2)}</Text>
               </View>
               {discount > 0 && (
-                <View style={styles.billRow}>
-                  <Text style={styles.billLabel}>Discount</Text>
-                  <Text style={[styles.billValue, styles.discountValue]}>-₹{discount.toFixed(2)}</Text>
+                <View className="flex-row justify-between mb-2">
+                  <Text className="text-sm text-gray-600">Discount</Text>
+                  <Text className="text-sm text-green-500">-₹{discount.toFixed(2)}</Text>
                 </View>
               )}
-              <View style={styles.billRow}>
-                <Text style={styles.billLabel}>Delivery Fee</Text>
-                <Text style={styles.billValue}>₹{deliveryFee.toFixed(2)}</Text>
+              <View className="flex-row justify-between mb-2">
+                <Text className="text-sm text-gray-600">Delivery Fee</Text>
+                <Text className="text-sm text-gray-800">₹{deliveryFee.toFixed(2)}</Text>
               </View>
-              <View style={styles.billRow}>
-                <Text style={styles.billLabel}>Platform Fee</Text>
-                <Text style={styles.billValue}>₹{platformFee.toFixed(2)}</Text>
+              <View className="flex-row justify-between mb-2">
+                <Text className="text-sm text-gray-600">Platform Fee</Text>
+                <Text className="text-sm text-gray-800">₹{platformFee.toFixed(2)}</Text>
               </View>
-              <View style={styles.billRow}>
-                <Text style={styles.billLabel}>GST & Charges (5%)</Text>
-                <Text style={styles.billValue}>₹{calculateGST().toFixed(2)}</Text>
+              <View className="flex-row justify-between mb-2">
+                <Text className="text-sm text-gray-600">GST & Charges (5%)</Text>
+                <Text className="text-sm text-gray-800">₹{calculateGST().toFixed(2)}</Text>
               </View>
-              <View style={[styles.billRow, styles.totalRow]}>
-                <Text style={[styles.billLabel, styles.totalLabel]}>Total</Text>
-                <Text style={[styles.billValue, styles.totalValue]}>
+              <View className="flex-row justify-between border-t border-gray-200 pt-2.5 mt-1.25">
+                <Text className="text-base font-bold text-gray-800">Total</Text>
+                <Text className="text-base font-bold text-gray-800">
                   ₹{calculateFinalTotal().toFixed(2)}
                 </Text>
               </View>
@@ -205,12 +205,11 @@ const CheckoutScreen = () => {
       </ScrollView>
 
       {!isCartEmpty && (
-        <View style={styles.buttonContainer}>
+        <View className="p-4 bg-white border-t border-gray-200">
           <TouchableOpacity
-            style={[
-              styles.checkoutButton,
-              (!state.deliveryAddress || state.isLoading) && styles.disabledButton,
-            ]}
+            className={`rounded-lg p-4 flex-row justify-between items-center ${
+              (!state.deliveryAddress || state.isLoading) ? 'bg-green-300' : 'bg-green-500'
+            }`}
             onPress={handlePlaceOrder}
             disabled={!state.deliveryAddress || state.isLoading}
           >
@@ -218,8 +217,8 @@ const CheckoutScreen = () => {
               <ActivityIndicator color="#fff" />
             ) : (
               <>
-                <Text style={styles.checkoutButtonText}>Place Order</Text>
-                <Text style={styles.checkoutButtonPrice}>₹{calculateFinalTotal().toFixed(2)}</Text>
+                <Text className="text-white text-base font-bold">Place Order</Text>
+                <Text className="text-white text-base font-bold">₹{calculateFinalTotal().toFixed(2)}</Text>
               </>
             )}
           </TouchableOpacity>
@@ -230,3 +229,40 @@ const CheckoutScreen = () => {
 };
 
 export default CheckoutScreen;
+
+/* Original Checkoutstyle Reference:
+const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: '#f8f8f8', paddingHorizontal: 16 },
+  title: { fontSize: 24, fontFamily: 'outfit-bold', fontWeight: 'bold', marginVertical: 20, textAlign: 'center', color: '#333' },
+  contentContainer: { paddingBottom: 20 },
+  emptyCartContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', marginTop: 100 },
+  emptyCartImage: { width: 200, height: 200, marginBottom: 20 },
+  emptyCartText: { fontSize: 18, fontFamily: 'outfit-medium', color: '#666' },
+  itemContainer: { backgroundColor: '#fff', borderRadius: 8, padding: 12, marginBottom: 10, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.1, shadowRadius: 2, elevation: 2 },
+  itemInfo: { flexDirection: 'row', alignItems: 'center', marginBottom: 10 },
+  itemImage: { width: 60, height: 60, borderRadius: 8, marginRight: 12 },
+  itemTextContainer: { flex: 1 },
+  itemText: { fontSize: 16, fontFamily: 'outfit-medium', fontWeight: '500', color: '#333' },
+  itemPrice: { fontSize: 14, fontFamily: 'outfit-medium', color: '#666', marginTop: 4 },
+  customizedText: { fontSize: 12, fontFamily: 'outfit', color: '#4CAF50', marginTop: 4 },
+  controls: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  controlButton: { width: 30, height: 30, borderRadius: 15, backgroundColor: '#f0f0f0', justifyContent: 'center', alignItems: 'center' },
+  controlButtonText: { fontSize: 18, fontFamily: 'outfit-medium', color: '#333' },
+  disabledControl: { color: '#ccc' },
+  quantityText: { fontSize: 16, fontFamily: 'outfit-medium', fontWeight: '500', marginHorizontal: 10, color: '#333' },
+  deleteButton: { padding: 5 },
+  billDetails: { backgroundColor: '#fff', borderRadius: 8, padding: 16, marginTop: 10, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.1, shadowRadius: 2, elevation: 2 },
+  billRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 },
+  billLabel: { fontSize: 14, fontFamily: 'outfit', color: '#666' },
+  billValue: { fontSize: 14, fontFamily: 'outfit', color: '#333' },
+  discountValue: { color: '#4CAF50' },
+  totalRow: { borderTopWidth: 1, borderTopColor: '#eee', paddingTop: 10, marginTop: 5 },
+  totalLabel: { fontSize: 16, fontFamily: 'outfit-medium', fontWeight: 'bold', color: '#333' },
+  totalValue: { fontSize: 16, fontFamily: 'outfit-medium', fontWeight: 'bold', color: '#333' },
+  buttonContainer: { padding: 16, fontFamily: 'outfit-medium', backgroundColor: '#fff', borderTopWidth: 1, borderTopColor: '#eee' },
+  checkoutButton: { backgroundColor: '#4CAF50', borderRadius: 8, padding: 16, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  checkoutButtonText: { color: '#fff', fontSize: 16, fontFamily: 'outfit-medium', fontWeight: 'bold' },
+  checkoutButtonPrice: { color: '#fff', fontSize: 16, fontFamily: 'outfit-medium', fontWeight: 'bold' },
+  disabledButton: { backgroundColor: '#a5d6a7' }
+});
+*/

@@ -1,0 +1,5 @@
+Process of updating the react native expo project to the sdk53 to sdk54.
+command: 
+ 1 npx expo install expo@next --fix
+ 2 npx expo-doctor
+ 3 

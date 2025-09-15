@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useEffect, useState, useMemo, useCallback, useRef } from 'react';
 import axios from 'axios';
 // import AsyncStorage from '@react-native-async-storage/async-storage';
-import { NativeEventEmitter } from 'react-native';
+// import { NativeEventEmitter } from 'react-native';
 import { API_CONFIG } from '../config/apiConfig';
 import EventEmitter from 'eventemitter3';
 const cartEventEmitter = new EventEmitter();

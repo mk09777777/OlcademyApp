@@ -9,9 +9,10 @@ export default function Preference({ togglepref,senddatatoparent , message , sor
     const [applyactive, setapplyactive] = useState(false);
 
     const options = [
-        { label: "Relevance", value: "Relevance" },
+        { label: "Verified", value: "Verified" },
         { label: "High Rating", value: "High Rating" },
-        { label: "Latest", value: "Latest" }
+        { label: "Latest", value: "Latest" },
+        { label: "Relevance", value: "Relevance" }
     ];
 
     const handleSelection = (value) => {

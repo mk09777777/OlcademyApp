@@ -1,11 +1,10 @@
 import { View, Text, TouchableOpacity, Alert, FlatList, ScrollView, TextInput, Modal } from 'react-native';
 import React, { useState, useEffect } from 'react';
-import { styles } from '@/styles/FirmBookingStyles';
 import { Ionicons } from '@expo/vector-icons';
 import { useGlobalSearchParams, useRouter } from 'expo-router';
 import DateTimePicker from 'react-native-ui-datepicker';
 import dayjs from 'dayjs';
-import InputBoxStyles from '../../styles/InputBox.js';
+
 import { useSafeNavigation } from '@/hooks/navigationPage';
 import { Schedule } from '@/components/Schedule';
 import { API_CONFIG } from '../../config/apiConfig';
@@ -31,8 +30,9 @@ export default function SelectDateTime() {
   useEffect(() => {
     const fetchSlots = async () => {
       try {
-
-        const response = await fetch(`${API_CONFIG.BACKEND_URL}/api/operating-hours/formatted-with-offers-only/${firmId}`);
+        const response = await fetch(
+          `${API_CONFIG.BACKEND_URL}/api/operating-hours/formatted-with-offers-only/${firmId}`
+        );
         const result = await response.json();
         const offers = Array.isArray(result.availableOffers) ? result.availableOffers : [];
         const today = dayjs(date).format('dddd');
@@ -129,18 +129,18 @@ export default function SelectDateTime() {
   const currentSlots = selectedTab === 'Lunch' ? lunchSlots : dinnerSlots;
 
   return (
-    <ScrollView style={styles.container}>
-      <View style={styles.upperPannel}>
-        <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+    <ScrollView className="flex-1 bg-gray-50 px-4 py-4">
+      <View className="flex-row items-center mb-6">
+        <TouchableOpacity className="pr-4 mr-2" onPress={() => router.back()}>
           <Ionicons name='arrow-back' size={24} />
         </TouchableOpacity>
         <View>
-          <Text style={styles.pageHeader}>Select Date and Time</Text>
-          <Text style={styles.subHeader}>{firmName}</Text>
+          <Text className="text-2xl text-gray-800 mb-1" style={{ fontFamily: 'outfit-bold' }}>Select Date and Time</Text>
+          <Text className="text-base text-gray-600" style={{ fontFamily: 'outfit-medium' }}>{firmName}</Text>
         </View>
       </View>
 
-      <View style={styles.calenderContainer}>
+      <View className="bg-white rounded-xl p-3 mb-5 shadow-sm">
         <DateTimePicker
           mode="single"
           date={date}
@@ -152,9 +152,9 @@ export default function SelectDateTime() {
         />
       </View>
 
-      <View style={styles.tabContainer}>
+      <View className="flex-row justify-center mb-5 mt-3">
         <TouchableOpacity
-          style={[styles.tab, selectedTab === "Lunch" && styles.activeTab]}
+          className={`py-2.5 px-6 rounded-full mx-2 bg-white border ${selectedTab === "Lunch" ? "bg-red-500 border-red-500" : "border-gray-300"}`}
           onPress={() => {
             setSelectedTab("Lunch");
             setSelectedTime(null);
@@ -162,10 +162,10 @@ export default function SelectDateTime() {
             setSelectedOfferDetails(null);
           }}
         >
-          <Text style={[styles.tabText, selectedTab === "Lunch" && styles.activeTabText]}>Lunch</Text>
+          <Text className={`text-base ${selectedTab === "Lunch" ? "text-white" : "text-gray-600"}`} style={{ fontFamily: selectedTab === "Lunch" ? 'outfit-bold' : 'outfit-medium' }}>Lunch</Text>
         </TouchableOpacity>
         <TouchableOpacity
-          style={[styles.tab, selectedTab === "Dinner" && styles.activeTab]}
+          className={`py-2.5 px-6 rounded-full mx-2 bg-white border ${selectedTab === "Dinner" ? "bg-red-500 border-red-500" : "border-gray-300"}`}
           onPress={() => {
             setSelectedTab("Dinner");
             setSelectedTime(null);
@@ -173,7 +173,7 @@ export default function SelectDateTime() {
             setSelectedOfferDetails(null);
           }}
         >
-          <Text style={[styles.tabText, selectedTab === "Dinner" && styles.activeTabText]}>Dinner</Text>
+          <Text className={`text-base ${selectedTab === "Dinner" ? "text-white" : "text-gray-600"}`} style={{ fontFamily: selectedTab === "Dinner" ? 'outfit-bold' : 'outfit-medium' }}>Dinner</Text>
         </TouchableOpacity>
       </View>
 
@@ -182,45 +182,28 @@ export default function SelectDateTime() {
           data={currentSlots}
           keyExtractor={(item, index) => index.toString()}
           numColumns={3}
-          contentContainerStyle={styles.timeSlotsContainer}
+          contentContainerStyle={{ paddingHorizontal: 8, marginBottom: 20 }}
           renderItem={({ item }) => (
             <TouchableOpacity
-              style={[
-                styles.timeSlot,
-                selectedTime === item.slot && styles.selectedTimeSlot,
-              ]}
+              className={`bg-white rounded-lg border py-3 m-1.5 items-center justify-center shadow-sm ${selectedTime === item.slot ? "bg-red-500 border-red-500" : "border-gray-300"}`}
+              style={{ width: "30%" }}
               onPress={() => {
                 setSelectedTime(item.slot);
                 setSelectedOfferId(item.offer?.id || null);
                 setSelectedOfferDetails(item.offer || null);
               }}
             >
-              <Text style={[
-                styles.timeSlotText,
-                selectedTime === item.slot && styles.selectedTimeSlotText,
-              ]}>
+              <Text className={`text-sm ${selectedTime === item.slot ? "text-white" : "text-gray-700"}`} style={{ fontFamily: selectedTime === item.slot ? 'outfit-bold' : 'outfit-medium' }}>
                 {item.slot}
               </Text>
-              {item.offer && <Text style={styles.offerText}>Offer Available</Text>}
+              {item.offer && <Text className="text-xs text-red-500 mt-1" style={{ fontFamily: 'outfit-medium' }}>Offer Available</Text>}
             </TouchableOpacity>
           )}
         />
       ) : (
-        <View style={{
-          marginLeft: 10,
-          marginBottom: 20,
-          marginRight: 10,
-          backgroundColor: "white",
-          borderColor: "#b1b1b1ff",
-          borderWidth: 1,
-          padding: 10,
-          borderRadius: 10,
-          flex: 1,
-          justifyContent: "center",
-          alignItems: "center",
-        }}>
+        <View className="mx-2.5 mb-5 bg-white border border-gray-400 p-2.5 rounded-lg flex-1 justify-center items-center">
           <TouchableOpacity onPress={() => setScheduleModalVisible(true)}>
-            <Text style={{ color: "#525252ff", fontSize: 16, fontWeight: "bold" }}>
+            <Text className="text-gray-600 text-base font-bold">
               {selectedScheduleTime || "No slots available Schedule your booking here"}
             </Text>
           </TouchableOpacity>
@@ -230,7 +213,6 @@ export default function SelectDateTime() {
               onSave={(selectedTime) => {
                 setSelectedScheduleTime(selectedTime);
                 setScheduleModalVisible(false);
-
               }}
               type="dining"
             />
@@ -239,15 +221,15 @@ export default function SelectDateTime() {
       )}
 
       {selectedTime && selectedOfferDetails && (
-        <View style={styles.offersContainer}>
-          <Text style={styles.offerHeader}>Offer available</Text>
-          <Text style={styles.offerSubHeader}>Auto-applied on booking</Text>
-          <View style={styles.offerItem}>
+        <View className="mt-4 mb-6 bg-white rounded-xl p-4 shadow-sm">
+          <Text className="text-lg text-gray-800 mb-1" style={{ fontFamily: 'outfit-bold' }}>Offer available</Text>
+          <Text className="text-xs text-gray-500 mb-3" style={{ fontFamily: 'outfit' }}>Auto-applied on booking</Text>
+          <View className="flex-row justify-between p-4 rounded-lg bg-gray-50 mb-2 items-center">
             <View>
-              <Text style={styles.offerTitle}>
+              <Text className="text-base text-red-500" style={{ fontFamily: 'outfit-bold' }}>
                 {selectedOfferDetails.discountValue}% OFF
               </Text>
-              <Text style={styles.offerSubtitle}>
+              <Text className="text-xs text-gray-600 mt-1" style={{ fontFamily: 'outfit' }}>
                 Code: {selectedOfferDetails.code}
               </Text>
             </View>
@@ -255,8 +237,8 @@ export default function SelectDateTime() {
         </View>
       )}
 
-      <TouchableOpacity style={styles.continueButton} onPress={handleContinue}>
-        <Text style={styles.buttonText}>Continue</Text>
+      <TouchableOpacity className="bg-red-500 p-4 rounded-xl mb-6 shadow-lg" onPress={handleContinue}>
+        <Text className="text-white text-base text-center" style={{ fontFamily: 'outfit-bold' }}>Continue</Text>
       </TouchableOpacity>
 
       <Modal
@@ -265,13 +247,12 @@ export default function SelectDateTime() {
         visible={inputModal}
         onRequestClose={toggleInputModal}
       >
-        <View className="flex-1 justify-center bg-black/50">
-          <View className="bg-white mx-4 p-4 rounded-lg">
-            <View className="items-center p-2">
-              <Text className="text-xl font-outfit-bold text-textprimary">Enter your details</Text>
-            </View>
+        <View className="flex-1 bg-black/50 justify-center items-center">
+          <View className="bg-white rounded-2xl p-6 w-11/12 max-w-sm">
+            <Text className="text-xl text-gray-800 mb-5 text-center" style={{ fontFamily: 'outfit-bold' }}>Enter your details</Text>
             <TextInput
-              className="mt-2 p-3 border border-gray-300 rounded-lg font-outfit"
+              className="border border-gray-300 rounded-lg p-3.5 mb-4 bg-gray-50 text-base"
+              style={{ fontFamily: 'outfit' }}
               placeholder="Enter your name"
               value={name}
               onChangeText={setname}
@@ -279,18 +260,20 @@ export default function SelectDateTime() {
             <TextInput
               value={email}
               onChangeText={setEmail}
-              className="mt-2 p-3 border border-gray-300 rounded-lg font-outfit"
+              className="border border-gray-300 rounded-lg p-3.5 mb-4 bg-gray-50 text-base"
+              style={{ fontFamily: 'outfit' }}
               placeholder="Enter your email"
             />
             <TextInput
               value={contact}
               onChangeText={setcontact}
-              className="mt-2 p-3 border border-gray-300 rounded-lg font-outfit"
+              className="border border-gray-300 rounded-lg p-3.5 mb-4 bg-gray-50 text-base"
+              style={{ fontFamily: 'outfit' }}
               placeholder="Enter your contact"
               keyboardType='numeric'
             />
-            <TouchableOpacity onPress={handleConfirm} className="mt-5 bg-primary p-3 rounded-lg items-center">
-              <Text className="text-white font-outfit-bold text-base">Confirm</Text>
+            <TouchableOpacity onPress={handleConfirm} className="bg-red-500 p-4 rounded-lg mt-2">
+              <Text className="text-white text-base text-center" style={{ fontFamily: 'outfit-bold' }}>Confirm</Text>
             </TouchableOpacity>
           </View>
         </View>
