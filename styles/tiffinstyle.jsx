@@ -11,7 +11,7 @@ export const COLORS = {
   GRAY: 'gray',
 };
 
-export default styles = StyleSheet.create({
+const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: 'white',
@@ -386,5 +386,7 @@ activeQuickFilterText: {
       fontFamily: 'outfit',
 },
 });
+
+export default styles;
 
 

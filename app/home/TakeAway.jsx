@@ -13,6 +13,7 @@ import RadioButtonRN from 'radio-buttons-react-native'
 import Filterbox from '@/components/Filterbox';
 import LocationHeader from '@/components/HomeHeader';
 import { API_CONFIG } from '../../config/apiConfig';
+import styles from '../../styles/tiffinstyle';
 const Api_url = API_CONFIG.BACKEND_URL;
 export default function TakeAway() {
   // const { bookmarks, toggleBookmark, isBookmarked } = useBookmarkManager();
