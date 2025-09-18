@@ -749,7 +749,7 @@ const FetchRecentlyViewData = useCallback(async () => {
                     setIsModalVisible(true);
                   }
                 }}
-                style={{ marginTop: -5 }}
+className="-mt-1.5"
                 value={isVegOnly}
               />
 
@@ -780,16 +780,12 @@ const FetchRecentlyViewData = useCallback(async () => {
                       source={require('../../assets/images/error1.png')}
                     />
                   </View>
-                  <Text className="text-textprimary font-bold text-xl mt-1">Switch off Veg Mode?</Text>
-                  <Text className="text-textprimary font-normal text-base mt-2.5">You'll see all restaurants, including those</Text>
-                  <Text className="text-textprimary">serving non-veg dishes</Text>
-                  <Text style={{ color: "black", fontWeight: "bold", fontSize: 20, marginTop: 5, fontFamily: 'outfit-bold', }}>Switch off Veg Mode?</Text>
-                  <Text style={{ color: "black", fontWeight: "400", marginTop1: 10, fontSize: 15, marginTop: 10, fontFamily: 'outfit-medium', }}>You'll see all restaurants, including those</Text>
-                  <Text >serving non-veg dishes</Text>
+                  <Text className="text-textprimary font-outfit-bold text-xl mt-1">Switch off Veg Mode?</Text>
+                  <Text className="text-textprimary font-outfit-medium text-base mt-2.5">You'll see all restaurants, including those</Text>
+                  <Text className="text-textprimary font-outfit-medium">serving non-veg dishes</Text>
 
                   <TouchableOpacity onPress={() => setIsModalVisible(false)}>
-                    <Text className="text-red-500 text-base font-medium mt-5">Switch off</Text>
-                    <Text style={{ color: "red", fontSize: 15, fontWeight: "500", marginTop: 20, fontFamily: 'outfit-bold', }}>Switch off</Text>
+                    <Text className="text-red-500 text-base font-outfit-bold mt-5">Switch off</Text>
                   </TouchableOpacity>
 
                   <TouchableOpacity onPress={() => handleKeepUsing()} className="p-2.5 mx-2.5 bg-white rounded-lg mt-2.5 justify-center items-center">
@@ -824,7 +820,7 @@ const FetchRecentlyViewData = useCallback(async () => {
               />
             }
             ListEmptyComponent={
-              <View style={styles.emptyContainer}>
+              <View className="flex-1 justify-center items-center p-4">
                 {/* <Text style={styles.emptyText}>
               {isInitialLoading
                 ? 'Loading restaurants...'
@@ -854,7 +850,7 @@ const FetchRecentlyViewData = useCallback(async () => {
                         <Text className="text-textprimary font-outfit">{item.title}</Text>
                       </TouchableOpacity>
                     )}
-                    contentContainerStyle={{ flexGrow: 0, overflow: 'hidden' }}
+                    contentContainerStyle={{ flexGrow: 0 }}
                   />
                   {/*              
                   Collections
@@ -912,7 +908,7 @@ const FetchRecentlyViewData = useCallback(async () => {
                           keyExtractor={(item) => item._id}
                           horizontal={true}
                           showsHorizontalScrollIndicator={false}
-                          contentContainerStyle={styles.collectionContainer}
+                          contentContainerStyle={{ paddingHorizontal: 10 }}
                           renderItem={({ item }) => (
                             <TouchableOpacity
                               className="flex-1 m-1.5 rounded-2.5 overflow-hidden"

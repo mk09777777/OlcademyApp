@@ -420,7 +420,7 @@ const UploadRecentlyViewed = async () => {
           <View>
             <View className="flex-row items-center mt-6 mb-2.5 px-2.5">
               <View className="flex-1 h-px bg-red-500" />
-              <Text className="text-sm text-gray-700 mx-2 font-bold" style={{ fontFamily: 'outfit' }}>Photos</Text>
+              <Text className="text-sm text-gray-700 mx-2 font-outfit-bold">Photos</Text>
               <View className="flex-1 h-px bg-red-500" />
             </View>
             <FlatList
@@ -442,7 +442,7 @@ const UploadRecentlyViewed = async () => {
                     >
                       <Image source={{ uri: firmDetails.restaurantInfo.image_urls[firmDetails.restaurantInfo.image_urls.length - 1] }} className="w-full h-25 rounded-lg ml-2.5 mt-1" style={{ width: '30%' }} />
                       <View className="absolute inset-0 bg-black/50 justify-center items-center rounded-lg">
-                        <Text className="text-white text-base" style={{ fontFamily: 'outfit-bold' }}>
+                        <Text className="text-white text-base font-outfit-bold">
                           +{firmDetails.restaurantInfo.image_urls.length - 5} More
                         </Text>
                       </View>
@@ -459,7 +459,7 @@ const UploadRecentlyViewed = async () => {
         <View>
           <View className="flex-row items-center mt-6 mb-2.5 px-2.5">
             <View className="flex-1 h-px bg-red-500" />
-            <Text className="text-sm text-gray-700 mx-2 font-bold" style={{ fontFamily: 'outfit' }}>Reviews</Text>
+            <Text className="text-sm text-gray-700 mx-2 font-outfit-bold">Reviews</Text>
             <View className="flex-1 h-px bg-red-500" />
           </View>
           <FlatList
@@ -520,7 +520,7 @@ const UploadRecentlyViewed = async () => {
               />
               <LinearGradient
                 colors={['transparent', 'rgba(0, 0, 0, 0.8)']}
-                style={styles.gradientOverlay}
+                className="absolute inset-0"
                 start={{ x: 0.5, y: 0.5 }}
                 end={{ x: 0.5, y: 1 }}
               />
@@ -535,22 +535,22 @@ const UploadRecentlyViewed = async () => {
                   colors={["#18181800", "#18181866", "#181818CC"]}
                   start={{ x: 0, y: 0 }}
                   end={{ x: 0, y: 1 }}
-                  style={{ flexDirection: "row", width: "100%", justifyContent: "space-between" }}
+                  className="flex-row w-full justify-between"
                 >
-                  <View style={{ padding: 10 }}>
+                  <View className="p-2.5">
                     <View>
-                      <Text className="text-3xl text-white" style={{ fontFamily: 'outfit-bold' }}>
+                      <Text className="text-3xl text-white font-outfit-bold">
                         {firmDetails?.restaurantInfo?.name || "Restaurant"}
                       </Text>
-                      <Text className="text-base text-gray-200 mt-1" style={{ fontFamily: 'outfit', width: 250, textShadowColor: 'rgba(0, 0, 0, 0.63)', textShadowOffset: { width: 1, height: 1 }, textShadowRadius: 2 }}>
+                      <Text className="text-base text-gray-200 mt-1 font-outfit" style={{ width: 250, textShadowColor: 'rgba(0, 0, 0, 0.63)', textShadowOffset: { width: 1, height: 1 }, textShadowRadius: 2 }}>
                         {firmDetails?.restaurantInfo?.address || ""}
                       </Text>
-                      <Text className="text-lg text-white" style={{ fontFamily: 'outfit', width: 250 }}>
+                      <Text className="text-lg text-white font-outfit" style={{ width: 250 }}>
                         {Array.isArray(firmDetails?.restaurantInfo?.cuisines)
                           ? firmDetails.restaurantInfo.cuisines.join(' • ')
                           : firmDetails?.restaurantInfo?.cuisines || 'Italian • Dessert'}
                       </Text>
-                      <Text className="text-base text-white" style={{ fontFamily: 'outfit' }}>
+                      <Text className="text-base text-white font-outfit">
                         {firmDetails?.restaurantInfo?.priceRange || '₹1010 for Two'}
                       </Text>
                       <TouchableOpacity
@@ -561,8 +561,8 @@ const UploadRecentlyViewed = async () => {
                         <View className="bg-white rounded-full mr-2.5">
                           <AntDesign name="checkcircle" size={18} color="#048520" />
                         </View>
-                        <Text className="text-white text-base" style={{ fontFamily: "outfit-medium" }}>Open From | </Text>
-                        <Text className="text-white text-base" style={{ fontFamily: 'outfit' }}>
+                        <Text className="text-white text-base font-outfit-medium">Open From | </Text>
+                        <Text className="text-white text-base font-outfit">
                           {Object.values(firmDetails?.opening_hours || {})[0] || 'Opening hrs 12:00 to 23:00'}
                         </Text>
                       </TouchableOpacity>
@@ -584,14 +584,14 @@ const UploadRecentlyViewed = async () => {
                   >
                     <View className="bg-green-600 p-2 rounded-t-lg">
                       <View className="flex-row items-center justify-center">
-                        <Text className="text-white text-base mr-2" style={{ fontFamily: 'outfit' }}>
+                        <Text className="text-white text-base mr-2 font-outfit">
                           {firmDetails?.restaurantInfo?.ratings?.overall?.toFixed(1) || '4.5'}
                         </Text>
                         <FontAwesome name='star' size={18} color='white' />
                       </View>
                     </View>
                     <View className="bg-white rounded-b-lg">
-                      <Text className="text-xs text-gray-800 text-center mt-1" style={{ fontFamily: 'outfit' }}>
+                      <Text className="text-xs text-gray-800 text-center mt-1 font-outfit">
                         {firmDetails?.restaurantInfo?.ratings?.totalReviews || '2179'}
                       </Text>
                       <Text className="text-xs text-gray-800 text-center" style={{ fontFamily: 'outfit' }}>Reviews</Text>
