@@ -8,7 +8,7 @@ export default function ReviewCard({ firmName, name, date, rating, review, detai
   return (
     <View className="bg-white rounded-lg p-4 mx-2 w-72 shadow-md border border-gray-200">
       <View className="flex-row items-center mb-3">
-        <MaterialCommunityIcons name='account' size={30} color='#e23845'/>
+        <MaterialCommunityIcons name='account' size={30} color='#02757A'/>
         <View className="flex-1 ml-3">
           <Text className="font-outfit-bold text-base text-textprimary">{name}</Text>
           <Text className="font-outfit text-sm text-textsecondary">{date}</Text>

@@ -11,7 +11,7 @@ export default function LocationHeader() {
    const {safeNavigation} = useSafeNavigation();
   return (
     <View className="flex-row items-center p-2.5">
-      <Ionicons name='location' size={24} color='#e23845' className="pt-1.5 pr-2" />
+      <Ionicons name='location' size={24} color='#02757A' className="pt-1.5 pr-2" />
       <TouchableOpacity
         className="flex-row items-center"
         onPress={() => safeNavigation('/screens//SelectLocation')}

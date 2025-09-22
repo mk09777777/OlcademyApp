@@ -693,7 +693,7 @@ const handleApplyFilterboxFilters = (filters) => {
     <View className="flex-1 bg-white p-4">
       {isInitialLoading ? (
         <View className="flex-1 justify-center items-center">
-          <ActivityIndicator size="large" color="#e23845" />
+          <ActivityIndicator size="large" color="#02757A" />
         </View>
       ) : (
         <>
@@ -703,12 +703,12 @@ const handleApplyFilterboxFilters = (filters) => {
               <TouchableOpacity
                 onPress={() => router.push('/screens/NoficationsPage')}
               >
-                <Ionicons name='notifications-circle-sharp' size={38} color='#e23845' style={{ marginRight: 10 }} />
+                <Ionicons name='notifications-circle-sharp' size={38} color='#02757A' style={{ marginRight: 10 }} />
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={() => router.push('/screens/User')}
               >
-                <Ionicons name='person-circle' size={40} color='#e23845' />
+                <Ionicons name='person-circle' size={40} color='#02757A' />
               </TouchableOpacity>
             </View>
           </View>
@@ -799,8 +799,8 @@ const handleApplyFilterboxFilters = (filters) => {
               <RefreshControl
                 refreshing={refreshing}
                 onRefresh={onRefresh}
-                colors={['#e23845']}
-                tintColor={'#e23845'}
+                colors={['#02757A']}
+                tintColor={'#02757A'}
               />
             }
             ListEmptyComponent={
@@ -969,14 +969,14 @@ const handleApplyFilterboxFilters = (filters) => {
                               <MaterialCommunityIcons
                                 name={item.icon}
                                 size={16}
-                                color={isSelected ? "white" : "#e23845"}
+                                color={isSelected ? "white" : "#02757A"}
                                 style={{ marginRight: 4 }}
                               />
                             ) : (
                               <MaterialIcons
                                 name={item.icon}
                                 size={16}
-                                color={isSelected ? "white" : "#e23845"}
+                                color={isSelected ? "white" : "#02757A"}
                                 style={{ marginRight: 4 }}
                               />
                             )}
@@ -1035,8 +1035,8 @@ const handleApplyFilterboxFilters = (filters) => {
             onEndReachedThreshold={0.5}
             ListFooterComponent={
               isLoadingMore ? (
-                <View className="flex-1 justify-center items-center">
-                  <ActivityIndicator size="large" color="#e23845" />
+                <View className="flex-1 justify-center mt-10 items-center">
+                  <ActivityIndicator size="large" color="#02757A" />
                 </View>
               ) : null
             }

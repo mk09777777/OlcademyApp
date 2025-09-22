@@ -217,11 +217,8 @@ const TakeAwayCart = () => {
 
   const fetchInitialSettings = async () => {
     try {
-      const response = await fetch('http://10.34.125.16:3000/api/getnotifications', {
-        method: 'GET',
-        credentials: 'include',
-      });
-      const settings = await response.json();
+      const response = await api.get('/api/getnotifications', { withCredentials: true });
+      const settings = response.data;
 
       setEnableAll(settings.enableAll);
       setPromosPush(settings.promoPush);
@@ -533,11 +530,11 @@ const TakeAwayCart = () => {
       }
 
       const response = await api.post('/api/create', orderData, { withCredentials: true });
-console.log(response)
+      console.log(response)
       if (response.data.success) {
-UploadNotifications(orderData)
+        UploadNotifications(orderData)
         await fetchCart();
-        
+
 
         router.push({
           pathname: '/screens/OrderSceess',
@@ -629,7 +626,7 @@ UploadNotifications(orderData)
   );
 
   const renderItem = ({ item }) => (
-    <View className="flex-row items-center p-4 bg-white border-b border-border">
+    <View className="flex-row items-center p-4 bg-white border-b rounded-lg border-border">
       <View className="flex-1">
         <Text className="text-textprimary font-outfit-bold text-base mb-1">{item.name}</Text>
         <Text className="text-textsecondary font-outfit text-sm">  Item Price:-  ${(item.price || 0).toFixed(2)}</Text>
@@ -638,14 +635,14 @@ UploadNotifications(orderData)
       <View className="flex-row items-center">
         <TouchableOpacity
           onPress={() => handleQuantityChange(item.productId || item._id || item.id, -1)}
-          className="w-8 h-8 bg-primary rounded items-center justify-center mr-2"
+          className="w-6 h-6 bg-primary rounded items-center justify-center mr-2"
         >
           <Text className="text-white font-outfit-bold">-</Text>
         </TouchableOpacity>
         <Text className="text-textprimary font-outfit-bold text-base mx-3">{item.quantity}</Text>
         <TouchableOpacity
           onPress={() => handleQuantityChange(item.productId || item._id || item.id, 1)}
-          className="w-8 h-8 bg-primary rounded items-center justify-center mr-2"
+          className="w-6 h-6 bg-primary rounded items-center justify-center mr-2"
         >
           <Text className="text-white font-outfit-bold">+</Text>
         </TouchableOpacity>
@@ -653,7 +650,7 @@ UploadNotifications(orderData)
           onPress={() => handleRemove(item.productId || item._id || item.id)}
           className="p-2"
         >
-          <MaterialIcons name='delete-outline' size={24} color={'red'} />
+          <MaterialIcons name='delete-outline' size={24} color={'#02757A'} />
         </TouchableOpacity>
       </View>
     </View>
@@ -728,9 +725,14 @@ UploadNotifications(orderData)
 
   return (
     <SafeAreaView className="flex-1 bg-background">
+      <View className="flex-row items-center justify-center w-full mt-5">
+        <TouchableOpacity onPress={() => router.back()} className="absolute left-4 bottom-4">
+          <Entypo name="chevron-left" size={24} color="black" />
+        </TouchableOpacity>
+        <Text className="text-textprimary text-xl font-outfit-bold mb-4">Your Cart</Text>
+      </View>
       <ScrollView contentContainerStyle={{ paddingBottom: 100 }}>
-        <View className="bg-white p-4 mb-4">
-          <Text className="text-textprimary text-xl font-outfit-bold mb-4">Your Cart</Text>
+        <View className="bg-white ml-5 mr-5 rounded-lg p-4 mb-4 shadow-sm shadow-black">
 
           {cartItems.length === 0 ? (
             <View className="items-center py-12">
@@ -750,42 +752,42 @@ UploadNotifications(orderData)
             />
           )}
         </View>
-
-        <View className="bg-white p-4 mb-4 rounded-lg">
-          <View className="mb-4">
-            <Text className="text-textprimary font-outfit-bold text-lg mb-3">Promotion</Text>
-            {!appliedOffer ? (
+        <View className="bg-white ml-5 mr-5 mb-4 shadow-sm shadow-black rounded-lg">
+          {!appliedOffer ? (
+            <View className="flex-row">
+              <TextInput
+                placeholder="Enter promo code"
+                value={manualPromoCode}
+                onChangeText={setManualPromoCode}
+                className="flex-1 border border-border rounded-l-lg p-3 text-textprimary font-outfit"
+              />
               <TouchableOpacity
-                className="border border-primary rounded-lg p-3"
-                onPress={() => setIsPromoOpen(true)}
+                className="bg-primary px-5 py-3 rounded-r-lg"
+                onPress={handleManualCodeApply}
               >
-                <Text className="text-primary font-outfit text-center">Add promo code</Text>
+                <Text className="text-white font-outfit-bold">Apply</Text>
               </TouchableOpacity>
-            ) : (
-              <View className="flex-row justify-between items-center bg-green-50 p-3 rounded-lg">
-                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                  <Text className="text-lg mr-2">🎉</Text>
-                  <Text className="text-green-700 font-outfit text-sm flex-1">
-                    You saved ${discount.toFixed(2)} with '{appliedOffer.code || appliedOffer.name}'
-                  </Text>
-                </View>
-                <TouchableOpacity
-                  onPress={() => setAppliedOffer(null)}
-                  className="w-6 h-6 bg-red-500 rounded-full items-center justify-center"
-                >
-                  <Text className="text-white font-outfit-bold">×</Text>
-                </TouchableOpacity>
+            </View>
+          ) : (
+            <View className="flex-row justify-between items-center bg-green-50 p-3 rounded-lg">
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <Text className="text-lg mr-2">🎉</Text>
+                <Text className="text-green-700 font-outfit text-sm flex-1">
+                  You saved ${discount.toFixed(2)} with '{appliedOffer.code || appliedOffer.name}'
+                </Text>
               </View>
-            )}
-            {appliedOffer && (
               <TouchableOpacity
-                className="mt-2"
-                onPress={() => setIsPromoOpen(true)}
+                onPress={() => setAppliedOffer(null)}
+                className="w-6 h-6 bg-red-500 rounded-full items-center justify-center"
               >
-                <Text className="text-primary font-outfit text-sm">View all coupons</Text>
+                <Text className="text-white font-outfit-bold">×</Text>
               </TouchableOpacity>
-            )}
-          </View>
+            </View>
+          )}
+        </View>
+
+        <View className="bg-white p-1 ml-5 mr-5 shadow-sm shadow-black mb-4 rounded-lg">
+     <Text className="text-textprimary font-outfit-bold text-lg ml-5 mt-3 mb-4">Delivery Details</Text>
           <View>
             {/* Tiffin-specific fields */}
             {isTiffinOrder && (
@@ -884,8 +886,8 @@ UploadNotifications(orderData)
 
             {/* Restaurant pickup details */}
             {!isTiffinOrder && (
-              <View className="p-4">
-              {/* Delivery/Pickup Time Section */}
+              <View className="">
+                {/* Delivery/Pickup Time Section */}
                 <Pressable onPress={() => setScheduleModalVisible(true)}>
                   <View className="flex-row items-center p-4">
                     <Feather name="clock" size={20} color="#333" />
@@ -916,13 +918,13 @@ UploadNotifications(orderData)
 
                 {/* Location Section */}
                 <View className="flex-row items-center p-4">
-                  <Feather name="map-pin" size={18} color="#333" className="mr-3" />
+                  <Feather name="map-pin" size={18} color="#333" className="mr-4" />
                   <View className="flex-1">
-                    <Text className="text-textprimary font-outfit-bold text-base">Pickup Location</Text>
-                    <Text className="text-textsecondary font-outfit text-sm">
+                    <Text className="text-textprimary font-outfit-bold text-base ml-3">Pickup Location</Text>
+                    <Text className="text-textsecondary font-outfit text-sm ml-3">
                       {taxDetails[0]?.name || 'Restaurant Name'}
                     </Text>
-                    <Text className="text-textsecondary font-outfit text-xs">
+                    <Text className="text-textsecondary font-outfit text-xs ml-3">
                       {taxDetails[0]?.address || '123 Main St, City, State'}
                     </Text>
                   </View>
@@ -932,7 +934,7 @@ UploadNotifications(orderData)
 
             {/* Total Bill */}
             <TouchableOpacity className="flex-row items-center p-4" onPress={() => setBillModalVisible(true)}>
-              <MaterialCommunityIcons name="receipt" size={18} color="#333" />
+        <MaterialIcons name="receipt" size={24} color="black" />
               <View className="flex-1 ml-3">
                 <View className="flex-row items-center">
                   {appliedOffer && (
