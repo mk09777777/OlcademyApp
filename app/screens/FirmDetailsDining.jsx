@@ -279,9 +279,9 @@ const UploadRecentlyViewed = async () => {
       return (
         <View>
           <View className="flex-row items-center mt-6 mb-2.5 px-2.5">
-            <View className="flex-1 h-px bg-red-500" />
+            <View className="flex-1 h-px bg-primary" />
             <Text className="text-sm text-gray-700 mx-2 font-bold" style={{ fontFamily: 'outfit' }}>OFFERS</Text>
-            <View className="flex-1 h-px bg-red-500" />
+            <View className="flex-1 h-px bg-primary" />
           </View>
           <FlatList
             data={offers}
@@ -300,9 +300,9 @@ const UploadRecentlyViewed = async () => {
       return (
         <View>
           <View className="flex-row items-center mt-6 mb-2.5 px-2.5">
-            <View className="flex-1 h-px bg-red-500" />
+            <View className="flex-1 h-px bg-primary" />
             <Text className="text-sm text-gray-700 mx-2 font-bold" style={{ fontFamily: 'outfit' }}>Photos</Text>
-            <View className="flex-1 h-px bg-red-500" />
+            <View className="flex-1 h-px bg-primary" />
           </View>
           <FlatList
             data={[...previewImages, 'last']}
@@ -321,14 +321,14 @@ const UploadRecentlyViewed = async () => {
                       }
                     })}
                   >
-                    <Image source={{ uri: previewImages[previewImages.length - 2] }} className="w-full h-25 rounded-lg ml-2.5 mt-1" style={{ width: '30%' }} />
+                    <Image source={{ uri: previewImages[previewImages.length - 2] }} className="rounded-lg" style={{ width: 100, height: 100 }} />
                     <View className="absolute inset-0 bg-black/50 justify-center items-center rounded-lg">
-                      <Text className="text-white text-base" style={{ fontFamily: 'outfit-bold' }}>+{totalImages - 6} More</Text>
+                      <Text className="text-white text-base font-outfit-bold">+{totalImages - 6} More</Text>
                     </View>
                   </TouchableOpacity>
                 )
               }
-              return <Image source={{ uri: item }} className="w-full h-25 rounded-lg ml-2.5 mt-1" style={{ width: '30%' }} />
+              return <Image source={{ uri: item }} className="rounded-lg m-1" style={{ width: 100, height: 100 }} />
             }}
             keyExtractor={(item, index) => index.toString()}
           />
@@ -340,9 +340,9 @@ const UploadRecentlyViewed = async () => {
       return (
         <View>
           <View className="flex-row items-center mt-6 mb-2.5 px-2.5">
-            <View className="flex-1 h-px bg-red-500" />
+            <View className="flex-1 h-px bg-primary" />
             <Text className="text-sm text-gray-700 mx-2 font-bold" style={{ fontFamily: 'outfit' }}>REVIEWS</Text>
-            <View className="flex-1 h-px bg-red-500" />
+            <View className="flex-1 h-px bg-primary" />
           </View>
           <FlatList
             data={firmDetails.reviews}
@@ -369,12 +369,12 @@ const UploadRecentlyViewed = async () => {
       return (
         <View>
           <View className="flex-row items-center mt-6 mb-2.5 px-2.5">
-            <View className="flex-1 h-px bg-red-500" />
+            <View className="flex-1 h-px bg-primary" />
             <Text className="text-sm text-gray-700 mx-2 font-bold" style={{ fontFamily: 'outfit' }}>MENU</Text>
-            <View className="flex-1 h-px bg-red-500" />
+            <View className="flex-1 h-px bg-primary" />
           </View>
           <View className="mt-2.5 mx-5 rounded-2xl flex">
-            <Image className="w-25 rounded-lg" style={{ aspectRatio: 9/12 }} source={require("../../assets/images/menu.jpeg")} />
+            <Image className="rounded-lg" style={{ width: 70, height: 50 }} source={require("../../assets/images/menu.jpeg")} />
           </View>
         </View>
       )
@@ -384,9 +384,9 @@ const UploadRecentlyViewed = async () => {
       <View>
         <View>
           <View className="flex-row items-center mt-6 mb-2.5 px-2.5">
-            <View className="flex-1 h-px bg-red-500" />
+            <View className="flex-1 h-px bg-primary" />
             <Text className="text-sm text-gray-700 mx-2 font-bold" style={{ fontFamily: 'outfit' }}>Menu</Text>
-            <View className="flex-1 h-px bg-red-500" />
+            <View className="flex-1 h-px bg-primary" />
           </View>
           <TouchableOpacity
             className="mt-2.5 mx-5 rounded-2xl flex"
@@ -399,13 +399,13 @@ const UploadRecentlyViewed = async () => {
               }
             })}
           >
-            <Image className="w-25 rounded-lg" style={{ aspectRatio: 9/12 }} source={require("../../assets/images/menu.jpeg")} />
+            <Image className="rounded-lg" style={{ width: 90, height: 110 }} source={require("../../assets/images/menu.jpeg")} />
           </TouchableOpacity>
 
           <View className="flex-row items-center mt-6 mb-2.5 px-2.5">
-            <View className="flex-1 h-px bg-red-500" />
+            <View className="flex-1 h-px bg-primary" />
             <Text className="text-sm text-gray-700 mx-2 font-bold" style={{ fontFamily: 'outfit' }}>Offers</Text>
-            <View className="flex-1 h-px bg-red-500" />
+            <View className="flex-1 h-px bg-primary" />
           </View>
           <FlatList
             data={offers}
@@ -419,48 +419,50 @@ const UploadRecentlyViewed = async () => {
         {firmDetails?.restaurantInfo?.image_urls?.length > 0 && (
           <View>
             <View className="flex-row items-center mt-6 mb-2.5 px-2.5">
-              <View className="flex-1 h-px bg-red-500" />
+              <View className="flex-1 h-px bg-primary" />
               <Text className="text-sm text-gray-700 mx-2 font-outfit-bold">Photos</Text>
-              <View className="flex-1 h-px bg-red-500" />
+              <View className="flex-1 h-px bg-primary" />
             </View>
-            <FlatList
-              data={[...firmDetails.restaurantInfo.image_urls.slice(0, 5), 'last']}
-              numColumns={3}
-              renderItem={({ item, index }) => {
-                if (item === 'last') {
-                  return (
-                    <TouchableOpacity
-                      className="relative w-1/3 m-1"
-                      onPress={() => router.navigate({
-                        pathname: 'screens/PhotoGallery',
-                        params: {
-                          image_urls: JSON.stringify(firmDetails.restaurantInfo.image_urls),
-                          firmName: firmDetails?.restaurantInfo?.name || "Restaurant",
-                          price: firmDetails?.restaurantInfo?.priceRange || '₹1010 for Two'
-                        }
-                      })}
-                    >
-                      <Image source={{ uri: firmDetails.restaurantInfo.image_urls[firmDetails.restaurantInfo.image_urls.length - 1] }} className="w-full h-25 rounded-lg ml-2.5 mt-1" style={{ width: '30%' }} />
-                      <View className="absolute inset-0 bg-black/50 justify-center items-center rounded-lg">
-                        <Text className="text-white text-base font-outfit-bold">
-                          +{firmDetails.restaurantInfo.image_urls.length - 5} More
-                        </Text>
-                      </View>
-                    </TouchableOpacity>
-                  )
-                }
-                return <Image source={{ uri: item }} className="w-full h-25 rounded-lg ml-2.5 mt-1" style={{ width: '30%' }} />
-              }}
-              keyExtractor={(item, index) => index.toString()}
-            />
+            <View className="items-center">
+              <FlatList
+                data={[...firmDetails.restaurantInfo.image_urls.slice(0, 5), 'last']}
+                numColumns={3}
+                renderItem={({ item, index }) => {
+                  if (item === 'last') {
+                    return (
+                      <TouchableOpacity
+                        className="relative m-1"
+                        onPress={() => router.navigate({
+                          pathname: 'screens/PhotoGallery',
+                          params: {
+                            image_urls: JSON.stringify(firmDetails.restaurantInfo.image_urls),
+                            firmName: firmDetails?.restaurantInfo?.name || "Restaurant",
+                            price: firmDetails?.restaurantInfo?.priceRange || '₹1010 for Two'
+                          }
+                        })}
+                      >
+                        <Image source={{ uri: firmDetails.restaurantInfo.image_urls[firmDetails.restaurantInfo.image_urls.length - 1] }} className="rounded-lg justifiy-center items-center" style={{ width: 100, height: 100 }} />
+                        <View className="absolute inset-0 bg-black/50 justify-center items-center rounded-lg">
+                          <Text className="text-white text-sm font-outfit-bold">
+                            +{firmDetails.restaurantInfo.image_urls.length - 5} More
+                          </Text>
+                        </View>
+                      </TouchableOpacity>
+                    )
+                  }
+                  return <Image source={{ uri: item }} className="rounded-lg m-1" style={{ width: 100, height: 100 }} />
+                }}
+                keyExtractor={(item, index) => index.toString()}
+              />
+            </View>
           </View>
         )}
 
         <View>
           <View className="flex-row items-center mt-6 mb-2.5 px-2.5">
-            <View className="flex-1 h-px bg-red-500" />
+            <View className="flex-1 h-px bg-primary" />
             <Text className="text-sm text-gray-700 mx-2 font-outfit-bold">Reviews</Text>
-            <View className="flex-1 h-px bg-red-500" />
+            <View className="flex-1 h-px bg-primary" />
           </View>
           <FlatList
             data={firmDetails?.reviews || []}
@@ -486,8 +488,8 @@ const UploadRecentlyViewed = async () => {
 
   if (loading) {
     return (
-      <SafeAreaView className="flex-1 justify-center items-center bg-background">
-        <ActivityIndicator size="large" color="#FF002E" />
+      <SafeAreaView className="flex-1 justify-center items-center bg-[#f0fafaff]">
+        <ActivityIndicator size="large" color="#02757A" />
         <Text className="text-textsecondary font-outfit mt-4">Loading service details...</Text>
       </SafeAreaView>
     )
@@ -530,16 +532,16 @@ const UploadRecentlyViewed = async () => {
                 </TouchableOpacity>
                 <View></View>
               </View>
-              <View className="absolute bottom-2.5 left-0 right-0 flex-row justify-between items-center">
+              <View className="absolute bottom-0 left-0 right-0 h-[60%] flex-row justify-between items-center">
                 <LinearGradient
                   colors={["#18181800", "#18181866", "#181818CC"]}
                   start={{ x: 0, y: 0 }}
                   end={{ x: 0, y: 1 }}
-                  className="flex-row w-full justify-between"
+                  className="flex-row w-full justify-between mr-10"
                 >
-                  <View className="p-2.5">
+                  <View className="w-[80%] p-1">
                     <View>
-                      <Text className="text-3xl text-white font-outfit-bold">
+                      <Text className="text-xl text-white font-outfit-bold">
                         {firmDetails?.restaurantInfo?.name || "Restaurant"}
                       </Text>
                       <Text className="text-base text-gray-200 mt-1 font-outfit" style={{ width: 250, textShadowColor: 'rgba(0, 0, 0, 0.63)', textShadowOffset: { width: 1, height: 1 }, textShadowRadius: 2 }}>
@@ -558,8 +560,8 @@ const UploadRecentlyViewed = async () => {
                         style={{ backgroundColor: "rgba(0, 0, 0, 0.71)" }}
                         onPress={() => setOpeningHrsVisible(true)}
                       >
-                        <View className="bg-white rounded-full mr-2.5">
-                          <AntDesign name="checkcircle" size={18} color="#048520" />
+                        <View className="bg-white rounded-full mr-2.5 w-5 h-5 justify-center items-center">
+                          <AntDesign name="check-circle" size={18} color="#048520" />
                         </View>
                         <Text className="text-white text-base font-outfit-medium">Open From | </Text>
                         <Text className="text-white text-base font-outfit">
@@ -605,10 +607,10 @@ const UploadRecentlyViewed = async () => {
                 <Text className="text-white text-center font-outfit-bold">Book a table</Text>
               </TouchableOpacity>
               <TouchableOpacity className="p-3 border border-primary rounded-lg mr-2" onPress={() => Linking.openURL(`https://www.google.com/maps/search/?api=1&query=${firmDetails?.restaurantInfo?.name || "Restaurant"}`)}>
-                <FontAwesome5 name='directions' size={22} color='#FF002E' />
+                <FontAwesome5 name='directions' size={22} color='#02757A' />
               </TouchableOpacity>
               <TouchableOpacity className="p-3 border border-primary rounded-lg" onPress={() => makeCall(firmDetails?.restaurantInfo?.phoneNo || '0123456789')}>
-                <MaterialIcons name="call" size={22} color="#FF002E" />
+                <MaterialIcons name="call" size={22} color="#02757A" />
               </TouchableOpacity>
             </View>
             <View className="mx-5 rounded-3xl p-1 bg-gray-50 flex-row mt-12 justify-between border border-gray-300">
@@ -630,9 +632,9 @@ const UploadRecentlyViewed = async () => {
             </View>
             {renderContent()}
             <View className="flex-row items-center mt-6 mb-2.5 px-2.5">
-              <View className="flex-1 h-px bg-red-500" />
-              <Text className="text-sm text-gray-700 mx-2 font-bold" style={{ fontFamily: 'outfit' }}>About restaurants</Text>
-              <View className="flex-1 h-px bg-red-500" />
+              <View className="flex-1 h-px bg-primary" />
+              <Text className="text-sm text-gray-700 mx-2 font-bold" style={{ fontFamily: 'outfit' }}>About</Text>
+              <View className="flex-1 h-px bg-primary" />
             </View>
             <View style={{ padding: 20 }}>
               <View style={{
@@ -651,13 +653,13 @@ const UploadRecentlyViewed = async () => {
                   })()}
                 </Text>
                 <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12, marginTop: 20 }}>
-                  <FontAwesome5 name="rupee-sign" size={16} color="#E03A48" />
+                  <FontAwesome5 name="rupee-sign" size={16} color="#02757A" />
                   <Text style={{ fontSize: 12, marginLeft: 10, color: '#444444' }}>
                     {firmDetails?.restaurantInfo?.priceRange || '₹1010 for Two'}
                   </Text>
                 </View>
                 <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
-                  <MaterialIcons name="restaurant" size={16} color="#FF6B6B" />
+                  <MaterialIcons name="restaurant" size={16} color="#02757A" />
                   <Text style={{ fontSize: 12, marginLeft: 10, color: '' }}>
                     {Array.isArray(firmDetails?.restaurantInfo?.cuisines)
                       ? firmDetails.restaurantInfo.cuisines.join(', ')
@@ -665,7 +667,7 @@ const UploadRecentlyViewed = async () => {
                   </Text>
                 </View>
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                  <MaterialIcons name="access-time" size={16} color="#E03A48" />
+                  <MaterialIcons name="access-time" size={16} color="#02757A" />
                   <Text style={{ fontSize: 12, marginLeft: 10, color: '#444444' }}>
                     {firmDetails?.restaurantInfo?.timings || '11:00 AM - 11:00 PM'}
                   </Text>
@@ -682,8 +684,8 @@ const UploadRecentlyViewed = async () => {
                 <Text style={{ fontSize: 14, fontWeight: 600, color: '#444444', marginBottom: 12 }}>Facilities</Text>
                 <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
                   {firmDetails?.features?.map((item, index) => (
-                    <View key={index} style={{ flexDirection: 'row', alignItems: 'center', width: '50%', marginBottom: 10, paddingRight: 10 }}>
-                      <AntDesign name="checkcircle" size={16} color="#048520" style={{ marginRight: 12 }} />
+                    <View key={index} style={{ flexDirection: 'row', alignItems: 'center', width: '50%', marginBottom: 10, paddingRight: 34 }}>
+                      <AntDesign name="check-circle" size={16} color="#048520" style={{ marginRight: 12 }} />
                       <Text style={{ fontSize: 12, color: '#444444' }}>{item}</Text>
                     </View>
                   ))}
@@ -692,9 +694,9 @@ const UploadRecentlyViewed = async () => {
               {similar ? (
                 <View className="mb-5">
                   <View className="flex-row items-center mt-6 mb-2.5 px-2.5">
-                    <View className="flex-1 h-px bg-red-500" />
+                    <View className="flex-1 h-px bg-primary" />
                     <Text className="text-sm text-gray-700 mx-2 font-bold" style={{ fontFamily: 'outfit' }}>Explore other restaurants</Text>
-                    <View className="flex-1 h-px bg-red-500" />
+                    <View className="flex-1 h-px bg-primary" />
                   </View>
                   <FlatList
                     data={similar}
@@ -706,7 +708,7 @@ const UploadRecentlyViewed = async () => {
                       <MiniRecommendedCard
                         name={item.restaurant_name}
                         address={item.address}
-                        image={item?.image_url}
+                        image={item.image_url}
                         rating={item.rating}
                         onPress={() => safeNavigation({ pathname: '/screens/FirmDetailsDining', params: { firmId: item.id } })}
                       />
@@ -776,7 +778,7 @@ const UploadRecentlyViewed = async () => {
                 </View>
               )}
             />
-            <TouchableOpacity className="mt-2.5 p-2 bg-red-500 rounded-lg" onPress={() => setOpeningHrsVisible(false)}>
+            <TouchableOpacity className="mt-2.5 p-2 bg-primary rounded-lg" onPress={() => setOpeningHrsVisible(false)}>
               <Text className="text-white text-center text-base" style={{ fontFamily: 'outfit-medium' }}>Close</Text>
             </TouchableOpacity>
           </View>

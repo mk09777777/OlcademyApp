@@ -87,7 +87,7 @@ const DiningCard = ({ firmId,
   };
 
   return (
-    <TouchableOpacity className="bg-white rounded-3xl overflow-hidden mb-4 shadow-lg border border-gray-200" onPress={onPress}>
+    <TouchableOpacity className="bg-white rounded-3xl overflow-hidden mb-4 shadow-md shadow-black border border-gray-200" onPress={onPress}>
       <View style={{ height: 150 }}>
         <ImageGallery
           images={displayImages.slice(0, 4)}
@@ -128,7 +128,7 @@ const DiningCard = ({ firmId,
         <MaterialIcons
           name={isFavorited ? "bookmark" : "bookmark-border"}
           size={32}
-          color={isFavorited ? "#e23845" : "white"}
+          color={isFavorited ? "#02757A" : "white"}
         />
       </TouchableOpacity>
 

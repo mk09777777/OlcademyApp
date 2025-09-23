@@ -13,18 +13,12 @@ const MiniRecommendedCard = ({ name, address, image, rating, onPress }) => {
 
   return (
     <TouchableOpacity activeOpacity={0.8} onPress={onPress} className="mb-2.5">
-      <View className="mx-1.5 bg-white rounded-[19px] overflow-hidden w-40 mb-0.5" style={{
-        shadowColor: '#b2babb',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-        elevation: 3,
-      }}>
+      <View className="mx-1.5 bg-white rounded-[19px] overflow-hidden w-40 mb-0.5 shadow-md shadow-black" >
         <View className="relative h-[120px]">
           <ImageBackground
             source={
-              image?.[0]
-                ? { uri: image[0] }
+              image
+                ? { uri: Array.isArray(image) ? image[0] : image }
                 : require('../assets/images/biryani.png')
             }
             className="w-full h-full"

@@ -46,7 +46,7 @@ export default function TabLayout() {
             <Text style={{ 
               fontFamily: focused ? 'outfit-bold' : 'outfit',
               fontWeight: '500',
-              color: focused ? '#e23845' : 'gray',
+              color: focused ? '#02757A' : 'gray',
               fontSize: fontSize,
               lineHeight: fontSize,
               marginTop: 2,
@@ -58,7 +58,7 @@ export default function TabLayout() {
             <Ionicons 
               name="fast-food-sharp" 
               size={iconSize} 
-              color={focused ? '#e23845' : 'grey'} 
+              color={focused ? '#02757A' : 'grey'} 
             />
           ),
         }}
@@ -72,7 +72,7 @@ export default function TabLayout() {
             <Text style={{ 
               fontFamily: focused ? 'outfit-bold' : 'outfit',
               fontWeight: '500',
-              color: focused ? '#e23845' : 'gray',
+              color: focused ? '#02757A' : 'gray',
               fontSize: fontSize,
               lineHeight: fontSize,
               marginTop: 2,
@@ -84,7 +84,7 @@ export default function TabLayout() {
             <MaterialIcons 
               name="restaurant-menu" 
               size={iconSize} 
-              color={focused ? '#e23845' : 'grey'} 
+              color={focused ? '#02757A' : 'grey'} 
             />
           ),
         }}
@@ -98,7 +98,7 @@ export default function TabLayout() {
             <Text style={{ 
               fontFamily: focused ? 'outfit-bold' : 'outfit',
               fontWeight: '500',
-              color: focused ? '#e23845' : 'gray',
+              color: focused ? '#02757A' : 'gray',
               fontSize: fontSize,
               lineHeight: fontSize,
               marginTop: 2,
@@ -110,7 +110,7 @@ export default function TabLayout() {
             <MaterialCommunityIcons 
               name="food-takeout-box-outline" 
               size={iconSize} 
-              color={focused ? '#e23845' : 'grey'} 
+              color={focused ? '#02757A' : 'grey'} 
             />
           ),
         }}
@@ -124,7 +124,7 @@ export default function TabLayout() {
             <Text style={{ 
               fontFamily: focused ? 'outfit-bold' : 'outfit',
               fontWeight: '500',
-              color: focused ? '#e23845' : 'gray',
+              color: focused ? '#02757A' : 'gray',
               fontSize: fontSize,
               lineHeight: fontSize,
               marginTop: 2,
@@ -136,7 +136,7 @@ export default function TabLayout() {
             <MaterialIcons 
               name="live-tv" 
               size={iconSize} 
-              color={focused ? '#e23845' : 'grey'} 
+              color={focused ? '#02757A' : 'grey'} 
             />
           ),
         }}

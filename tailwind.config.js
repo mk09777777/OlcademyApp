@@ -4,13 +4,13 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        primary: '#FF002E',
-        light: '#FEF2F2',
-        background: '#FEF2F2',
+        primary: '#02757A',
+        light: '#d9e9e9ff',
+        background: '#E6F1F2',
         textprimary: '#222222',
         textsecondary: '#333333',
-        smalltext: '#333333',
-        success: '#333333',
+        smalltext: '#666666',
+        success: '#048520',
         border: '#D9D9D9',
       },
       fontFamily: {

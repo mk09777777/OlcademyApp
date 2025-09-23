@@ -1,9 +1,9 @@
-import { View, Text, TouchableOpacity, FlatList, Image, Modal, ActivityIndicator, Alert, ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, FlatList, Image, Modal, ActivityIndicator, Alert, ScrollView, SafeAreaView } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import React, { useEffect, useState } from 'react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import axios from 'axios';
-import { AntDesign, FontAwesome, FontAwesome5, Ionicons, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
+import { AntDesign, FontAwesome, FontAwesome5, Ionicons, MaterialCommunityIcons, MaterialIcons, Feather } from '@expo/vector-icons';
 import { useCart } from '@/context/CartContext';
 import ImageGallery from '@/components/ImageGallery';
 import OffersCard from '@/components/OffersCard';
@@ -12,6 +12,19 @@ import OffersCard from '@/components/OffersCard';
 import { API_CONFIG } from '../../config/apiConfig';
 const API_BASE_URL = API_CONFIG.BACKEND_URL;
 const API_URL = API_CONFIG.BACKEND_URL;
+
+const filtersData = {
+  "Dietary": [
+    { id: 1, label: "Vegetarian", icon: "leaf", selected: false },
+    { id: 2, label: "Vegan", icon: "leaf-outline", selected: false },
+    { id: 3, label: "Gluten Free", icon: "nutrition-outline", selected: false },
+  ],
+  "Cuisine": [
+    { id: 4, label: "Italian", icon: "pizza-outline", selected: false },
+    { id: 5, label: "Indian", icon: "restaurant-outline", selected: false },
+    { id: 6, label: "Chinese", icon: "fast-food-outline", selected: false },
+  ],
+};
 // Commented out filtersData as it's not being used
 // const filtersData = {
 //   "Dietary": [
@@ -58,11 +71,11 @@ export default function FirmDetailsTakeAway() {
 
   // Commented out filters array as it's not being used
   //const filters = [
-    //{ name: "Filter", icon: "filter" },
-    //{ name: "Veg", icon: "leaf" },
-    //{ name: "Non-veg", icon: "nutrition" },
-    //{ name: "Spicy", icon: "flame" },
-    //{ name: "Popular", icon: "trending-up" }
+  //{ name: "Filter", icon: "filter" },
+  //{ name: "Veg", icon: "leaf" },
+  //{ name: "Non-veg", icon: "nutrition" },
+  //{ name: "Spicy", icon: "flame" },
+  //{ name: "Popular", icon: "trending-up" }
   //];
 
 
@@ -213,150 +226,158 @@ export default function FirmDetailsTakeAway() {
     setCollapsed((prev) => ({ ...prev, [category]: !prev[category] }));
   };
 
-  // Commented out filter-related states and functions
-  //const [filter, setFilter] = useState(filtersData);
-  //const [selectedFilter, setSelectedFilter] = useState([]);
-  //const [addError, setAddError] = useState(null);
+  const [filter, setFilter] = useState(filtersData);
+  const [selectedFilter, setSelectedFilter] = useState([]);
+  const [addError, setAddError] = useState(null);
 
   //const toggleFilter = (category, filterId) => {
-    //setFilter((prevFilters) => ({
-      //...prevFilters,
-      //[category]: prevFilters[category].map((filter) =>
-        //filter.id === filterId ? { ...filter, selected: !filter.selected } : filter
-      //),
-    //}));
+  //setFilter((prevFilters) => ({
+  //...prevFilters,
+  //[category]: prevFilters[category].map((filter) =>
+  //filter.id === filterId ? { ...filter, selected: !filter.selected } : filter
+  //),
+  //}));
   //};
 
   //const clearFilters = () => {
-    //setFilter((prevFilters) =>
-      //Object.keys(prevFilters).reduce((acc, category) => {
-        //acc[category] = prevFilters[category].map((filter) => ({
-          //...filter,
-          //selected: false,
-        //}));
-        //return acc;
-      //}, {})
-    //);
+  //setFilter((prevFilters) =>
+  //Object.keys(prevFilters).reduce((acc, category) => {
+  //acc[category] = prevFilters[category].map((filter) => ({
+  //...filter,
+  //selected: false,
+  //}));
+  //return acc;
+  //}, {})
+  //);
   //};
 
   // Commented out handleFilterPress function
   //const handleFilterPress = (filterName) => {
-    //if (filterName === 'Filter') {
-      //setFilterVisible(true);
-    //} else {
-      //setSelectedFilter((prevFilters) =>
-        //prevFilters.includes(filterName)
-          //? prevFilters.filter((filter) => filter !== filterName)
-          //: [...prevFilters, filterName]
-      //);
-    //}
+  //if (filterName === 'Filter') {
+  //setFilterVisible(true);
+  //} else {
+  //setSelectedFilter((prevFilters) =>
+  //prevFilters.includes(filterName)
+  //? prevFilters.filter((filter) => filter !== filterName)
+  //: [...prevFilters, filterName]
+  //);
+  //}
   //};
 
   // Commented out selectedCount as it's not being used
   //const selectedCount = Object.values(filter).flat().filter((f) => f.selected).length;
 
-const renderItem = ({ item }) => {
-  const cartItems = getCartItems();
-  const cartItem = cartItems.find(cartItem =>
-    cartItem.productId === (item._id || item.id)
-  );
-  const quantity = cartItem?.quantity || 0;
+  const renderItem = ({ item }) => {
+    const cartItems = getCartItems();
+    const cartItem = cartItems.find(cartItem =>
+      cartItem.productId === (item._id || item.id)
+    );
+    const quantity = cartItem?.quantity || 0;
 
-  const handleAdd = async () => {
-    try {
-      const priceValue = item?.price
-        ? (typeof item.price === 'string'
-          ? parseFloat(item.price.replace(/[^0-9.]/g, ''))
-          : item.price)
-        : 8;
+    const handleAdd = async () => {
+      try {
+        setAddError(null);
+        const priceValue = item?.price
+          ? (typeof item.price === 'string'
+            ? parseFloat(item.price.replace(/[^0-9.]/g, ''))
+            : item.price)
+          : 8;
 
-      const cartItem = {
-        itemToAdd: {
-          productId: item?._id || item?.id,
-          name: item?.productName || item?.name || 'Unknown Item',
-          description: item?.description || '',
-          price: priceValue,
-          quantity: 1,
-          img: item?.image_urls?.[0] || require('@/assets/images/food_placeholder.jpg'),
-          foodType: item?.foodType || "veg",
-          sourceEntityId: firmId,
-          itemType: "firm",
-          sourceEntityName: "Firm",
-          productModelType: "Firm",
-        }
-      };
+        const cartItem = {
+          itemToAdd: {
+            subcategoryId: null,
+            categoryId: "507f1f77bcf86cd799439011",
+            productId: item?._id || item?.id,
+            name: item?.productName || item?.name || 'Unknown Item',
+            description: item?.description || '',
+            price: 8,
+            quantity: 1,
+            img: item?.image_urls?.[0] || require('@/assets/images/food_placeholder.jpg'),
+            foodType: item?.foodType || "veg",
+            sourceEntityId: firmId,
+            itemType: "firm",
+            sourceEntityName: "Firm",
+            productModelType: "Firm",
+          }
+        };
 
-      await addToCart(cartItem);
-    } catch (error) {
-      console.error('Add to cart error:', error);
-    }
-  };
+        await addToCart(cartItem);
+      } catch (error) {
+        setAddError('Failed to add item. Please try again.');
+        console.error('Add to cart error:', error);
+      }
+    };
 
-  const handleIncrement = () => {
-    const itemId = item._id || item.id;
-    if (itemId) handleQuantityChange(itemId, 1);
-  };
+    const handleIncrement = () => {
+      const itemId = item._id || item.id;
+      if (itemId) {
+        handleQuantityChange(itemId, 1);
+      }
+    };
 
-  const handleDecrement = () => {
-    const itemId = item._id || item.id;
-    if (itemId) handleQuantityChange(itemId, -1);
-  };
+    const handleDecrement = () => {
+      const itemId = item._id || item.id;
+      if (itemId) {
+        handleQuantityChange(itemId, -1);
+      }
+    };
 
-  return (
-    <View className="flex-row p-4 bg-white mb-2 rounded-lg shadow-sm">
-      {/* Left side: Image */}
-      <View className="w-20 h-20 mr-4">
-        <Image
-          source={item?.image_urls?.[0]
-            ? { uri: item.image_urls[0] }
-            : require('@/assets/images/food_placeholder.jpg')}
-          className="w-full h-full rounded-lg"
-        />
+    return (
+      <View className="flex-row p-4 bg-white mb-1 ml-3 mr-3 rounded-lg shadow-sm">
+        {/* Left side: Image */}
+        <View className="w-32 h-40 mr-4">
+          <Image
+            source={item?.image_urls?.[0]
+              ? { uri: item.image_urls[0] }
+              : require('@/assets/images/food_placeholder.jpg')}
+            className="w-full h-full rounded-lg"
+          />
+        </View>
+
+        {/* Right side: Details */}
+        <View className="flex-1">
+          <Text className="text-textprimary font-outfit-bold text-base mb-1">{item?.productName || item?.name || 'Unnamed Item'}</Text>
+          <Text className="text-textprimary font-outfit-bold text-md mb-1">{item?.price || 'Price not available'}</Text>
+          <Text className="text-textsecondary font-outfit text-sm mb-2">{item?.description || ''}</Text>
+
+          {item.variations?.length > 0 && (
+            <View className="mb-2">
+              {item.variations.map((variation, index) => (
+                <Text key={index} className="text-textsecondary font-outfit text-xs">
+                  {variation.name}: {variation.price}
+                </Text>
+              ))}
+            </View>
+          )}
+
+          {/* ADD / Quantity Controls at bottom */}
+          {quantity > 0 ? (
+            <View className="bg-light border-primary flex-row border-2 rounded-lg justify-center items-center">
+              <TouchableOpacity onPress={handleDecrement}>
+                <Text className="text-primary font-outfit-bold text-lg px-3 py-1">-</Text>
+              </TouchableOpacity>
+              <Text className="text-primary font-outfit-bold text-base px-3">{quantity}</Text>
+              <TouchableOpacity onPress={handleIncrement}>
+                <Text className="text-primary font-outfit-bold text-lg px-3 py-1">+</Text>
+              </TouchableOpacity>
+            </View>
+          ) : (
+            <TouchableOpacity className="bg-light border-primary border-2 px-4 py-2 rounded-lg items-center" onPress={handleAdd} activeOpacity={1.0}>
+              <Text className="text-primary font-outfit-bold text-sm">ADD</Text>
+            </TouchableOpacity>
+          )}
+        </View>
       </View>
-
-      {/* Right side: Details */}
-      <View className="flex-1">
-        <Text className="text-textprimary font-outfit-bold text-base mb-1">{item?.productName || item?.name || 'Unnamed Item'}</Text>
-        <Text className="text-primary font-outfit-bold text-lg mb-1">{item?.price || 'Price not available'}</Text>
-        <Text className="text-textsecondary font-outfit text-sm mb-2">{item?.description || ''}</Text>
-
-        {item.variations?.length > 0 && (
-          <View className="mb-2">
-            {item.variations.map((variation, index) => (
-              <Text key={index} className="text-textsecondary font-outfit text-xs">
-                {variation.name}: {variation.price}
-              </Text>
-            ))}
-          </View>
-        )}
-
-        {/* ADD / Quantity Controls at bottom */}
-        {quantity > 0 ? (
-  <View className="flex-row items-center bg-primary rounded-lg">
-    <TouchableOpacity onPress={handleDecrement}>
-      <Text className="text-white font-outfit-bold text-lg px-3 py-1">-</Text>
-    </TouchableOpacity>
-    <Text className="text-white font-outfit-bold text-base px-3">{quantity}</Text>
-    <TouchableOpacity onPress={handleIncrement}>
-      <Text className="text-white font-outfit-bold text-lg px-3 py-1">+</Text>
-    </TouchableOpacity>
-  </View>
-) : (
-  <TouchableOpacity className="bg-primary px-4 py-2 rounded-lg" onPress={handleAdd} activeOpacity={1.0}>
-    <Text className="text-white font-outfit-bold text-sm">ADD</Text>
-  </TouchableOpacity>
-)}
-      </View>
-    </View>
-  );
-};
+    );
+  };
 
 
   if (loading) {
     return (
-      <View className="flex-1 justify-center items-center bg-background">
-        <ActivityIndicator size="large" color="#FF002E" />
-      </View>
+      <SafeAreaView className="flex-1 justify-center items-center bg-[#f0fafaff]">
+            <ActivityIndicator size="large" color="#02757A" />
+            <Text className="text-textsecondary font-outfit mt-4">Loading service details...</Text>
+          </SafeAreaView>
     );
   }
 
@@ -376,7 +397,7 @@ const renderItem = ({ item }) => {
 
   return (
     <View className="flex-1 bg-background">
-      <View className="relative h-80">
+      <View className="h-64">
         <ImageGallery
           style={{ backgroundColor: "rgba(0, 0, 0, 0.63)" }}
           images={
@@ -397,7 +418,7 @@ const renderItem = ({ item }) => {
           <TouchableOpacity onPress={() => router.back()} className="rounded-full bg-black/40 p-2 items-center justify-center">
             <Ionicons name='chevron-back' size={28} color='white' />
           </TouchableOpacity>
-          <View className="flex-row items-center">
+          {/* <View className="flex-row items-center">
             <TouchableOpacity>
               <AntDesign name='sharealt' size={28} color='white' />
             </TouchableOpacity>
@@ -410,16 +431,16 @@ const renderItem = ({ item }) => {
                 <Ionicons name='bookmark-outline' size={28} color='white' />
               }
             </TouchableOpacity>
-          </View>
+          </View> */}
         </View>
-        <View className="absolute bottom-0 left-0 right-0">
+        <View className="absolute bottom-3 left-0 right-0 h-[60%] flex-row justify-between items-center">
           <LinearGradient
             colors={["#18181800", "#18181866", "#181818CC"]}
             start={{ x: 0, y: 0 }}
             end={{ x: 0, y: 1 }}
             style={{ flexDirection: "row", width: "100%", justifyContent: "space-between" }}
           >
-            <View className="p-2">
+            <View className="w-[80%] p-1 mt-15">
               <View>
                 <TouchableOpacity
                   onPress={() => router.push({
@@ -446,37 +467,39 @@ const renderItem = ({ item }) => {
             </View>
 
             <TouchableOpacity
+              className="rounded-2xl mt-28 mr-2.5 mb-3"
               onPress={() => router.push({
                 pathname: "/screens/Reviewsall",
                 params: {
                   firmId: firmId,
                   restaurantName: firmDetails?.restaurantInfo?.name,
                   averageRating: firmDetails?.restaurantInfo?.ratings?.overall,
-                  reviewCount: firmDetails?.restaurantInfo?.ratings?.totalReviews
+                  reviewCount: firmDetails?.restaurantInfo?.ratings?.totalReviews,
+                  reviewType: "dining"
                 }
               })}
-              className="bg-white/20 rounded-lg p-3 items-center justify-center"
             >
-              <View className="flex-row items-center mb-1">
-                <View className="flex-row items-center">
-                  <Text className="text-white font-outfit-bold text-lg mr-1">
+              <View className="bg-green-600 p-2 rounded-t-2xl">
+                <View className="flex-row items-center justify-center">
+                  <Text className="text-white text-base mr-2 font-outfit">
                     {firmDetails?.restaurantInfo?.ratings?.overall?.toFixed(1) || '4.5'}
                   </Text>
                   <FontAwesome name='star' size={18} color='white' />
                 </View>
               </View>
-              <View className="items-center">
-                <Text className="text-white/80 font-outfit text-xs">
-                  {firmDetails?.restaurantInfo?.ratings?.totalReviews || '725'}
+              <View className="bg-white rounded-b-2xl">
+                <Text className="text-xs text-gray-800 text-center mt-1 font-outfit">
+                  {firmDetails?.restaurantInfo?.ratings?.totalReviews || '2179'}
                 </Text>
-                <Text className="text-white/80 font-outfit text-xs">Reviews</Text>
+                <Text className="text-xs text-gray-800 text-center" style={{ fontFamily: 'outfit' }}>Reviews</Text>
               </View>
             </TouchableOpacity>
           </LinearGradient>
         </View>
       </View>
 
-      <View className="flex-row items-center my-4">
+     <ScrollView className="flex-1">
+       <View className="flex-row items-center my-4">
         <View className="flex-1 h-px bg-border" />
         <Text className="text-textsecondary font-outfit-bold mx-4 text-sm">Offers</Text>
         <View className="flex-1 h-px bg-border" />
@@ -561,7 +584,7 @@ const renderItem = ({ item }) => {
           <View className="mb-4">
             <TouchableOpacity className="flex-row justify-between items-center p-4 bg-white border-b border-border" onPress={() => toggleCategory(category)}>
               <Text className="text-textprimary font-outfit-bold text-lg">{category}</Text>
-              <Text className="text-textsecondary font-outfit text-lg">{collapsed[category] ? "▼" : "▲"}</Text>
+              <Feather name={collapsed[category] ? "chevron-down" : "chevron-up"} size={20} color="#333333" />
             </TouchableOpacity>
             {!collapsed[category] && (
               <FlatList
@@ -573,24 +596,6 @@ const renderItem = ({ item }) => {
           </View>
         )}
       />
-
-      {getTotalItems() > 0 && (
-        <TouchableOpacity
-          className="absolute bottom-0 left-0 right-0 bg-primary p-4 m-4 rounded-lg"
-          onPress={() => router.push({
-            pathname: 'screens/TakeAwayCart',
-            params: {
-              offers: JSON.stringify(offers),
-              restaurantId: firmId,
-              restaurantName: firmDetails?.restaurantInfo?.name
-            }
-          })}
-        >
-          <Text className="text-white text-center font-outfit-bold">
-            {getTotalItems()} items | ${getSubtotal()} | Go to Cart
-          </Text>
-        </TouchableOpacity>
-      )}
 
       <Modal visible={offersVisible} transparent animationType="slide">
         <View className="flex-1 bg-black/50 justify-end">
@@ -695,6 +700,25 @@ const renderItem = ({ item }) => {
           </View>
         </View>
       </Modal> */}
+     </ScrollView>
+     
+     {getTotalItems() > 0 && (
+        <TouchableOpacity
+          className="absolute bottom-0 left-0 right-0 bg-primary p-4 m-4 rounded-lg"
+          onPress={() => router.push({
+            pathname: 'screens/TakeAwayCart',
+            params: {
+              offers: JSON.stringify(offers),
+              restaurantId: firmId,
+              restaurantName: firmDetails?.restaurantInfo?.name
+            }
+          })}
+        >
+          <Text className="text-white text-center font-outfit-bold">
+            {getTotalItems()} items | ${getSubtotal()} | Go to Cart
+          </Text>
+        </TouchableOpacity>
+      )}
     </View>
   );
 }

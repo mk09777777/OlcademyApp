@@ -129,14 +129,14 @@ export default function SelectDateTime() {
   const currentSlots = selectedTab === 'Lunch' ? lunchSlots : dinnerSlots;
 
   return (
-    <ScrollView className="flex-1 bg-gray-50 px-4 py-4">
+    <ScrollView className="flex-1  bg-[#E6F1F2] px-4 py-4">
       <View className="flex-row items-center mb-6">
         <TouchableOpacity className="pr-4 mr-2" onPress={() => router.back()}>
           <Ionicons name='arrow-back' size={24} />
         </TouchableOpacity>
         <View>
-          <Text className="text-2xl text-gray-800 mb-1" style={{ fontFamily: 'outfit-bold' }}>Select Date and Time</Text>
-          <Text className="text-base text-gray-600" style={{ fontFamily: 'outfit-medium' }}>{firmName}</Text>
+          <Text className="text-2xl text-textprimary mb-1" style={{ fontFamily: 'outfit-bold' }}>Select Date and Time</Text>
+          <Text className="text-base text-textsecondary" style={{ fontFamily: 'outfit-medium' }}>{firmName}</Text>
         </View>
       </View>
 
@@ -147,14 +147,14 @@ export default function SelectDateTime() {
           onChange={(params) => setDate(params.date)}
           calendarTextStyle={{ fontFamily: 'outfit' }}
           todayTextStyle={{ color: 'black' }}
-          todayContainerStyle={{ borderColor: '#e23845' }}
-          selectedItemColor='#e23845'
+          todayContainerStyle={{ borderColor: '#02757A' }}
+          selectedItemColor='#02757A'
         />
       </View>
 
       <View className="flex-row justify-center mb-5 mt-3">
         <TouchableOpacity
-          className={`py-2.5 px-6 rounded-full mx-2 bg-white border ${selectedTab === "Lunch" ? "bg-red-500 border-red-500" : "border-gray-300"}`}
+          className={`py-2.5 px-6 rounded-full mx-2 bg-white border ${selectedTab === "Lunch" ? "bg-primary border-border" : "border-border"}`}
           onPress={() => {
             setSelectedTab("Lunch");
             setSelectedTime(null);
@@ -162,10 +162,10 @@ export default function SelectDateTime() {
             setSelectedOfferDetails(null);
           }}
         >
-          <Text className={`text-base ${selectedTab === "Lunch" ? "text-white" : "text-gray-600"}`} style={{ fontFamily: selectedTab === "Lunch" ? 'outfit-bold' : 'outfit-medium' }}>Lunch</Text>
+          <Text className={`text-base ${selectedTab === "Lunch" ? "text-white" : "text-smalltext"}`} style={{ fontFamily: selectedTab === "Lunch" ? 'outfit-bold' : 'outfit-medium' }}>Lunch</Text>
         </TouchableOpacity>
         <TouchableOpacity
-          className={`py-2.5 px-6 rounded-full mx-2 bg-white border ${selectedTab === "Dinner" ? "bg-red-500 border-red-500" : "border-gray-300"}`}
+          className={`py-2.5 px-6 rounded-full mx-2 bg-white border ${selectedTab === "Dinner" ? "bg-primary border-border" : "border-border"}`}
           onPress={() => {
             setSelectedTab("Dinner");
             setSelectedTime(null);
@@ -173,7 +173,7 @@ export default function SelectDateTime() {
             setSelectedOfferDetails(null);
           }}
         >
-          <Text className={`text-base ${selectedTab === "Dinner" ? "text-white" : "text-gray-600"}`} style={{ fontFamily: selectedTab === "Dinner" ? 'outfit-bold' : 'outfit-medium' }}>Dinner</Text>
+          <Text className={`text-base ${selectedTab === "Dinner" ? "text-white" : "text-smalltext"}`} style={{ fontFamily: selectedTab === "Dinner" ? 'outfit-bold' : 'outfit-medium' }}>Dinner</Text>
         </TouchableOpacity>
       </View>
 
@@ -185,7 +185,7 @@ export default function SelectDateTime() {
           contentContainerStyle={{ paddingHorizontal: 8, marginBottom: 20 }}
           renderItem={({ item }) => (
             <TouchableOpacity
-              className={`bg-white rounded-lg border py-3 m-1.5 items-center justify-center shadow-sm ${selectedTime === item.slot ? "bg-red-500 border-red-500" : "border-gray-300"}`}
+              className={`bg-white rounded-lg border py-3 m-1.5 items-center justify-center shadow-sm ${selectedTime === item.slot ? "bg-primary border-red-500" : "border-gray-300"}`}
               style={{ width: "30%" }}
               onPress={() => {
                 setSelectedTime(item.slot);
@@ -237,7 +237,7 @@ export default function SelectDateTime() {
         </View>
       )}
 
-      <TouchableOpacity className="bg-red-500 p-4 rounded-xl mb-6 shadow-lg" onPress={handleContinue}>
+      <TouchableOpacity className="bg-primary p-4 rounded-xl mb-6 shadow-lg" onPress={handleContinue}>
         <Text className="text-white text-base text-center" style={{ fontFamily: 'outfit-bold' }}>Continue</Text>
       </TouchableOpacity>
 
@@ -272,7 +272,7 @@ export default function SelectDateTime() {
               placeholder="Enter your contact"
               keyboardType='numeric'
             />
-            <TouchableOpacity onPress={handleConfirm} className="bg-red-500 p-4 rounded-lg mt-2">
+            <TouchableOpacity onPress={handleConfirm} className="bg-primary p-4 rounded-lg mt-2">
               <Text className="text-white text-base text-center" style={{ fontFamily: 'outfit-bold' }}>Confirm</Text>
             </TouchableOpacity>
           </View>

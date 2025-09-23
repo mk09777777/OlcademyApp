@@ -709,7 +709,7 @@ const FetchRecentlyViewData = useCallback(async () => {
     <View className="flex-1 bg-white p-4">
       {isInitialLoading ? (
         <View className="flex-1 justify-center items-center">
-          <ActivityIndicator size="large" color="#e23845" />
+          <ActivityIndicator size="large" color="#02757A" />
         </View>
       ) : (
         <>
@@ -719,12 +719,12 @@ const FetchRecentlyViewData = useCallback(async () => {
               <TouchableOpacity
                 onPress={() => router.push('/screens/NoficationsPage')}
               >
-                <Ionicons name='notifications-circle-sharp' size={38} color='#e23845' style={{ marginRight: 10 }} />
+                <Ionicons name='notifications-circle-sharp' size={38} color='#02757A' style={{ marginRight: 10 }} />
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={() => router.push('/screens/User')}
               >
-                <Ionicons name='person-circle' size={40} color='#e23845' />
+                <Ionicons name='person-circle' size={40} color='#02757A' />
               </TouchableOpacity>
             </View>
           </View>
@@ -815,8 +815,8 @@ className="-mt-1.5"
               <RefreshControl
                 refreshing={refreshing}
                 onRefresh={onRefresh}
-                colors={['#e23845']}
-                tintColor={'#e23845'}
+                colors={['#02757A']}
+                tintColor={'#02757A'}
               />
             }
             ListEmptyComponent={
@@ -1058,14 +1058,14 @@ className="-mt-1.5"
                               <MaterialCommunityIcons
                                 name={item.icon}
                                 size={16}
-                                color={isSelected ? "white" : "#e23845"}
+                                color={isSelected ? "white" : "#02757A"}
                                 style={{ marginRight: 4 }}
                               />
                             ) : (
                               <MaterialIcons
                                 name={item.icon}
                                 size={16}
-                                color={isSelected ? "white" : "#e23845"}
+                                color={isSelected ? "white" : "#02757A"}
                                 style={{ marginRight: 4 }}
                               />
                             )}
@@ -1125,7 +1125,7 @@ className="-mt-1.5"
             ListFooterComponent={
               isLoadingMore ? (
                 <View className="flex-1 justify-center items-center">
-                  <ActivityIndicator size="large" color="#e23845" />
+                  <ActivityIndicator size="large" color="#02757A" />
                 </View>
               ) : null
             }
@@ -1146,7 +1146,7 @@ className="-mt-1.5"
                   box={false}
                   textStyle={{ fontSize: 16, color: '#333' }}
                   circleSize={16}
-                  activeColor='#e23845'
+                  activeColor='#02757A'
                 />
                 <TouchableOpacity
                   className="bg-primary p-4 rounded-2.5 items-center mt-4"
