@@ -514,24 +514,47 @@ export default function Reviewsall() {
                 />
                 <Text style={[ZomatoStyles.commenttabtext, item.isLiked && {color: "#E91E63"}]}>{item.likes || 0}  </Text>
               </TouchableOpacity>
-             <TouchableOpacity
-  onPress={() => {
-    setSelectedComment(item);
-    router.push({
-      pathname: '/screens/commentscreen',
-      params: {
-        commentData: JSON.stringify(item),
-        review:item._id,
-        firmId: firmId,
-        restaurantName: params.restaurantName,
-        reviewType:reviewType,
-      }
-    });
-  }}
-  style={ZomatoStyles.commenttabbox}
->
-  <MaterialCommunityIcons
-    name="comment-text-outline"
+              <TouchableOpacity
+                onPress={() => {
+                  setSelectedComment(item);
+                  router.push({
+                    pathname: '/screens/commentscreen',
+                    params: {
+                      commentData: JSON.stringify(item),
+                      review: item._id,
+                      firmId: firmId,
+                      restaurantName: params.restaurantName,
+                      reviewType: reviewType,
+                    }
+                  });
+                }}
+                style={ZomatoStyles.commenttabbox}
+              >
+                <MaterialCommunityIcons
+                  name="comment-outline"
+                  size={20}
+                  color="black"
+                />
+                <Text style={ZomatoStyles.commenttabtext}>Comment</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        )}
+        onEndReached={handleLoadMore}
+        onEndReachedThreshold={0.1}
+        ListFooterComponent={
+          loading && page > 1 ? (
+            <View style={ZomatoStyles.loadingContainer}>
+              <ActivityIndicator size="small" color="#0000ff" />
+            </View>
+          ) : null
+        }
+      />
+    </Fragment>
+  );
+};
+
+export default Reviewsall;"comment-text-outline"
     size={20}
     color="black"
     style={ZomatoStyles.likeimage}

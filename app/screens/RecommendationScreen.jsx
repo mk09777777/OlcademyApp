@@ -20,8 +20,101 @@ import useTiffinHome from '../../hooks/useTiffinHome';
 import { usePreferences } from '../../context/PreferencesContext';
 import SearchBar from '../../components/SearchBar';
 import tiffinData from '../../Data/tiffin.json';
-import styles from '../../styles/tiffinstyle';
 import { useSafeNavigation } from '@/hooks/navigationPage';
+
+/*
+=== ORIGINAL CSS REFERENCE ===
+container: {
+  flex: 1,
+  backgroundColor: 'white',
+  padding: 20,
+}
+
+header: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  paddingHorizontal: 20,
+  paddingVertical: 10,
+}
+
+loadingContainer: {
+  flex: 1,
+  justifyContent: 'center',
+  alignItems: 'center',
+}
+
+loadingText: {
+  marginTop: 12,
+  fontFamily: 'outfit-bold',
+  fontSize: 16,
+  color: '#333',
+}
+
+errorContainer: {
+  flex: 1,
+  justifyContent: 'center',
+  alignItems: 'center',
+  padding: 20,
+}
+
+errorText: {
+  fontSize: 18,
+  fontWeight: 'bold',
+  color: '#333',
+  textAlign: 'center',
+  marginTop: 16,
+}
+
+retryButton: {
+  backgroundColor: '#FF4B3A',
+  paddingHorizontal: 24,
+  paddingVertical: 12,
+  borderRadius: 8,
+  marginTop: 16,
+}
+
+retryButtonText: {
+  color: '#fff',
+  fontSize: 16,
+  fontWeight: '600',
+}
+
+serviceCard: {
+  marginBottom: 16,
+}
+
+listContainer: {
+  padding: 20,
+}
+
+emptyListContainer: {
+  flex: 1,
+  justifyContent: 'center',
+}
+
+emptyContainer: {
+  flex: 1,
+  justifyContent: 'center',
+  alignItems: 'center',
+  padding: 20,
+}
+
+emptyText: {
+  fontSize: 18,
+  fontWeight: 'bold',
+  color: '#333',
+  textAlign: 'center',
+  marginTop: 16,
+}
+
+emptySubText: {
+  fontSize: 14,
+  color: '#666',
+  textAlign: 'center',
+  marginTop: 8,
+}
+=== END CSS REFERENCE ===
+*/
 const RecommendationScreen = () => {
   const router = useRouter();
   const { userPreferences = {} } = usePreferences(); // Default empty object
@@ -170,7 +263,7 @@ const RecommendationScreen = () => {
   });
 
   const renderServiceItem = ({ item }) => (
-    <View style={styles.serviceCard}>
+    <View className="mb-4">
       <TiffinCard
         firm={{
           image: item.Images?.[0] || require('../../assets/images/food.jpg'),
@@ -195,20 +288,20 @@ const RecommendationScreen = () => {
 
   if (error) {
     return (
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView className="flex-1 bg-white p-5">
         <BackRouting tittle=  "Recommends"/>
         <StatusBar barStyle="dark-content" />
-        <View style={styles.errorContainer}>
+        <View className="flex-1 justify-center items-center p-5">
           <MaterialIcons name="error-outline" size={48} color="#FF4B3A" />
-          <Text style={styles.errorText}>{error}</Text>
+          <Text className="text-lg font-bold text-gray-800 text-center mt-4">{error}</Text>
           <TouchableOpacity 
-            style={styles.retryButton} 
+            className="bg-red-500 px-6 py-3 rounded-lg mt-4" 
             onPress={() => {
               setError(null);
               loadRecommendations();
             }}
           >
-            <Text style={styles.retryButtonText}>Retry</Text>
+            <Text className="text-white text-base font-semibold">Retry</Text>
           </TouchableOpacity>
         </View>
       </SafeAreaView>
@@ -216,9 +309,9 @@ const RecommendationScreen = () => {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView className="flex-1 bg-white p-5">
       <StatusBar barStyle="dark-content" />
-    <View style={styles.header}>
+    <View className="flex-row items-center px-5 py-2.5">
            {/* <TouchableOpacity onPress={() => router.back()}>
              <MaterialCommunityIcons name="arrow-left" size={24} color="#333" />
            </TouchableOpacity> */}
@@ -234,9 +327,9 @@ const RecommendationScreen = () => {
          </View>
 
       {isInitialLoad ? (
-        <View style={styles.loadingContainer}>
+        <View className="flex-1 justify-center items-center">
           <ActivityIndicator size="large" color="#FF4B3A" />
-          <Text style={styles.loadingText}>Loading recommendations...</Text>
+          <Text className="mt-3 text-base font-bold text-gray-800">Loading recommendations...</Text>
         </View>
       ) : (
         <FlatList
@@ -244,14 +337,14 @@ const RecommendationScreen = () => {
           renderItem={renderServiceItem}
           keyExtractor={item => item.id}
           contentContainerStyle={[
-            styles.listContainer,
-            filteredTiffins.length === 0 && styles.emptyListContainer
+            {padding: 20},
+            filteredTiffins.length === 0 && {flex: 1, justifyContent: 'center'}
           ]}
           ListEmptyComponent={
-            <View style={styles.emptyContainer}>
+            <View className="flex-1 justify-center items-center p-5">
               <MaterialIcons name="restaurant" size={48} color="#757575" />
-              <Text style={styles.emptyText}>No matching services found</Text>
-              <Text style={styles.emptySubText}>
+              <Text className="text-lg font-bold text-gray-800 text-center mt-4">No matching services found</Text>
+              <Text className="text-sm text-gray-600 text-center mt-2">
                 {selectedFilters.length > 0 || localDietaryPreferencesOptions.length > 0
                   ? "Try adjusting your filters"
                   : "Update your preferences for better recommendations"}

@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import {
   View,
   Text,
-  StyleSheet,
   TouchableOpacity,
   ScrollView,
   SafeAreaView,
@@ -17,6 +16,43 @@ import {
 } from '@expo/vector-icons';
 import BackRouting from '@/components/BackRouting';
 const OrderSummary = () => {
+  /* Original CSS Reference:
+   * container: { flex: 1, backgroundColor: '#f3f4f6' }
+   * scroll: { padding: 16, paddingBottom: 101 }
+   * card: { backgroundColor: '#fff', borderRadius: 18, padding: 16, marginBottom: 20, gap: 18 }
+   * row: { flexDirection: 'row', alignItems: 'flex-start', gap: 12 }
+   * info: { flex: 1 }
+   * label: { color: '#333', fontSize: 14 }
+   * bold: { fontWeight: 'bold' }
+   * link: { color: '#444', fontSize: 13, textDecorationLine: 'underline', marginTop: 2 }
+   * address: { color: '#666', fontSize: 13 }
+   * striked: { textDecorationLine: 'line-through', color: '#999', fontSize: 13 }
+   * boldPrice: { color: '#111', fontWeight: 'bold', fontSize: 14 }
+   * billRow: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 6, marginTop: 2 }
+   * badge: { backgroundColor: '#e2ebfb', borderRadius: 12, paddingHorizontal: 8, paddingVertical: 2 }
+   * badgeText: { color: '#3c73d3', fontSize: 12, fontWeight: '600' }
+   * subLabel: { color: '#888', fontSize: 12, marginTop: 2 }
+   * cancelTitle: { fontSize: 13, fontWeight: 'bold', marginTop: 10, color: '#555' }
+   * cancelText: { fontSize: 13, color: '#777', marginVertical: 6, lineHeight: 18 }
+   * paymentCard: { backgroundColor: '#fff', borderRadius: 12, padding: 16, marginTop: 10 }
+   * paymentRow: { flexDirection: 'row', alignItems: 'center' }
+   * walletTitle: { fontSize: 14, fontWeight: 'bold', color: '#222' }
+   * walletDesc: { fontSize: 12, color: '#666', marginTop: 2 }
+   * footer: { position: 'absolute', bottom: 0, left: 0, right: 0, backgroundColor: '#fff', borderTopWidth: 1, borderColor: '#ddd', padding: 14, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }
+   * paymentMethod: { flexDirection: 'row', alignItems: 'center', flex: 1 }
+   * payUsing: { fontSize: 10, color: '#888' }
+   * payMethod: { fontSize: 13, fontWeight: 'bold', color: '#333', marginTop: 2 }
+   * placeOrderBtn: { backgroundColor: '#e23744', borderRadius: 8, paddingVertical: 8, paddingHorizontal: 12, marginLeft: 10, alignItems: 'flex-end' }
+   * totalText: { fontSize: 12, color: '#fff', fontWeight: 'bold' }
+   * placeText: { fontSize: 14, color: '#fff', fontWeight: 'bold' }
+   * modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'center', alignItems: 'center' }
+   * modalContent: { width: '90%', backgroundColor: '#fff', borderRadius: 16, padding: 20, elevation: 10 }
+   * modalTitle: { fontSize: 16, fontWeight: 'bold', marginBottom: 10, color: '#333' }
+   * modalSub: { fontSize: 12, color: '#666', marginBottom: 10 }
+   * input: { borderWidth: 1, borderColor: '#ccc', borderRadius: 8, padding: 10, marginBottom: 12 }
+   * submitBtn: { backgroundColor: '#e23744', padding: 12, borderRadius: 8, alignItems: 'center' }
+   * submitText: { color: '#fff', fontWeight: 'bold', fontSize: 14 }
+   */
   const [modalVisible, setModalVisible] = useState(false);
   const [scheduleModalVisible, setScheduleModalVisible] = useState(false);
   const [addressModalVisible, setAddressModalVisible] = useState(false);
@@ -102,10 +138,10 @@ const OrderSummary = () => {
   const selectedAddress = addresses.find(addr => addr.isSelected) || addresses[0];
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView className="flex-1 bg-gray-100">
       <BackRouting tittle="Order Summary"/>
-      <ScrollView contentContainerStyle={styles.scroll}>
-        <View style={styles.card}>
+      <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 101 }}>
+        <View className="bg-white rounded-2xl p-4 mb-5" style={{ gap: 18 }}>
           {/* Delivery Time */}
           <View style={styles.row}>
             <Feather name="clock" size={20} color="#333" />

@@ -20,9 +20,119 @@ import { usePreferences } from '../../context/PreferencesContext';
 import SearchBar from '../../components/SearchBar';
 import tiffinData from '../../Data/tiffin.json';
 import BackRouting from '@/components/BackRouting';
-// import styles from '../../styles/tiffinstyle';
 import { useSafeNavigation } from '@/hooks/navigationPage';
 const { width } = Dimensions.get('window');
+
+/*
+=== ORIGINAL CSS REFERENCE ===
+container: {
+  flex: 1,
+  backgroundColor: 'white',
+  padding: 20,
+}
+
+header: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  paddingHorizontal: 20,
+  paddingVertical: 10,
+}
+
+loadingContainer: {
+  flex: 1,
+  justifyContent: 'center',
+  alignItems: 'center',
+}
+
+loadingText: {
+  marginTop: 12,
+  fontFamily: 'outfit-bold',
+  fontSize: 16,
+  color: '#333',
+}
+
+errorContainer: {
+  flex: 1,
+  justifyContent: 'center',
+  alignItems: 'center',
+  padding: 20,
+}
+
+errorText: {
+  fontSize: 18,
+  fontWeight: 'bold',
+  color: '#333',
+  textAlign: 'center',
+  marginTop: 16,
+}
+
+errorDetail: {
+  fontSize: 14,
+  color: '#666',
+  textAlign: 'center',
+  marginTop: 8,
+}
+
+retryButton: {
+  backgroundColor: '#FF4B3A',
+  paddingHorizontal: 24,
+  paddingVertical: 12,
+  borderRadius: 8,
+  marginTop: 16,
+}
+
+retryButtonText: {
+  color: '#fff',
+  fontSize: 16,
+  fontWeight: '600',
+}
+
+emptyContainer: {
+  flex: 1,
+  justifyContent: 'center',
+  alignItems: 'center',
+  padding: 20,
+}
+
+emptyText: {
+  fontSize: 18,
+  fontWeight: 'bold',
+  color: '#333',
+  textAlign: 'center',
+  marginTop: 16,
+}
+
+emptySubText: {
+  fontSize: 14,
+  color: '#666',
+  textAlign: 'center',
+  marginTop: 8,
+}
+
+resetButton: {
+  backgroundColor: '#f5f5f5',
+  paddingHorizontal: 20,
+  paddingVertical: 10,
+  borderRadius: 20,
+  marginTop: 16,
+}
+
+resetButtonText: {
+  color: '#333',
+  fontSize: 14,
+  fontWeight: '500',
+}
+
+fullWidthCard: {
+  width: '100%',
+  marginBottom: 16,
+}
+
+verticalListContainer: {
+  padding: 20,
+}
+=== END CSS REFERENCE ===
+*/
 
 const PopularService = () => {
   const router = useRouter();
@@ -131,7 +241,7 @@ const PopularService = () => {
   });
 
   const renderServiceItem = ({ item }) => (
-    <View style={styles.fullWidthCard}>
+    <View className="w-full mb-4">
       <TiffinCard
         firm={{
           image: item.Images?.[0] || require('../../assets/images/food.jpg'),
@@ -164,12 +274,12 @@ const PopularService = () => {
 
   if (initialLoading) {
     return (
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView className="flex-1 bg-white p-5">
         <BackRouting tittle = "Popular Service"/>
         <StatusBar barStyle="dark-content" />
-        <View style={styles.loadingContainer}>
+        <View className="flex-1 justify-center items-center">
           <ActivityIndicator size="large" color="#FF4B3A" />
-          <Text style={styles.loadingText}>Loading popular services...</Text>
+          <Text className="mt-3 text-base font-bold text-gray-800">Loading popular services...</Text>
         </View>
       </SafeAreaView>
     );
@@ -177,21 +287,21 @@ const PopularService = () => {
 
   if (error) {
     return (
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView className="flex-1 bg-white p-5">
         <StatusBar barStyle="dark-content" />
-        <View style={styles.errorContainer}>
+        <View className="flex-1 justify-center items-center p-5">
           <MaterialCommunityIcons name="alert-circle" size={48} color="#FF4B3A" />
-          <Text style={styles.errorText}>Failed to load popular services</Text>
-          <Text style={styles.errorDetail}>{error.message || 'Please try again later'}</Text>
+          <Text className="text-lg font-bold text-gray-800 text-center mt-4">Failed to load popular services</Text>
+          <Text className="text-sm text-gray-600 text-center mt-2">{error.message || 'Please try again later'}</Text>
           <TouchableOpacity 
-            style={styles.retryButton} 
+            className="bg-red-500 px-6 py-3 rounded-lg mt-4" 
             onPress={handleRefresh}
             disabled={isRefreshing}
           >
             {isRefreshing ? (
               <ActivityIndicator color="#fff" />
             ) : (
-              <Text style={styles.retryButtonText}>Retry</Text>
+              <Text className="text-white text-base font-semibold">Retry</Text>
             )}
           </TouchableOpacity>
         </View>
@@ -200,9 +310,9 @@ const PopularService = () => {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView className="flex-1 bg-white p-5">
       <StatusBar barStyle="dark-content" />
-      <View style={styles.header}>
+      <View className="flex-row items-center px-5 py-2.5">
         {/* <TouchableOpacity onPress={() => router.back()}>
           <MaterialCommunityIcons name="arrow-left" size={24} color="#333" />
         </TouchableOpacity> */}
@@ -218,22 +328,22 @@ const PopularService = () => {
       </View>
 
       {filteredTiffins.length === 0 && !isRefreshing ? (
-        <View style={styles.emptyContainer}>
+        <View className="flex-1 justify-center items-center p-5">
           <MaterialCommunityIcons name="silverware" size={48} color="#757575" />
-          <Text style={styles.emptyText}>No popular tiffin services found</Text>
-          <Text style={styles.emptySubText}>
+          <Text className="text-lg font-bold text-gray-800 text-center mt-4">No popular tiffin services found</Text>
+          <Text className="text-sm text-gray-600 text-center mt-2">
             {searchQuery || selectedFilters.length > 0 
               ? "Try adjusting your search or filters" 
               : "There might be no services available right now"}
           </Text>
           <TouchableOpacity 
-            style={styles.resetButton}
+            className="bg-gray-100 px-5 py-2.5 rounded-full mt-4"
             onPress={() => {
               setSearchQuery('');
               resetFilters();
             }}
           >
-            <Text style={styles.resetButtonText}>Reset Filters</Text>
+            <Text className="text-gray-800 text-sm font-medium">Reset Filters</Text>
           </TouchableOpacity>
         </View>
       ) : (
@@ -242,7 +352,7 @@ const PopularService = () => {
           renderItem={renderServiceItem}
           keyExtractor={item => item.Title}
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.verticalListContainer}
+          contentContainerStyle={{padding: 20}}
           refreshControl={
             <RefreshControl
               refreshing={isRefreshing}

@@ -1,18 +1,218 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Alert, FlatList, ActivityIndicator, TextInput, Modal,Dimensions  } from 'react-native';
-import { ExpoMap as MapView, Marker } from 'expo-maps';
+import { View, Text, TouchableOpacity, Alert, FlatList, ActivityIndicator, TextInput, Modal,Dimensions  } from 'react-native';
+import MapView, { Marker } from 'react-native-maps';
 import { useRouter } from 'expo-router';
-import Ionicons from 'react-native-vector-icons/Ionicons';
-import Icon from 'react-native-vector-icons/Feather';
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import { Ionicons, Feather, MaterialCommunityIcons, FontAwesome5, MaterialIcons } from '@expo/vector-icons';
 import axios from 'axios';
 import { useSafeNavigation } from '@/hooks/navigationPage';
 import { useLocationContext } from '@/context/LocationContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import BackRouting from '@/components/BackRouting';
 import * as Location from 'expo-location';
+
+/*
+=== ORIGINAL CSS REFERENCE ===
+confirmBtn: {
+  marginHorizontal: 20,
+  backgroundColor: '#e41e3f',
+  padding: 14,
+  borderRadius: 10,
+  alignItems: 'center',
+  marginBottom: 20,
+}
+
+confirmTxt: {
+  color: '#fff',
+  fontSize: 16,
+  fontFamily:'outfit-bold'
+}
+
+tagsContainer: {
+  flexDirection: 'row',
+  padding: 10,
+  justifyContent: 'center',
+}
+
+map: {
+  height: 400,
+  width: '100%',
+}
+
+currentLocationBox: {
+  position: 'absolute',
+  bottom:300,
+  left: 70,
+  right: 70,
+  backgroundColor: '#fffefeff',
+  padding: 10,
+  borderRadius: 30,
+  borderWidth: 1,
+  borderColor: '#e0e0e0',
+  elevation: 5,
+  shadowColor: '#000',
+  shadowOffset: {
+    width: 0,
+    height: 2,
+  },
+  shadowOpacity: 0.25,
+  shadowRadius: 3.84,
+}
+
+currentLocation: {
+  backgroundColor: '#fffefeff',
+  marginTop:10,
+  marginHorizontal: 20,
+  padding: 15,
+  borderRadius: 10,
+  borderWidth: 1,
+  borderColor: '#e0e0e0',
+  elevation: 2,
+}
+
+locationBoxContent: {
+  flexDirection: 'row',
+  alignItems: 'center',
+}
+
+locationTextContainer: {
+  flex: 1,
+  marginLeft: 10,
+}
+
+locationTitle: {
+  fontFamily:'outfit-bold',
+  fontSize: 16,
+  color: '#000',
+}
+
+locationAddress: {
+  fontSize: 14,
+  color: '#666',
+  marginTop: 2,
+  fontFamily:'outfit-medium',
+}
+
+searchContainer: {
+  position: 'relative',
+  marginHorizontal: 20,
+  marginTop: 10,
+  marginBottom: 10,
+}
+
+searchInput: {
+  backgroundColor: '#fff',
+  padding: 12,
+  paddingLeft: 40,
+  borderRadius: 10,
+  borderWidth: 1,
+  borderColor: '#e0e0e0',
+  fontSize: 16,
+}
+
+searchIcon: {
+  position: 'absolute',
+  left: 12,
+  top: 12,
+}
+
+modalContainer: {
+  flex: 1,
+  backgroundColor: '#fff',
+  maxHeight:'80%'
+}
+
+modalHeader: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  padding: 15,
+  borderBottomWidth: 1,
+  borderBottomColor: '#e0e0e0',
+}
+
+backButton: {
+  marginRight: 15,
+}
+
+modalTitle: {
+  fontFamily:'outfit-bold',
+  fontSize: 18,
+  color: '#000',
+}
+
+modalSearchContainer: {
+  position: 'relative',
+  margin: 15,
+}
+
+modalSearchInput: {
+  backgroundColor: '#f0f0f0',
+  padding: 12,
+  paddingLeft: 40,
+  borderRadius: 10,
+  fontSize: 16,
+  fontFamily:'outfit-bold',
+}
+
+modalSearchIcon: {
+  position: 'absolute',
+  left: 12,
+  top: 12,
+}
+
+suggestionItem: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  padding: 15,
+  borderBottomWidth: 1,
+  borderBottomColor: '#f0f0f0',
+}
+
+suggestionText: {
+  flex: 1,
+  fontFamily:'outfit-medium',
+  fontSize: 15,
+  color: '#333',
+}
+
+loadingContainer: {
+  flex: 1,
+  justifyContent: 'center',
+  alignItems: 'center',
+}
+
+loadingText: {
+  marginTop: 10,
+  fontFamily:'outfit-bold',
+  fontSize: 16,
+  color: '#666',
+}
+
+noResultsContainer: {
+  flex: 1,
+  justifyContent: 'center',
+  alignItems: 'center',
+}
+
+noResultsText: {
+  fontFamily:'outfit-bold',
+  fontSize: 16,
+  color: '#666',
+}
+
+initialStateContainer: {
+  flex: 1,
+  justifyContent: 'center',
+  alignItems: 'center',
+}
+
+initialStateText: {
+  marginTop: 10,
+  fontSize: 16,
+  fontFamily:'outfit-bold',
+  color: '#999',
+}
+=== END CSS REFERENCE ===
+*/
 
 export default function MapPicker() {
   const router = useRouter();
@@ -38,7 +238,7 @@ export default function MapPicker() {
   const [showSearchModal, setShowSearchModal] = useState(false);
 
   const tagOptions = [
-    { type: 'Home', icon: <Icon name="home" size={18} /> },
+    { type: 'Home', icon: <Feather name="home" size={18} /> },
     { type: 'Work', icon: <MaterialCommunityIcons name="briefcase-outline" size={18} /> },
     { type: 'Hotel', icon: <MaterialCommunityIcons name="office-building" size={18} /> },
     { type: 'Other', icon: <FontAwesome5 name="map-marker-alt" size={16} /> },
@@ -364,34 +564,34 @@ export default function MapPicker() {
 
   if (isLoading) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+      <View className="flex-1 justify-center items-center">
         <ActivityIndicator size="large" color="#e41e3f" />
-        <Text style={{ marginTop: 10 }}>Loading map...</Text>
+        <Text className="mt-2.5">Loading map...</Text>
       </View>
     );
   }
 
   return (
-    <View style={{ flex: 1 }}>
+    <View className="flex-1">
       <BackRouting style={{ backgroundColor: '#f0f0f0' }} title='Select From Map' />
       
       {/* Search Box */}
       <TouchableOpacity 
-        style={styles.searchContainer}
+        className="relative mx-5 mt-2.5 mb-2.5"
         onPress={() => setShowSearchModal(true)}
       >
         <TextInput
-          style={styles.searchInput}
+          className="bg-white p-3 pl-10 rounded-lg border border-gray-300 text-base"
           placeholder="Search for a location..."
           value={searchQuery}
           editable={false}
           pointerEvents="none"
         />
-        <Icon name="search" size={20} color="#666" style={styles.searchIcon} />
+        <Feather name="search" size={20} color="#666" className="absolute left-3 top-3" />
       </TouchableOpacity>
    <MapView
         ref={mapRef}
-        style={styles.map}
+        className="h-96 w-full"
         region={region}
         onRegionChangeComplete={handleRegionChangeComplete}
         onPress={(e) => {
@@ -410,14 +610,14 @@ export default function MapPicker() {
       </MapView>
       
       <TouchableOpacity
-        style={styles.currentLocationBox}
+        className="absolute bottom-72 left-16 right-16 bg-white p-2.5 rounded-full border border-gray-300 shadow-lg"
         onPress={getCurrentLocation}
         disabled={isFetchingLocation}
       >
-        <View style={styles.locationBoxContent}>
+        <View className="flex-row items-center">
           <MaterialIcons name="my-location" size={20} color="#e41e3f" />
-          <View style={styles.locationTextContainer}>
-            <Text style={styles.locationTitle}>
+          <View className="flex-1 ml-2.5">
+            <Text className="text-base font-bold text-black">
               {isFetchingLocation ? 'Fetching your location...' : 'Use Current location'}
             </Text>
           </View>
@@ -425,22 +625,22 @@ export default function MapPicker() {
         </View>
       </TouchableOpacity>
       
-      <View style={styles.currentLocation}>
-         <View style={styles.locationBoxContent}>
+      <View className="bg-white mt-2.5 mx-5 p-4 rounded-lg border border-gray-300 shadow-sm">
+         <View className="flex-row items-center">
          <Ionicons name='location' size={24} color="#e41e3f"/>
-        <Text style={styles.locationAddress} numberOfLines={2}>
+        <Text className="text-sm text-gray-600 mt-0.5 ml-2.5 flex-1" numberOfLines={2}>
           {currentAddress || 'Tap to get current location or move the map'}
         </Text>
         </View>
       </View>
       
-      <View style={styles.tagsContainer}>
+      <View className="flex-row p-2.5 justify-center">
         <FlatList
           data={tagOptions}
           horizontal
           keyExtractor={(item) => item.type}
           showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.tagsContainer}
+          contentContainerStyle={{flexDirection: 'row', padding: 10, justifyContent: 'center'}}
           renderItem={({ item }) => (
             <TouchableOpacity
               style={getTagStyle(item.type)}
@@ -453,8 +653,8 @@ export default function MapPicker() {
         />
       </View>
 
-      <TouchableOpacity style={styles.confirmBtn} onPress={handleSaveLocation}>
-        <Text style={styles.confirmTxt}>Save Location</Text>
+      <TouchableOpacity className="mx-5 bg-red-600 p-3.5 rounded-lg items-center mb-5" onPress={handleSaveLocation}>
+        <Text className="text-white text-base font-bold">Save Location</Text>
       </TouchableOpacity>
 
       {/* Search Modal */}
@@ -463,32 +663,32 @@ export default function MapPicker() {
         animationType="slide"
         onRequestClose={() => setShowSearchModal(false)}
       >
-        <View style={styles.modalContainer}>
-          <View style={styles.modalHeader}>
+        <View className="flex-1 bg-white max-h-[80%]">
+          <View className="flex-row items-center p-4 border-b border-gray-300">
             <TouchableOpacity 
               onPress={() => setShowSearchModal(false)}
-              style={styles.backButton}
+              className="mr-4"
             >
-              <Icon name="arrow-left" size={24} color="#000" />
+              <Feather name="arrow-left" size={24} color="#000" />
             </TouchableOpacity>
-            <Text style={styles.modalTitle}>Search Location</Text>
+            <Text className="text-lg font-bold text-black">Search Location</Text>
           </View>
           
-          <View style={styles.modalSearchContainer}>
+          <View className="relative m-4">
             <TextInput
-              style={styles.modalSearchInput}
+              className="bg-gray-100 p-3 pl-10 rounded-lg text-base font-bold"
               placeholder="Search for a location..."
               value={searchQuery}
               onChangeText={(text) => setSearchQuery(text)}
               autoFocus={true}
             />
-            <Icon name="search" size={20} color="#666" style={styles.modalSearchIcon} />
+            <Feather name="search" size={20} color="#666" className="absolute left-3 top-3" />
           </View>
 
           {isSearching ? (
-            <View style={styles.loadingContainer}>
+            <View className="flex-1 justify-center items-center">
               <ActivityIndicator size="large" color="#e41e3f" />
-              <Text style={styles.loadingText}>Searching...</Text>
+              <Text className="mt-2.5 text-base font-bold text-gray-600">Searching...</Text>
             </View>
           ) : searchResults.length > 0 ? (
             <FlatList
@@ -496,24 +696,24 @@ export default function MapPicker() {
               keyExtractor={(item) => item.place_id.toString()}
               renderItem={({ item }) => (
                 <TouchableOpacity
-                  style={styles.suggestionItem}
+                  className="flex-row items-center p-4 border-b border-gray-100"
                   onPress={() => handleSelectSearchResult(item)}
                 >
-                  <Icon name="map-pin" size={16} color="#666" style={{ marginRight: 8 }} />
-                  <Text style={styles.suggestionText} numberOfLines={2}>
+                  <Feather name="map-pin" size={16} color="#666" className="mr-2" />
+                  <Text className="flex-1 text-base text-gray-800" numberOfLines={2}>
                     {item.display_name}
                   </Text>
                 </TouchableOpacity>
               )}
             />
           ) : searchQuery.length > 0 ? (
-            <View style={styles.noResultsContainer}>
-              <Text style={styles.noResultsText}>No results found</Text>
+            <View className="flex-1 justify-center items-center">
+              <Text className="text-base font-bold text-gray-600">No results found</Text>
             </View>
           ) : (
-            <View style={styles.initialStateContainer}>
-              <Icon name="search" size={50} color="#ccc" />
-              <Text style={styles.initialStateText}>Search for a location</Text>
+            <View className="flex-1 justify-center items-center">
+              <Feather name="search" size={50} color="#ccc" />
+              <Text className="mt-2.5 text-base font-bold text-gray-400">Search for a location</Text>
             </View>
           )}
         </View>
@@ -522,184 +722,3 @@ export default function MapPicker() {
   );
 }
 
-const styles = StyleSheet.create({
-  confirmBtn: {
-    marginHorizontal: 20,
-    backgroundColor: '#e41e3f',
-    padding: 14,
-    borderRadius: 10,
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  confirmTxt: {
-    color: '#fff',
-    fontSize: 16,
-    fontFamily:'outfit-bold'
-  },
-  tagsContainer: {
-    flexDirection: 'row',
-    padding: 10,
-    justifyContent: 'center',
-  },
-  headerMap: {
-     fontFamily:'outfit-bold',
-    fontSize: 20,
-    color: '#000',
-  },
-  map: {
-    height: 400,
-    width: '100%',
-  },
-  currentLocationBox: {
-    position: 'absolute',
-    bottom:300,
-    left: 70,
-    right: 70,
-    backgroundColor: '#fffefeff',
-    padding: 10,
-    borderRadius: 30,
-    borderWidth: 1,
-    borderColor: '#e0e0e0',
-    elevation: 5,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-  },
-    currentLocation: {
-    backgroundColor: '#fffefeff',
-    marginTop:10,
-    marginHorizontal: 20,
-    padding: 15,
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: '#e0e0e0',
-    elevation: 2,
-  },
-  locationBoxContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  locationTextContainer: {
-    flex: 1,
-    marginLeft: 10,
-  },
-  locationTitle: {
-     fontFamily:'outfit-bold',
-    fontSize: 16,
-    color: '#000',
-  },
-  locationAddress: {
-    fontSize: 14,
-    color: '#666',
-    marginTop: 2,
-       fontFamily:'outfit-medium',
-  },
-  // Search styles
-  searchContainer: {
-    position: 'relative',
-    marginHorizontal: 20,
-    marginTop: 10,
-    marginBottom: 10,
-  },
-  searchInput: {
-    backgroundColor: '#fff',
-    padding: 12,
-    paddingLeft: 40,
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: '#e0e0e0',
-    fontSize: 16,
-  },
-  searchIcon: {
-    position: 'absolute',
-    left: 12,
-    top: 12,
-  },
-  // Modal styles
-  modalContainer: {
-    flex: 1,
-    backgroundColor: '#fff',
-    maxHeight:'80%'
-  },
-  modalHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
-  },
-  backButton: {
-    marginRight: 15,
-  },
-  modalTitle: {
-       fontFamily:'outfit-bold',
-    fontSize: 18,
-    color: '#000',
-  },
-  modalSearchContainer: {
-    position: 'relative',
-    margin: 15,
-  },
-  modalSearchInput: {
-    backgroundColor: '#f0f0f0',
-    padding: 12,
-    paddingLeft: 40,
-    borderRadius: 10,
-    fontSize: 16,
-       fontFamily:'outfit-bold',
-  },
-  modalSearchIcon: {
-    position: 'absolute',
-    left: 12,
-    top: 12,
-  },
-  suggestionItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
-  },
-  suggestionText: {
-    flex: 1,
-    fontFamily:'outfit-medium',
-    fontSize: 15,
-    color: '#333',
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  loadingText: {
-    marginTop: 10,
-     fontFamily:'outfit-bold',
-    fontSize: 16,
-    color: '#666',
-  },
-  noResultsContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  noResultsText: {
-    fontFamily:'outfit-bold',
-    fontSize: 16,
-    color: '#666',
-  },
-  initialStateContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  initialStateText: {
-    marginTop: 10,
-    fontSize: 16,
-    fontFamily:'outfit-bold',
-    color: '#999',
-  },
-});
