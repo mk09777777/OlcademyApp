@@ -227,6 +227,13 @@ export default function MapPicker() {
     longitudeDelta: 0.01,
   });
 
+  // AddressMapPicker states
+  const [address, setAddress] = useState('');
+  const [addressType, setAddressType] = useState('Home');
+  const [additionalDetails, setAdditionalDetails] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
+
+  // MapPicker states
   const [selectedType, setSelectedType] = useState('');
   const [currentAddress, setCurrentAddress] = useState('');
   const [isLoading, setIsLoading] = useState(true);
@@ -236,6 +243,10 @@ export default function MapPicker() {
   const [searchResults, setSearchResults] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
   const [showSearchModal, setShowSearchModal] = useState(false);
+
+  // API config for address saving
+  const API_CONFIG = require('../config/apiConfig').API_CONFIG;
+  const API_BASE_URL = API_CONFIG.BACKEND_URL;
 
   const tagOptions = [
     { type: 'Home', icon: <Feather name="home" size={18} /> },
@@ -287,58 +298,41 @@ export default function MapPicker() {
   // Reverse geocode coordinates to get address
   const reverseGeocodeCoordinates = async (latitude, longitude) => {
     try {
-      const reverseGeocode = await Location.reverseGeocodeAsync({
-        latitude,
-        longitude,
-      });
-
-      if (reverseGeocode.length > 0) {
-        const location = reverseGeocode[0];
-        const address = `${location.name || ''} ${location.street || ''}, ${location.city || ''}, ${location.region || ''}, ${location.country || ''}`.trim();
-        return address;
-      }
-      return `Lat: ${latitude.toFixed(6)}, Lon: ${longitude.toFixed(6)}`;
+      // Use Nominatim for consistency with AddressMapPicker
+      const response = await axios.get(
+        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=18&addressdetails=1`
+      );
+      const addressData = response.data;
+      setAddress(addressData.display_name || 'Unknown address');
+      return addressData.display_name || `Lat: ${latitude.toFixed(6)}, Lon: ${longitude.toFixed(6)}`;
     } catch (error) {
-      console.error('Error in reverse geocoding:', error);
+      console.error('Error reverse geocoding:', error);
+      Alert.alert('Error', 'Failed to fetch address. Please enter manually.');
+      setAddress('');
       return `Lat: ${latitude.toFixed(6)}, Lon: ${longitude.toFixed(6)}`;
     }
   };
 
-  // Handle selection of a search result - COMPLETELY REWRITTEN
+  // Handle selection of a search result
   const handleSelectSearchResult = async (result) => {
     try {
-      console.log('Selected result:', result);
-      
       const lat = parseFloat(result.lat);
       const lon = parseFloat(result.lon);
-      
       const newRegion = {
         latitude: lat,
         longitude: lon,
         latitudeDelta: 0.01,
         longitudeDelta: 0.01,
       };
-
-      console.log('New region:', newRegion);
-
-      // Update map region and selected coordinate
       setRegion(newRegion);
       setSelectedCoordinate({ latitude: lat, longitude: lon });
-      
-      // Update address - use the display_name from the result directly
       setCurrentAddress(result.display_name);
-      
-      // Animate map to the new location with timeout to ensure map is ready
+      setAddress(result.display_name);
       setTimeout(() => {
         if (mapRef.current) {
-          console.log('Animating map to new location');
           mapRef.current.animateToRegion(newRegion, 1000);
-        } else {
-          console.log('Map ref not available');
         }
       }, 100);
-      
-      // Close modal and clear search
       setShowSearchModal(false);
       setSearchQuery('');
       setSearchResults([]);
@@ -355,32 +349,26 @@ export default function MapPicker() {
       const { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== 'granted') {
         Alert.alert('Permission Denied', 'Location permission is required to use this feature');
+        setIsFetchingLocation(false);
         return;
       }
-
       const { coords } = await Location.getCurrentPositionAsync({});
-
-      // Update map region to current location
       const newRegion = {
         latitude: coords.latitude,
         longitude: coords.longitude,
         latitudeDelta: 0.01,
         longitudeDelta: 0.01,
       };
-
       setRegion(newRegion);
       setSelectedCoordinate({ latitude: coords.latitude, longitude: coords.longitude });
-
-      // Animate map to the new location
       setTimeout(() => {
         if (mapRef.current) {
           mapRef.current.animateToRegion(newRegion, 1000);
         }
       }, 100);
-
-      // Reverse geocode to get address
-      const address = await reverseGeocodeCoordinates(coords.latitude, coords.longitude);
-      setCurrentAddress(address);
+      const addr = await reverseGeocodeCoordinates(coords.latitude, coords.longitude);
+      setCurrentAddress(addr);
+      setAddress(addr);
     } catch (error) {
       console.error('Error getting current location:', error);
       Alert.alert('Error', 'Could not get current location. Please try again.');
@@ -396,10 +384,9 @@ export default function MapPicker() {
       latitude: newRegion.latitude,
       longitude: newRegion.longitude
     });
-
-    // Update address display when user moves the map
-    const address = await reverseGeocodeCoordinates(newRegion.latitude, newRegion.longitude);
-    setCurrentAddress(address);
+    const addr = await reverseGeocodeCoordinates(newRegion.latitude, newRegion.longitude);
+    setCurrentAddress(addr);
+    setAddress(addr);
   };
 
   // Initialize with current location on component mount
@@ -407,48 +394,41 @@ export default function MapPicker() {
     const initializeLocation = async () => {
       try {
         setIsLoading(true);
-
-        // If current location is available in context, use it
         if (currentLocation && currentLocation.lat && currentLocation.lon) {
           const lat = parseFloat(currentLocation.lat);
           const lon = parseFloat(currentLocation.lon);
-
           const newRegion = {
             latitude: lat,
             longitude: lon,
             latitudeDelta: 0.01,
             longitudeDelta: 0.01,
           };
-
           setRegion(newRegion);
           setSelectedCoordinate({ latitude: lat, longitude: lon });
-
           if (currentLocation.fullAddress) {
             setCurrentAddress(currentLocation.fullAddress);
+            setAddress(currentLocation.fullAddress);
           } else {
-            const address = await reverseGeocodeCoordinates(lat, lon);
-            setCurrentAddress(address);
+            const addr = await reverseGeocodeCoordinates(lat, lon);
+            setCurrentAddress(addr);
+            setAddress(addr);
           }
-
-          // Animate to the location after a short delay to ensure map is rendered
           setTimeout(() => {
             if (mapRef.current) {
               mapRef.current.animateToRegion(newRegion, 1000);
             }
           }, 500);
         } else {
-          // Try to get device location if no context location
           await getCurrentLocation();
         }
       } catch (error) {
         console.error('Error initializing location:', error);
-        // Fallback to default location
         setCurrentAddress('Tap to get current location');
+        setAddress('');
       } finally {
         setIsLoading(false);
       }
     };
-
     initializeLocation();
   }, []);
 
@@ -506,43 +486,44 @@ export default function MapPicker() {
     }
   };
 
-  const handleSaveLocation = async () => {
-    if (!selectedType) {
-      Alert.alert('Select Type', 'Please choose a location type (Home, Work, etc.)');
+  // Save address (AddressMapPicker logic)
+  const handleSaveAddress = async () => {
+    if (!address || !addressType) {
+      Alert.alert('Error', 'Please provide an address and select a type.');
       return;
     }
-
     if (!selectedCoordinate) {
-      Alert.alert('Select Location', 'Please select a location on the map');
+      Alert.alert('Error', 'Please select a location on the map.');
       return;
     }
-
-    const { latitude, longitude } = selectedCoordinate;
-    const geo = await reverseGeocode(latitude, longitude);
-    if (!geo) return;
-
-    const locationData = {
-      city: geo.city || '',
-      state: geo.state || '',
-      country: geo.country || '',
-      lat: latitude.toString(),
-      lon: longitude.toString(),
-      fullAddress: geo.fullAddress,
-      area: '',
-      street: '',
-      houseNumber: '',
-    };
-
-    setLocation(locationData);
-
-    // Save to AsyncStorage
+    setIsSaving(true);
     try {
-      await AsyncStorage.setItem('currentLocation', JSON.stringify(locationData));
+      const addressUpload = additionalDetails ? `${address}, ${additionalDetails}` : address;
+      await axios.post(
+        `${API_BASE_URL}/api/createUserAddress`,
+        [
+          {
+            address: addressUpload,
+            service_area: addressType,
+            latitude: selectedCoordinate.latitude,
+            longitude: selectedCoordinate.longitude,
+          }
+        ],
+        {
+          headers: {
+            "Content-Type": "application/json"
+          },
+          withCredentials: true
+        }
+      );
+      Alert.alert('Success', 'Address saved successfully');
+      router.push('screens/Address');
     } catch (error) {
-      console.error('Error saving location:', error);
+      console.error('Error saving address:', error);
+      Alert.alert('Error', error.response?.data?.message || 'Failed to save address');
+    } finally {
+      setIsSaving(false);
     }
-
-    router.back();
   };
 
   const getTagStyle = (type) => ({
@@ -553,13 +534,13 @@ export default function MapPicker() {
     marginRight: 4,
     borderWidth: 1,
     borderRadius: 30,
-    borderColor: selectedType === type ? '#f23e3f' : '#ccc',
-    backgroundColor: selectedType === type ? '#ffe6e6' : '#fff',
+    borderColor: addressType === type ? '#f23e3f' : '#ccc',
+    backgroundColor: addressType === type ? '#ffe6e6' : '#fff',
   });
 
   const getTextStyle = (type) => ({
     marginLeft: 6,
-    color: selectedType === type ? '#f23e3f' : '#555',
+    color: addressType === type ? '#f23e3f' : '#555',
   });
 
   if (isLoading) {
@@ -572,9 +553,8 @@ export default function MapPicker() {
   }
 
   return (
-    <View className="flex-1">
-      <BackRouting style={{ backgroundColor: '#f0f0f0' }} title='Select From Map' />
-      
+    <View className="flex-1 bg-white">
+      <BackRouting style={{ backgroundColor: '#f0f0f0' }} title='Add Address' />
       {/* Search Box */}
       <TouchableOpacity 
         className="relative mx-5 mt-2.5 mb-2.5"
@@ -589,7 +569,7 @@ export default function MapPicker() {
         />
         <Feather name="search" size={20} color="#666" className="absolute left-3 top-3" />
       </TouchableOpacity>
-   <MapView
+      <MapView
         ref={mapRef}
         className="h-96 w-full"
         region={region}
@@ -598,17 +578,31 @@ export default function MapPicker() {
           const { coordinate } = e.nativeEvent;
           setSelectedCoordinate(coordinate);
           reverseGeocodeCoordinates(coordinate.latitude, coordinate.longitude)
-            .then(address => setCurrentAddress(address));
+            .then(addr => {
+              setCurrentAddress(addr);
+              setAddress(addr);
+            });
         }}
+        showsUserLocation={true}
+        showsMyLocationButton={true}
       >
         {selectedCoordinate && (
           <Marker 
             coordinate={selectedCoordinate} 
             pinColor="#e41e3f"
+            draggable
+            onDragEnd={(e) => {
+              const { latitude, longitude } = e.nativeEvent.coordinate;
+              setSelectedCoordinate({ latitude, longitude });
+              reverseGeocodeCoordinates(latitude, longitude)
+                .then(addr => {
+                  setCurrentAddress(addr);
+                  setAddress(addr);
+                });
+            }}
           />
         )}
       </MapView>
-      
       <TouchableOpacity
         className="absolute bottom-72 left-16 right-16 bg-white p-2.5 rounded-full border border-gray-300 shadow-lg"
         onPress={getCurrentLocation}
@@ -624,39 +618,54 @@ export default function MapPicker() {
           {isFetchingLocation && <ActivityIndicator size="small" color="#e41e3f" />}
         </View>
       </TouchableOpacity>
-      
       <View className="bg-white mt-2.5 mx-5 p-4 rounded-lg border border-gray-300 shadow-sm">
-         <View className="flex-row items-center">
-         <Ionicons name='location' size={24} color="#e41e3f"/>
-        <Text className="text-sm text-gray-600 mt-0.5 ml-2.5 flex-1" numberOfLines={2}>
-          {currentAddress || 'Tap to get current location or move the map'}
-        </Text>
-        </View>
-      </View>
-      
-      <View className="flex-row p-2.5 justify-center">
-        <FlatList
-          data={tagOptions}
-          horizontal
-          keyExtractor={(item) => item.type}
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={{flexDirection: 'row', padding: 10, justifyContent: 'center'}}
-          renderItem={({ item }) => (
-            <TouchableOpacity
-              style={getTagStyle(item.type)}
-              onPress={() => setSelectedType(item.type)}
-            >
-              {item.icon}
-              <Text style={getTextStyle(item.type)}>{item.type}</Text>
-            </TouchableOpacity>
-          )}
+        <Text className="text-base font-medium text-gray-800 mb-3">Address</Text>
+        <TextInput
+          className="border border-gray-300 rounded-lg p-3.5 mb-4 text-base bg-gray-50 min-h-[60px]"
+          style={{ textAlignVertical: 'top' }}
+          value={address}
+          placeholder="Enter or select address"
+          onChangeText={setAddress}
+          multiline
         />
+        <Text className="mb-2 text-textsecondary text-sm font-outfit">Additional address details*</Text>
+        <Text className="mb-3 text-xs text-textsecondary font-outfit">E.g. Floor, House no.</Text>
+        <TextInput
+          placeholder="Enter additional details"
+          value={additionalDetails}
+          onChangeText={setAdditionalDetails}
+          className="border border-gray-300 p-3.5 rounded-lg mb-4 text-base bg-gray-50"
+        />
+        <Text className="text-base font-medium text-gray-800 mb-3">Address Type</Text>
+        <View className="flex-row flex-wrap justify-between mb-4">
+          {['Home', 'Work', 'Hotel', 'Other'].map((type) => (
+            <TouchableOpacity
+              key={type}
+              style={getTagStyle(type)}
+              onPress={() => setAddressType(type)}
+            >
+              <View style={{ marginRight: 8 }}>{
+                type === 'Home' ? <Ionicons name="home" size={18} color="#f23e3e" /> :
+                type === 'Work' ? <MaterialCommunityIcons name="briefcase-outline" size={18} color="#f23e3e" /> :
+                type === 'Hotel' ? <MaterialCommunityIcons name="office-building" size={18} color="#f23e3e" /> :
+                <FontAwesome5 name="map-marker-alt" size={16} color="#f23e3e" />
+              }</View>
+              <Text style={getTextStyle(type)}>{type}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+        <TouchableOpacity
+          className="bg-red-500 p-4 rounded-lg items-center"
+          onPress={handleSaveAddress}
+          disabled={isSaving}
+        >
+          {isSaving ? (
+            <ActivityIndicator color="white" />
+          ) : (
+            <Text className="text-white text-base font-semibold">Save Address</Text>
+          )}
+        </TouchableOpacity>
       </View>
-
-      <TouchableOpacity className="mx-5 bg-red-600 p-3.5 rounded-lg items-center mb-5" onPress={handleSaveLocation}>
-        <Text className="text-white text-base font-bold">Save Location</Text>
-      </TouchableOpacity>
-
       {/* Search Modal */}
       <Modal
         visible={showSearchModal}
@@ -673,7 +682,6 @@ export default function MapPicker() {
             </TouchableOpacity>
             <Text className="text-lg font-bold text-black">Search Location</Text>
           </View>
-          
           <View className="relative m-4">
             <TextInput
               className="bg-gray-100 p-3 pl-10 rounded-lg text-base font-bold"
@@ -684,7 +692,6 @@ export default function MapPicker() {
             />
             <Feather name="search" size={20} color="#666" className="absolute left-3 top-3" />
           </View>
-
           {isSearching ? (
             <View className="flex-1 justify-center items-center">
               <ActivityIndicator size="large" color="#e41e3f" />
