@@ -18,7 +18,7 @@ import axios from "axios";
 import { useAuth } from "../../context/AuthContext";
 import { API_CONFIG } from '../../config/apiConfig';
 
-export default function Reviewsall() {
+function Reviewsall() {
   const [calculatedboxvisible, setcalculatedboxvisible] = useState(false);
   const [perfervisible, setprefervisible] = useState(false);
   const [commentvisible, setcommentvisible] = useState(false);
@@ -550,32 +550,7 @@ export default function Reviewsall() {
           ) : null
         }
       />
-    </Fragment>
-  );
-};
-
-export default Reviewsall;"comment-text-outline"
-    size={20}
-    color="black"
-    style={ZomatoStyles.likeimage}
-  />
-  <Text style={ZomatoStyles.commenttabtext}> Comment</Text>
-</TouchableOpacity>
-              <TouchableOpacity style={ZomatoStyles.commenttabbox}>
-                <Fontisto name="share" size={20} color="black" style={ZomatoStyles.likeimage} />
-                <Text style={ZomatoStyles.commenttabtext}>Share</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        )}
-        onEndReached={handleLoadMore}
-        onEndReachedThreshold={0.5}
-        ListFooterComponent={() => (
-          loading && page > 1 ? (
-            <ActivityIndicator size="small" color="#0000ff" style={{ marginVertical: 20 }} />
-          ) : null
-        )}
-      />
+      
       <TouchableOpacity
         style={ZomatoStyles.commentButton}
         onPress={() => router.push({
@@ -584,7 +559,7 @@ export default Reviewsall;"comment-text-outline"
             firmId: firmId,
             restaurantName: params.restaurantName,
             currentUser: currentUserData,
-            reviewType:reviewType,
+            reviewType: reviewType,
           }
         })}
         activeOpacity={0.9}
@@ -597,3 +572,5 @@ export default Reviewsall;"comment-text-outline"
     </Fragment>
   );
 }
+
+export default Reviewsall;
