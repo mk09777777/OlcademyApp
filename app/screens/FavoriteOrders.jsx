@@ -6,6 +6,7 @@ import TakeawayOrderCard from '../../Card/TakewayCard';
 import TiffinOrderCard from '../../components/TiffinOrderCard';
 
 import { API_CONFIG } from '../../config/apiConfig';
+import BackRouting from '@/components/BackRouting';
 const SERVER_URL = API_CONFIG.BACKEND_URL;
 export default function FavoriteOrdersScreen() {
   const [activeTab, setActiveTab] = useState('Takeaway');
@@ -250,6 +251,7 @@ const prepareOrderData = (order) => {
 
   return (
     <SafeAreaView className="flex-1 bg-background">
+      <BackRouting tittle ="Favorite Orders"/>
       {/* Tabs */}
       <View className="flex-row bg-white border-b border-border">
         <TouchableOpacity

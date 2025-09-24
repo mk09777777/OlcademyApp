@@ -15,7 +15,7 @@ export default function ProfileHeader() {
   return (
     <TouchableOpacity 
       onPress={handlePress} 
-      className="p-4 items-center bg-white border-b border-border w-full"
+      className="p-4 items-center"
       activeOpacity={0.7}
     >
       {user?.profilePicture ? (

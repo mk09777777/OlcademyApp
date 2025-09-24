@@ -15,6 +15,8 @@ import {
   MaterialCommunityIcons,
 } from '@expo/vector-icons';
 import BackRouting from '@/components/BackRouting';
+import { StyleSheet } from 'react-native';
+
 const OrderSummary = () => {
   /* Original CSS Reference:
    * container: { flex: 1, backgroundColor: '#f3f4f6' }

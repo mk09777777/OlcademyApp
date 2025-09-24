@@ -14,7 +14,7 @@ import BackRouting from '@/components/BackRouting';
 export default function Profile() {
   const router = useRouter();
   return (
-    <SafeAreaView className="flex-1 bg-light">
+    <SafeAreaView className="flex-1 bg-white">
       <BackRouting tittle ='user'/>
 
       <ProfileHeader />

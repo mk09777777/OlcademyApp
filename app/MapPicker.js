@@ -553,13 +553,13 @@ export default function MapPicker() {
     marginRight: 4,
     borderWidth: 1,
     borderRadius: 30,
-    borderColor: selectedType === type ? '#f23e3e' : '#ccc',
+    borderColor: selectedType === type ? '#f23e3f' : '#ccc',
     backgroundColor: selectedType === type ? '#ffe6e6' : '#fff',
   });
 
   const getTextStyle = (type) => ({
     marginLeft: 6,
-    color: selectedType === type ? '#f23e3e' : '#555',
+    color: selectedType === type ? '#f23e3f' : '#555',
   });
 
   if (isLoading) {

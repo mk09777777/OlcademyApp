@@ -59,8 +59,8 @@ const ProfileSection = () => {
         />
         <ProfileItem
           icon="confirmation-number"
-          title="Cupon"
-          value="3 cupon"
+          title="Coupon"
+          value="3 coupon"
           chevron
           onPress={() => console.log('Cupon pressed')}
         />

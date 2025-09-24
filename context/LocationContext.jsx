@@ -104,6 +104,21 @@ export const LocationProvider = ({ children }) => {
     }
   };
 
+  const getDeviceLocation = async () => {
+    try {
+      let { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        console.warn('Permission to access location was denied');
+        return null;
+      }
+      let location = await Location.getCurrentPositionAsync({});
+      return location.coords;
+    } catch (error) {
+      console.error('Error getting device location:', error);
+      return null;
+    }
+  };
+
   return (
     <LocationContext.Provider value={{ location, setLocation, recentlyAdds, setRecentlyAdds, isLoading }}>
       {children}

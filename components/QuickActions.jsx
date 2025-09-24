@@ -8,7 +8,7 @@ import { useSafeNavigation } from '@/hooks/navigationPage';
 export default function QuickActions() {
   const { safeNavigation } = useSafeNavigation();
   return (
-    <View className="flex-row justify-between p-4 bg-white">
+    <View className="flex-row justify-between p-4">
       <TouchableOpacity className="flex-row items-center p-3 bg-light rounded-2xl flex-1 mr-2" onPress={() => safeNavigation('/screens/Collection')}>
         <Ionicons name="bookmark-outline" size={24} color={Colors.textLight} />
         <Text className="ml-2 text-textsecondary font-outfit">Collections</Text>

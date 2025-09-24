@@ -10,13 +10,11 @@ import {
   Alert,
   ActivityIndicator,
   Share,
-  StyleSheet
 } from 'react-native';
 import { Ionicons, Feather, MaterialCommunityIcons, FontAwesome5 } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import axios from 'axios';
-import { useSafeNavigation } from '@/hooks/navigationPage';
 import BackRouting from '@/components/BackRouting';
+import axios from 'axios';
 import { API_CONFIG } from '../../config/apiConfig';
 
 export default function AddressScreen() {
@@ -28,21 +26,19 @@ export default function AddressScreen() {
   const [isLoading, setIsLoading] = useState(true);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const { safeNavigation } = useSafeNavigation();
-  // Local input states for editing
   const [editingAddressText, setEditingAddressText] = useState('');
   const [editingAddressType, setEditingAddressType] = useState('');
   const [editingAddressId, setEditingAddressId] = useState(null);
 
-
-  const API_BASE_URL = API_CONFIG.BACKEND_URL;
+  const API_BASE_URL = 'https://backend-0wyj.onrender.com';
 
   const fetchAddresses = async () => {
     setIsLoading(true);
     try {
-      const response = await axios.get(`${API_BASE_URL}/api/getSavedAddress`);
-      console.log("address fetched is", response.data);
-      setAddresses(response.data.reverse()); // latest first
+      const response = await axios.get(`${API_BASE_URL}/api/getSavedAddress`, {
+        withCredentials: true,
+      });
+      setAddresses(response.data.reverse());
     } catch (error) {
       console.error("Error fetching addresses:", error);
       Alert.alert("Error", "Failed to load addresses. Please try again.");
@@ -50,7 +46,6 @@ export default function AddressScreen() {
       setIsLoading(false);
     }
   };
-
 
   useEffect(() => {
     fetchAddresses();
@@ -98,12 +93,10 @@ export default function AddressScreen() {
         {
           address: editingAddressText,
           service_area: editingAddressType
-        }
+        },
+        { withCredentials: true }
       );
-
-      // Refresh the list
       fetchAddresses();
-
       setEditModalVisible(false);
       Alert.alert("Success", "Address updated successfully");
     } catch (error) {
@@ -117,7 +110,9 @@ export default function AddressScreen() {
   const confirmDelete = async () => {
     setIsDeleting(true);
     try {
-      await axios.delete(`${API_BASE_URL}/api/DeleteUserAddress/${addressToDelete._id}`);
+      await axios.delete(`${API_BASE_URL}/api/DeleteUserAddress/${addressToDelete._id}`, {
+        withCredentials: true,
+      });
       setAddresses(prev => prev.filter(addr => addr._id !== addressToDelete._id));
       setDeleteModalVisible(false);
       Alert.alert("Success", "Address deleted successfully");
@@ -218,10 +213,10 @@ export default function AddressScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-white">
-      <BackRouting tittle="Your Address" />
+      <BackRouting title="Your Address" />
       <TouchableOpacity
         className="flex-row items-center p-4 border-b border-gray-200"
-        onPress={() => safeNavigation('MapPicker')}
+        onPress={() => router.push('/AddressMapPicker')}
       >
         <Ionicons name="add" size={24} color="#f23e3e" />
         <Text className="ml-3 text-base text-red-500 font-medium flex-1">Add Address</Text>
@@ -248,7 +243,6 @@ export default function AddressScreen() {
         )}
       </View>
 
-      {/* Edit Address Modal */}
       <Modal
         visible={editModalVisible}
         animationType="slide"
@@ -300,7 +294,6 @@ export default function AddressScreen() {
         </View>
       </Modal>
 
-      {/* Delete Confirmation Modal */}
       <Modal
         visible={deleteModalVisible}
         transparent={true}
@@ -337,53 +330,4 @@ export default function AddressScreen() {
     </SafeAreaView>
   );
 }
-/* Original CSS Reference:
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fff' },
-  loadingContainer: { justifyContent: 'center', alignItems: 'center' },
-  loadingText: { marginTop: 16, color: '#666', fontSize: 16 },
-  emptyState: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 40 },
-  emptyStateText: { fontSize: 18, color: '#333', marginTop: 16, fontWeight: '500' },
-  emptyStateSubtext: { fontSize: 14, color: '#666', marginTop: 8 },
-  addAddressButton: { flexDirection: 'row', alignItems: 'center', padding: 16, borderBottomWidth: 1, borderBottomColor: '#eee' },
-  addAddressText: { marginLeft: 12, fontSize: 16, color: '#f23e3e', fontWeight: '500', flex: 1 },
-  divider: { height: 8, backgroundColor: '#f5f5f5' },
-  savedSection: { flex: 1, padding: 16 },
-  savedTitle: { fontSize: 14, fontWeight: 'bold', color: '#666', marginBottom: 16, textTransform: 'uppercase', letterSpacing: 0.5 },
-  addressList: { paddingBottom: 20 },
-  addressCardContainer: { position: 'relative', marginBottom: 16 },
-  addressCard: { backgroundColor: '#fff', borderRadius: 12, padding: 16, borderWidth: 1, borderColor: '#eee', elevation: 1, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 2 },
-  addressHeader: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 12 },
-  addressTypeContainer: { flexDirection: 'row', alignItems: 'center' },
-  addressType: { fontSize: 16, fontWeight: '600', color: '#333', marginLeft: 10 },
-  addressText: { fontSize: 14, color: '#555', lineHeight: 20, marginBottom: 8 },
-  actionButtons: { flexDirection: 'row', justifyContent: 'flex-end', marginTop: 8 },
-  actionButton: { marginLeft: 20 },
-  dropdownMenu: { position: 'absolute', right: 0, top: 0, backgroundColor: '#fff', borderRadius: 8, elevation: 3, zIndex: 1, width: 140, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4 },
-  dropdownItem: { paddingHorizontal: 16, paddingVertical: 12 },
-  dropdownText: { fontSize: 15, color: '#333' },
-  deleteText: { color: '#f23e3e', fontWeight: '500' },
-  modalContainer: { flex: 1, justifyContent: 'center', backgroundColor: 'rgba(0,0,0,0.5)', padding: 20 },
-  modalContent: { backgroundColor: 'white', borderRadius: 12, padding: 24 },
-  modalTitle: { fontSize: 20, fontWeight: '600', marginBottom: 24, color: '#333', textAlign: 'center' },
-  input: { borderWidth: 1, borderColor: '#ddd', borderRadius: 8, padding: 14, marginBottom: 24, fontSize: 15, backgroundColor: '#fafafa', minHeight: 101, textAlignVertical: 'top' },
-  label: { fontSize: 15, fontWeight: '500', marginBottom: 12, color: '#333' },
-  typeOptionsContainer: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', marginBottom: 24 },
-  typeOption: { width: '48%', flexDirection: 'row', alignItems: 'center', padding: 12, marginBottom: 12, borderWidth: 1, borderColor: '#ddd', borderRadius: 8 },
-  selectedType: { borderColor: '#f23e3e', backgroundColor: '#ffe6e6' },
-  typeIcon: { marginRight: 8 },
-  typeText: { fontSize: 14 },
-  saveButton: { backgroundColor: '#f23e3e', padding: 16, borderRadius: 8, alignItems: 'center' },
-  saveButtonText: { color: 'white', fontSize: 16, fontWeight: '600' },
-  deleteModalContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.5)' },
-  deleteModalContent: { backgroundColor: 'white', borderRadius: 12, padding: 24, width: '85%' },
-  deleteModalTitle: { fontSize: 18, fontWeight: '600', textAlign: 'center', marginBottom: 8, color: '#333' },
-  deleteModalSubtitle: { fontSize: 14, color: '#666', textAlign: 'center', marginBottom: 24 },
-  deleteModalButtons: { flexDirection: 'row', justifyContent: 'space-between', gap: 12 },
-  deleteModalButton: { flex: 1, padding: 14, borderRadius: 8, alignItems: 'center', borderWidth: 1 },
-  deleteModalCancel: { borderColor: '#ddd', backgroundColor: '#f9f9f9' },
-  deleteModalConfirm: { backgroundColor: '#f23e3e', borderColor: '#f23e3e' },
-  deleteModalButtonText: { fontSize: 15, fontWeight: '500', color: '#333' },
-  deleteModalConfirmText: { color: 'white', fontWeight: '500' }
-});
-*/
+

@@ -7,13 +7,15 @@ import {
   TextInput,
   Image,
   ActivityIndicator,
-  SafeAreaView
+  SafeAreaView,
+  StyleSheet
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import TakeawayOrderCard from '../../Card/TakewayCard';
 import axios from 'axios';
+import { API_CONFIG } from '../../config/apiConfig';
 
-const SERVER_URL = 'https://backend-0wyj.onrender.com';
+const SERVER_URL = API_CONFIG.BACKEND_URL;
 
 export default function TakeawayOrdersScreen() {
   const [activeTab, setActiveTab] = useState('all');
@@ -33,12 +35,12 @@ export default function TakeawayOrdersScreen() {
     setError(null);
     try {
       const response = await axios.get(
-        `${SERVER_URL}/api/orders/menu/user?page=${page}&limit=10`,
+        `${SERVER_URL}/api/orders/takeaway/user?page=${page}&limit=10`,
         { withCredentials: true }
       );
 
       const { orders: fetchedOrders, totalPages: fetchedTotalPages, currentPage: fetchedCurrentPage } = response.data;
-      // console.log(response.data)
+
       if (page === 1) {
         setOrders(fetchedOrders);
       } else {
@@ -49,11 +51,12 @@ export default function TakeawayOrdersScreen() {
       setCurrentPage(fetchedCurrentPage);
       setHasMore(fetchedCurrentPage < fetchedTotalPages);
     } catch (error) {
-      console.error('Error fetching orders:', error);
-      setError(error.response?.data?.message || 'Failed to fetch orders. Please try again.');
-      if (error.response?.status === 404) {
-        setError('Endpoint not found. Please check the server configuration.');
-      }
+      console.error('Error fetching takeaway orders:', error);
+      const message = error.response?.status === 404
+        ? 'Takeaway orders endpoint not found. Please check the server configuration.'
+        : error.response?.data?.message || 'Failed to fetch orders. Please try again.';
+      setError(message);
+      setHasMore(false);
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -89,7 +92,6 @@ export default function TakeawayOrdersScreen() {
       );
     } catch (error) {
       console.error('Error toggling favorite:', error);
-      // Revert if error
       setOrders(orders.map(order =>
         order._id === orderId ? { ...order, fav: !order.fav } : order
       ));
@@ -107,18 +109,16 @@ export default function TakeawayOrdersScreen() {
   const getFilteredOrders = () => {
     let filtered = orders;
 
-    // Apply status filter based on active tab
     if (activeTab === 'active') {
       filtered = filtered.filter(order =>
-        ['ready', 'accepted', 'preparing'].includes(order.status)
+        ['ready', 'accepted', 'preparing'].includes(order.status.toLowerCase())
       );
     } else if (activeTab === 'past') {
       filtered = filtered.filter(order =>
-        ['completed', 'Delivered', 'cancelled', 'rejected', 'user_cancel'].includes(order.status)
+        ['completed', 'delivered', 'cancelled', 'rejected', 'user_cancel'].includes(order.status.toLowerCase())
       );
     }
 
-    // Apply search filter if any
     if (searchQuery) {
       filtered = filtered.filter(order => {
         const restaurantName = order.items[0]?.sourceEntityId?.restaurantInfo?.name || '';
@@ -137,6 +137,7 @@ export default function TakeawayOrdersScreen() {
     return (
       <View style={styles.loadingFooter}>
         <ActivityIndicator size="small" color="#fc8019" />
+        <Text style={styles.footerText}>Loading more orders...</Text>
       </View>
     );
   };
@@ -155,8 +156,6 @@ export default function TakeawayOrdersScreen() {
 
   const renderOrderItem = ({ item }) => {
     const restaurantInfo = item.items?.[0]?.sourceEntityId?.restaurantInfo || {};
-     const restaurantInfof = item.items?.[0]?.sourceEntityId
-// console.log(restaurantInfof)
     const safeItem = {
       ...item,
       amount: item.totalPrice || 0,
@@ -191,30 +190,41 @@ export default function TakeawayOrdersScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-background">
+    <SafeAreaView style={styles.container}>
+      {/* Search Bar */}
+      <View style={styles.searchContainer}>
+        <Ionicons name="search" size={20} color="#666" style={styles.searchIcon} />
+        <TextInput
+          style={styles.searchInput}
+          placeholder="Search orders..."
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+        />
+      </View>
+
       {/* Tabs */}
-      <View className="flex-row bg-white px-4 mb-2">
+      <View style={styles.tabContainer}>
         <TouchableOpacity
-          className={`flex-1 py-3 items-center border-b-2 ${activeTab === 'all' ? 'border-primary' : 'border-transparent'}`}
+          style={[styles.tab, activeTab === 'all' ? styles.activeTab : null]}
           onPress={() => setActiveTab('all')}
         >
-          <Text className={`font-outfit ${activeTab === 'all' ? 'text-primary font-outfit-bold' : 'text-textsecondary'}`}>
+          <Text style={[styles.tabText, activeTab === 'all' ? styles.activeTabText : null]}>
             All Orders
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
-          className={`flex-1 py-3 items-center border-b-2 ${activeTab === 'active' ? 'border-primary' : 'border-transparent'}`}
+          style={[styles.tab, activeTab === 'active' ? styles.activeTab : null]}
           onPress={() => setActiveTab('active')}
         >
-          <Text className={`font-outfit ${activeTab === 'active' ? 'text-primary font-outfit-bold' : 'text-textsecondary'}`}>
+          <Text style={[styles.tabText, activeTab === 'active' ? styles.activeTabText : null]}>
             Active
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
-          className={`flex-1 py-3 items-center border-b-2 ${activeTab === 'past' ? 'border-primary' : 'border-transparent'}`}
+          style={[styles.tab, activeTab === 'past' ? styles.activeTab : null]}
           onPress={() => setActiveTab('past')}
         >
-          <Text className={`font-outfit ${activeTab === 'past' ? 'text-primary font-outfit-bold' : 'text-textsecondary'}`}>
+          <Text style={[styles.tabText, activeTab === 'past' ? styles.activeTabText : null]}>
             Past Orders
           </Text>
         </TouchableOpacity>
@@ -225,24 +235,25 @@ export default function TakeawayOrdersScreen() {
 
       {/* Orders List */}
       {loading && orders.length === 0 ? (
-        <View className="flex-1 justify-center items-center">
+        <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color="#FF002E" />
+          <Text style={styles.loadingText}>Loading your orders...</Text>
         </View>
       ) : (
         <FlatList
           data={getFilteredOrders()}
           renderItem={renderOrderItem}
           keyExtractor={(item) => item._id}
-          contentContainerStyle={{ padding: 16, paddingBottom: 80 }}
+          contentContainerStyle={styles.flatListContent}
           ListEmptyComponent={
             !error && (
-              <View className="items-center justify-center p-8">
+              <View style={styles.emptyContainer}>
                 <Image
                   source={require('../../assets/images/logo.jpg')}
-                  className="w-30 h-30 mb-4 opacity-70"
+                  style={styles.emptyImage}
                   resizeMode="contain"
                 />
-                <Text className="text-base text-textsecondary font-outfit">
+                <Text style={styles.emptyText}>
                   {activeTab === 'all'
                     ? 'No orders found'
                     : activeTab === 'active'
@@ -263,3 +274,122 @@ export default function TakeawayOrdersScreen() {
   );
 }
 
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#f8f8f8',
+  },
+  searchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    margin: 12,
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    borderWidth: 1,
+    borderColor: '#e0e0e0',
+  },
+  searchIcon: {
+    marginRight: 8,
+  },
+  searchInput: {
+    flex: 1,
+    fontSize: 16,
+    color: '#333',
+    fontFamily: 'outfit',
+    paddingVertical: 10,
+  },
+  tabContainer: {
+    flexDirection: 'row',
+    backgroundColor: '#fff',
+    paddingHorizontal: 16,
+    marginBottom: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: '#e0e0e0',
+  },
+  tab: {
+    flex: 1,
+    alignItems: 'center',
+    paddingVertical: 12,
+    borderBottomWidth: 2,
+    borderBottomColor: 'transparent',
+  },
+  activeTab: {
+    borderBottomColor: '#FF002E',
+  },
+  tabText: {
+    fontSize: 14,
+    color: '#666',
+    fontFamily: 'outfit',
+  },
+  activeTabText: {
+    color: '#FF002E',
+    fontFamily: 'outfit-bold',
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loadingText: {
+    marginTop: 10,
+    fontSize: 16,
+    color: '#666',
+    fontFamily: 'outfit',
+  },
+  errorContainer: {
+    padding: 20,
+    backgroundColor: '#fee2e2',
+    margin: 16,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  errorText: {
+    fontSize: 16,
+    color: '#b91c1c',
+    fontFamily: 'outfit-bold',
+    marginBottom: 8,
+  },
+  retryButton: {
+    backgroundColor: '#FF002E',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+  },
+  retryButtonText: {
+    fontSize: 16,
+    color: '#fff',
+    fontFamily: 'outfit-bold',
+  },
+  emptyContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 32,
+  },
+  emptyImage: {
+    width: 120,
+    height: 120,
+    marginBottom: 16,
+    opacity: 0.7,
+  },
+  emptyText: {
+    fontSize: 16,
+    color: '#666',
+    fontFamily: 'outfit',
+    textAlign: 'center',
+  },
+  flatListContent: {
+    padding: 16,
+    paddingBottom: 80,
+  },
+  loadingFooter: {
+    padding: 16,
+    alignItems: 'center',
+  },
+  footerText: {
+    marginTop: 8,
+    fontSize: 14,
+    color: '#666',
+    fontFamily: 'outfit',
+  },
+});

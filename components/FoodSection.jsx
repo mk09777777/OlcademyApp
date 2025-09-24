@@ -4,6 +4,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import Colors from '../components/constants/Colors';
 import styles from '../styles/FoodSection';
 import { router } from 'expo-router';
+
 const FoodSection = () => {
   const FoodItem = ({ icon, title, chevron, onPress }) => (
     <TouchableOpacity onPress={onPress} style={styles.section}>
@@ -52,4 +53,5 @@ const FoodSection = () => {
     </View>
   );
 };
+
 export default FoodSection;
