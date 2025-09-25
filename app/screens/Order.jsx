@@ -43,9 +43,9 @@ export default function OrderScreen() {
       
       <Tab.Navigator
         screenOptions={{
-          tabBarActiveTintColor: '#FF002E',
+          tabBarActiveTintColor: '#fc8019',
           tabBarInactiveTintColor: '#666',
-          tabBarIndicatorStyle: { backgroundColor: '#FF002E' },
+          tabBarIndicatorStyle: { backgroundColor: '#fc8019' },
           tabBarLabelStyle: { fontSize: 14, fontWeight: '500', textTransform: 'none' },
           tabBarStyle: { elevation: 0, shadowOpacity: 0, borderBottomWidth: 1, borderBottomColor: '#f0f0f0' },
         }}
