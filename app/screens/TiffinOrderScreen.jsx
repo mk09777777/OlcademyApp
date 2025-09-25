@@ -106,7 +106,7 @@ export default function TiffinOrdersScreen() {
       case 'user_cancel':
         return '#e23744';
       case 'on the way':
-        return '#fc8019';
+        return '#FF002E';
       case 'preparing':
       case 'pending':
         return '#f57c00';

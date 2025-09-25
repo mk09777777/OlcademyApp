@@ -35,7 +35,7 @@ export default function TakeawayOrdersScreen() {
     setError(null);
     try {
       const response = await axios.get(
-        `${SERVER_URL}/api/orders/takeaway/user?page=${page}&limit=10`,
+        `${SERVER_URL}/api/orders/tiffin/user?page=${page}&limit=10`,
         { withCredentials: true }
       );
 
@@ -136,7 +136,7 @@ export default function TakeawayOrdersScreen() {
     if (!loading) return null;
     return (
       <View style={styles.loadingFooter}>
-        <ActivityIndicator size="small" color="#fc8019" />
+        <ActivityIndicator size="small" color="#FF002E" />
         <Text style={styles.footerText}>Loading more orders...</Text>
       </View>
     );

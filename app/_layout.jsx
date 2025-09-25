@@ -17,6 +17,7 @@ import { useRouter } from 'expo-router';
 import { OffersProvider } from '@/context/OfferContext';
 import { FirmProvider } from '@/context/FirmContext';
 
+
 export const unstable_settings = {
   initialRouteName: 'auth',
 };
@@ -66,8 +67,7 @@ export default function RootLayout() {
                               <Stack.Screen name="screens/Collection" options={{ headerShown: false }} />
                               <Stack.Screen name="screens/FavoriteOrders" options={{ headerShown: false }} />
                               <Stack.Screen name="screens/NoficationsPage" options={{ headerShown: false }} />
-                              <Stack.Screen name="screens/MapPicker" options={{ headerShown: false }} />
-                                <Stack.Screen name="AddressMapPicker" options={{ headerShown: false }} />
+                              <Stack.Screen name="MapPicker" options={{ headerShown: false }} />
 
                               {/* Dining and Booking Screens */}
                               <Stack.Screen name="screens/DiningBooking" options={{ headerShown: false }} />
