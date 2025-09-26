@@ -253,25 +253,86 @@ const prepareOrderData = (order) => {
     <SafeAreaView className="flex-1 bg-background">
       <BackRouting tittle ="Favorite Orders"/>
       {/* Tabs */}
-      <View className="flex-row bg-white border-b border-border">
-        <TouchableOpacity
-          className={`flex-1 flex-row items-center justify-center py-4 ${activeTab === 'Takeaway' ? 'border-b-2 border-primary' : ''}`}
-          onPress={() => setActiveTab('Takeaway')}
+      <View className="px-5 py-3">
+        <View 
+          style={{
+            backgroundColor: '#feebee',
+            borderRadius: 30,
+            flexDirection: 'row',
+            position: 'relative',
+          }}
         >
-          <Ionicons name="fast-food-outline" size={24} color='#FF002E' />
-          <Text className={`ml-2 font-outfit ${activeTab === 'Takeaway' ? 'text-primary font-outfit-bold' : 'text-textsecondary'}`}>
-            Takeaway
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          className={`flex-1 flex-row items-center justify-center py-4 ${activeTab === 'Tiffin' ? 'border-b-2 border-primary' : ''}`}
-          onPress={() => setActiveTab('Tiffin')}
-        >
-           <MaterialCommunityIcons name="food-takeout-box-outline" size={24} color='#FF002E' />
-          <Text className={`ml-2 font-outfit ${activeTab === 'Tiffin' ? 'text-primary font-outfit-bold' : 'text-textsecondary'}`}>
-            Tiffin
-          </Text>
-        </TouchableOpacity>
+          {/* Active Tab Indicator */}
+          <View
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: activeTab === 'Takeaway' ? 0 : '50%',
+              width: '50%',
+              height: '100%',
+              backgroundColor: '#FF002E',
+              borderRadius: 30,
+            }}
+          />
+          
+          <TouchableOpacity
+            style={{
+              flex: 1,
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'center',
+              paddingVertical: 12,
+              borderRadius: 30,
+            }}
+            onPress={() => setActiveTab('Takeaway')}
+          >
+            <Ionicons 
+              name="fast-food" 
+              size={20} 
+              color={activeTab === 'Takeaway' ? '#FFFFFF' : '#FF002E'} 
+              style={{ marginRight: 8 }}
+            />
+            <Text 
+              style={{
+                fontSize: 14,
+                fontWeight: '600',
+                fontFamily: 'outfit-medium',
+                color: activeTab === 'Takeaway' ? '#FFFFFF' : '#FF002E',
+              }}
+            >
+              Takeaway
+            </Text>
+          </TouchableOpacity>
+          
+          <TouchableOpacity
+            style={{
+              flex: 1,
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'center',
+              paddingVertical: 12,
+              borderRadius: 30,
+            }}
+            onPress={() => setActiveTab('Tiffin')}
+          >
+            <MaterialCommunityIcons 
+              name="food-takeout-box" 
+              size={20} 
+              color={activeTab === 'Tiffin' ? '#FFFFFF' : '#FF002E'} 
+              style={{ marginRight: 8 }}
+            />
+            <Text 
+              style={{
+                fontSize: 14,
+                fontWeight: '600',
+                fontFamily: 'outfit-medium',
+                color: activeTab === 'Tiffin' ? '#FFFFFF' : '#FF002E',
+              }}
+            >
+              Tiffin
+            </Text>
+          </TouchableOpacity>
+        </View>
       </View>
 
       {/* Error Display */}

@@ -12,20 +12,27 @@ export default function OrderScreen() {
   return (
     <SafeAreaView className="flex-1 bg-white">
       <BackRouting tittle="Your Order" />
-
       <View className="flex-1 px-5 py-3">
         <Tab.Navigator
           screenOptions={{
             tabBarActiveTintColor: '#FFFFFF',
             tabBarInactiveTintColor: '#FF002E',
             tabBarPressColor: 'transparent',
-            tabBarIconPosition: 'left', 
+            tabBarShowIcon: true,
+            tabBarIconStyle: {
+              marginRight: 8,
+            },
             tabBarLabelStyle: {
               fontSize: 14,
               fontWeight: '600',
               textTransform: 'none',
               fontFamily: 'outfit-medium',
+              marginLeft: 0,
+            },
+            tabBarItemStyle: {
               flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'center',
             },
             tabBarStyle: {
               backgroundColor: '#feebee',
@@ -44,24 +51,16 @@ export default function OrderScreen() {
             name="TakeawayOrders"
             component={TakeawayOrdersScreen}
             options={{
-              tabBarLabel: ({ color }) => (
-                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                  <Ionicons name="fast-food" size={20} color={color} style={{ marginRight: 6 }} />
-                  <Text style={{ color, fontSize: 14, fontWeight: '600', fontFamily: 'outfit-medium' }}>Takeaway</Text>
-                </View>
-              ),
+              tabBarLabel: 'Takeaway',
+              tabBarIcon: ({ color }) => <Ionicons name="fast-food" size={20} color={color} />,
             }}
           />
           <Tab.Screen
             name="TiffinOrders"
             component={TiffinOrdersScreen}
             options={{
-              tabBarLabel: ({ color }) => (
-                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                  <MaterialCommunityIcons name="food-takeout-box" size={20} color={color} style={{ marginRight: 6 }} />
-                  <Text style={{ color, fontSize: 14, fontWeight: '600', fontFamily: 'outfit-medium' }}>Tiffin</Text>
-                </View>
-              ),
+              tabBarLabel: 'Tiffin',
+              tabBarIcon: ({ color }) => <MaterialCommunityIcons name="food-takeout-box" size={20} color={color} />,
             }}
           />
         </Tab.Navigator>

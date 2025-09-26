@@ -15,6 +15,7 @@ const isExpoGo = Constants.appOwnership === 'expo';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import BackRouting from "@/components/BackRouting";
 import { useSafeNavigation } from "@/hooks/navigationPage";
+
 export default function NotificationSettings() {
     const [enableAll, setEnableAll] = useState(false);
     const [promosPush, setPromosPush] = useState(false);
@@ -24,7 +25,8 @@ export default function NotificationSettings() {
     const [ordersWhatsapp, setOrdersWhatsapp] = useState(false);
     const [buttonActive, setButtonActive] = useState(false);
     const [notificationmodal, setNotificationModal] = useState(false);
-   const { safeNavigation } = useSafeNavigation();
+    const { safeNavigation } = useSafeNavigation();
+    
     const initialState = useRef({
         enableAll: false,
         promosPush: false,
@@ -62,7 +64,6 @@ export default function NotificationSettings() {
 
     const fetchInitialSettings = async () => {
         try {
-
             const response = await fetch(`${API_CONFIG.BACKEND_URL}/api/getnotifications`, {
                 method: 'GET',
                 credentials: 'include',
@@ -124,7 +125,7 @@ export default function NotificationSettings() {
 
         try {
             const response = await fetch(`${API_CONFIG.BACKEND_URL}/api/putnotifications`, {
-                  method: 'PUT',
+                method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',
                 body: JSON.stringify(payload),
@@ -149,113 +150,245 @@ export default function NotificationSettings() {
                 </Modal>
             )}
 
+            <BackRouting tittle="Notification Settings" />
             <View className="flex-1 bg-background">
-                <ScrollView>
-                    <View className="bg-white p-4 mb-4 border-b border-border">
+                <ScrollView showsVerticalScrollIndicator={false}>
+                    
+                    {/* Enable All Section */}
+                    <View 
+                        className="bg-white p-5 mx-4 mt-4 mb-4 rounded-3xl shadow-sm"
+                        style={{
+                            shadowColor: '#000',
+                            shadowOffset: { width: 0, height: 2 },
+                            shadowOpacity: 0.1,
+                            shadowRadius: 8,
+                            elevation: 4,
+                            borderLeftWidth: 4,
+                            borderLeftColor: '#FF002E',
+                        }}
+                    >
                         <View className="flex-row justify-between items-center mb-2">
-                            <Text className="text-textprimary font-outfit-bold text-lg">Enable all</Text>
+                            <View className="flex-row items-center flex-1">
+                                <View 
+                                    style={{
+                                        backgroundColor: '#FFF0F0',
+                                        borderRadius: 16,
+                                        padding: 12,
+                                        marginRight: 16,
+                                    }}
+                                >
+                                    <Ionicons name="notifications" size={24} color="#FF002E" />
+                                </View>
+                                <View className="flex-1">
+                                    <Text className="text-textprimary font-outfit-bold text-lg">Enable all</Text>
+                                    <Text className="text-textsecondary font-outfit text-sm">Activate all notifications</Text>
+                                </View>
+                            </View>
                             <Switch
                                 value={enableAll}
                                 onValueChange={onToggleEnableAll}
-                                trackColor={{ false: '#767577', true: '#ffdbdf' }}
-                                thumbColor={enableAll ? '#ea4c5f' : '#fff'}
+                                trackColor={{ false: '#E0E0E0', true: '#ffdbdf' }}
+                                thumbColor={enableAll ? '#FF002E' : '#fff'}
                             />
                         </View>
-                        <Text className="text-textsecondary font-outfit text-sm">Activate all notifications</Text>
                     </View>
 
-                    <View className="bg-white p-4 mb-4">
-                        <Text className="text-textprimary font-outfit-bold text-lg mb-2">Promos and offers</Text>
-                        <Text className="text-textsecondary font-outfit text-sm mb-4">Receive updates about coupons, promotions, and money-saving offers</Text>
-                        <View className="flex-row justify-between items-center mb-3">
+                    {/* Promos and Offers Section */}
+                    <View 
+                        className="bg-white p-5 mx-4 mb-4 rounded-3xl shadow-sm"
+                        style={{
+                            shadowColor: '#000',
+                            shadowOffset: { width: 0, height: 2 },
+                            shadowOpacity: 0.1,
+                            shadowRadius: 8,
+                            elevation: 4,
+                            borderLeftWidth: 4,
+                            borderLeftColor: '#9C27B0',
+                        }}
+                    >
+                        <View className="flex-row items-center mb-4">
+                            <View 
+                                style={{
+                                    backgroundColor: '#F3E5F5',
+                                    borderRadius: 16,
+                                    padding: 12,
+                                    marginRight: 16,
+                                }}
+                            >
+                                <MaterialIcons name="local-offer" size={24} color="#9C27B0" />
+                            </View>
+                            <View className="flex-1">
+                                <Text className="text-textprimary font-outfit-bold text-lg mb-1">Promos and offers</Text>
+                                <Text className="text-textsecondary font-outfit text-sm">Receive updates about coupons, promotions, and money-saving offers</Text>
+                            </View>
+                        </View>
+                        
+                        <View className="flex-row justify-between items-center mb-4">
                             <View className="flex-row items-center">
-                                <MaterialIcons name="notifications-active" size={24} color={promosPush ? "#ea4c5f" : "black"} />
-                                <Text className="text-textprimary font-outfit ml-2">Push</Text>
+                                <MaterialIcons name="notifications-active" size={20} color={promosPush ? "#FF002E" : "#9E9E9E"} />
+                                <Text className="text-textprimary font-outfit ml-3">Push</Text>
                             </View>
                             <Switch
                                 value={promosPush}
                                 onValueChange={setPromosPush}
-                                trackColor={{ false: '#767577', true: '#ffdbdf' }}
-                                thumbColor={promosPush ? '#ea4c5f' : '#fff'}
+                                trackColor={{ false: '#E0E0E0', true: '#ffdbdf' }}
+                                thumbColor={promosPush ? '#FF002E' : '#fff'}
                                 disabled={enableAll}
                             />
                         </View>
 
                         <View className="flex-row justify-between items-center">
                             <View className="flex-row items-center">
-                                <FontAwesome5 name="whatsapp" size={24} color={promosWhatsapp ? "#ea4c5f" : "black"} />
-                                <Text className="text-textprimary font-outfit ml-2">Whatsapp</Text>
+                                <FontAwesome5 name="whatsapp" size={20} color={promosWhatsapp ? "#FF002E" : "#9E9E9E"} />
+                                <Text className="text-textprimary font-outfit ml-3">Whatsapp</Text>
                             </View>
                             <Switch
                                 value={promosWhatsapp}
                                 onValueChange={setPromosWhatsapp}
-                                trackColor={{ false: '#767577', true: '#ffdbdf' }}
-                                thumbColor={promosWhatsapp ? '#ea4c5f' : '#fff'}
+                                trackColor={{ false: '#E0E0E0', true: '#ffdbdf' }}
+                                thumbColor={promosWhatsapp ? '#FF002E' : '#fff'}
                                 disabled={enableAll}
                             />
                         </View>
                     </View>
 
-                    <View className="bg-white p-4 mb-4">
-                        <Text className="text-textprimary font-outfit-bold text-lg mb-2">Social notifications</Text>
-                        <Text className="text-textsecondary font-outfit text-sm mb-4">Get notified when someone follows you or interacts with your posts</Text>
+                    {/* Social Notifications Section */}
+                    <View 
+                        className="bg-white p-5 mx-4 mb-4 rounded-3xl shadow-sm"
+                        style={{
+                            shadowColor: '#000',
+                            shadowOffset: { width: 0, height: 2 },
+                            shadowOpacity: 0.1,
+                            shadowRadius: 8,
+                            elevation: 4,
+                            borderLeftWidth: 4,
+                            borderLeftColor: '#2196F3',
+                        }}
+                    >
+                        <View className="flex-row items-center mb-4">
+                            <View 
+                                style={{
+                                    backgroundColor: '#E3F2FD',
+                                    borderRadius: 16,
+                                    padding: 12,
+                                    marginRight: 16,
+                                }}
+                            >
+                                <Ionicons name="people" size={24} color="#2196F3" />
+                            </View>
+                            <View className="flex-1">
+                                <Text className="text-textprimary font-outfit-bold text-lg mb-1">Social notifications</Text>
+                                <Text className="text-textsecondary font-outfit text-sm">Get notified when someone follows you or interacts with your posts</Text>
+                            </View>
+                        </View>
+                        
                         <View className="flex-row justify-between items-center">
                             <View className="flex-row items-center">
-                                <MaterialIcons name="notifications-active" size={24} color={socialPush ? "#ea4c5f" : "black"} />
-                                <Text className="text-textprimary font-outfit ml-2">Push</Text>
+                                <MaterialIcons name="notifications-active" size={20} color={socialPush ? "#FF002E" : "#9E9E9E"} />
+                                <Text className="text-textprimary font-outfit ml-3">Push</Text>
                             </View>
                             <Switch
                                 value={socialPush}
                                 onValueChange={setSocialPush}
-                                trackColor={{ false: '#767577', true: '#ffdbdf' }}
-                                thumbColor={socialPush ? '#ea4c5f' : '#fff'}
+                                trackColor={{ false: '#E0E0E0', true: '#ffdbdf' }}
+                                thumbColor={socialPush ? '#FF002E' : '#fff'}
                                 disabled={enableAll}
                             />
                         </View>
                     </View>
 
-                    <View className="bg-white p-4 mb-4">
-                        <Text className="text-textprimary font-outfit-bold text-lg mb-2">Orders and purchases</Text>
-                        <Text className="text-textsecondary font-outfit text-sm mb-4">Receive updates about your orders and memberships</Text>
-                        <View className="flex-row justify-between items-center mb-3">
+                    {/* Orders and Purchases Section */}
+                    <View 
+                        className="bg-white p-5 mx-4 mb-4 rounded-3xl shadow-sm"
+                        style={{
+                            shadowColor: '#000',
+                            shadowOffset: { width: 0, height: 2 },
+                            shadowOpacity: 0.1,
+                            shadowRadius: 8,
+                            elevation: 4,
+                            borderLeftWidth: 4,
+                            borderLeftColor: '#4CAF50',
+                        }}
+                    >
+                        <View className="flex-row items-center mb-4">
+                            <View 
+                                style={{
+                                    backgroundColor: '#E8F5E8',
+                                    borderRadius: 16,
+                                    padding: 12,
+                                    marginRight: 16,
+                                }}
+                            >
+                                <Ionicons name="receipt" size={24} color="#4CAF50" />
+                            </View>
+                            <View className="flex-1">
+                                <Text className="text-textprimary font-outfit-bold text-lg mb-1">Orders and purchases</Text>
+                                <Text className="text-textsecondary font-outfit text-sm">Receive updates about your orders and memberships</Text>
+                            </View>
+                        </View>
+                        
+                        <View className="flex-row justify-between items-center mb-4">
                             <View className="flex-row items-center">
-                                <MaterialIcons name="notifications-active" size={24} color={ordersPush ? "#ea4c5f" : "black"} />
-                                <Text className="text-textprimary font-outfit ml-2">Push</Text>
+                                <MaterialIcons name="notifications-active" size={20} color={ordersPush ? "#FF002E" : "#9E9E9E"} />
+                                <Text className="text-textprimary font-outfit ml-3">Push</Text>
                             </View>
                             <Switch
                                 value={ordersPush}
                                 onValueChange={setOrdersPush}
-                                trackColor={{ false: '#767577', true: '#ffdbdf' }}
-                                thumbColor={ordersPush ? '#ea4c5f' : '#fff'}
+                                trackColor={{ false: '#E0E0E0', true: '#ffdbdf' }}
+                                thumbColor={ordersPush ? '#FF002E' : '#fff'}
                                 disabled={enableAll}
                             />
                         </View>
 
                         <View className="flex-row justify-between items-center">
                             <View className="flex-row items-center">
-                                <FontAwesome5 name="whatsapp" size={24} color={ordersWhatsapp ? "#ea4c5f" : "black"} />
-                                <Text className="text-textprimary font-outfit ml-2">Whatsapp</Text>
+                                <FontAwesome5 name="whatsapp" size={20} color={ordersWhatsapp ? "#FF002E" : "#9E9E9E"} />
+                                <Text className="text-textprimary font-outfit ml-3">Whatsapp</Text>
                             </View>
                             <Switch
                                 value={ordersWhatsapp}
                                 onValueChange={setOrdersWhatsapp}
-                                trackColor={{ false: '#767577', true: '#ffdbdf' }}
-                                thumbColor={ordersWhatsapp ? '#ea4c5f' : '#fff'}
+                                trackColor={{ false: '#E0E0E0', true: '#ffdbdf' }}
+                                thumbColor={ordersWhatsapp ? '#FF002E' : '#fff'}
                                 disabled={enableAll}
                             />
                         </View>
                     </View>
 
-                    <View className="p-12" />
+                    <View className="p-8" />
                 </ScrollView>
 
+                {/* Save Button */}
                 {buttonActive ? (
-                    <TouchableOpacity onPress={submitNotificationSettings} className="bg-primary p-4 m-4 rounded-lg">
-                        <Text className="text-white font-outfit-bold text-center">Save Changes</Text>
+                    <TouchableOpacity 
+                        onPress={submitNotificationSettings} 
+                        className="bg-primary m-4 rounded-3xl shadow-lg"
+                        style={{
+                            shadowColor: '#FF002E',
+                            shadowOffset: { width: 0, height: 4 },
+                            shadowOpacity: 0.3,
+                            shadowRadius: 8,
+                            elevation: 8,
+                        }}
+                        activeOpacity={0.8}
+                    >
+                        <View className="p-4 flex-row items-center justify-center">
+                            <Ionicons name="checkmark-circle" size={20} color="#FFFFFF" style={{ marginRight: 8 }} />
+                            <Text className="text-white font-outfit-bold text-center">Save Changes</Text>
+                        </View>
                     </TouchableOpacity>
                 ) : (
-                    <View className="bg-gray-300 p-4 m-4 rounded-lg">
-                        <Text className="text-textsecondary font-outfit-bold text-center">Save Changes</Text>
+                    <View 
+                        className="bg-gray-200 m-4 rounded-3xl"
+                        style={{
+                            opacity: 0.6,
+                        }}
+                    >
+                        <View className="p-4 flex-row items-center justify-center">
+                            <Ionicons name="save-outline" size={20} color="#9E9E9E" style={{ marginRight: 8 }} />
+                            <Text className="text-textsecondary font-outfit-bold text-center">Save Changes</Text>
+                        </View>
                     </View>
                 )}
             </View>

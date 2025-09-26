@@ -35,7 +35,7 @@ export default function TakeawayOrdersScreen() {
     setError(null);
     try {
       const response = await axios.get(
-        `${SERVER_URL}/api/orders/tiffin/user?page=${page}&limit=10`,
+        `${SERVER_URL}/api/orders/menu/user?page=${page}&limit=10`,
         { withCredentials: true }
       );
 

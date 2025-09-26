@@ -15,7 +15,7 @@ const FeedbackScreen = () => {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <BackRouting style={styles.backButtonFeedBack}tittle= "FeedBack"/>
+      <BackRouting style={styles.backButtonFeedBack} tittle="FeedBack"/>
       
 
       <Text style={styles.title}>Send Feedback</Text>
@@ -58,5 +58,31 @@ const FeedbackScreen = () => {
   );
 };
 
+const styles = StyleSheet.create({
+  container: {
+    flexGrow: 1,
+    backgroundColor: '#fff',
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+  },
+  backButtonFeedBack: {
+    marginBottom: 20,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 10,
+    fontFamily: 'outfit-bold',
+    marginTop: 20,
+  },
+  description: {
+    fontSize: 16,
+    color: '#666',
+    marginBottom: 30,
+    lineHeight: 22,
+    fontFamily: 'outfit',
+  },
+});
 
 export default FeedbackScreen;
