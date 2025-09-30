@@ -517,7 +517,7 @@ export default function MapPicker() {
         }
       );
       Alert.alert('Success', 'Address saved successfully');
-      router.push('screens/Address');
+      router.push('/screens/Address');
     } catch (error) {
       console.error('Error saving address:', error);
       Alert.alert('Error', error.response?.data?.message || 'Failed to save address');

@@ -216,7 +216,7 @@ export default function AddressScreen() {
       <BackRouting title="Your Address" />
       <TouchableOpacity
         className="flex-row items-center p-4 border-b border-gray-200"
-        onPress={() => router.push('/AddressMapPicker')}
+        onPress={() => router.push('/MapPicker')}
       >
         <Ionicons name="add" size={24} color="#f23e3e" />
         <Text className="ml-3 text-base text-red-500 font-medium flex-1">Add Address</Text>

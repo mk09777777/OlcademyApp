@@ -8,9 +8,9 @@ import { API_CONFIG } from '../../config/apiConfig';
 const SERVER_URL = API_CONFIG.BACKEND_URL;
 
 export default function TiffinOrdersScreen() {
-  const [primaryTab, setPrimaryTab] = useState('All');
-  const [secondaryTab, setSecondaryTab] = useState('all');
+  const [activeTab, setActiveTab] = useState('all');
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
   const [bookings, setBookings] = useState([]);
   const [error, setError] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
@@ -25,7 +25,7 @@ export default function TiffinOrdersScreen() {
   const [message, setMessage] = useState('');
   const [cancellingOrderId, setCancellingOrderId] = useState(null);
 
-  const fetchBookings = useCallback(async (page) => {
+  const fetchBookings = useCallback(async (page, tab = activeTab) => {
     if (!hasMore && page !== 1) return;
 
     setLoading(true);
@@ -55,11 +55,11 @@ export default function TiffinOrdersScreen() {
       setInitialLoad(false);
       setRefreshing(false);
     }
-  }, [hasMore]);
+  }, [hasMore, activeTab]);
 
   useEffect(() => {
     fetchBookings(1);
-  }, [fetchBookings]);
+  }, [activeTab, fetchBookings]);
 
   const toggleFavorite = async (orderId) => {
     try {
@@ -117,37 +117,27 @@ export default function TiffinOrdersScreen() {
     }
   };
 
-  const primaryTabs = [
-    { id: 'All', label: 'All Orders' },
-    { id: 'One Day', label: 'One Day' },
-    { id: 'Weekly', label: 'Weekly' },
-    { id: 'Monthly', label: 'Monthly' }
-  ];
+  const getFilteredOrders = () => {
+    let filtered = bookings;
 
-  const secondaryTabs = [
-    { id: 'all', label: 'All' },
-    { id: 'notaccept', label: 'Pending' },
-    { id: 'accept', label: 'Active' },
-    { id: 'completed', label: 'Completed', statuses: ['completed', 'user_cancel'] }
-  ];
-
-  const filterBookings = () => {
-    let filtered = primaryTab === 'All'
-      ? bookings
-      : bookings.filter(booking => {
-          const planType = booking.items?.[0]?.selectedPlan?.name || '';
-          if (primaryTab === 'One Day') return planType.includes('1');
-          if (primaryTab === 'Weekly') return planType.includes('7');
-          if (primaryTab === 'Monthly') return planType.includes('30');
-          return true;
-        });
-
-    if (secondaryTab !== 'all') {
-      filtered = filtered.filter(booking => 
-        secondaryTab === 'completed' 
-          ? secondaryTabs.find(tab => tab.id === 'completed').statuses.includes(booking.status.toLowerCase())
-          : booking.status.toLowerCase() === secondaryTab
+    if (activeTab === 'active') {
+      filtered = filtered.filter(order =>
+        ['ready', 'accepted', 'preparing'].includes(order.status.toLowerCase())
       );
+    } else if (activeTab === 'past') {
+      filtered = filtered.filter(order =>
+        ['completed', 'delivered', 'cancelled', 'rejected', 'user_cancel'].includes(order.status.toLowerCase())
+      );
+    }
+
+    if (searchQuery) {
+      filtered = filtered.filter(order => {
+        const restaurantName = order.items[0]?.sourceEntityId?.restaurantInfo?.name || '';
+        return (
+          restaurantName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          order.items.some(item => item.name.toLowerCase().includes(searchQuery.toLowerCase()))
+        );
+      });
     }
 
     return filtered;
@@ -278,36 +268,43 @@ export default function TiffinOrdersScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Primary Tabs */}
-      <View style={styles.tabContainer}>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-          {primaryTabs.map(tab => (
-            <TouchableOpacity
-              key={tab.id}
-              style={[styles.tab, primaryTab === tab.id ? styles.activeTab : null]}
-              onPress={() => setPrimaryTab(tab.id)}
-            >
-              <Text style={[styles.tabText, primaryTab === tab.id ? styles.activeTabText : null]}>
-                {tab.label}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
+      {/* Search Bar */}
+      <View style={styles.searchContainer}>
+        <Ionicons name="search" size={20} color="#666" style={styles.searchIcon} />
+        <TextInput
+          style={styles.searchInput}
+          placeholder="Search orders..."
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+        />
       </View>
 
-      {/* Secondary Tabs */}
-      <View style={styles.secondaryTabContainer}>
-        {secondaryTabs.map(tab => (
-          <TouchableOpacity
-            key={tab.id}
-            style={[styles.secondaryTab, secondaryTab === tab.id ? styles.activeSecondaryTab : null]}
-            onPress={() => setSecondaryTab(tab.id)}
-          >
-            <Text style={[styles.secondaryTabText, secondaryTab === tab.id ? styles.activeSecondaryTabText : null]}>
-              {tab.label}
-            </Text>
-          </TouchableOpacity>
-        ))}
+      {/* Tabs */}
+      <View style={styles.tabContainer}>
+        <TouchableOpacity
+          style={[styles.tab, activeTab === 'all' ? styles.activeTab : null]}
+          onPress={() => setActiveTab('all')}
+        >
+          <Text style={[styles.tabText, activeTab === 'all' ? styles.activeTabText : null]}>
+            All Orders
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.tab, activeTab === 'active' ? styles.activeTab : null]}
+          onPress={() => setActiveTab('active')}
+        >
+          <Text style={[styles.tabText, activeTab === 'active' ? styles.activeTabText : null]}>
+            Active
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.tab, activeTab === 'past' ? styles.activeTab : null]}
+          onPress={() => setActiveTab('past')}
+        >
+          <Text style={[styles.tabText, activeTab === 'past' ? styles.activeTabText : null]}>
+            Past Orders
+          </Text>
+        </TouchableOpacity>
       </View>
 
       {/* Orders List */}
@@ -321,17 +318,25 @@ export default function TiffinOrdersScreen() {
           <Text style={styles.errorText}>{error}</Text>
           <Text style={styles.errorSubText}>Please refresh the page or try again later.</Text>
         </View>
-      ) : bookings.length === 0 ? (
-        <View style={styles.emptyContainer}>
-          <Text style={styles.emptyTitle}>No orders found!</Text>
-          <Text style={styles.emptyText}>It looks like you haven't placed any orders yet.</Text>
-        </View>
       ) : (
         <FlatList
-          data={filterBookings()}
+          data={getFilteredOrders()}
           renderItem={renderOrderItem}
           keyExtractor={(item) => item._id}
           contentContainerStyle={styles.flatListContent}
+          ListEmptyComponent={
+            !error && (
+              <View style={styles.emptyContainer}>
+                <Text style={styles.emptyText}>
+                  {activeTab === 'all'
+                    ? 'No orders found'
+                    : activeTab === 'active'
+                      ? 'No active orders'
+                      : 'No past orders'}
+                </Text>
+              </View>
+            )
+          }
           ListFooterComponent={
             loading ? (
               <View style={styles.footerLoading}>
@@ -418,22 +423,43 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#f8f8f8',
   },
+  searchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    margin: 12,
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    borderWidth: 1,
+    borderColor: '#e0e0e0',
+  },
+  searchIcon: {
+    marginRight: 8,
+  },
+  searchInput: {
+    flex: 1,
+    fontSize: 16,
+    color: '#333',
+    fontFamily: 'outfit',
+    paddingVertical: 10,
+  },
   tabContainer: {
     flexDirection: 'row',
     backgroundColor: '#fff',
-    paddingHorizontal: 10,
-    paddingVertical: 10,
+    paddingHorizontal: 16,
+    marginBottom: 8,
     borderBottomWidth: 1,
     borderBottomColor: '#e0e0e0',
   },
   tab: {
-    paddingHorizontal: 15,
-    paddingVertical: 8,
-    marginRight: 10,
-    borderRadius: 20,
+    flex: 1,
+    alignItems: 'center',
+    paddingVertical: 12,
+    borderBottomWidth: 2,
+    borderBottomColor: 'transparent',
   },
   activeTab: {
-    backgroundColor: '#FF002E',
+    borderBottomColor: '#FF002E',
   },
   tabText: {
     fontSize: 14,
@@ -441,33 +467,6 @@ const styles = StyleSheet.create({
     fontFamily: 'outfit',
   },
   activeTabText: {
-    color: '#fff',
-    fontFamily: 'outfit-bold',
-  },
-  secondaryTabContainer: {
-    flexDirection: 'row',
-    backgroundColor: '#fff',
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
-  },
-  secondaryTab: {
-    flex: 1,
-    alignItems: 'center',
-    paddingVertical: 8,
-    borderBottomWidth: 2,
-    borderBottomColor: 'transparent',
-  },
-  activeSecondaryTab: {
-    borderBottomColor: '#FF002E',
-  },
-  secondaryTabText: {
-    fontSize: 14,
-    color: '#666',
-    fontFamily: 'outfit',
-  },
-  activeSecondaryTabText: {
     color: '#FF002E',
     fontFamily: 'outfit-bold',
   },
@@ -501,19 +500,12 @@ const styles = StyleSheet.create({
     fontFamily: 'outfit',
   },
   emptyContainer: {
-    flex: 1,
-    justifyContent: 'center',
     alignItems: 'center',
-    padding: 40,
-  },
-  emptyTitle: {
-    fontSize: 18,
-    color: '#666',
-    fontFamily: 'outfit-bold',
-    marginBottom: 8,
+    justifyContent: 'center',
+    padding: 32,
   },
   emptyText: {
-    fontSize: 14,
+    fontSize: 16,
     color: '#666',
     fontFamily: 'outfit',
     textAlign: 'center',
