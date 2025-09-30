@@ -1,26 +1,34 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { MaterialIcons } from '@expo/vector-icons';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import Modal from 'react-native-modal';
 import Colors from '../components/constants/Colors';
 import styles from '../styles/MoreSection';
 import { router } from 'expo-router';
 import { useSafeNavigation } from '@/hooks/navigationPage';
+
 const MoreSection = () => {
   const [isModalVisible, setModalVisible] = useState(false);
- const { safeNavigation } = useSafeNavigation();
+  const { safeNavigation } = useSafeNavigation();
+
   const MoreItem = ({ icon, title, chevron, onPress }) => (
     <TouchableOpacity onPress={onPress} style={styles.section}>
       <View style={styles.iconContainer}>
-        <MaterialIcons name={icon} size={24} color={Colors.textLight} />
+        <MaterialCommunityIcons name={icon} size={24} color={Colors.textLight} />
       </View>
       <View style={styles.sectionContent}>
         <Text style={styles.sectionTitle}>{title}</Text>
       </View>
-      {chevron && <MaterialIcons name="chevron-right" size={24} color={Colors.textLight} style={styles.chevron} />}
+      {chevron && (
+        <MaterialCommunityIcons
+          name="chevron-right"
+          size={24}
+          color={Colors.textLight}
+          style={styles.chevron}
+        />
+      )}
     </TouchableOpacity>
   );
-
 
   return (
     <View style={styles.container}>
@@ -28,12 +36,12 @@ const MoreSection = () => {
         <Text style={styles.headerTitle}>More</Text>
       </View>
 
-     
-      <MoreItem icon="info" title="About" chevron onPress={() => safeNavigation('screens/About')} />
-      <MoreItem icon="edit" title="Send feedback" chevron onPress={() => safeNavigation('screens/SendFeedback')} />
-      <MoreItem icon="settings" title="Settings" chevron onPress={() => safeNavigation('/screens/Settings')} />
-      <MoreItem icon="chat" title="Frequently asked questions" chevron onPress={() => safeNavigation('screens/FQA')} />
+      <MoreItem icon="information-outline" title="About" chevron onPress={() => safeNavigation('screens/About')} />
+      <MoreItem icon="pencil-outline" title="Send feedback" chevron onPress={() => safeNavigation('screens/SendFeedback')} />
+      <MoreItem icon="cog-outline" title="Settings" chevron onPress={() => safeNavigation('/screens/Settings')} />
+      <MoreItem icon="chat-outline" title="Frequently asked questions" chevron onPress={() => safeNavigation('screens/FQA')} />
       <MoreItem icon="logout" title="Logout" chevron onPress={() => setModalVisible(true)} />
+
       {/* Custom Modal */}
       <Modal
         isVisible={isModalVisible}
@@ -82,7 +90,7 @@ const modalStyles = StyleSheet.create({
   },
   optionText: {
     textAlign: 'center',
-    color: '#d32f2f', // red like in the screenshot
+    color: '#d32f2f',
     fontSize: 16,
   },
   cancelButton: {

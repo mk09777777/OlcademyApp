@@ -783,12 +783,12 @@ const FetchRecentlyViewData = useCallback(async () => {
             <TouchableOpacity
               onPress={() => router.push('/screens/NoficationsPage')}
             >
-              <Ionicons name='notifications-circle-sharp' size={38} color='#e23845' style={{ marginRight: 10 }} />
+              <Ionicons name='notifications-circle-outline' size={38} color='#e23845' style={{ marginRight: 10 }} />
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => router.push('/screens/User')}
             >
-              <Ionicons name='person-circle' size={40} color='#e23845' />
+              <Ionicons name='person-circle-outline' size={40} color='#e23845' />
             </TouchableOpacity>
           </View>
         </View>
