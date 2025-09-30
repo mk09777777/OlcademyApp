@@ -310,7 +310,7 @@ export default function TiffinOrdersScreen() {
       {/* Orders List */}
       {initialLoad && loading ? (
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#FF002E" />
+          <ActivityIndicator size="large" color="#02757A" />
           <Text style={styles.loadingText}>Loading your orders...</Text>
         </View>
       ) : error ? (
@@ -340,7 +340,7 @@ export default function TiffinOrdersScreen() {
           ListFooterComponent={
             loading ? (
               <View style={styles.footerLoading}>
-                <ActivityIndicator size="small" color="#FF002E" />
+                <ActivityIndicator size="small" color="#02757A" />
                 <Text style={styles.footerLoadingText}>Loading more orders...</Text>
               </View>
             ) : !hasMore && bookings.length > 0 ? (
@@ -459,7 +459,7 @@ const styles = StyleSheet.create({
     borderBottomColor: 'transparent',
   },
   activeTab: {
-    borderBottomColor: '#FF002E',
+    borderBottomColor: '#02757A',
   },
   tabText: {
     fontSize: 14,
@@ -467,7 +467,7 @@ const styles = StyleSheet.create({
     fontFamily: 'outfit',
   },
   activeTabText: {
-    color: '#FF002E',
+    color: '#02757A',
     fontFamily: 'outfit-bold',
   },
   loadingContainer: {

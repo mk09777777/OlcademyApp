@@ -136,7 +136,7 @@ export default function TakeawayOrdersScreen() {
     if (!loading) return null;
     return (
       <View style={styles.loadingFooter}>
-        <ActivityIndicator size="small" color="#FF002E" />
+        <ActivityIndicator size="small" color="#02757A" />
         <Text style={styles.footerText}>Loading more orders...</Text>
       </View>
     );
@@ -236,7 +236,7 @@ export default function TakeawayOrdersScreen() {
       {/* Orders List */}
       {loading && orders.length === 0 ? (
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#FF002E" />
+          <ActivityIndicator size="large" color="#02757A" />
           <Text style={styles.loadingText}>Loading your orders...</Text>
         </View>
       ) : (
@@ -315,7 +315,7 @@ const styles = StyleSheet.create({
     borderBottomColor: 'transparent',
   },
   activeTab: {
-    borderBottomColor: '#FF002E',
+    borderBottomColor: '#02757A',
   },
   tabText: {
     fontSize: 14,
@@ -323,7 +323,7 @@ const styles = StyleSheet.create({
     fontFamily: 'outfit',
   },
   activeTabText: {
-    color: '#FF002E',
+    color: '#02757A',
     fontFamily: 'outfit-bold',
   },
   loadingContainer: {
@@ -351,7 +351,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   retryButton: {
-    backgroundColor: '#FF002E',
+    backgroundColor: '#02757A',
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 8,

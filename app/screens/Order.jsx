@@ -16,7 +16,7 @@ export default function OrderScreen() {
         <Tab.Navigator
           screenOptions={{
             tabBarActiveTintColor: '#FFFFFF',
-            tabBarInactiveTintColor: '#FF002E',
+            tabBarInactiveTintColor: '#02757A',
             tabBarPressColor: 'transparent',
             tabBarShowIcon: true,
             tabBarIconStyle: {
@@ -35,13 +35,13 @@ export default function OrderScreen() {
               justifyContent: 'center',
             },
             tabBarStyle: {
-              backgroundColor: '#feebee',
+              backgroundColor: '#d9e9e9ff',
               borderRadius: 30,
               elevation: 0,
               shadowOpacity: 0,
             },
             tabBarIndicatorStyle: {
-              backgroundColor: '#FF002E',
+              backgroundColor: '#02757A',
               height: '100%',
               borderRadius: 30,
             },
