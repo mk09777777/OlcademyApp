@@ -274,7 +274,7 @@ const handleLogin = async () => {
               {error ? <Text className="text-red-500 text-sm mb-2.5">{error}</Text> : null}
 
               <TextInput
-                className="border border-border rounded-2.5 p-4 mb-4 text-base"
+                className="border border-border rounded-lg p-4 mb-4 text-base"
                 placeholder="Email Address"
                 value={formData.email}
                 onChangeText={(text) => handleChange('email', text)}
@@ -282,9 +282,9 @@ const handleLogin = async () => {
                 autoCapitalize="none"
               />
 
-              <View className="flex-row items-center border-border rounded-2.5 mb-4">
+              <View className="flex-row items-center border-border rounded-lg mb-4">
                 <TextInput
-                  className="flex-1 border border-border rounded-2.5 p-4 text-base"
+                  className="flex-1 border border-border rounded-lg p-4 text-base"
                   placeholder="Password"
                   value={formData.password}
                   onChangeText={(text) => handleChange('password', text)}
@@ -327,7 +327,7 @@ const handleLogin = async () => {
               </View>
 
               <TouchableOpacity
-                className="bg-primary p-4 rounded-2.5 items-center mb-5"
+                className="bg-primary p-4 rounded-xl items-center mb-5"
                 onPress={handleLogin}
                 disabled={loading}
               >
@@ -345,7 +345,7 @@ const handleLogin = async () => {
               </View>
 
               <TouchableOpacity
-                className="border border-border p-4 rounded-2.5 items-center mb-2.5"
+                className="border border-border p-4 rounded-lg items-center mb-2.5"
                 onPress={LoginWithGoogle}
                 disabled={loading}
               >
@@ -354,7 +354,7 @@ const handleLogin = async () => {
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity
-                className="border border-border p-4 rounded-2.5 items-center mb-2.5"
+                className="border border-border p-4 rounded-lg items-center mb-2.5"
                 onPress={LoginWithTwitter}
                 disabled={loading}
               >
@@ -363,7 +363,7 @@ const handleLogin = async () => {
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity
-                className="border border-border p-4 rounded-2.5 items-center mb-2.5"
+                className="border border-border p-4 rounded-lg items-center mb-2.5"
                 onPress={LoginWithFacebook}
                 disabled={loading}
               >
@@ -404,7 +404,7 @@ const handleLogin = async () => {
                   <TextInput
                     key={index}
                     ref={el => (otpRefs.current[index] = el)}
-                    className="w-11 h-11 border border-border rounded-2.5 text-center text-lg"
+                    className="w-11 h-11 border border-border rounded-lg text-center text-lg"
                     keyboardType="numeric"
                     maxLength={1}
                     value={digit}
@@ -453,9 +453,9 @@ const handleLogin = async () => {
 
               {error ? <Text className="text-red-500 text-sm mb-2.5">{error}</Text> : null}
 
-              <View className="flex-row items-center border-border rounded-2.5 mb-4">
+              <View className="flex-row items-center border-border rounded-lg mb-4">
                 <TextInput
-                  className="flex-1 border border-border rounded-2.5 p-4 text-base"
+                  className="flex-1 border border-border rounded-lg p-4 text-base"
                   placeholder="New Password"
                   value={newPassword}
                   onChangeText={setNewPassword}
@@ -463,9 +463,9 @@ const handleLogin = async () => {
                 />
               </View>
 
-              <View className="flex-row items-center border-border rounded-2.5 mb-4">
+              <View className="flex-row items-center border-border rounded-lg mb-4">
                 <TextInput
-                  className="flex-1 border border-border rounded-2.5 p-4 text-base"
+                  className="flex-1 border border-border rounded-lg p-4 text-base"
                   placeholder="Confirm New Password"
                   value={confirmPassword}
                   onChangeText={setConfirmPassword}
@@ -474,7 +474,7 @@ const handleLogin = async () => {
               </View>
 
               <TouchableOpacity
-                className="bg-primary p-4 rounded-2.5 items-center mb-5"
+                className="bg-primary p-4 rounded-lg items-center mb-5"
                 onPress={resetPassword}
                 disabled={resetLoading}
               >

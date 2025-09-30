@@ -42,7 +42,10 @@ const handleLogout = async () => {
 };
 
   return (
-    <ScrollView className="flex-1 items-center justify-center pb-10 bg-white">
+    <ScrollView 
+      className="flex-1 bg-white"
+      contentContainerStyle={{ alignItems: 'center', justifyContent: 'center', paddingBottom: 40 }}
+    >
       {/* Header Image */}
       <Image
         source={{ uri: 'https://www.grabon.in/indulge/wp-content/uploads/2022/07/Zomato-494x350.png' }}

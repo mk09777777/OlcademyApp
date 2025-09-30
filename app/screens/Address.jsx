@@ -127,38 +127,38 @@ export default function AddressScreen() {
   const getAddressIcon = (type) => {
     switch (type) {
       case 'Home':
-        return <Ionicons name="home" size={24} color="#f23e3e" />;
+        return <Ionicons name="home" size={24} color="#02757A" />;
       case 'Work':
-        return <MaterialCommunityIcons name="briefcase-outline" size={24} color="#f23e3e" />;
+        return <MaterialCommunityIcons name="briefcase-outline" size={24} color="#02757A" />;
       case 'Hotel':
-        return <MaterialCommunityIcons name="office-building" size={24} color="#f23e3e" />;
+        return <MaterialCommunityIcons name="office-building" size={24} color="#02757A" />;
       default:
-        return <FontAwesome5 name="map-marker-alt" size={20} color="#f23e3e" />;
+        return <FontAwesome5 name="map-marker-alt" size={20} color="#02757A" />;
     }
   };
 
   const getTypeIcon = (type) => {
     switch (type) {
       case 'Home':
-        return <Ionicons name="home" size={18} color="#f23e3e" />;
+        return <Ionicons name="home" size={18} color="#02757A" />;
       case 'Work':
-        return <MaterialCommunityIcons name="briefcase-outline" size={18} color="#f23e3e" />;
+        return <MaterialCommunityIcons name="briefcase-outline" size={18} color="#02757A" />;
       case 'Hotel':
-        return <MaterialCommunityIcons name="office-building" size={18} color="#f23e3e" />;
+        return <MaterialCommunityIcons name="office-building" size={18} color="#02757A" />;
       default:
-        return <FontAwesome5 name="map-marker-alt" size={16} color="#f23e3e" />;
+        return <FontAwesome5 name="map-marker-alt" size={16} color="#02757A" />;
     }
   };
 
   const AddressCard = ({ address }) => (
     <View className="relative mb-4">
       {selectedAddressId === address._id && (
-        <View className="absolute right-0 top-0 bg-white rounded-lg shadow-lg z-10 w-35">
+        <View className="absolute right-0 top-0  bg-white rounded-lg shadow-lg z-10 w-35 border border-border">
           <TouchableOpacity
-            className="px-4 py-3"
+            className="px-4 py-3 border-b border-border"
             onPress={() => handleEditPress(address)}
           >
-            <Text className="text-base text-gray-800">Edit</Text>
+            <Text className="text-base text-textprimary">Edit</Text>
           </TouchableOpacity>
           <TouchableOpacity
             className="px-4 py-3"
@@ -168,7 +168,7 @@ export default function AddressScreen() {
           </TouchableOpacity>
         </View>
       )}
-      <TouchableOpacity className="bg-white rounded-xl p-4 border border-gray-200 shadow-sm" activeOpacity={1}>
+      <TouchableOpacity className="bg-white rounded-xl p-4 border border-gray-200 shadow-lg" activeOpacity={1}>
         <View className="flex-row justify-between mb-3">
           <View className="flex-row items-center">
             {getAddressIcon(address.service_area)}
@@ -205,7 +205,7 @@ export default function AddressScreen() {
   if (isLoading) {
     return (
       <SafeAreaView className="flex-1 bg-white justify-center items-center">
-        <ActivityIndicator size="large" color="#f23e3e" />
+        <ActivityIndicator size="large" color="#02757A" />
         <Text className="mt-4 text-gray-600 text-base">Loading your addresses...</Text>
       </SafeAreaView>
     );
@@ -216,10 +216,10 @@ export default function AddressScreen() {
       <BackRouting title="Your Address" />
       <TouchableOpacity
         className="flex-row items-center p-4 border-b border-gray-200"
-        onPress={() => router.push('/MapPicker')}
+        onPress={() => router.push('/screens/AddAddress')}
       >
-        <Ionicons name="add" size={24} color="#f23e3e" />
-        <Text className="ml-3 text-base text-red-500 font-medium flex-1">Add Address</Text>
+        <Ionicons name="add" size={24} color="#02757A" />
+        <Text className="ml-3 text-base text-primary font-medium flex-1">Add Address</Text>
         <Ionicons name="chevron-forward" size={20} color="#999" />
       </TouchableOpacity>
       <View className="h-2 bg-gray-100" />
@@ -266,8 +266,8 @@ export default function AddressScreen() {
                 <TouchableOpacity
                   key={type}
                   className={`w-[48%] flex-row items-center p-3 mb-3 border rounded-lg ${
-                    editingAddressType === type 
-                      ? 'border-red-500 bg-red-50' 
+                    editingAddressType === type
+                      ? 'border-primary bg-primary/10'
                       : 'border-gray-300'
                   }`}
                   onPress={() => setEditingAddressType(type)}
@@ -280,7 +280,7 @@ export default function AddressScreen() {
               ))}
             </View>
             <TouchableOpacity
-              className="bg-red-500 p-4 rounded-lg items-center"
+              className="bg-primary p-4 rounded-lg items-center"
               onPress={handleSaveEdit}
               disabled={isSaving}
             >

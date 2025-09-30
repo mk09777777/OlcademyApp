@@ -166,7 +166,7 @@ const ProfileScreen = () => {
         {/* Name Field */}
         <View className="p-5 flex-col justify-start mx-2.5 bg-white rounded-lg shadow-sm">
           <View className="flex-row justify-start items-center mt-2.5">
-            <AntDesign name="user" size={18} color="#FF002E" className="ml-2.5 mt-1" />
+            <AntDesign name="user" size={18} color="#02757A" className="ml-2.5 mt-1" />
             <Text className="text-sm text-textsecondary mb-1 font-outfit ml-2 mt-2.5">Name</Text>
           </View>
           <View className="mb-1 mx-2.5 p-2 rounded-lg border border-border flex-row justify-between items-center mt-1">
@@ -183,7 +183,7 @@ const ProfileScreen = () => {
 
           {/* Email Field */}
           <View className="flex-row justify-start items-center mt-2.5">
-            <Fontisto name="email" size={18} color="#FF002E" className="ml-2.5 mt-1" />
+            <Fontisto name="email" size={18} color="#02757A" className="ml-2.5 mt-1" />
             <Text className="text-sm text-textsecondary mb-1 font-outfit ml-2 mt-2.5">Email</Text>
           </View>
           <View className="mb-1 mx-2.5 p-2 rounded-lg border border-border flex-row justify-between items-center mt-1">
@@ -194,7 +194,7 @@ const ProfileScreen = () => {
 
           {/* Mobile Field */}
           <View className="flex-row justify-start items-center mt-2.5">
-            <Ionicons name="call-outline" size={18} color="#f04f5f" className="ml-2.5 mt-1" />
+            <Ionicons name="call-outline" size={18} color="#02757A" className="ml-2.5 mt-1" />
             <Text className="text-sm text-textsecondary mb-1 font-normal ml-2 mt-2.5">Mobile</Text>
           </View>
           <View className="mb-1 mx-2.5 p-2 rounded-2xl border border-border flex-row justify-between items-center mt-1">
@@ -219,7 +219,7 @@ const ProfileScreen = () => {
 
           {/* Date of Birth Field */}
           <View className="flex-row justify-start items-center mt-2.5">
-            <Fontisto name="date" size={18} color="#f04f5f" className="ml-2.5 mt-1" />
+            <Fontisto name="date" size={18} color="#02757A" className="ml-2.5 mt-1" />
             <Text className="text-sm text-textsecondary mb-1 font-normal ml-2 mt-2.5">Date of birth</Text>
           </View>
           <View className="mb-1 mx-2.5 p-2 rounded-2xl border border-border flex-row justify-between items-center mt-1">
@@ -248,7 +248,7 @@ const ProfileScreen = () => {
 
           {/* Anniversary Field */}
           <View className="flex-row justify-start items-center mt-2.5">
-            <Fontisto name="date" size={18} color="#f04f5f" className="ml-2.5 mt-1" />
+            <Fontisto name="date" size={18} color="#02757A" className="ml-2.5 mt-1" />
             <Text className="text-sm text-textsecondary mb-1 font-normal ml-2 mt-2.5">Anniversary</Text>
           </View>
           <View className="mb-1 mx-2.5 p-2 rounded-2xl border border-border flex-row justify-between items-center mt-1">
@@ -265,7 +265,7 @@ const ProfileScreen = () => {
 
           {/* Gender Field */}
           <View className="flex-row justify-start items-center mt-2.5">
-            <AntDesign name="user" size={18} color="#f04f5f" className="ml-2.5 mt-1" />
+            <AntDesign name="user" size={18} color="#02757A" className="ml-2.5 mt-1" />
             <Text className="text-sm text-textsecondary mb-1 font-normal ml-2 mt-2.5">Gender</Text>
           </View>
           {isEditing ? (
