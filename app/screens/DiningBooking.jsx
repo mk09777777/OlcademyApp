@@ -8,6 +8,7 @@ import { useSafeNavigation } from '@/hooks/navigationPage';
 import BookingDetailsScreen from "./DiningBookingDetails";
 import { API_CONFIG } from '../../config/apiConfig';
 import { api } from '../../config/httpClient';
+import { useFocusEffect } from '@react-navigation/native';
 const BookingsScreen = () => {
   const router = useRouter();
   const [userBookings, setUserBookings] = useState([]);
@@ -24,7 +25,7 @@ const BookingsScreen = () => {
   const fetchDiningBookings = async () => {
     setLoading(true);
     try {
-      const res = await api.get('/api/bookings/userId');
+      const res = await api.get('/api/bookings/userId'); 
       setUserBookings(res.data?.data || []);
     } catch (error) {
       console.log('Fetch bookings error:', error.response?.status, error.response?.data || error.message);
@@ -32,6 +33,18 @@ const BookingsScreen = () => {
       setLoading(false);
     }
   };
+
+  React.useEffect(() => {
+    fetchDiningBookings();
+  }, []);
+
+   useFocusEffect(
+    React.useCallback(() => {
+      fetchDiningBookings();
+      return () => {}; 
+    }, [])
+  );
+
 
   const handleBookingPress = (item) => {
     const {

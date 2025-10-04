@@ -12,6 +12,7 @@ import axios from 'axios';
 import * as Notifications from 'expo-notifications';
 import Constants from 'expo-constants';
 import { API_CONFIG } from '../../config/apiConfig';
+import { api } from '../../config/httpClient'; 
 
 // Check if running in development build or Expo Go
 const isExpoGo = Constants.appOwnership === 'expo';
@@ -112,36 +113,22 @@ fetchInitialSettings()
 
   const handleSubmit = async () => {
     const orderData = {
-      date: date,
-      timeSlot: time,
-      guests: guestCount,
-      meal: selectedTab,
-      offerId: offerId,
-      username: updatedData?.name || name,
-      email: email,
-      mobileNumber: updatedData?.contact || contact,
+      date: new Date(String(date)).toISOString(),
+      timeSlot: String(time),
+      guests: Number(guestCount),
+      meal: String(selectedTab),
+      offerId: offerId ?? null,
+      username: updatedData?.name || String(name),
+      email: String(email),
+      mobileNumber: updatedData?.contact || String(contact),
     };
-
     console.log('📋 Original format order data:', orderData);
-
     try {
-      const response = await axios.post(
-        `${API_CONFIG.BACKEND_URL}/api/bookings/create?id=${firmId}`,
-        orderData,
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-          withCredentials: true,
-        }
-      );
-
-      console.log("✅ Order saved:", response.data);
-      {ordersPush?UploadNotifications(orderData):<></>}
-      
-      // Alert.alert("Order Saved Successfully");
+      const res = await api.post('/api/bookings/create', orderData, { params: { id: firmId } });
+      console.log('✅ Order saved:', res.data);
+      if (ordersPush) await UploadNotifications(orderData);
     } catch (error) {
-      console.error("❌ Error saving order:", error.response?.data || error.message);
+      console.error('❌ Error saving order:', error?.response?.data || error?.message || String(error));
     }
   };
 
