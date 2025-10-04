@@ -7,6 +7,7 @@ import BookingCard from '../../Card/TableBookingCard';
 import { useSafeNavigation } from '@/hooks/navigationPage';
 import BookingDetailsScreen from "./DiningBookingDetails";
 import { API_CONFIG } from '../../config/apiConfig';
+import { api } from '../../config/httpClient';
 const BookingsScreen = () => {
   const router = useRouter();
   const [userBookings, setUserBookings] = useState([]);
@@ -23,14 +24,10 @@ const BookingsScreen = () => {
   const fetchDiningBookings = async () => {
     setLoading(true);
     try {
-      const response = await axios.get(`${API_CONFIG.BACKEND_URL}/api/bookings/userId`, {
-        withCredentials: true,
-      });
-      console.log('Fetched bookings:', JSON.stringify(response.data, null, 2));
-      const bookingsArray = response.data?.data || [];
-      setUserBookings(bookingsArray);
+      const res = await api.get('/api/bookings/userId');
+      setUserBookings(res.data?.data || []);
     } catch (error) {
-      console.error('Error fetching user bookings:', error);
+      console.log('Fetch bookings error:', error.response?.status, error.response?.data || error.message);
     } finally {
       setLoading(false);
     }
