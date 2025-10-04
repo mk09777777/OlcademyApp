@@ -208,7 +208,7 @@ const prepareOrderData = (order) => {
     if (!loading) return null;
     return (
       <View className="py-4">
-        <ActivityIndicator size="small" color="#FF002E" />
+        <ActivityIndicator size="small" color="#02757A" />
       </View>
     );
   };
@@ -256,7 +256,7 @@ const prepareOrderData = (order) => {
       <View className="px-5 py-3">
         <View 
           style={{
-            backgroundColor: '#feebee',
+            backgroundColor: '#d9e9e9ff',
             borderRadius: 30,
             flexDirection: 'row',
             position: 'relative',
@@ -270,7 +270,7 @@ const prepareOrderData = (order) => {
               left: activeTab === 'Takeaway' ? 0 : '50%',
               width: '50%',
               height: '100%',
-              backgroundColor: '#FF002E',
+              backgroundColor: '#02757A',
               borderRadius: 30,
             }}
           />
@@ -289,7 +289,7 @@ const prepareOrderData = (order) => {
             <Ionicons 
               name="fast-food" 
               size={20} 
-              color={activeTab === 'Takeaway' ? '#FFFFFF' : '#FF002E'} 
+              color={activeTab === 'Takeaway' ? '#FFFFFF' : '#02757A'} 
               style={{ marginRight: 8 }}
             />
             <Text 
@@ -297,7 +297,7 @@ const prepareOrderData = (order) => {
                 fontSize: 14,
                 fontWeight: '600',
                 fontFamily: 'outfit-medium',
-                color: activeTab === 'Takeaway' ? '#FFFFFF' : '#FF002E',
+                color: activeTab === 'Takeaway' ? '#FFFFFF' : '#02757A',
               }}
             >
               Takeaway
@@ -318,7 +318,7 @@ const prepareOrderData = (order) => {
             <MaterialCommunityIcons 
               name="food-takeout-box" 
               size={20} 
-              color={activeTab === 'Tiffin' ? '#FFFFFF' : '#FF002E'} 
+              color={activeTab === 'Tiffin' ? '#FFFFFF' : '#02757A'} 
               style={{ marginRight: 8 }}
             />
             <Text 
@@ -326,7 +326,7 @@ const prepareOrderData = (order) => {
                 fontSize: 14,
                 fontWeight: '600',
                 fontFamily: 'outfit-medium',
-                color: activeTab === 'Tiffin' ? '#FFFFFF' : '#FF002E',
+                color: activeTab === 'Tiffin' ? '#FFFFFF' : '#02757A',
               }}
             >
               Tiffin
@@ -341,7 +341,7 @@ const prepareOrderData = (order) => {
       {/* Orders List */}
       {loading && orders.length === 0 ? (
         <View className="flex-1 items-center justify-center">
-          <ActivityIndicator size="large" color="#FF002E" />
+          <ActivityIndicator size="large" color="#02757A" />
         </View>
       ) : (
         <FlatList
