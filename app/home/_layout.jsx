@@ -16,26 +16,20 @@ export default function TabLayout() {
   }
   const { width } = Dimensions.get('window');
   
-  // Calculate responsive sizes based on screen width
   const tabBarHeight = width < 400 ? 70 : 80;
   const iconSize = width < 400 ? 25 : 27;
-  const fontSize = 16;
+  const fontSize = 12;
   const tabBarPadding = width < 400 ? 4 : 6;
 
   return (
-    // <SafeAreaView style={{ flex: 1 }} >
     <Tabs
       screenOptions={{
         headerShown: false,
         tabBarStyle: {
-          // marginBottom: width < 400 ? 10 : 15,
           paddingBottom: tabBarPadding,
           paddingTop: tabBarPadding,
           height: tabBarHeight,
         },
-        // tabBarItemStyle: {
-        //   paddingVertical: 4,
-        // },
       }}
     >
       {/* TakeAway Tab */}
@@ -45,11 +39,9 @@ export default function TabLayout() {
           tabBarLabel: ({ focused }) => (
             <Text style={{ 
               fontFamily: focused ? 'outfit-bold' : 'outfit',
-              fontWeight: '500',
               color: focused ? '#02757A' : 'gray',
               fontSize: fontSize,
-              lineHeight: fontSize,
-              marginTop: 2,
+              marginTop: -2,
             }}>
               Take Away
             </Text>
@@ -71,11 +63,9 @@ export default function TabLayout() {
           tabBarLabel: ({ focused }) => (
             <Text style={{ 
               fontFamily: focused ? 'outfit-bold' : 'outfit',
-              fontWeight: '500',
               color: focused ? '#02757A' : 'gray',
               fontSize: fontSize,
-              lineHeight: fontSize,
-              marginTop: 2,
+              marginTop: -2,
             }}>
               Dining
             </Text>
@@ -97,11 +87,9 @@ export default function TabLayout() {
           tabBarLabel: ({ focused }) => (
             <Text style={{ 
               fontFamily: focused ? 'outfit-bold' : 'outfit',
-              fontWeight: '500',
               color: focused ? '#02757A' : 'gray',
               fontSize: fontSize,
-              lineHeight: fontSize,
-              marginTop: 2,
+              marginTop: -2,
             }}>
               Tiffin
             </Text>
@@ -123,11 +111,9 @@ export default function TabLayout() {
           tabBarLabel: ({ focused }) => (
             <Text style={{ 
               fontFamily: focused ? 'outfit-bold' : 'outfit',
-              fontWeight: '500',
               color: focused ? '#02757A' : 'gray',
               fontSize: fontSize,
-              lineHeight: fontSize,
-              marginTop: 2,
+              marginTop: -2,
             }}>
               Live Shows
             </Text>
@@ -142,6 +128,5 @@ export default function TabLayout() {
         }}
       />
     </Tabs>
-    // </SafeAreaView>
   )
 }
