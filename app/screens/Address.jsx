@@ -215,13 +215,22 @@ export default function AddressScreen() {
     <SafeAreaView className="flex-1 bg-white">
       <BackRouting title="Your Address" />
       <TouchableOpacity
+        className="flex-row items-center p-4 border-b border-gray-200 bg-blue-100"
+        onPress={() => router.push('/screens/TestScreen')}
+      >
+        <Text className="ml-3 text-base text-blue-600 font-medium flex-1">
+            Go to Test Screen
+        </Text>
+    </TouchableOpacity>
+
+    <TouchableOpacity
         className="flex-row items-center p-4 border-b border-gray-200"
         onPress={() => router.push('/MapPicker')}
-      >
+    >
         <Ionicons name="add" size={24} color="#f23e3e" />
         <Text className="ml-3 text-base text-red-500 font-medium flex-1">Add Address</Text>
         <Ionicons name="chevron-forward" size={20} color="#999" />
-      </TouchableOpacity>
+    </TouchableOpacity>
       <View className="h-2 bg-gray-100" />
       <View className="flex-1 p-4">
         <Text className="text-sm font-bold text-gray-600 mb-4 uppercase tracking-wide">SAVED ADDRESSES</Text>
