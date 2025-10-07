@@ -526,7 +526,8 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     maxHeight: "90%",
-    width: '100%',
+    marginHorizontal: 2,
+    alignSelf: 'stretch',
     position: 'relative',
     bottom: 0,
     flexGrow: 1,
@@ -551,15 +552,15 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   sidebar: {
-    width: 120,
+    width: 80,
     backgroundColor: "#f5f5f5",
   },
   sidebarContent: {
     flexGrow: 1,
   },
   tab: {
-    paddingVertical: 15,
-    paddingHorizontal: 10,
+    paddingVertical: 14,
+    paddingHorizontal: 8,
     borderBottomWidth: 1,
     borderBottomColor: "#e0e0e0",
     justifyContent: 'center',

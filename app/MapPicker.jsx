@@ -245,7 +245,7 @@ export default function MapPicker() {
   const [showSearchModal, setShowSearchModal] = useState(false);
 
   // API config for address saving
-  const API_CONFIG = require('../../config/apiConfig').API_CONFIG;
+  const API_CONFIG = require('../config/apiConfig').API_CONFIG;
   const API_BASE_URL = API_CONFIG.BACKEND_URL;
 
   const tagOptions = [
