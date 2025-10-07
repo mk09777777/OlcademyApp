@@ -25,7 +25,7 @@ export default function TakeAway() {
   const [selectedDietary, setSelectedDietary] = useState([])
   const [selectedFeatures, setSelectedFeatures] = useState([])
   const [minRatingFilter, setMinRatingFilter] = useState(null)
-   const [maxRatingFilter, setMaxRatingFilter] = useState(null)
+  const [maxRatingFilter, setMaxRatingFilter] = useState(null)
   const [priceRangeFilter, setPriceRangeFilter] = useState([])
   const [openNowFilter, setOpenNowFilter] = useState(false)
   const [offersFilter, setOffersFilter] = useState(false)
@@ -67,10 +67,10 @@ export default function TakeAway() {
   });
   const sortOptions = useMemo(() => ([
     { id: 1, label: 'Price Low to High', value: 'default' },
-     { id: 2, label: 'Rating', value: 'HighToLow' },
+    { id: 2, label: 'Rating', value: 'HighToLow' },
     { id: 3, label: 'Price Low to High', value: 'lowToHigh' },
-     { id: 4, label: 'Price High to Low', value: 'highToLow' },
-   
+    { id: 4, label: 'Price High to Low', value: 'highToLow' },
+
     { id: 5, label: 'Distance', value: 'deliveryTime' }
   ]), []);
   const quickFilters = [
@@ -111,13 +111,13 @@ export default function TakeAway() {
     offers: false,
   });
 
-const sortMapping = {
-  popularity: "default",
-  ratingHighToLow: "HighToLow",
-  costLowToHigh: "lowToHigh",
-  costHighToLow: "highToLow",
-  deliveryTime: "deliveryTime",
-};
+  const sortMapping = {
+    popularity: "default",
+    ratingHighToLow: "HighToLow",
+    costLowToHigh: "lowToHigh",
+    costHighToLow: "highToLow",
+    deliveryTime: "deliveryTime",
+  };
   const handleFav = async (firmId) => {
     const saved = await AsyncStorage.getItem("userProfileData");
     if (saved) {
@@ -261,15 +261,15 @@ const sortMapping = {
       }
 
       const finalParams = { ...baseParams, ...params };
-      const response = await axios.get(`${Api_url}/firm/getnearbyrest?feature=Takeaway`, { 
+      const response = await axios.get(`${Api_url}/firm/getnearbyrest?feature=Takeaway`, {
         params: finalParams,
-        withCredentials: true 
+        withCredentials: true
       });
 
       if (response.data.success) {
         const newData = response.data.data || [];
         setRandomData(newData);
-        
+
         const restaurantsWithDistance = newData.map(restaurant => {
           return { ...restaurant };
         });
@@ -371,31 +371,31 @@ const sortMapping = {
     fetchInitialData();
   }, []);
 
-const FetchRecentlyViewData = useCallback(async () => {
-  try {
-    const response = await axios.get(`${Api_url}/firm/getrecently-viewed`, {
-      withCredentials: true
-    });
-    
-    // Filter to only get Firm items and map to expected structure
-    const firmItems = response.data.recentlyViewed
-      ?.filter(item => item.itemType === "Firm")
-      ?.map(item => ({
-        _id: item.itemId,
-        restaurantInfo: {
-          name: item.firmInfo?.name,
-          address: item.firmInfo?.address,
-          ratings: item.firmInfo?.ratings,
-          image_urls: item.firmInfo?.image_urls
-        }
-      })) || [];
+  const FetchRecentlyViewData = useCallback(async () => {
+    try {
+      const response = await axios.get(`${Api_url}/firm/getrecently-viewed`, {
+        withCredentials: true
+      });
 
-    setRecentlyViewdData(firmItems);
-  } catch (error) {
-    console.error('Error fetching recently viewed data:', error);
-    setRecentlyViewdData([]);
-  }
-}, []);
+      // Filter to only get Firm items and map to expected structure
+      const firmItems = response.data.recentlyViewed
+        ?.filter(item => item.itemType === "Firm")
+        ?.map(item => ({
+          _id: item.itemId,
+          restaurantInfo: {
+            name: item.firmInfo?.name,
+            address: item.firmInfo?.address,
+            ratings: item.firmInfo?.ratings,
+            image_urls: item.firmInfo?.image_urls
+          }
+        })) || [];
+
+      setRecentlyViewdData(firmItems);
+    } catch (error) {
+      console.error('Error fetching recently viewed data:', error);
+      setRecentlyViewdData([]);
+    }
+  }, []);
 
   const sortPopularData = useCallback(() => {
     const sorted = randomData.filter(
@@ -422,10 +422,10 @@ const FetchRecentlyViewData = useCallback(async () => {
           params: { query },
           withCredentials: true
         });
-        
+
         // Handle both direct search results and recommended restaurants
         let results = [];
-        
+
         if (response.data?.restaurants) {
           results = response.data.restaurants.map(restaurant => ({
             _id: restaurant.id,
@@ -441,7 +441,7 @@ const FetchRecentlyViewData = useCallback(async () => {
             image_urls: restaurant.image_url
           }));
         }
-        
+
         if (response.data?.recommendedRestaurants) {
           const recommended = response.data.recommendedRestaurants.map(restaurant => ({
             _id: restaurant.id,
@@ -459,12 +459,12 @@ const FetchRecentlyViewData = useCallback(async () => {
             image_urls: restaurant.image_url,
             distance: restaurant.distance || 0
           }));
-          
+
           results = [...results, ...recommended];
         }
 
         // Remove duplicates
-        const uniqueResults = results.filter((v, i, a) => 
+        const uniqueResults = results.filter((v, i, a) =>
           a.findIndex(t => (t._id === v._id)) === i
         );
 
@@ -481,26 +481,26 @@ const FetchRecentlyViewData = useCallback(async () => {
     return () => clearTimeout(debounceTimer);
   }, [query]);
 
-useEffect(() => {
-  const applyFilters = async () => {
-    const firmsData = await fetchRestaurants();
-    setFirms(firmsData);
-  };
-  const debounceTimer = setTimeout(applyFilters, 300);
-  return () => clearTimeout(debounceTimer);
-}, [
-  selectedSortOption,
-  selectedCuisines,
-  selectedDietary,
-  selectedFeatures,
-  minRatingFilter,
-  maxRatingFilter,
-  priceRangeFilter,
-  openNowFilter,
-  offersFilter,
-  alcoholFilter,
-  isVegOnly
-]);
+  useEffect(() => {
+    const applyFilters = async () => {
+      const firmsData = await fetchRestaurants();
+      setFirms(firmsData);
+    };
+    const debounceTimer = setTimeout(applyFilters, 300);
+    return () => clearTimeout(debounceTimer);
+  }, [
+    selectedSortOption,
+    selectedCuisines,
+    selectedDietary,
+    selectedFeatures,
+    minRatingFilter,
+    maxRatingFilter,
+    priceRangeFilter,
+    openNowFilter,
+    offersFilter,
+    alcoholFilter,
+    isVegOnly
+  ]);
 
   const handleQuickFilterPress = (filterName) => {
     if (filterName === 'Filters') {
@@ -537,27 +537,27 @@ useEffect(() => {
     }));
   };
 
-const handleApplyFilterboxFilters = (filters) => {
-  // Find the matching sort option
-  const selectedOption = sortOptions.find(opt => 
-    opt.value === filters.sortBy || 
-    opt.label.toLowerCase().includes(filters.sortBy?.toLowerCase())
-  );
-  
-  setSelectedSortOption(selectedOption || null);
-  setSelectedCuisines(filters.cuisines ? filters.cuisines.split(',') : []);
-  setMinRatingFilter(filters.minRating || null);
-  setMaxRatingFilter(filters.maxRating || null);
-  setPriceRangeFilter(filters.priceRange ? [filters.priceRange] : []);
-  setOpenNowFilter(filters.openNow || false);
-  setOffersFilter(filters.offers || false);
-  setAlcoholFilter(filters.Alcohol || null);
-  setSelectedFeatures(filters.feature ? filters.feature.split(',') : []);
-  setIsVegOnly(filters.Dietary?.includes('vegetarian') || false);
-  setFiltersVisible(false);
-};
+  const handleApplyFilterboxFilters = (filters) => {
+    // Find the matching sort option
+    const selectedOption = sortOptions.find(opt =>
+      opt.value === filters.sortBy ||
+      opt.label.toLowerCase().includes(filters.sortBy?.toLowerCase())
+    );
 
- const filteredFirms = useMemo(() => {
+    setSelectedSortOption(selectedOption || null);
+    setSelectedCuisines(filters.cuisines ? filters.cuisines.split(',') : []);
+    setMinRatingFilter(filters.minRating || null);
+    setMaxRatingFilter(filters.maxRating || null);
+    setPriceRangeFilter(filters.priceRange ? [filters.priceRange] : []);
+    setOpenNowFilter(filters.openNow || false);
+    setOffersFilter(filters.offers || false);
+    setAlcoholFilter(filters.Alcohol || null);
+    setSelectedFeatures(filters.feature ? filters.feature.split(',') : []);
+    setIsVegOnly(filters.Dietary?.includes('vegetarian') || false);
+    setFiltersVisible(false);
+  };
+
+  const filteredFirms = useMemo(() => {
     if (query.trim() !== '') {
       return searchResults;
     }
@@ -658,7 +658,7 @@ const handleApplyFilterboxFilters = (filters) => {
   };
   const handleGetVegMode = async () => {
     try {
-      const response=await axios.get(`${Api_url}/api/getVegMode`, {
+      const response = await axios.get(`${Api_url}/api/getVegMode`, {
         withCredentials: true
       });
 
@@ -697,28 +697,28 @@ const handleApplyFilterboxFilters = (filters) => {
         </View>
       ) : (
         <>
-          <View className="flex-row justify-between">
-         <LocationHeader />
-            <View className="flex-row mr-2.5">
+          <View className="flex-row justify-between items-center">
+            <LocationHeader />
+            <View className="flex-row pr-4">
               <TouchableOpacity
                 onPress={() => router.push('/screens/NoficationsPage')}
               >
-                <Ionicons name='notifications-circle-sharp' size={38} color='#02757A' style={{ marginRight: 10 }} />
+                <Ionicons name='notifications-circle-outline' color='#02757A' size={42} style={{ marginRight: 10 }} />
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={() => router.push('/screens/User')}
               >
-                <Ionicons name='person-circle' size={40} color='#02757A' />
+                <Ionicons name='person-circle-outline' size={40} color='#02757A' />
               </TouchableOpacity>
             </View>
           </View>
 
           <View className="flex-row items-center justify-between">
-              <SearchBar
-                query={query}
-                setQuery={setQuery}
-                onSearch={handleSearch}
-              />
+            <SearchBar
+              query={query}
+              setQuery={setQuery}
+              onSearch={handleSearch}
+            />
             <View className="flex-col items-center justify-start ml-2.5">
               <Text className="text-base font-outfit-medium text-textsecondary text-center">Veg</Text>
               <Text className="text-sm font-outfit-bold text-textsecondary text-center">Mode</Text>
@@ -760,7 +760,7 @@ const handleApplyFilterboxFilters = (filters) => {
                 <View className="bg-white rounded-2.5 flex-col mx-5 p-2.5 items-center">
                   <View className="mt-2.5 justify-center items-center">
                     <Image
-                      className="h-18 w-18"
+                      className="h-24 w-24"
                       source={require('../../assets/images/error1.png')}
                     />
                   </View>
@@ -954,14 +954,14 @@ const handleApplyFilterboxFilters = (filters) => {
                       data={quickFilters}
                       horizontal
                       showsHorizontalScrollIndicator={false}
+                      decelerationRate="fast" 
                       keyExtractor={(item) => item.name}
                       renderItem={({ item }) => {
                         const isSelected = activeQuickFilters.includes(item.name);
                         return (
                           <TouchableOpacity
-                            className={`flex-row items-center px-3 py-2 mr-2 rounded-full border border-primary ${
-                              isSelected ? 'bg-primary' : ''
-                            }`}
+                            className={`flex-row items-center px-3 py-2 mr-2 rounded-full border border-primary ${isSelected ? 'bg-primary' : ''
+                              }`}
                             onPress={() => handleQuickFilterPress(item.name)}
                             activeOpacity={0.7}
                           >
@@ -980,9 +980,8 @@ const handleApplyFilterboxFilters = (filters) => {
                                 style={{ marginRight: 4 }}
                               />
                             )}
-                            <Text className={`text-sm font-outfit-medium ${
-                              isSelected ? 'text-white' : 'text-textprimary'
-                            }`}>
+                            <Text className={`text-sm font-outfit-medium ${isSelected ? 'text-white' : 'text-textprimary'
+                              }`}>
                               {item.name}
                             </Text>
                           </TouchableOpacity>
