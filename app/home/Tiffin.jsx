@@ -783,12 +783,12 @@ const FetchRecentlyViewData = useCallback(async () => {
             <TouchableOpacity
               onPress={() => router.push('/screens/NoficationsPage')}
             >
-              <Ionicons name='notifications-circle-outline' size={38} color='#e23845' style={{ marginRight: 10 }} />
+              <Ionicons name='notifications-circle-outline' size={42} color='#02757A' style={{ marginRight: 10 }} />
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => router.push('/screens/User')}
             >
-              <Ionicons name='person-circle-outline' size={40} color='#e23845' />
+              <Ionicons name='person-circle-outline' size={40} color='#02757A' />
             </TouchableOpacity>
           </View>
         </View>
@@ -825,7 +825,7 @@ const FetchRecentlyViewData = useCallback(async () => {
               <View className="bg-white rounded-2.5 flex-col mx-5 p-2.5 items-center">
                 <View className="mt-2.5 justify-center items-center">
                   <Image
-                    className="h-18 w-18"
+                    className="h-14 w-14"
                     source={require('../../assets/images/error1.png')}
                   />
                 </View>

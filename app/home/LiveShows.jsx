@@ -1,6 +1,7 @@
 import { View, Text, FlatList, ImageBackground, TouchableOpacity, Image } from 'react-native'
 import React from 'react'
-import { Ionicons } from '@expo/vector-icons'
+import { Ionicons, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons'
+
 import SearchBar from '@/components/SearchBar'
 import { useRouter } from 'expo-router'
 import { useSafeNavigation } from '@/hooks/navigationPage';
@@ -47,7 +48,7 @@ export default function LiveShows() {
         <TouchableOpacity 
                        onPress={() => safeNavigation('/screens/User')}
                      >
-                      <Ionicons name='person-circle' size={40} color='#e23845'/>
+                      <Ionicons name='person-circle-outline' size={40} color='#02757A'/>
                      </TouchableOpacity>
       </View>
       <SearchBar/>
