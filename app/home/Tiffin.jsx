@@ -195,34 +195,34 @@ export default function Tiffin() {
       });
     }
   };
-const FetchRecentlyViewData = useCallback(async () => {
-  try {
-    const response = await axios.get(`${Api_url}/firm/getrecently-viewed`, {
-      withCredentials: true
-    });
+  const FetchRecentlyViewData = useCallback(async () => {
+    try {
+      const response = await axios.get(`${Api_url}/firm/getrecently-viewed`, {
+        withCredentials: true
+      });
 
-    // Improved data transformation
-    const firmItems = response.data.recentlyViewed
-      ?.filter(item => item.itemType === "Tiffin")
-      ?.map(item => ({
-        id: item.itemId,
-        Title: item.tiffinInfo?.name || 'Unknown Tiffin',
-        Rating: item.tiffinInfo?.ratings || 0,
-        Images: item.tiffinInfo?.image_urls || [],
-        address: item.tiffinInfo?.address || '',
-        // mincost: 0,
-        // isVeg: item.tiffinInfo?.name?.toLowerCase().includes('veg') || false,
-        // Delivery_Cities: [], 
-        // "Meal_Types": [] 
-      })) || [];
+      // Improved data transformation
+      const firmItems = response.data.recentlyViewed
+        ?.filter(item => item.itemType === "Tiffin")
+        ?.map(item => ({
+          id: item.itemId,
+          Title: item.tiffinInfo?.name || 'Unknown Tiffin',
+          Rating: item.tiffinInfo?.ratings || 0,
+          Images: item.tiffinInfo?.image_urls || [],
+          address: item.tiffinInfo?.address || '',
+          // mincost: 0,
+          // isVeg: item.tiffinInfo?.name?.toLowerCase().includes('veg') || false,
+          // Delivery_Cities: [], 
+          // "Meal_Types": [] 
+        })) || [];
 
-    console.log('Recently viewed data:', firmItems);
-    setRecentlyViewdData(firmItems);
-  } catch (error) {
-    console.error('Error fetching recently viewed data:', error);
-    setRecentlyViewdData([]);
-  }
-}, []);
+      console.log('Recently viewed data:', firmItems);
+      setRecentlyViewdData(firmItems);
+    } catch (error) {
+      console.error('Error fetching recently viewed data:', error);
+      setRecentlyViewdData([]);
+    }
+  }, []);
   const fetchTiffinData = async (filters = {}) => {
     try {
       setIsLoading(true);
@@ -644,9 +644,8 @@ const FetchRecentlyViewData = useCallback(async () => {
           {QUICK_FILTERS.map((filter) => (
             <TouchableOpacity
               key={filter.name}
-              className={`flex-row items-center px-3 py-2 mr-2 rounded-full border border-primary ${
-                activeQuickFilters.includes(filter.name) ? 'bg-primary' : ''
-              }`}
+              className={`flex-row items-center px-3 py-2 mr-2 rounded-full border border-primary ${activeQuickFilters.includes(filter.name) ? 'bg-primary' : ''
+                }`}
               onPress={() => handleQuickFilter(filter.name)}
             >
               <MaterialCommunityIcons
@@ -654,9 +653,8 @@ const FetchRecentlyViewData = useCallback(async () => {
                 size={16}
                 color={activeQuickFilters.includes(filter.name) ? '#fff' : '#666'}
               />
-              <Text className={`ml-1 text-sm font-outfit ${
-                activeQuickFilters.includes(filter.name) ? 'text-white' : 'text-textprimary'
-              }`}>
+              <Text className={`ml-1 text-sm font-outfit ${activeQuickFilters.includes(filter.name) ? 'text-white' : 'text-textprimary'
+                }`}>
                 {filter.name}
               </Text>
             </TouchableOpacity>
@@ -772,27 +770,26 @@ const FetchRecentlyViewData = useCallback(async () => {
   // }
 
   return (
-    <SafeAreaView className="flex-1 bg-background">
-      {/* Header Section */}
-      <View className="bg-white p-4">
+
+    <View className="flex-1 bg-white p-4">
+      <>
         <View className="flex-row justify-between items-center">
-          <View className="flex-1">
-            <LocationHeader />
-          </View>
-          <View className="flex-row mr-2.5 mt-2.5">
+          <LocationHeader />
+          <View className="flex-row pr-4 items-center">
             <TouchableOpacity
               onPress={() => router.push('/screens/NoficationsPage')}
             >
-              <Ionicons name='notifications-circle-outline' size={42} color='#02757A' style={{ marginRight: 10 }} />
+              <Ionicons name='notifications-circle-outline' color='#02757A' size={42} style={{ marginRight: 10 }} />
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => router.push('/screens/User')}
             >
-              <Ionicons name='person-circle-outline' size={40} color='#02757A' />
+              <Ionicons name='person-circle-outline' size={42} color='#02757A' />
             </TouchableOpacity>
           </View>
         </View>
-        <View className="flex-row items-center justify-between mt-4">
+
+        <View className="flex-row items-center justify-between ">
           <SearchBar
             query={query}
             setQuery={setQuery}
@@ -811,7 +808,7 @@ const FetchRecentlyViewData = useCallback(async () => {
                   setIsModalVisible(true);
                 }
               }}
-              style={{ marginTop: -5 }}
+              style={{ marginTop: -6 }}
               value={isVegOnly}
             />
           </View>
@@ -825,7 +822,7 @@ const FetchRecentlyViewData = useCallback(async () => {
               <View className="bg-white rounded-2.5 flex-col mx-5 p-2.5 items-center">
                 <View className="mt-2.5 justify-center items-center">
                   <Image
-                    className="h-14 w-14"
+                    className="h-24 w-24"
                     source={require('../../assets/images/error1.png')}
                   />
                 </View>
@@ -842,9 +839,8 @@ const FetchRecentlyViewData = useCallback(async () => {
             </View>
           </Modal>
         </View>
-      </View>
+      </>
 
-      {/* {renderFilterModal()} */}
       <FilterModal
         isOpen={showFilters}
         setIsOpen={setShowFilters}
@@ -861,6 +857,8 @@ const FetchRecentlyViewData = useCallback(async () => {
         }
         contentContainerStyle={{ paddingBottom: 20 }}
       />
-    </SafeAreaView>
+    </View>
   );
 }
+
+

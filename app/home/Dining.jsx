@@ -1863,7 +1863,7 @@ export default function TakeAway() {
               <TouchableOpacity
                 onPress={() => router.push('/screens/User')}
               >
-                <Ionicons name='person-circle-outline' size={40} color='#02757A' />
+                <Ionicons name='person-circle-outline' size={42} color='#02757A' />
               </TouchableOpacity>
             </View>
           </View>
