@@ -1,5 +1,18 @@
-import React, { useEffect, useState, useRef } from 'react';
-import { View, Text, TouchableOpacity, Alert, FlatList, ActivityIndicator, TextInput, Modal,Dimensions  } from 'react-native';
+import React, { useEffect, useState, useRef, useCallback, useMemo } from 'react';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  Alert,
+  FlatList,
+  ActivityIndicator,
+  TextInput,
+  Modal,
+  Dimensions,
+  Linking,
+  ScrollView,
+  StyleSheet
+} from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import { useRouter } from 'expo-router';
 import { Ionicons, Feather, MaterialCommunityIcons, FontAwesome5, MaterialIcons } from '@expo/vector-icons';
@@ -9,44 +22,12 @@ import { useLocationContext } from '@/context/LocationContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import BackRouting from '@/components/BackRouting';
 import * as Location from 'expo-location';
+import Constants from 'expo-constants';
+import { API_CONFIG } from '@config/apiConfig';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 /*
 === ORIGINAL CSS REFERENCE ===
-confirmBtn: {
-  marginHorizontal: 20,
-  backgroundColor: '#e41e3f',
-  padding: 14,
-  borderRadius: 10,
-  alignItems: 'center',
-  marginBottom: 20,
-}
-
-confirmTxt: {
-  color: '#fff',
-  fontSize: 16,
-  fontFamily:'outfit-bold'
-}
-
-tagsContainer: {
-  flexDirection: 'row',
-  padding: 10,
-  justifyContent: 'center',
-}
-
-map: {
-  height: 400,
-  width: '100%',
-}
-
-currentLocationBox: {
-  position: 'absolute',
-  bottom:300,
-  left: 70,
-  right: 70,
-  backgroundColor: '#fffefeff',
-  padding: 10,
-  borderRadius: 30,
-  borderWidth: 1,
   borderColor: '#e0e0e0',
   elevation: 5,
   shadowColor: '#000',
@@ -115,47 +96,6 @@ searchIcon: {
   top: 12,
 }
 
-modalContainer: {
-  flex: 1,
-  backgroundColor: '#fff',
-  maxHeight:'80%'
-}
-
-modalHeader: {
-  flexDirection: 'row',
-  alignItems: 'center',
-  padding: 15,
-  borderBottomWidth: 1,
-  borderBottomColor: '#e0e0e0',
-}
-
-backButton: {
-  marginRight: 15,
-}
-
-modalTitle: {
-  fontFamily:'outfit-bold',
-  fontSize: 18,
-  color: '#000',
-}
-
-modalSearchContainer: {
-  position: 'relative',
-  margin: 15,
-}
-
-modalSearchInput: {
-  backgroundColor: '#f0f0f0',
-  padding: 12,
-  paddingLeft: 40,
-  borderRadius: 10,
-  fontSize: 16,
-  fontFamily:'outfit-bold',
-}
-
-modalSearchIcon: {
-  position: 'absolute',
-  left: 12,
   top: 12,
 }
 
@@ -214,11 +154,61 @@ initialStateText: {
 === END CSS REFERENCE ===
 */
 
+const resolveGoogleMapsApiKey = () => {
+  const expoConfig = Constants.expoConfig ?? Constants?.manifest ?? Constants?.manifest2 ?? {};
+  const extra = expoConfig?.extra ?? {};
+  return (
+    extra.googleMapsApiKey ??
+    extra.GOOGLE_MAPS_API_KEY ??
+    API_CONFIG?.GOOGLE_MAPS_API_KEY ??
+    ''
+  );
+};
+
 export default function MapPicker() {
   const router = useRouter();
   const { safeNavigation } = useSafeNavigation();
   const { setLocation, setRecentlyAdds, location: currentLocation } = useLocationContext();
   const mapRef = useRef(null);
+  const locationAlertVisibleRef = useRef(false);
+
+  const googleMapsApiKey = resolveGoogleMapsApiKey();
+  const isGoogleMapsConfigured = Boolean(googleMapsApiKey);
+  const mapHeight = useMemo(() => {
+    const windowHeight = Dimensions.get('window').height;
+    return Math.min(Math.max(windowHeight * 0.45, 280), 420);
+  }, []);
+
+  const showLocationAlert = useCallback((title, message, buttons) => {
+    if (locationAlertVisibleRef.current) {
+      return;
+    }
+
+    locationAlertVisibleRef.current = true;
+
+    const alertButtons = (buttons ?? [{ text: 'OK' }]).map((button) => ({
+      ...button,
+      onPress: () => {
+        locationAlertVisibleRef.current = false;
+        button.onPress?.();
+      },
+    }));
+
+    Alert.alert(title, message, alertButtons, {
+      cancelable: false,
+      onDismiss: () => {
+        locationAlertVisibleRef.current = false;
+      },
+    });
+  }, []);
+
+  useEffect(() => {
+    if (!isGoogleMapsConfigured) {
+      console.warn(
+        'Google Maps API key is missing. Set GOOGLE_MAPS_API_KEY in your environment to enable MapPicker.'
+      );
+    }
+  }, [isGoogleMapsConfigured]);
 
   const [region, setRegion] = useState({
     latitude: 19.1573,
@@ -245,7 +235,6 @@ export default function MapPicker() {
   const [showSearchModal, setShowSearchModal] = useState(false);
 
   // API config for address saving
-  const API_CONFIG = require('../config/apiConfig').API_CONFIG;
   const API_BASE_URL = API_CONFIG.BACKEND_URL;
 
   const tagOptions = [
@@ -297,19 +286,59 @@ export default function MapPicker() {
 
   // Reverse geocode coordinates to get address
   const reverseGeocodeCoordinates = async (latitude, longitude) => {
+    const fallbackLabel = `Lat: ${latitude.toFixed(6)}, Lon: ${longitude.toFixed(6)}`;
+
+    const tryDeviceGeocode = async () => {
+      try {
+        const deviceAddress = await Location.reverseGeocodeAsync({ latitude, longitude });
+        if (deviceAddress?.length) {
+          const [{ street, name, city, district, subregion, region, postalCode, country }] = deviceAddress;
+          const manualAddress = [name || street, district, city, subregion, region, postalCode, country]
+            .filter(Boolean)
+            .join(', ');
+
+          if (manualAddress) {
+            setAddress(manualAddress);
+            return manualAddress;
+          }
+        }
+      } catch (deviceError) {
+        console.error('Device reverse geocoding failed:', deviceError);
+      }
+
+      return null;
+    };
+
+    const deviceResult = await tryDeviceGeocode();
+    if (deviceResult) {
+      return deviceResult;
+    }
+
     try {
       // Use Nominatim for consistency with AddressMapPicker
       const response = await axios.get(
-        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=18&addressdetails=1`
+        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=18&addressdetails=1`,
+        {
+          headers: {
+            'User-Agent': 'ProjectZ/1.0.0 (mayurvicky01234@gmail.com)',
+          },
+        }
       );
+
       const addressData = response.data;
-      setAddress(addressData.display_name || 'Unknown address');
-      return addressData.display_name || `Lat: ${latitude.toFixed(6)}, Lon: ${longitude.toFixed(6)}`;
+      const displayName = addressData.display_name || fallbackLabel;
+      setAddress(displayName);
+      return displayName;
     } catch (error) {
-      console.error('Error reverse geocoding:', error);
-      Alert.alert('Error', 'Failed to fetch address. Please enter manually.');
-      setAddress('');
-      return `Lat: ${latitude.toFixed(6)}, Lon: ${longitude.toFixed(6)}`;
+      console.error('Error reverse geocoding via Nominatim:', error);
+
+      showLocationAlert(
+        'Address lookup failed',
+        'Unable to fetch your address automatically. You can continue by entering it manually.'
+      );
+
+      setAddress((prev) => prev || fallbackLabel);
+      return fallbackLabel;
     }
   };
 
@@ -346,13 +375,40 @@ export default function MapPicker() {
   const getCurrentLocation = async () => {
     try {
       setIsFetchingLocation(true);
-      const { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== 'granted') {
-        Alert.alert('Permission Denied', 'Location permission is required to use this feature');
+      locationAlertVisibleRef.current = false;
+
+      const servicesEnabled = await Location.hasServicesEnabledAsync();
+      if (!servicesEnabled) {
+        showLocationAlert(
+          'Location services disabled',
+          'Please turn on location services (GPS) and try again.'
+        );
         setIsFetchingLocation(false);
         return;
       }
-      const { coords } = await Location.getCurrentPositionAsync({});
+
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        showLocationAlert(
+          'Permission Required',
+          'Location permission is needed to use this feature. You can grant access from settings.',
+          [
+            {
+              text: 'Open Settings',
+              onPress: () => {
+                if (Linking.openSettings) {
+                  Linking.openSettings();
+                }
+              },
+            },
+            { text: 'Cancel', style: 'cancel' },
+          ]
+        );
+        setIsFetchingLocation(false);
+        return;
+    }
+
+    const { coords } = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Highest });
       const newRegion = {
         latitude: coords.latitude,
         longitude: coords.longitude,
@@ -371,7 +427,7 @@ export default function MapPicker() {
       setAddress(addr);
     } catch (error) {
       console.error('Error getting current location:', error);
-      Alert.alert('Error', 'Could not get current location. Please try again.');
+      showLocationAlert('Location Error', 'Could not get current location. Please try again.');
     } finally {
       setIsFetchingLocation(false);
     }
@@ -531,7 +587,8 @@ export default function MapPicker() {
     alignItems: 'center',
     padding: 8,
     paddingHorizontal: 15,
-    marginRight: 4,
+    marginRight: 10,
+    marginBottom: 10,
     borderWidth: 1,
     borderRadius: 30,
     borderColor: addressType === type ? '#f23e3f' : '#ccc',
@@ -543,138 +600,178 @@ export default function MapPicker() {
     color: addressType === type ? '#f23e3f' : '#555',
   });
 
+  if (!isGoogleMapsConfigured) {
+    return (
+      <SafeAreaView className="flex-1 bg-white">
+        <BackRouting title='Add Address' />
+        <View className="flex-1 items-center justify-center px-6">
+          <Feather name="alert-triangle" size={40} color="#f23e3f" />
+          <Text className="text-lg font-semibold text-gray-800 mt-5 text-center">
+            Google Maps configuration needed
+          </Text>
+          <Text className="text-sm text-gray-600 mt-2 text-center">
+            Add a Google Maps API key to continue. Set the GOOGLE_MAPS_API_KEY environment
+            variable and restart the app.
+          </Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
   if (isLoading) {
     return (
-      <View className="flex-1 justify-center items-center">
+      <SafeAreaView className="flex-1 justify-center items-center bg-white">
         <ActivityIndicator size="large" color="#e41e3f" />
         <Text className="mt-2.5">Loading map...</Text>
-      </View>
+      </SafeAreaView>
     );
   }
 
   return (
-    <View className="flex-1 bg-white">
+    <SafeAreaView className="flex-1 bg-white">
       <BackRouting style={{ backgroundColor: '#f0f0f0' }} title='Add Address' />
-      {/* Search Box */}
-      <TouchableOpacity 
-        className="relative mx-5 mt-2.5 mb-2.5"
-        onPress={() => setShowSearchModal(true)}
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        keyboardShouldPersistTaps="handled"
       >
-        <TextInput
-          className="bg-white p-3 pl-10 rounded-lg border border-gray-300 text-base"
-          placeholder="Search for a location..."
-          value={searchQuery}
-          editable={false}
-          pointerEvents="none"
-        />
-        <Feather name="search" size={20} color="#666" className="absolute left-3 top-3" />
-      </TouchableOpacity>
-      <MapView
-        ref={mapRef}
-        className="h-96 w-full"
-        region={region}
-        onRegionChangeComplete={handleRegionChangeComplete}
-        onPress={(e) => {
-          const { coordinate } = e.nativeEvent;
-          setSelectedCoordinate(coordinate);
-          reverseGeocodeCoordinates(coordinate.latitude, coordinate.longitude)
-            .then(addr => {
-              setCurrentAddress(addr);
-              setAddress(addr);
-            });
-        }}
-        showsUserLocation={true}
-        showsMyLocationButton={true}
-      >
-        {selectedCoordinate && (
-          <Marker 
-            coordinate={selectedCoordinate} 
-            pinColor="#e41e3f"
-            draggable
-            onDragEnd={(e) => {
-              const { latitude, longitude } = e.nativeEvent.coordinate;
-              setSelectedCoordinate({ latitude, longitude });
-              reverseGeocodeCoordinates(latitude, longitude)
+        {/* Search Box */}
+        <TouchableOpacity
+          style={styles.searchTrigger}
+          onPress={() => setShowSearchModal(true)}
+          accessibilityRole="button"
+        >
+          <View style={styles.searchField} pointerEvents="none">
+            <Feather name="search" size={20} color="#6b7280" style={styles.searchIcon} />
+            <TextInput
+              style={styles.searchInput}
+              placeholder="Search for a location..."
+              value={searchQuery}
+              editable={false}
+            />
+          </View>
+        </TouchableOpacity>
+
+        <View
+          style={[styles.mapWrapper, { height: mapHeight }]}
+          accessible
+          accessibilityHint="Interactive map to pick your address"
+        >
+          <MapView
+            ref={mapRef}
+            style={StyleSheet.absoluteFillObject}
+            region={region}
+            onRegionChangeComplete={handleRegionChangeComplete}
+            onPress={(e) => {
+              const { coordinate } = e.nativeEvent;
+              setSelectedCoordinate(coordinate);
+              reverseGeocodeCoordinates(coordinate.latitude, coordinate.longitude)
                 .then(addr => {
                   setCurrentAddress(addr);
                   setAddress(addr);
                 });
             }}
+            showsUserLocation
+            showsMyLocationButton={false}
+            googleMapsApiKey={googleMapsApiKey}
+          >
+            {selectedCoordinate && (
+              <Marker
+                coordinate={selectedCoordinate}
+                pinColor="#e41e3f"
+                draggable
+                onDragEnd={(e) => {
+                  const { latitude, longitude } = e.nativeEvent.coordinate;
+                  setSelectedCoordinate({ latitude, longitude });
+                  reverseGeocodeCoordinates(latitude, longitude)
+                    .then(addr => {
+                      setCurrentAddress(addr);
+                      setAddress(addr);
+                    });
+                }}
+              />
+            )}
+          </MapView>
+
+          <TouchableOpacity
+            style={styles.currentLocationButton}
+            onPress={getCurrentLocation}
+            disabled={isFetchingLocation}
+            accessibilityRole="button"
+            accessibilityState={{ busy: isFetchingLocation }}
+          >
+            <View style={styles.currentLocationInner}>
+              <MaterialIcons name="my-location" size={20} color="#e41e3f" />
+              <Text style={styles.currentLocationText}>
+                {isFetchingLocation ? 'Fetching your location...' : 'Use current location'}
+              </Text>
+              {isFetchingLocation && <ActivityIndicator size="small" color="#e41e3f" />}
+            </View>
+          </TouchableOpacity>
+        </View>
+
+        <View className="bg-white mt-4 mx-5 p-4 rounded-lg border border-gray-300 shadow-sm">
+          <Text className="text-base font-medium text-gray-800 mb-3">Address</Text>
+          <TextInput
+            className="border border-gray-300 rounded-lg p-3.5 mb-4 text-base bg-gray-50 min-h-[60px]"
+            style={{ textAlignVertical: 'top' }}
+            value={address}
+            placeholder="Enter or select address"
+            onChangeText={setAddress}
+            multiline
           />
-        )}
-      </MapView>
-      <TouchableOpacity
-        className="absolute bottom-72 left-16 right-16 bg-white p-2.5 rounded-full border border-gray-300 shadow-lg"
-        onPress={getCurrentLocation}
-        disabled={isFetchingLocation}
-      >
-        <View className="flex-row items-center">
-          <MaterialIcons name="my-location" size={20} color="#e41e3f" />
-          <View className="flex-1 ml-2.5">
-            <Text className="text-base font-bold text-black">
-              {isFetchingLocation ? 'Fetching your location...' : 'Use Current location'}
-            </Text>
+          <Text className="mb-2 text-textsecondary text-sm font-outfit">Additional address details*</Text>
+          <Text className="mb-3 text-xs text-textsecondary font-outfit">E.g. Floor, House no.</Text>
+          <TextInput
+            placeholder="Enter additional details"
+            value={additionalDetails}
+            onChangeText={setAdditionalDetails}
+            className="border border-gray-300 p-3.5 rounded-lg mb-4 text-base bg-gray-50"
+          />
+          <Text className="text-base font-medium text-gray-800 mb-3">Address Type</Text>
+          <View className="flex-row flex-wrap justify-between mb-4">
+            {['Home', 'Work', 'Hotel', 'Other'].map((type) => (
+              <TouchableOpacity
+                key={type}
+                style={getTagStyle(type)}
+                onPress={() => setAddressType(type)}
+              >
+                <View style={{ marginRight: 8 }}>
+                  {type === 'Home' ? (
+                    <Ionicons name="home" size={18} color="#f23e3e" />
+                  ) : type === 'Work' ? (
+                    <MaterialCommunityIcons name="briefcase-outline" size={18} color="#f23e3e" />
+                  ) : type === 'Hotel' ? (
+                    <MaterialCommunityIcons name="office-building" size={18} color="#f23e3e" />
+                  ) : (
+                    <FontAwesome5 name="map-marker-alt" size={16} color="#f23e3e" />
+                  )}
+                </View>
+                <Text style={getTextStyle(type)}>{type}</Text>
+              </TouchableOpacity>
+            ))}
           </View>
-          {isFetchingLocation && <ActivityIndicator size="small" color="#e41e3f" />}
+          <TouchableOpacity
+            className="bg-red-500 p-4 rounded-lg items-center"
+            onPress={handleSaveAddress}
+            disabled={isSaving}
+          >
+            {isSaving ? (
+              <ActivityIndicator color="white" />
+            ) : (
+              <Text className="text-white text-base font-semibold">Save Address</Text>
+            )}
+          </TouchableOpacity>
         </View>
-      </TouchableOpacity>
-      <View className="bg-white mt-2.5 mx-5 p-4 rounded-lg border border-gray-300 shadow-sm">
-        <Text className="text-base font-medium text-gray-800 mb-3">Address</Text>
-        <TextInput
-          className="border border-gray-300 rounded-lg p-3.5 mb-4 text-base bg-gray-50 min-h-[60px]"
-          style={{ textAlignVertical: 'top' }}
-          value={address}
-          placeholder="Enter or select address"
-          onChangeText={setAddress}
-          multiline
-        />
-        <Text className="mb-2 text-textsecondary text-sm font-outfit">Additional address details*</Text>
-        <Text className="mb-3 text-xs text-textsecondary font-outfit">E.g. Floor, House no.</Text>
-        <TextInput
-          placeholder="Enter additional details"
-          value={additionalDetails}
-          onChangeText={setAdditionalDetails}
-          className="border border-gray-300 p-3.5 rounded-lg mb-4 text-base bg-gray-50"
-        />
-        <Text className="text-base font-medium text-gray-800 mb-3">Address Type</Text>
-        <View className="flex-row flex-wrap justify-between mb-4">
-          {['Home', 'Work', 'Hotel', 'Other'].map((type) => (
-            <TouchableOpacity
-              key={type}
-              style={getTagStyle(type)}
-              onPress={() => setAddressType(type)}
-            >
-              <View style={{ marginRight: 8 }}>{
-                type === 'Home' ? <Ionicons name="home" size={18} color="#f23e3e" /> :
-                type === 'Work' ? <MaterialCommunityIcons name="briefcase-outline" size={18} color="#f23e3e" /> :
-                type === 'Hotel' ? <MaterialCommunityIcons name="office-building" size={18} color="#f23e3e" /> :
-                <FontAwesome5 name="map-marker-alt" size={16} color="#f23e3e" />
-              }</View>
-              <Text style={getTextStyle(type)}>{type}</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-        <TouchableOpacity
-          className="bg-red-500 p-4 rounded-lg items-center"
-          onPress={handleSaveAddress}
-          disabled={isSaving}
-        >
-          {isSaving ? (
-            <ActivityIndicator color="white" />
-          ) : (
-            <Text className="text-white text-base font-semibold">Save Address</Text>
-          )}
-        </TouchableOpacity>
-      </View>
-      {/* Search Modal */}
+      </ScrollView>
+
       <Modal
         visible={showSearchModal}
         animationType="slide"
         onRequestClose={() => setShowSearchModal(false)}
       >
-        <View className="flex-1 bg-white max-h-[80%]">
+        <SafeAreaView className="flex-1 bg-white">
           <View className="flex-row items-center p-4 border-b border-gray-300">
-            <TouchableOpacity 
+            <TouchableOpacity
               onPress={() => setShowSearchModal(false)}
               className="mr-4"
             >
@@ -682,15 +779,17 @@ export default function MapPicker() {
             </TouchableOpacity>
             <Text className="text-lg font-bold text-black">Search Location</Text>
           </View>
-          <View className="relative m-4">
-            <TextInput
-              className="bg-gray-100 p-3 pl-10 rounded-lg text-base font-bold"
-              placeholder="Search for a location..."
-              value={searchQuery}
-              onChangeText={(text) => setSearchQuery(text)}
-              autoFocus={true}
-            />
-            <Feather name="search" size={20} color="#666" className="absolute left-3 top-3" />
+          <View style={styles.modalSearchWrapper}>
+            <View style={styles.modalSearchField}>
+              <Feather name="search" size={20} color="#6b7280" />
+              <TextInput
+                style={styles.modalSearchInput}
+                placeholder="Search for a location..."
+                value={searchQuery}
+                onChangeText={(text) => setSearchQuery(text)}
+                autoFocus
+              />
+            </View>
           </View>
           {isSearching ? (
             <View className="flex-1 justify-center items-center">
@@ -723,11 +822,93 @@ export default function MapPicker() {
               <Text className="mt-2.5 text-base font-bold text-gray-400">Search for a location</Text>
             </View>
           )}
-        </View>
+        </SafeAreaView>
       </Modal>
-    </View>
+    </SafeAreaView>
   );
 }
+
+const styles = StyleSheet.create({
+  scrollContent: {
+    paddingBottom: 32,
+    paddingTop: 8,
+  },
+  mapWrapper: {
+    marginHorizontal: 20,
+    marginTop: 16,
+    borderRadius: 16,
+    overflow: 'hidden',
+    backgroundColor: '#f8fafc',
+  },
+  currentLocationButton: {
+    position: 'absolute',
+    left: 16,
+    right: 16,
+    bottom: 16,
+    backgroundColor: '#ffffff',
+    borderRadius: 999,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.12,
+    shadowRadius: 3,
+    elevation: 4,
+  },
+  currentLocationInner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  currentLocationText: {
+    flex: 1,
+    marginLeft: 10,
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#111827',
+  },
+  searchTrigger: {
+    marginHorizontal: 20,
+    marginTop: 10,
+  },
+  searchField: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#ffffff',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#d1d5db',
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+  },
+  searchIcon: {
+    marginRight: 10,
+  },
+  searchInput: {
+    flex: 1,
+    fontSize: 16,
+    color: '#111827',
+  },
+  modalSearchWrapper: {
+    margin: 16,
+  },
+  modalSearchField: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#f3f4f6',
+    borderRadius: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+  },
+  modalSearchInput: {
+    flex: 1,
+    marginLeft: 10,
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#111827',
+  },
+});
 
 
 

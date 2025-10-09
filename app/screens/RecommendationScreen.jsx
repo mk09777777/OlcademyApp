@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
-  SafeAreaView,
   TouchableOpacity,
   FlatList,
   StatusBar,
@@ -11,6 +10,7 @@ import {
  
   Alert,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import BackRouting from '@/components/BackRouting';
 import { Ionicons, MaterialIcons, MaterialCommunityIcons, } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';

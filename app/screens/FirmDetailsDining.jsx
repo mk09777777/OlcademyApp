@@ -1,4 +1,5 @@
-import { View, Text, FlatList, TouchableOpacity, Linking, Platform, Modal, SafeAreaView, ActivityIndicator, Dimensions, Image, ScrollView } from 'react-native'
+import { View, Text, FlatList, TouchableOpacity, Linking, Platform, Modal, ActivityIndicator, Dimensions, Image, ScrollView } from 'react-native'
+import { SafeAreaView } from 'react-native-safe-area-context'
 import { LinearGradient } from 'expo-linear-gradient'
 import React, { useEffect, useState } from 'react'
 import { useGlobalSearchParams, useRouter } from 'expo-router'

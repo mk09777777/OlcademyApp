@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, ScrollView, TouchableOpacity, SafeAreaView, Alert, RefreshControl, ActivityIndicator, Share, Image, Dimensions, Animated, Text } from 'react-native';
+import { View, ScrollView, TouchableOpacity, Alert, RefreshControl, ActivityIndicator, Share, Image, Dimensions, Animated, Text } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button, IconButton, Chip } from 'react-native-paper';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { MaterialCommunityIcons, Ionicons, AntDesign, FontAwesome } from '@expo/vector-icons';

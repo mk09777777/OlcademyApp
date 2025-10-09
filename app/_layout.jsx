@@ -66,7 +66,7 @@ export default function RootLayout() {
                       <Stack.Screen name="screens/Collection" options={{ headerShown: false }} />
                       <Stack.Screen name="screens/FavoriteOrders" options={{ headerShown: false }} />
                       <Stack.Screen name="screens/NoficationsPage" options={{ headerShown: false }} />
-                      <Stack.Screen name="MapPicker" options={{ headerShown: false }} />
+                      <Stack.Screen name="screens/MapPicker" options={{ headerShown: false }} />
                       <Stack.Screen name="screens/TestScreen" options={{ title: 'Test Screen' }} />
 
                       {/* Dining and Booking Screens */}
