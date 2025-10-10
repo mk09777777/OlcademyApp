@@ -12,7 +12,10 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.mayurk0523.Frontend"
+      "bundleIdentifier": "com.mayurk0523.Frontend",
+      "config": {
+        "googleMapsApiKey": "AIzaSyCk0OnijLJs_FxIuGR1aIp-AHLRtp2BzUE"
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -25,7 +28,12 @@
       "permissions": [
         "ACCESS_FINE_LOCATION",
         "ACCESS_COARSE_LOCATION"
-      ]
+      ],
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyCk0OnijLJs_FxIuGR1aIp-AHLRtp2BzUE"
+        }
+      }
     },
     "updates": {
       "enabled": false

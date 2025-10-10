@@ -11,7 +11,8 @@ import {
   Dimensions,
   Linking,
   ScrollView,
-  StyleSheet
+  StyleSheet,
+  Platform
 } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import { useRouter } from 'expo-router';
@@ -377,16 +378,6 @@ export default function MapPicker() {
       setIsFetchingLocation(true);
       locationAlertVisibleRef.current = false;
 
-      const servicesEnabled = await Location.hasServicesEnabledAsync();
-      if (!servicesEnabled) {
-        showLocationAlert(
-          'Location services disabled',
-          'Please turn on location services (GPS) and try again.'
-        );
-        setIsFetchingLocation(false);
-        return;
-      }
-
       const { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== 'granted') {
         showLocationAlert(
@@ -404,11 +395,43 @@ export default function MapPicker() {
             { text: 'Cancel', style: 'cancel' },
           ]
         );
-        setIsFetchingLocation(false);
         return;
-    }
+      }
 
-    const { coords } = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Highest });
+      if (Platform.OS === 'android' && Location.enableNetworkProviderAsync) {
+        try {
+          await Location.enableNetworkProviderAsync();
+        } catch (androidError) {
+          console.warn('Unable to enable network provider automatically:', androidError);
+        }
+      }
+
+      const servicesEnabled = await Location.hasServicesEnabledAsync();
+      if (!servicesEnabled) {
+        showLocationAlert(
+          'Location services disabled',
+          'Please turn on location services (GPS) and try again.'
+        );
+        return;
+      }
+
+      let coords = null;
+      try {
+        const position = await Location.getCurrentPositionAsync({
+          accuracy: Location.Accuracy.Highest,
+          mayShowUserSettingsDialog: true,
+        });
+        coords = position?.coords ?? null;
+      } catch (positionError) {
+        console.warn('High accuracy location fetch failed, trying last known position.', positionError);
+        const lastKnown = await Location.getLastKnownPositionAsync();
+        coords = lastKnown?.coords ?? null;
+      }
+
+      if (!coords) {
+        throw new Error('Unable to determine current coordinates.');
+      }
+
       const newRegion = {
         latitude: coords.latitude,
         longitude: coords.longitude,
