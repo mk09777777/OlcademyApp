@@ -242,7 +242,7 @@ export default function SelectLocation({ placeholder = "Enter area, landmark ...
         <View style={{ backgroundColor: "#fff", marginLeft: 20, marginRight: 20, borderRadius: 10, elevation: 3 }}>
           <TouchableOpacity
             style={styles.addBtn}
-            onPress={() => safeNavigation({ pathname: '/MapPicker' })}
+            onPress={() => safeNavigation({ pathname: '/screens/MapPicker' })}
           >
             <Text style={{ color: 'white', fontSize: 26, fontFamily: 'outfit-bold',}}>+</Text>
             <Text style={styles.addBtnTxt}> Add Address</Text>
