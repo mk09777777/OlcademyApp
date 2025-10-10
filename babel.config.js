@@ -10,6 +10,7 @@ module.exports = function (api) {
       ["module-resolver", {
         "root": ["./"],
         "alias": {
+          "@": "./",
           "@components": "./components",
           "@context": "./context",
           "@config": "./config",

@@ -5,10 +5,10 @@ import {
   FlatList,
   Dimensions,
   TouchableOpacity,
-  SafeAreaView,
   Pressable,
   Image
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import ImageGallery from '@/components/ImageGallery';
 import { MaterialIcons } from "@expo/vector-icons";

@@ -4,13 +4,13 @@ import {
   Text,
   TouchableOpacity,
   FlatList,
-  SafeAreaView,
   Modal,
   TextInput,
   Alert,
   ActivityIndicator,
   Share,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons, Feather, MaterialCommunityIcons, FontAwesome5 } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import BackRouting from '@/components/BackRouting';
@@ -225,7 +225,7 @@ export default function AddressScreen() {
 
     <TouchableOpacity
         className="flex-row items-center p-4 border-b border-gray-200"
-        onPress={() => router.push('/MapPicker')}
+        onPress={() => router.push('/screens/MapPicker')}
     >
         <Ionicons name="add" size={24} color="#f23e3e" />
         <Text className="ml-3 text-base text-red-500 font-medium flex-1">Add Address</Text>
