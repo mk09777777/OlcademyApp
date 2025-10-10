@@ -14,7 +14,7 @@ export default function LocationHeader() {
       <Ionicons name='location' size={24} color='#02757A' className="pt-1.5 pr-2" />
       <TouchableOpacity
         className="flex-row items-center"
-        onPress={() => safeNavigation('/screens//SelectLocation')}
+        onPress={() => safeNavigation('/screens/SelectLocation')}
       >
         <View>
           <Text className="text-base font-bold text-textprimary">
