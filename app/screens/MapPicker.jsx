@@ -11,8 +11,7 @@ import {
   Dimensions,
   Linking,
   ScrollView,
-  StyleSheet,
-  Platform
+  StyleSheet
 } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import { useRouter } from 'expo-router';
@@ -378,7 +377,7 @@ export default function MapPicker() {
       setIsFetchingLocation(true);
       locationAlertVisibleRef.current = false;
 
-      const { status } = await Location.requestForegroundPermissionsAsync();
+      const { status, canAskAgain } = await Location.requestForegroundPermissionsAsync();
       if (status !== 'granted') {
         showLocationAlert(
           'Permission Required',
@@ -395,41 +394,71 @@ export default function MapPicker() {
             { text: 'Cancel', style: 'cancel' },
           ]
         );
+        setIsFetchingLocation(false);
         return;
       }
 
-      if (Platform.OS === 'android' && Location.enableNetworkProviderAsync) {
-        try {
-          await Location.enableNetworkProviderAsync();
-        } catch (androidError) {
-          console.warn('Unable to enable network provider automatically:', androidError);
-        }
+      let servicesEnabled = true;
+      try {
+        servicesEnabled = await Location.hasServicesEnabledAsync();
+      } catch (serviceError) {
+        console.warn('Unable to determine location service availability:', serviceError);
       }
 
-      const servicesEnabled = await Location.hasServicesEnabledAsync();
       if (!servicesEnabled) {
         showLocationAlert(
           'Location services disabled',
-          'Please turn on location services (GPS) and try again.'
+          'Please turn on location services (GPS) and try again.',
+          [
+            {
+              text: 'Open Settings',
+              onPress: () => {
+                if (Linking.openSettings) {
+                  Linking.openSettings();
+                }
+              },
+            },
+            { text: 'Dismiss', style: 'cancel' },
+          ]
         );
+        setIsFetchingLocation(false);
         return;
-      }
+    }
 
-      let coords = null;
+      let coords;
       try {
         const position = await Location.getCurrentPositionAsync({
           accuracy: Location.Accuracy.Highest,
-          mayShowUserSettingsDialog: true,
+          maximumAge: 1000,
         });
-        coords = position?.coords ?? null;
-      } catch (positionError) {
-        console.warn('High accuracy location fetch failed, trying last known position.', positionError);
-        const lastKnown = await Location.getLastKnownPositionAsync();
-        coords = lastKnown?.coords ?? null;
+        coords = position.coords;
+      } catch (primaryError) {
+        console.warn('High accuracy location fetch failed, attempting fallback:', primaryError);
+        const lastKnownPosition = await Location.getLastKnownPositionAsync();
+        if (lastKnownPosition?.coords) {
+          coords = lastKnownPosition.coords;
+        } else {
+          try {
+            const coarsePosition = await Location.getCurrentPositionAsync({
+              accuracy: Location.Accuracy.Balanced,
+              maximumAge: 5000,
+            });
+            coords = coarsePosition.coords;
+          } catch (secondaryError) {
+            console.warn('Fallback coarse location fetch also failed:', secondaryError);
+            if (canAskAgain) {
+              showLocationAlert(
+                'Location Error',
+                'We could not determine your current position. Please try again in an open area.'
+              );
+            }
+            throw secondaryError;
+          }
+        }
       }
 
       if (!coords) {
-        throw new Error('Unable to determine current coordinates.');
+        throw new Error('No coordinates returned from location services');
       }
 
       const newRegion = {
