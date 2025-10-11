@@ -37,7 +37,7 @@ const TableSection = () => {
       </View>
 
       <TableItem
-        icon="chair"
+        icon="seat"
         title="Your booking"
         chevron
         onPress={() => safeNavigation('/screens/DiningBooking')}

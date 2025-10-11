@@ -729,3 +729,44 @@ export default function MapPicker() {
   );
 }
 
+
+
+
+
+
+// // A minimal, safe version of MapPicker.jsx
+// import React from 'react';
+// import { View, Text, StyleSheet } from 'react-native';
+// import { SafeAreaView } from 'react-native-safe-area-context';
+// import { useRouter } from 'expo-router';
+// import { Ionicons, Feather, MaterialCommunityIcons, FontAwesome5, MaterialIcons } from '@expo/vector-icons';
+// import { useSafeNavigation } from '@/hooks/navigationPage';
+// import { useLocationContext } from '@/context/LocationContext';
+// import BackRouting from '@/components/BackRouting';
+// // ... then inside the component:
+
+
+
+// export default function MapPicker() {
+
+//   const router = useRouter();
+
+//   return (
+//     <SafeAreaView style={styles.container}>
+//       <View>
+//         <Text style={styles.text}>Minimal MapPicker is working!</Text>
+//       </View>
+//     </SafeAreaView>
+//   );
+// }
+
+// const styles = StyleSheet.create({
+//   container: {
+//     flex: 1,
+//     justifyContent: 'center',
+//     alignItems: 'center',
+//   },
+//   text: {
+//     fontSize: 18,
+//   },
+// });

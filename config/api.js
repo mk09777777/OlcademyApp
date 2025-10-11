@@ -26,6 +26,13 @@ export const API_ENDPOINTS = {
     CREATE: '/api/orders',
     UPDATE: (id) => `/api/orders/${id}`,
     UPDATE_STATUS: (id) => `/api/orders/${id}/status`
+  },
+  DiningBooking: {
+    GET_ALL: '/api/bookings',
+    GET_BY_ID: (id) => `/api/bookings/${id}`,
+    CREATE: '/api/bookings',
+    UPDATE: (id) => `/api/bookings/${id}`,
+    UPDATE_STATUS: (id) => `/api/bookings/${id}/status`
   }
 };
 

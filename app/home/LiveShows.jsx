@@ -51,7 +51,7 @@ export default function LiveShows() {
                       <Ionicons name='person-circle-outline' size={40} color='#02757A'/>
                      </TouchableOpacity>
       </View>
-      <SearchBar/>
+  <SearchBar placeholder="Search events..." />
       <View className="flex-row items-center mt-2.5 mb-2.5">
         <View className="flex-1 h-px bg-primary" />
         <Text className="font-outfit text-xs text-textprimary mx-2">
