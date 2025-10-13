@@ -1,5 +1,6 @@
 import React, { useState, useEffect} from 'react';
-import { View, Text, TouchableOpacity, SafeAreaView, ActivityIndicator, FlatList, ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, ActivityIndicator, FlatList, ScrollView } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { styles } from '../../styles/TakewayCollection';
 import FirmCard from '../../components/FirmCard';
 import { useBookmarkManager } from '../../hooks/BookMarkmanger';

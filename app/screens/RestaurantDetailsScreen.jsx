@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, Linking, ScrollView, SafeAreaView, Image, FlatList } from 'react-native';
+import { View, Text, TouchableOpacity, Linking, ScrollView, Image, FlatList } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons, MaterialIcons, FontAwesome, MaterialCommunityIcons, Entypo, FontAwesome5 } from '@expo/vector-icons';
 import { useLocalSearchParams } from 'expo-router';
 

@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, SafeAreaView } from 'react-native';
+import { View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import TakeawayOrdersScreen from './TakeWayOrderScreen';
 import TiffinOrdersScreen from './TiffinOrderScreen';

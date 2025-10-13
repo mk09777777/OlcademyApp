@@ -3,12 +3,12 @@ import {
   View,
   Text,
   TouchableOpacity,
-  SafeAreaView,
   StyleSheet,
   ScrollView,
   FlatList,
   Alert,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { TextInput } from 'react-native-paper';
 import { useRouter } from 'expo-router';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
@@ -242,7 +242,7 @@ export default function SelectLocation({ placeholder = "Enter area, landmark ...
         <View style={{ backgroundColor: "#fff", marginLeft: 20, marginRight: 20, borderRadius: 10, elevation: 3 }}>
           <TouchableOpacity
             style={styles.addBtn}
-            onPress={() => safeNavigation({ pathname: '/MapPicker' })}
+            onPress={() => safeNavigation({ pathname: '/screens/MapPicker' })}
           >
             <Text style={{ color: 'white', fontSize: 26, fontFamily: 'outfit-bold',}}>+</Text>
             <Text style={styles.addBtnTxt}> Add Address</Text>

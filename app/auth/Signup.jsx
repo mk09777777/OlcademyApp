@@ -1,9 +1,9 @@
-import { useState, useEffect, useRef } from "react";
-import { View, Text, TextInput, TouchableOpacity, ScrollView, Alert } from "react-native";
+import { useState } from "react";
+import { View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet } from "react-native";
 import axios from "axios";
 import { useNavigation } from "@react-navigation/native";
 import { Eye, EyeOff, Loader2, X as CloseIcon } from "lucide-react-native";
-import { MaterialIcons, FontAwesome } from '@expo/vector-icons';
+import { MaterialIcons, FontAwesome, Ionicons } from '@expo/vector-icons';
 import { API_CONFIG } from '../../config/apiConfig';
 
 const Signup = ({ setAuth }) => {
@@ -114,113 +114,160 @@ const handleSignup = async () => {
   };
 
   return (
-    <ScrollView contentContainerStyle={{ flexGrow: 1, padding: 20, backgroundColor: '#fff' }}>
-      <View className="flex-row justify-between items-center mb-5">
-        <Text className="text-2xl font-bold text-textprimary">Sign Up</Text>
-        <TouchableOpacity onPress={() => navigation.goBack()} className="p-1">
-          <CloseIcon size={20} color="#000" />
-        </TouchableOpacity>
-      </View>
+    <ScrollView
+      style={styles.screen}
+      contentContainerStyle={styles.scrollContainer}
+    >
+      <View style={styles.card} className="w-full">
+        <View className="flex-row justify-between items-center mb-6">
+          <Text className="text-2xl font-bold text-textprimary">Sign Up</Text>
+          <TouchableOpacity onPress={() => navigation.goBack()} className="p-1">
+            <CloseIcon size={20} color="#000" />
+          </TouchableOpacity>
+        </View>
 
-      {error ? <Text className="text-red-500 mb-2.5 text-center">{error}</Text> : null}
+        {error ? <Text className="text-red-500 mb-2.5 text-center">{error}</Text> : null}
 
-      <TextInput
-        className="h-12 border border-border rounded-2xl px-4 mb-4 text-base"
-        placeholder="Username"
-        value={formData.username}
-        onChangeText={(text) => handleChange("username", text)}
-      />
-
-      <TextInput
-        className="h-12 border border-border rounded-2xl px-4 mb-4 text-base"
-        placeholder="Email Address"
-        keyboardType="email-address"
-        value={formData.email}
-        onChangeText={(text) => handleChange("email", text)}
-      />
-
-      <View className="flex-row items-center mb-4">
         <TextInput
-          className="flex-1 h-12 border border-border rounded-2xl px-4 text-base"
-          placeholder="Password"
-          secureTextEntry={!showPassword}
-          value={formData.password}
-          onChangeText={(text) => handleChange("password", text)}
+          className="h-12 border border-border rounded-2xl px-4 mb-4 text-base bg-slate-50 text-textprimary"
+          placeholder="Username"
+          value={formData.username}
+          onChangeText={(text) => handleChange("username", text)}
         />
+
+        <TextInput
+          className="h-12 border border-border rounded-2xl px-4 mb-4 text-base bg-slate-50 text-textprimary"
+          placeholder="Email Address"
+          keyboardType="email-address"
+          value={formData.email}
+          onChangeText={(text) => handleChange("email", text)}
+        />
+
+        <View className="flex-row items-center mb-4">
+          <TextInput
+            className="flex-1 h-12 border border-border rounded-2xl px-4 text-base bg-slate-50 text-textprimary"
+            placeholder="Password"
+            secureTextEntry={!showPassword}
+            value={formData.password}
+            onChangeText={(text) => handleChange("password", text)}
+          />
+          <TouchableOpacity
+            onPress={() => setShowPassword((prev) => !prev)}
+            className="absolute right-4 p-2"
+          >
+            {showPassword ? <EyeOff size={18} color="#4B5563" /> : <Eye size={18} color="#4B5563" />}
+          </TouchableOpacity>
+        </View>
+
+        <View className="flex-row items-center mb-5">
+          <TouchableOpacity
+            className="mr-2.5"
+            onPress={handleCheckboxChange}
+            activeOpacity={0.7}
+          >
+            <View className={`w-5 h-5 rounded border border-primary justify-center items-center ${
+              formData.accept ? 'bg-primary' : 'bg-white'
+            }`}>
+              {formData.accept && <Ionicons name="checkmark" size={12} color="#fff" />}
+            </View>
+          </TouchableOpacity>
+          <Text className="text-sm text-textsecondary">I agree to the Terms and Privacy Policies</Text>
+        </View>
+
         <TouchableOpacity
-          onPress={() => setShowPassword((prev) => !prev)}
-          className="absolute right-4 p-2.5"
+          className="bg-primary p-4 rounded-2xl items-center mb-5"
+          onPress={handleSignup}
+          disabled={loading}
         >
-          {showPassword ? <EyeOff size={18} color="#666" /> : <Eye size={18} color="#666" />}
+          {loading ? (
+            <Loader2 size={18} color="#fff" />
+          ) : (
+            <Text className="text-white text-base font-bold">Create Account</Text>
+          )}
         </TouchableOpacity>
-      </View>
 
-      <View className="flex-row items-center mb-5">
+        <View className="flex-row items-center my-5">
+          <View className="flex-1 h-px bg-border" />
+          <Text className="mx-2.5 text-textsecondary">or</Text>
+          <View className="flex-1 h-px bg-border" />
+        </View>
+
         <TouchableOpacity
-          className={`w-5 h-5 border border-primary rounded mr-2.5 justify-center items-center ${
-            formData.accept ? 'bg-primary' : ''
-          }`}
-          onPress={handleCheckboxChange}
+          className="border border-border p-3 rounded-2xl mb-2.5 bg-white"
+          onPress={signupWithGoogle}
+          disabled={loading}
+          style={styles.socialButton}
         >
-          {formData.accept && <Text className="text-white text-xs">✓</Text>}
+          <View className="flex-row items-center justify-center">
+            <MaterialIcons name="google" size={20} color="#DB4437" style={styles.socialIcon} />
+            <Text className="text-base text-textprimary font-medium">Continue with Google</Text>
+          </View>
         </TouchableOpacity>
-        <Text className="text-sm text-textsecondary">I agree to the Terms and Privacy Policies</Text>
-      </View>
 
-      <TouchableOpacity
-        className="bg-primary p-4 rounded-2xl items-center mb-5"
-        onPress={handleSignup}
-        disabled={loading}
-      >
-        {loading ? (
-          <Loader2 size={18} color="#fff" />
-        ) : (
-          <Text className="text-white text-base font-bold">Create Account</Text>
-        )}
-      </TouchableOpacity>
-
-      <View className="flex-row items-center my-5">
-        <View className="flex-1 h-px bg-border" />
-        <Text className="mx-2.5 text-textsecondary">or</Text>
-        <View className="flex-1 h-px bg-border" />
-      </View>
-
-   <TouchableOpacity
-  className="flex-row items-center justify-center p-3 rounded-2xl mb-2.5 bg-white border border-border"
-  onPress={signupWithGoogle}
-  disabled={loading}
->
-  <MaterialIcons name="google" size={20} color="#DB4437" />
-  <Text className="ml-2.5 text-base text-textprimary">Continue with Google</Text>
-</TouchableOpacity>
-
-<TouchableOpacity
-  className="flex-row items-center justify-center p-3 rounded-2xl mb-2.5 bg-white border border-border"
-  onPress={signupWithTwitter}
-  disabled={loading}
->
-  <FontAwesome name="twitter" size={20} color="#1DA1F2" />
-  <Text className="ml-2.5 text-base text-textprimary">Continue with Twitter</Text>
-</TouchableOpacity>
-
-<TouchableOpacity
-  className="flex-row items-center justify-center p-3 rounded-2xl mb-2.5 bg-white border border-border"
-  onPress={signupWithFacebook}
-  disabled={loading}
->
-  <FontAwesome name="facebook" size={20} color="#1877F2" />
-  <Text className="ml-2.5 text-base text-textprimary">Continue with Facebook</Text>
-</TouchableOpacity>
-
-      <View className="flex-row justify-center mt-5">
-        <Text className="text-textprimary">Already have an account? </Text>
-        <TouchableOpacity onPress={openLoginModal} disabled={loading}>
-          <Text className="text-blue-600 font-bold">Log In</Text>
+        <TouchableOpacity
+          className="border border-border p-3 rounded-2xl mb-2.5 bg-white"
+          onPress={signupWithTwitter}
+          disabled={loading}
+          style={styles.socialButton}
+        >
+          <View className="flex-row items-center justify-center">
+            <FontAwesome name="twitter" size={20} color="#1DA1F2" style={styles.socialIcon} />
+            <Text className="text-base text-textprimary font-medium">Continue with Twitter</Text>
+          </View>
         </TouchableOpacity>
+
+        <TouchableOpacity
+          className="border border-border p-3 rounded-2xl mb-2.5 bg-white"
+          onPress={signupWithFacebook}
+          disabled={loading}
+          style={styles.socialButton}
+        >
+          <View className="flex-row items-center justify-center">
+            <FontAwesome name="facebook" size={20} color="#1877F2" style={styles.socialIcon} />
+            <Text className="text-base text-textprimary font-medium">Continue with Facebook</Text>
+          </View>
+        </TouchableOpacity>
+
+        <View className="flex-row justify-center mt-5">
+          <Text className="text-textprimary">Already have an account? </Text>
+          <TouchableOpacity onPress={openLoginModal} disabled={loading}>
+            <Text className="text-blue-600 font-bold">Log In</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     </ScrollView>
   );
 };
+
+
+
+const styles = StyleSheet.create({
+  screen: {
+    backgroundColor: '#F4F6FB',
+  },
+  scrollContainer: {
+    flexGrow: 1,
+    padding: 24,
+    paddingBottom: 32,
+    justifyContent: 'flex-start',
+  },
+  card: {
+    backgroundColor: '#ffffff',
+    borderRadius: 28,
+    padding: 24,
+    shadowColor: '#0F172A',
+    shadowOpacity: 0.08,
+    shadowRadius: 24,
+    shadowOffset: { width: 0, height: 12 },
+    elevation: 6,
+  },
+  socialButton: {
+    borderRadius: 20,
+  },
+  socialIcon: {
+    marginRight: 12,
+  },
+});
 
 
 

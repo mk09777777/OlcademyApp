@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, Text, ScrollView, TouchableOpacity, SafeAreaView } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Svg, Path, Circle, Rect } from 'react-native-svg';
 import { router } from 'expo-router';
 import BackRouting from '@/components/BackRouting';
