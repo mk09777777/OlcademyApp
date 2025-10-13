@@ -626,34 +626,47 @@ const TakeAwayCart = () => {
   );
 
   const renderItem = ({ item }) => (
-    <View className="flex-row items-center p-4 bg-white border-b rounded-lg border-border">
+    <View className="flex-row items-center p-3 bg-white border-b rounded-lg border-border">
       <View className="flex-1">
         <Text className="text-textprimary font-outfit-bold text-base mb-1">{item.name}</Text>
-        <Text className="text-textsecondary font-outfit text-sm">  Item Price:-  ${(item.price || 0).toFixed(2)}</Text>
-        <Text className="text-primary font-outfit-bold text-sm">Total Item Price:-  ${subtotal.toFixed(2)}</Text>
+        <Text className="text-textsecondary font-outfit text-sm mb-1">
+          Item Price:- ${(item.price || 0).toFixed(2)}
+        </Text>
+        <Text className="text-primary font-outfit-bold text-sm">
+          Total Item Price:- ${subtotal.toFixed(2)}
+        </Text>
       </View>
-      <View className="flex-row items-center">
+
+      {/* Quantity and Delete Controls */}
+      <View className="flex-row items-center ml-2">
         <TouchableOpacity
           onPress={() => handleQuantityChange(item.productId || item._id || item.id, -1)}
-          className="w-6 h-6 bg-primary rounded items-center justify-center mr-2"
+          className="w-6 h-6 bg-primary rounded items-center justify-center mr-1"
         >
           <Text className="text-white font-outfit-bold">-</Text>
         </TouchableOpacity>
-        <Text className="text-textprimary font-outfit-bold text-base mx-3">{item.quantity}</Text>
+
+        <Text className="text-textprimary font-outfit-bold text-base mx-2">
+          {item.quantity}
+        </Text>
+
         <TouchableOpacity
           onPress={() => handleQuantityChange(item.productId || item._id || item.id, 1)}
           className="w-6 h-6 bg-primary rounded items-center justify-center mr-2"
         >
           <Text className="text-white font-outfit-bold">+</Text>
         </TouchableOpacity>
+
         <TouchableOpacity
           onPress={() => handleRemove(item.productId || item._id || item.id)}
           className="p-2"
         >
-          <MaterialIcons name='delete-outline' size={24} color={'#02757A'} />
+          <MaterialIcons name="delete-outline" size={24} color="#02757A" />
         </TouchableOpacity>
       </View>
     </View>
+
+
   );
   const renderPromoModal = () => (
     <Modal
@@ -787,7 +800,7 @@ const TakeAwayCart = () => {
         </View>
 
         <View className="bg-white p-1 ml-5 mr-5 shadow-sm shadow-black mb-4 rounded-lg">
-     <Text className="text-textprimary font-outfit-bold text-lg ml-5 mt-3 mb-4">Delivery Details</Text>
+          <Text className="text-textprimary font-outfit-bold text-lg ml-5 mt-3 mb-4">Delivery Details</Text>
           <View>
             {/* Tiffin-specific fields */}
             {isTiffinOrder && (
@@ -934,7 +947,7 @@ const TakeAwayCart = () => {
 
             {/* Total Bill */}
             <TouchableOpacity className="flex-row items-center p-4" onPress={() => setBillModalVisible(true)}>
-        <MaterialIcons name="receipt" size={24} color="black" />
+              <MaterialIcons name="receipt" size={24} color="black" />
               <View className="flex-1 ml-3">
                 <View className="flex-row items-center">
                   {appliedOffer && (

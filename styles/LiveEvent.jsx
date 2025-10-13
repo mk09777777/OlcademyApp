@@ -14,7 +14,7 @@ const styles = StyleSheet.create({
       fontSize: 18,
       fontFamily: "outfit-bold",
       fontWeight: '600',
-      color: '#02757A',
+      color: '#333333',
     },
     section: {
       flexDirection: 'row',
@@ -37,7 +37,7 @@ const styles = StyleSheet.create({
     },
     sectionTitle: {
       fontSize: 16,
-      color: '#02757A',
+      color: '#333333',
     },
     chevron: {
       marginLeft: 'auto',

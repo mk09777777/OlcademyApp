@@ -14,7 +14,7 @@ import { useSafeNavigation } from '@/hooks/navigationPage'
 
 import { API_CONFIG } from '../../config/apiConfig';
 const API_URL = API_CONFIG.BACKEND_URL;
-const PRODUCT_API_URL =  API_CONFIG.BACKEND_URL;
+const PRODUCT_API_URL = API_CONFIG.BACKEND_URL;
 
 export default function FirmDetailsDining() {
   /* Original CSS Reference:
@@ -153,37 +153,37 @@ export default function FirmDetailsDining() {
     }
   }
 
-const UploadRecentlyViewed = async () => {
-  try {
-    const restId = firmId;
-    if (!restId) {
-      console.warn("No restaurant ID available for recently viewed tracking");
-      return;
-    }
-
-    const response = await axios.post(
-      `${API_URL}/firm/recently-viewed/${restId}`,
-      {},
-      { 
-        withCredentials: true,
-        headers: {
-          'Content-Type': 'application/json'
-        }
+  const UploadRecentlyViewed = async () => {
+    try {
+      const restId = firmId;
+      if (!restId) {
+        console.warn("No restaurant ID available for recently viewed tracking");
+        return;
       }
-    );
 
-    if (response.status !== 200 && response.status !== 201) {
-      throw new Error(`Unexpected status code: ${response.status}`);
-    }
+      const response = await axios.post(
+        `${API_URL}/firm/recently-viewed/${restId}`,
+        {},
+        {
+          withCredentials: true,
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        }
+      );
 
-    console.log("Recently viewed uploaded successfully:", response.data);
-  } catch (err) {
-    console.error("Failed to upload recently viewed:", err);
-    if (err.response) {
-      console.error("Response data:", err.response.data);
+      if (response.status !== 200 && response.status !== 201) {
+        throw new Error(`Unexpected status code: ${response.status}`);
+      }
+
+      console.log("Recently viewed uploaded successfully:", response.data);
+    } catch (err) {
+      console.error("Failed to upload recently viewed:", err);
+      if (err.response) {
+        console.error("Response data:", err.response.data);
+      }
     }
-  }
-};
+  };
 
   const getSimilar = async () => {
     setLoading(true)
@@ -251,7 +251,7 @@ const UploadRecentlyViewed = async () => {
 
   const FilterValues = [
     { id: 'Menu', value: 'Menu' },
-    { id: 'Prebook', value: 'offers' },
+    { id: 'Prebook', value: 'Offers' },
     { id: 'Photos', value: 'Photos' },
     { id: 'Reviews', value: 'Reviews' },
   ]
@@ -581,7 +581,7 @@ const UploadRecentlyViewed = async () => {
                         restaurantName: firmDetails?.restaurantInfo?.name,
                         averageRating: firmDetails?.restaurantInfo?.ratings?.overall,
                         reviewCount: firmDetails?.restaurantInfo?.ratings?.totalReviews,
-                         reviewType:"dining"
+                        reviewType: "dining"
                       }
                     })}
                   >
@@ -605,7 +605,7 @@ const UploadRecentlyViewed = async () => {
             </View>
             <View className="flex-row items-center justify-between p-4 bg-white border-b border-border">
               <TouchableOpacity className="flex-1 bg-primary py-3 rounded-lg mr-3" onPress={togglePopup}>
-                <Text className="text-white text-center font-outfit-bold">Book a table</Text>
+                <Text className="text-white text-center font-outfit-bold p-1">Book a table</Text>
               </TouchableOpacity>
               <TouchableOpacity className="p-3 border border-primary rounded-lg mr-2" onPress={() => Linking.openURL(`https://www.google.com/maps/search/?api=1&query=${firmDetails?.restaurantInfo?.name || "Restaurant"}`)}>
                 <FontAwesome5 name='directions' size={22} color='#02757A' />
@@ -614,23 +614,40 @@ const UploadRecentlyViewed = async () => {
                 <MaterialIcons name="call" size={22} color="#02757A" />
               </TouchableOpacity>
             </View>
-            <View className="mx-5 rounded-3xl p-1 bg-gray-50 flex-row mt-12 justify-between border border-gray-300">
+            <View className="mx-3 mt-5 rounded-full border border-gray-300 bg-gray-50 p-1">
               <FlatList
                 data={FilterValues}
                 horizontal
                 showsHorizontalScrollIndicator={false}
-                keyExtractor={item => item.id}
+                keyExtractor={(item) => item.id}
+                contentContainerStyle={{
+                  flexGrow: 1,
+                  paddingHorizontal: 4,
+                  justifyContent: 'space-around',
+                  alignItems: 'center',
+                }}
                 renderItem={({ item }) => (
-                  <TouchableOpacity className="justify-center items-center ml-5" onPress={() => handleActive(item)}>
-                    <View className={filtersActive[item.id] ? "bg-white border border-red-500 rounded-2xl px-3 py-1 justify-center items-center" : ""}>
-                      <Text className={`text-xs ${filtersActive[item.id] ? "text-gray-800 font-semibold" : "text-gray-800 mr-4"}`} style={{ fontFamily: "outfit" }}>
-                        {item.value}
-                      </Text>
-                    </View>
+                  <TouchableOpacity
+                    onPress={() => handleActive(item)}
+                    className={`mx-0.5 px-3 py-1.5 rounded-full items-center justify-center ${filtersActive[item.id]
+                      ? 'bg-white border border-[#008080] shadow-sm'
+                      : 'border border-transparent'
+                      }`}
+                  >
+                    <Text
+                      className={`text-sm font-bold ${filtersActive[item.id]
+                        ? 'text-black font-semibold'
+                        : 'text-gray-700'
+                        }`}
+                      style={{ fontFamily: 'Outfit' }}
+                    >
+                      {item.value}
+                    </Text>
                   </TouchableOpacity>
                 )}
               />
             </View>
+
             {renderContent()}
             <View className="flex-row items-center mt-6 mb-2.5 px-2.5">
               <View className="flex-1 h-px bg-primary" />
