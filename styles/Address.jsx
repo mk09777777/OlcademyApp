@@ -2,14 +2,14 @@ import { StyleSheet } from "react-native";
 const styles = StyleSheet.create({
     container: {
       flex: 1,
-      backgroundColor: '#f8f8f8',
+      backgroundColor: '#ffffff',
       padding: 16,
     },
     addAddressButton: {
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'space-between',
-      backgroundColor: '#fff',
+      backgroundColor: '#ffffff',
       padding: 16,
       borderRadius: 12,
       marginBottom: 16,

@@ -23,7 +23,7 @@ const BookingsScreen = () => {
   const fetchDiningBookings = async () => {
     setLoading(true);
     try {
-      const response = await axios.get(`${API_CONFIG.BACKEND_URL}/api/bookings/userId`, {
+      const response = await axios.get(`${API_CONFIG.BACKEND_URL}/api/bookings`, {
         withCredentials: true,
       });
       console.log('Fetched bookings:', JSON.stringify(response.data, null, 2));

@@ -1,7 +1,7 @@
-import { View, Text, TouchableOpacity, TextInput, ScrollView, ActivityIndicator, Alert } from 'react-native'
+import { View, Text, TouchableOpacity, TextInput, ScrollView, ActivityIndicator, Alert, StyleSheet } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import React, { useEffect, useState, useRef } from 'react'
-import { Ionicons } from '@expo/vector-icons'
+import { Ionicons, FontAwesome } from '@expo/vector-icons'
 import { useRouter } from 'expo-router'
 import { useAuth } from '@/context/AuthContext';
 import axios from 'axios'
@@ -259,11 +259,11 @@ const handleLogin = async () => {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-white justify-center p-5">
+    <SafeAreaView className="flex-1 justify-center p-5" style={styles.screen}>
       <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: 'center' }}>
-        <View>
-          <View className="flex-row justify-between items-center mb-5">
-            <Text className="text-2xl font-bold text-textsecondary">
+        <View style={styles.card} className="w-full">
+          <View className="flex-row justify-between items-center mb-6">
+            <Text className="text-2xl font-bold text-textprimary">
               {currentView === 'login' && 'Login'}
               {currentView === 'otp' && 'Verify Email'}
               {currentView === 'resetPassword' && 'Reset Password'}
@@ -275,7 +275,7 @@ const handleLogin = async () => {
               {error ? <Text className="text-red-500 text-sm mb-2.5">{error}</Text> : null}
 
               <TextInput
-                className="border border-border rounded-2.5 p-4 mb-4 text-base"
+                className="border border-border rounded-2.5 p-4 mb-4 text-base bg-slate-50 text-textprimary"
                 placeholder="Email Address"
                 value={formData.email}
                 onChangeText={(text) => handleChange('email', text)}
@@ -285,7 +285,7 @@ const handleLogin = async () => {
 
               <View className="flex-row items-center border-border rounded-2.5 mb-4">
                 <TextInput
-                  className="flex-1 border border-border rounded-2.5 p-4 text-base"
+                  className="flex-1 border border-border rounded-2.5 p-4 text-base bg-slate-50 text-textprimary"
                   placeholder="Password"
                   value={formData.password}
                   onChangeText={(text) => handleChange('password', text)}
@@ -304,15 +304,16 @@ const handleLogin = async () => {
               </View>
 
               <View className="flex-row justify-between items-center mb-5">
-                <View className="flex-row items-center">
-                  <TouchableOpacity
-                    onPress={() => setRememberMe(!rememberMe)}
-                    className={`w-5 h-5 border border-border rounded justify-center items-center mr-2 ${rememberMe ? 'bg-primary border-primary' : ''}`}
-                  >
-                    {rememberMe && <Text className="text-white text-xs">✓</Text>}
-                  </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => setRememberMe(!rememberMe)}
+                  className="flex-row items-center"
+                  activeOpacity={0.7}
+                >
+                  <View className={`w-5 h-5 rounded border border-border mr-2 items-center justify-center ${rememberMe ? 'bg-primary border-primary' : 'bg-white'}`}>
+                    {rememberMe && <Ionicons name="checkmark" size={12} color="#fff" />}
+                  </View>
                   <Text className="text-sm text-textsecondary">Remember Me</Text>
-                </View>
+                </TouchableOpacity>
                 <TouchableOpacity
                   onPress={handleForgotPassword}
                   disabled={loading || otpLoading}
@@ -328,7 +329,7 @@ const handleLogin = async () => {
               </View>
 
               <TouchableOpacity
-                className="bg-primary p-4 rounded-2.5 items-center mb-5"
+                className="bg-primary p-4 rounded-2xl items-center mb-5"
                 onPress={handleLogin}
                 disabled={loading}
               >
@@ -346,36 +347,48 @@ const handleLogin = async () => {
               </View>
 
               <TouchableOpacity
-                className="border border-border p-4 rounded-2.5 items-center mb-2.5"
+                className="border border-border p-4 rounded-2xl items-center mb-2.5 bg-white"
                 onPress={LoginWithGoogle}
                 disabled={loading}
+                style={styles.socialButton}
               >
-                <Text className="text-base text-textsecondary">
-                  Continue with Google
-                </Text>
+                <View className="flex-row items-center justify-center">
+                  <FontAwesome name="google" size={18} color="#DB4437" style={styles.socialIcon} />
+                  <Text className="text-base text-textsecondary font-medium">
+                    Continue with Google
+                  </Text>
+                </View>
               </TouchableOpacity>
               <TouchableOpacity
-                className="border border-border p-4 rounded-2.5 items-center mb-2.5"
+                className="border border-border p-4 rounded-2xl items-center mb-2.5 bg-white"
                 onPress={LoginWithTwitter}
                 disabled={loading}
+                style={styles.socialButton}
               >
-                <Text className="text-base text-textsecondary">
-                  Continue with Twitter
-                </Text>
+                <View className="flex-row items-center justify-center">
+                  <FontAwesome name="twitter" size={18} color="#1DA1F2" style={styles.socialIcon} />
+                  <Text className="text-base text-textsecondary font-medium">
+                    Continue with Twitter
+                  </Text>
+                </View>
               </TouchableOpacity>
               <TouchableOpacity
-                className="border border-border p-4 rounded-2.5 items-center mb-2.5"
+                className="border border-border p-4 rounded-2xl items-center mb-2.5 bg-white"
                 onPress={LoginWithFacebook}
                 disabled={loading}
+                style={styles.socialButton}
               >
-                <Text className="text-base text-textsecondary">
-                  Continue with Facebook
-                </Text>
+                <View className="flex-row items-center justify-center">
+                  <FontAwesome name="facebook" size={18} color="#1877F2" style={styles.socialIcon} />
+                  <Text className="text-base text-textsecondary font-medium">
+                    Continue with Facebook
+                  </Text>
+                </View>
               </TouchableOpacity>
 
               <View className="flex-row justify-center mt-2.5">
                 <Text className="text-sm text-textsecondary">
-                  Don't have an Account? 
+                  Don&apos;t have an Account? 
                   <Text
                     className="text-sm text-primary font-bold"
                     onPress={() => router.navigate('/auth/Signup')}
@@ -405,7 +418,7 @@ const handleLogin = async () => {
                   <TextInput
                     key={index}
                     ref={el => (otpRefs.current[index] = el)}
-                    className="w-11 h-11 border border-border rounded-2.5 text-center text-lg"
+                    className="w-11 h-11 border border-border rounded-2xl text-center text-lg bg-slate-50 text-textprimary"
                     keyboardType="numeric"
                     maxLength={1}
                     value={digit}
@@ -417,7 +430,7 @@ const handleLogin = async () => {
               </View>
 
               <TouchableOpacity
-                className="bg-primary p-4 rounded-2.5 items-center mb-5 w-full"
+                className="bg-primary p-4 rounded-2xl items-center mb-5 w-full"
                 onPress={verifyOtp}
                 disabled={otpLoading || otpArray.join('').length !== 6}
               >
@@ -429,7 +442,7 @@ const handleLogin = async () => {
               </TouchableOpacity>
 
               <View className="flex-row justify-center mt-2.5">
-                <Text className="text-sm text-textsecondary mr-1">Didn't receive code?</Text>
+                <Text className="text-sm text-textsecondary mr-1">Didn&apos;t receive code?</Text>
                 <TouchableOpacity
                   onPress={resendOtp}
                   disabled={resendDisabled || otpLoading}
@@ -456,7 +469,7 @@ const handleLogin = async () => {
 
               <View className="flex-row items-center border-border rounded-2.5 mb-4">
                 <TextInput
-                  className="flex-1 border border-border rounded-2.5 p-4 text-base"
+                  className="flex-1 border border-border rounded-2.5 p-4 text-base bg-slate-50 text-textprimary"
                   placeholder="New Password"
                   value={newPassword}
                   onChangeText={setNewPassword}
@@ -466,7 +479,7 @@ const handleLogin = async () => {
 
               <View className="flex-row items-center border-border rounded-2.5 mb-4">
                 <TextInput
-                  className="flex-1 border border-border rounded-2.5 p-4 text-base"
+                  className="flex-1 border border-border rounded-2.5 p-4 text-base bg-slate-50 text-textprimary"
                   placeholder="Confirm New Password"
                   value={confirmPassword}
                   onChangeText={setConfirmPassword}
@@ -475,7 +488,7 @@ const handleLogin = async () => {
               </View>
 
               <TouchableOpacity
-                className="bg-primary p-4 rounded-2.5 items-center mb-5"
+                className="bg-primary p-4 rounded-2xl items-center mb-5"
                 onPress={resetPassword}
                 disabled={resetLoading}
               >
@@ -492,3 +505,25 @@ const handleLogin = async () => {
     </SafeAreaView>
   )
 }
+
+const styles = StyleSheet.create({
+  screen: {
+    backgroundColor: '#F4F6FB',
+  },
+  card: {
+    backgroundColor: '#ffffff',
+    borderRadius: 28,
+    padding: 24,
+    shadowColor: '#0F172A',
+    shadowOpacity: 0.08,
+    shadowRadius: 24,
+    shadowOffset: { width: 0, height: 12 },
+    elevation: 6,
+  },
+  socialButton: {
+    borderRadius: 20,
+  },
+  socialIcon: {
+    marginRight: 12,
+  },
+})

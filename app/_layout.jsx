@@ -49,7 +49,7 @@ export default function RootLayout() {
                 <PaperProvider>
                   <ErrorBoundary>
                   <SafeAreaView
-                    style={{ flex: 1, backgroundColor: '#fff' }}
+                    style={{ flex: 1, backgroundColor: '#ffffff' }}
                     edges={['right', 'left', 'bottom', 'top']}
                   >
                     <StatusBar style="dark" />
