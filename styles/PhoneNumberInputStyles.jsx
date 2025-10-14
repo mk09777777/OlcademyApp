@@ -14,34 +14,41 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     borderColor: 'grey',
     borderWidth: 1,
-    borderRadius: 15,
-    marginTop: "10%"
+    borderRadius: 12,
+    marginTop: "10%",
+    backgroundColor: '#FFFFFF',
   },
   selectCountryCode: {
 		marginTop: 25,
 		marginRight: 7,
 		paddingHorizontal: 10,
 		paddingVertical: 8,
-		shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-		elevation: 1.5,
 		flexDirection: 'row',
 		justifyContent: "center",
     alignItems: "center",
-		borderRadius: 4
+		borderRadius: 8,
+		borderWidth: 1,
+		borderColor: '#e2e8f0',
+		backgroundColor: '#FFFFFF',
 	},
   countryIcon: {
 		height: 24,
 		width: 24,
 		marginRight: 10
 	},
+  dialCode: {
+    paddingHorizontal: 12,
+    fontSize: 16,
+    color: '#111827',
+    fontFamily: 'outfit-medium',
+  },
   phoneNumberInput: {
-		fontFamily: 'outfit-medium',
-    letterSpacing: 4,
+		letterSpacing: 2,
 		fontSize: 16,
-		fontFamily: "outfit-medium",
-		padding: 15,
-		flex: 1
+		fontFamily: 'outfit-medium',
+		paddingVertical: 15,
+		paddingHorizontal: 10,
+		flex: 1,
+		color: '#111827',
 	},
 })

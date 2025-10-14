@@ -5,7 +5,6 @@ import { Ionicons, FontAwesome } from '@expo/vector-icons'
 import { useRouter } from 'expo-router'
 import { useAuth } from '@/context/AuthContext';
 import axios from 'axios'
-import AsyncStorage from '@react-native-async-storage/async-storage'
 import { API_CONFIG } from '../../config/apiConfig';
 const Api_url = API_CONFIG.BACKEND_URL;
 export default function LoginScreen() {
@@ -73,11 +72,20 @@ export default function LoginScreen() {
     }
   }
 
+  const validateEmail = (value) => /\S+@\S+\.\S+/.test(value);
+
   const resendOtp = async () => {
     setOtpLoading(true)
     try {
+      const normalizedEmail = formData.email.trim().toLowerCase()
+      if (!validateEmail(normalizedEmail)) {
+        setOtpLoading(false)
+        setOtpError('Enter a valid email address before resending OTP.')
+        return
+      }
+
       await axios.post(`${Api_url}/api/send-email-otp`, { 
-        email: formData.email 
+        email: normalizedEmail 
       })
       setTimer(60)
       setResendDisabled(true)
@@ -133,8 +141,7 @@ const handleLogin = async () => {
     if (response.data.success || response.data.message === "Login successful!") {
       const userData = response.data.user || response.data.data;
       if (userData) {
-        await AsyncStorage.setItem('userData', JSON.stringify(userData));
-        login(userData);
+        await login(userData);
       } else {
         setError('Login successful but user data not received');
       }
@@ -164,10 +171,16 @@ const handleLogin = async () => {
       setError('Please enter your email to reset password.')
       return
     }
+
+    const normalizedEmail = formData.email.trim().toLowerCase()
+    if (!validateEmail(normalizedEmail)) {
+      setError('Please enter a valid email address.')
+      return
+    }
     setOtpLoading(true)
     try {
       await axios.post(`${Api_url}/api/send-email-otp`, { 
-        email: formData.email 
+        email: normalizedEmail 
       })
       setShowOtp(true)
       setTimer(60)
@@ -189,8 +202,9 @@ const handleLogin = async () => {
     }
     setOtpLoading(true)
     try {
+      const normalizedEmail = formData.email.trim().toLowerCase()
       const response = await axios.post(`${Api_url}/api/verify-otp`, {
-        email: formData.email,
+        email: normalizedEmail,
         otp: enteredOtp
       })
       if (response.data.success) {
@@ -219,8 +233,9 @@ const handleLogin = async () => {
     }
     setResetLoading(true)
     try {
+      const normalizedEmail = formData.email.trim().toLowerCase()
       const response = await axios.post(`${Api_url}/api/reset-password`, {
-        email: formData.email,
+        email: normalizedEmail,
         newPassword
       })
       if (response.data.success) {
@@ -259,9 +274,9 @@ const handleLogin = async () => {
   }
 
   return (
-    <SafeAreaView className="flex-1 justify-center p-5" style={styles.screen}>
+    <SafeAreaView className="flex-1 justify-center p-5 bg-white" style={styles.screen}>
       <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: 'center' }}>
-        <View style={styles.card} className="w-full">
+        <View style={styles.card} className="w-full bg-white">
           <View className="flex-row justify-between items-center mb-6">
             <Text className="text-2xl font-bold text-textprimary">
               {currentView === 'login' && 'Login'}
@@ -275,30 +290,34 @@ const handleLogin = async () => {
               {error ? <Text className="text-red-500 text-sm mb-2.5">{error}</Text> : null}
 
               <TextInput
-                className="border border-border rounded-2.5 p-4 mb-4 text-base bg-slate-50 text-textprimary"
+                className="border border-border rounded-2.5 p-4 mb-4 text-base bg-white text-green-600"
                 placeholder="Email Address"
+                placeholderTextColor="#047857"
                 value={formData.email}
                 onChangeText={(text) => handleChange('email', text)}
                 keyboardType="email-address"
                 autoCapitalize="none"
               />
 
-              <View className="flex-row items-center border-border rounded-2.5 mb-4">
+              <View className="flex-row items-center border border-border rounded-2.5 mb-4 bg-white px-2">
                 <TextInput
-                  className="flex-1 border border-border rounded-2.5 p-4 text-base bg-slate-50 text-textprimary"
+                  className="flex-1 py-4 pl-2 pr-3 text-base text-green-600"
                   placeholder="Password"
+                  placeholderTextColor="#047857"
                   value={formData.password}
                   onChangeText={(text) => handleChange('password', text)}
                   secureTextEntry={!showPassword}
+                  autoCapitalize="none"
                 />
                 <TouchableOpacity
                   onPress={() => setShowPassword(prev => !prev)}
-                  className="p-2.5"
+                  className="px-2 py-2"
+                  activeOpacity={0.7}
                 >
                   <Ionicons
                     name={showPassword ? 'eye-off' : 'eye'}
                     size={20}
-                    color="#666"
+                    color="#047857"
                   />
                 </TouchableOpacity>
               </View>
@@ -391,7 +410,7 @@ const handleLogin = async () => {
                   Don&apos;t have an Account? 
                   <Text
                     className="text-sm text-primary font-bold"
-                    onPress={() => router.navigate('/auth/Signup')}
+                    onPress={() => router.push('/auth/Signup')}
                   >
                     Register
                   </Text>
@@ -508,17 +527,12 @@ const handleLogin = async () => {
 
 const styles = StyleSheet.create({
   screen: {
-    backgroundColor: '#F4F6FB',
+    backgroundColor: '#FFFFFF',
+    marginTop: -20,
   },
   card: {
     backgroundColor: '#ffffff',
-    borderRadius: 28,
     padding: 24,
-    shadowColor: '#0F172A',
-    shadowOpacity: 0.08,
-    shadowRadius: 24,
-    shadowOffset: { width: 0, height: 12 },
-    elevation: 6,
   },
   socialButton: {
     borderRadius: 20,

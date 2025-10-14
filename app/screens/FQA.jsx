@@ -71,7 +71,7 @@ const FAQScreen = () => {
 
   return (
     <ScrollView className="flex-1 bg-background p-4">
-      <BackRouting />
+      <BackRouting title="FAQ" />
       <FlatList
         data={faqData}
         keyExtractor={(item) => item._id}

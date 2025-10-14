@@ -1,10 +1,11 @@
-import { View, Text, TextInput, FlatList, TouchableOpacity, Image } from 'react-native'
+import { View, Text, TextInput, FlatList, TouchableOpacity, Image, Alert } from 'react-native'
 import React, { useEffect, useState } from 'react'
 
 import CountryList from 'country-list-with-dial-code-and-flag'
 import { Ionicons } from '@expo/vector-icons'
 import { useRouter } from 'expo-router'
 import { useSafeNavigation } from '@/hooks/navigationPage'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 export default function SelectCountryCode() {
   const router = useRouter()
   const { safeNavigation } = useSafeNavigation();
@@ -21,11 +22,15 @@ export default function SelectCountryCode() {
       setFilteredCountries(CountryList.findByKeyword(text.trim()));
     }
   }
-  const handleSelect = (item) => {
-    safeNavigation({
-      pathname: '/',
-      params: { selectedCountry: JSON.stringify(item) },
-    });
+  const handleSelect = async (item) => {
+    try {
+      await AsyncStorage.setItem('pendingCountrySelection', JSON.stringify(item));
+    } catch (storageError) {
+      console.error('Failed to store selected country', storageError);
+      Alert.alert('Unable to save selection', 'Please try choosing a country again.');
+    } finally {
+      router.back();
+    }
   }
   return (
     <View className="flex-1 bg-background p-4">

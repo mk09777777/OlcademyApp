@@ -16,7 +16,7 @@ export default function Profile() {
   const router = useRouter();
   return (
     <SafeAreaView className="flex-1 bg-white">
-      <BackRouting tittle ='user'/>
+      <BackRouting title ='User'/>
 
       <ProfileHeader />
       <ScrollView className="flex-1">

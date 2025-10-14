@@ -1,14 +1,25 @@
 import { useState, useEffect, useRef } from "react";
 import { View, Text, TextInput, TouchableOpacity, Alert } from "react-native";
 import axios from "axios";
-import { useNavigation, useRoute } from "@react-navigation/native";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { Loader2 } from "lucide-react-native";
 import { API_CONFIG } from '../../config/apiConfig';
+import { useAuth } from "@/context/AuthContext";
 
 const OTP = () => {
-  const route = useRoute();
-  const { email, password, username } = route.params;
-  const navigation = useNavigation();
+  const router = useRouter();
+  const params = useLocalSearchParams();
+  const { login } = useAuth();
+
+  const emailParam = params.email ?? "";
+  const passwordParam = params.password ?? "";
+  const usernameParam = params.username ?? "";
+  const phoneParam = params.phone ?? "";
+
+  const email = Array.isArray(emailParam) ? emailParam[0] : emailParam;
+  const password = Array.isArray(passwordParam) ? passwordParam[0] : passwordParam;
+  const username = Array.isArray(usernameParam) ? usernameParam[0] : usernameParam;
+  const phone = Array.isArray(phoneParam) ? phoneParam[0] : phoneParam;
   
   const [otpArray, setOtpArray] = useState(Array(6).fill(""));
   const [error, setError] = useState("");
@@ -20,16 +31,36 @@ const OTP = () => {
   const otpRefs = useRef([]);
 
   useEffect(() => {
+    if (timer === 0) {
+      setResendDisabled(false);
+      return undefined;
+    }
+
     let intervalId;
     if (timer > 0) {
       intervalId = setInterval(() => {
-        setTimer((prevTimer) => prevTimer - 1);
-      }, 1010);
-    } else if (timer === 0) {
-      setResendDisabled(false);
+        setTimer((prevTimer) => {
+          if (prevTimer <= 1) {
+            setResendDisabled(false);
+            return 0;
+          }
+          return prevTimer - 1;
+        });
+      }, 1000);
     }
-    return () => clearInterval(intervalId);
+
+    return () => {
+      if (intervalId) {
+        clearInterval(intervalId);
+      }
+    };
   }, [timer]);
+
+  useEffect(() => {
+    if (!email) {
+      setError("Missing signup details. Please start again.");
+    }
+  }, [email]);
 
   const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60);
@@ -61,22 +92,63 @@ const verifyOtp = async () => {
     setError("Please enter the complete 6-digit OTP.");
     return;
   }
+  if (!email) {
+    setError("Missing signup details. Please start again.");
+    return;
+  }
+
   setOtpLoading(true);
   setError("");
+
+  const normalizedEmail = email.trim().toLowerCase();
 
   try {
     await axios.post(
       `${API_CONFIG.BACKEND_URL}/api/verify`,
       {
-        identifier: email.trim(),
+        identifier: normalizedEmail,
         otp: Number(enteredOtp),
-        password: password,
-        username: username,
+        password,
+        username,
+        phone,
       },
       { withCredentials: true }
     );
-    // Alert.alert("Success", "Signup Successful!");
-    navigation.navigate('home'); 
+
+    let autoLoggedIn = false;
+
+    if (password) {
+      try {
+        const loginResponse = await axios.post(
+          `${API_CONFIG.BACKEND_URL}/api/login`,
+          {
+            email: normalizedEmail,
+            password,
+            rememberMe: true,
+          },
+          {
+            withCredentials: true,
+            headers: {
+              Accept: 'application/json',
+              'Content-Type': 'application/json',
+            },
+          }
+        );
+
+        const userData = loginResponse.data?.user || loginResponse.data?.data;
+        if (userData) {
+          await login(userData);
+          autoLoggedIn = true;
+        }
+      } catch (loginError) {
+        console.error('Auto login after verification failed:', loginError.response?.data || loginError.message);
+      }
+    }
+
+    if (!autoLoggedIn) {
+      Alert.alert("Success", "Account verified! Please log in.");
+      router.replace('/auth/LoginScreen');
+    }
   } catch (err) {
     setError(err.response?.data?.error || "Invalid OTP. Please try again.");
   } finally {
@@ -90,10 +162,10 @@ const verifyOtp = async () => {
     try {
       await axios.post(
         `${API_CONFIG.BACKEND_URL}/api/send-email-otp`,
-        { email: email },
+        { email: email?.trim() },
         { withCredentials: true }
       );
-      setTimer(500);
+      setTimer(300);
       setResendDisabled(true);
       setOtpArray(Array(6).fill(""));
       otpRefs.current[0]?.focus();
@@ -145,7 +217,7 @@ const verifyOtp = async () => {
       </TouchableOpacity>
 
       <View className="flex-row justify-center items-center">
-        <Text className="text-textsecondary">Didn't receive code?</Text>
+        <Text className="text-textsecondary">Didn&apos;t receive code?</Text>
         <TouchableOpacity
           onPress={resendOtp}
           disabled={resendDisabled || loading}

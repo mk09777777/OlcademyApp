@@ -1,43 +1,86 @@
-import { View, Image, TouchableOpacity, TextInput } from 'react-native'
-import React from 'react'
-import { useRouter } from 'expo-router'
-import AntDesign from '@expo/vector-icons/AntDesign'
-import { useSafeNavigation } from '@/hooks/navigationPage'
+import { View, Image, TouchableOpacity, TextInput, Text } from 'react-native'
+import React, { useCallback, useEffect, useState } from 'react'
+import { useFocusEffect, useRouter } from 'expo-router'
+import Ionicons from '@expo/vector-icons/Ionicons'
+import AsyncStorage from '@react-native-async-storage/async-storage'
+import { styles } from '@/styles/PhoneNumberInputStyles'
 
-export default function PhoneNumberEntry() {
-  const { safeNavigation } = useSafeNavigation();
-  const handleNumberChange = (text) => {
-		if(text.length === 10){
-			setPhoneNumber(dialCode+text)
-		}
-		else{
-			setPhoneNumber('')
-		}
-	}
+const STORAGE_KEY = 'pendingCountrySelection'
+const DEFAULT_COUNTRY = {
+  code: 'IN',
+  name: 'India',
+  data: { dial_code: '+91' },
+}
+
+export default function PhoneNumberEntry({ value = '', onChangePhone, onCountryChange }) {
   const router = useRouter()
+  const [selectedCountry, setSelectedCountry] = useState(DEFAULT_COUNTRY)
+  const [phoneNumber, setPhoneNumber] = useState(value)
+
+  const dialCode = selectedCountry?.data?.dial_code ?? '+1'
+  const countryCode = selectedCountry?.code ?? 'US'
+
+  useEffect(() => {
+    setPhoneNumber(value)
+  }, [value])
+
+  useFocusEffect(
+    useCallback(() => {
+      const syncCountrySelection = async () => {
+        try {
+          const stored = await AsyncStorage.getItem(STORAGE_KEY)
+          if (stored) {
+            const parsed = JSON.parse(stored)
+            setSelectedCountry(parsed)
+            onCountryChange?.(parsed)
+            await AsyncStorage.removeItem(STORAGE_KEY)
+          }
+        } catch (error) {
+          console.error('Failed to load selected country', error)
+        }
+      }
+
+      syncCountrySelection()
+    }, [onCountryChange])
+  )
+
+  const handleNumberChange = (text) => {
+    const sanitized = text.replace(/[^0-9]/g, '')
+    setPhoneNumber(sanitized)
+
+    if (onChangePhone) {
+      onChangePhone(sanitized ? `${dialCode}${sanitized}` : '')
+    }
+  }
+
+  const openCountryPicker = () => {
+    router.push('/auth/SearchCountryCode')
+  }
+
   return (
-    <View
-      style={styles.phoneNumberEntry}
-    >
+    <View style={styles.phoneNumberEntry}>
       <TouchableOpacity
         style={styles.selectCountryCode}
-        onPress={() => {
-          safeNavigation('/auth/SearchCountryCode')
-        }}
+        onPress={openCountryPicker}
+        activeOpacity={0.7}
       >
-        <Image 
-          source={{uri: `https://flagsapi.com/${countryCode}/flat/24.png`}}
+        <Image
+          source={{ uri: `https://flagsapi.com/${countryCode}/flat/32.png` }}
           style={styles.countryIcon}
         />
-        <AntDesign name="caretdown" size={16} color="gray" />
+  <Ionicons name="chevron-down" size={16} color="gray" />
       </TouchableOpacity>
-      <View
-        style={styles.phoneNumberInputContainer}
-      >
-        <TextInput 
+
+      <View style={styles.phoneNumberInputContainer}>
+        <Text style={styles.dialCode}>{dialCode}</Text>
+        <TextInput
           style={styles.phoneNumberInput}
-          keyboardType='number-pad'
+          keyboardType="number-pad"
+          value={phoneNumber}
           onChangeText={handleNumberChange}
+          maxLength={10}
+          placeholder="Phone number"
+          placeholderTextColor="#94a3b8"
         />
       </View>
     </View>

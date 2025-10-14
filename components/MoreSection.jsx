@@ -1,15 +1,31 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator, Alert } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import Modal from 'react-native-modal';
 import Colors from '../components/constants/Colors';
 import styles from '../styles/MoreSection';
-import { router } from 'expo-router';
 import { useSafeNavigation } from '@/hooks/navigationPage';
+import { useAuth } from '@/context/AuthContext';
 
 const MoreSection = () => {
   const [isModalVisible, setModalVisible] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
   const { safeNavigation } = useSafeNavigation();
+  const { logout } = useAuth();
+
+  const handleLogout = async () => {
+    if (isProcessing) return;
+    setIsProcessing(true);
+    try {
+      await logout();
+    } catch (error) {
+      console.error('Logout from MoreSection failed:', error);
+      Alert.alert('Logout Error', 'Unable to complete logout. Please try again.');
+    } finally {
+      setIsProcessing(false);
+      setModalVisible(false);
+    }
+  };
 
   const MoreItem = ({ icon, title, chevron, onPress }) => (
     <TouchableOpacity onPress={onPress} style={styles.section}>
@@ -49,10 +65,18 @@ const MoreSection = () => {
         style={modalStyles.modal}
       >
         <View style={modalStyles.modalContent}>
-          <Text style={modalStyles.title}>Log out from?</Text>
+          <Text style={modalStyles.title}>Ready to log out?</Text>
 
-          <TouchableOpacity onPress={() => router.replace("/screens/Logout")} style={modalStyles.optionButton}>
-            <Text style={modalStyles.optionText}>Current Device</Text>
+          <TouchableOpacity
+            onPress={handleLogout}
+            style={[modalStyles.optionButton, modalStyles.logoutButton]}
+            disabled={isProcessing}
+          >
+            {isProcessing ? (
+              <ActivityIndicator color="#d32f2f" />
+            ) : (
+              <Text style={modalStyles.optionText}>Log Out</Text>
+            )}
           </TouchableOpacity>
           <TouchableOpacity onPress={() => setModalVisible(false)} style={modalStyles.cancelButton}>
             <Text style={modalStyles.cancelText}>Cancel</Text>
@@ -87,6 +111,9 @@ const modalStyles = StyleSheet.create({
     paddingVertical: 15,
     borderBottomWidth: 1,
     borderBottomColor: '#eee',
+  },
+  logoutButton: {
+    alignItems: 'center',
   },
   optionText: {
     textAlign: 'center',
