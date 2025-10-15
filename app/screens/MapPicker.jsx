@@ -643,13 +643,13 @@ export default function MapPicker() {
     marginBottom: 10,
     borderWidth: 1,
     borderRadius: 30,
-    borderColor: addressType === type ? '#f23e3f' : '#ccc',
-    backgroundColor: addressType === type ? '#ffe6e6' : '#fff',
+    borderColor: addressType === type ? '#02757A' : '#ccc',
+    backgroundColor: addressType === type ? '#ffffff' : '#fff',
   });
 
   const getTextStyle = (type) => ({
     marginLeft: 6,
-    color: addressType === type ? '#f23e3f' : '#555',
+    color: addressType === type ? '#222222' : '#555',
   });
 
   if (!isGoogleMapsConfigured) {
@@ -693,7 +693,7 @@ export default function MapPicker() {
           accessibilityRole="button"
         >
           <View style={styles.searchField} pointerEvents="none">
-            <Feather name="search" size={20} color="#6b7280" style={styles.searchIcon} />
+            <Feather name="search" size={20} color="#02757A" style={styles.searchIcon} />
             <TextInput
               style={styles.searchInput}
               placeholder="Search for a location..."
@@ -752,7 +752,7 @@ export default function MapPicker() {
             accessibilityState={{ busy: isFetchingLocation }}
           >
             <View style={styles.currentLocationInner}>
-              <MaterialIcons name="my-location" size={20} color="#e41e3f" />
+              <MaterialIcons name="my-location" size={20} color="#02757A" />
               <Text style={styles.currentLocationText}>
                 {isFetchingLocation ? 'Fetching your location...' : 'Use current location'}
               </Text>
@@ -789,13 +789,13 @@ export default function MapPicker() {
               >
                 <View style={{ marginRight: 8 }}>
                   {type === 'Home' ? (
-                    <Ionicons name="home" size={18} color="#f23e3e" />
+                    <Ionicons name="home-outline" size={18} color="#02757A" />
                   ) : type === 'Work' ? (
-                    <MaterialCommunityIcons name="briefcase-outline" size={18} color="#f23e3e" />
+                    <MaterialCommunityIcons name="briefcase-outline" size={18} color="#02757A" />
                   ) : type === 'Hotel' ? (
-                    <MaterialCommunityIcons name="office-building" size={18} color="#f23e3e" />
+                    <MaterialCommunityIcons name="office-building" size={18} color="#02757A" />
                   ) : (
-                    <FontAwesome5 name="map-marker-alt" size={16} color="#f23e3e" />
+                    <FontAwesome5 name="map-marker-alt" size={16} color="#02757A" />
                   )}
                 </View>
                 <Text style={getTextStyle(type)}>{type}</Text>
@@ -803,7 +803,7 @@ export default function MapPicker() {
             ))}
           </View>
           <TouchableOpacity
-            className="bg-red-500 p-4 rounded-lg items-center"
+            className="bg-[#02757A] p-4 rounded-lg items-center"
             onPress={handleSaveAddress}
             disabled={isSaving}
           >

@@ -116,9 +116,9 @@ const ProfileScreen = () => {
         <View className="bg-white rounded-xl shadow-sm p-4">
           {/* Field Template */}
           {[
-            { label: 'Name', icon: <AntDesign name="user" size={22} color="#FF002E" />, key: 'name' },
-            { label: 'Email', icon: <Fontisto name="email" size={22} color="#FF002E" />, key: 'email' },
-            { label: 'Mobile', icon: <Ionicons name="call-outline" size={22} color="#FF002E" />, key: 'mobile' }
+            { label: 'Name', icon: <AntDesign name="user" size={22} color="#02757A" />, key: 'name' },
+            { label: 'Email', icon: <Fontisto name="email" size={22} color="#02757A" />, key: 'email' },
+            { label: 'Mobile', icon: <Ionicons name="call-outline" size={22} color="#02757A" />, key: 'mobile' }
           ].map(({ label, icon, key }) => (
             <View key={key} className="mb-4">
               <View className="flex-row items-center mb-2">
@@ -145,7 +145,7 @@ const ProfileScreen = () => {
           {/* DOB Field */}
           <View className="mb-4">
             <View className="flex-row items-center mb-2">
-              <Fontisto name="date" size={22} color="#FF002E" />
+              <Fontisto name="date" size={22} color="#02757A" />
               <Text className="text-base font-outfit-bold ml-2 text-textprimary">Date of Birth</Text>
             </View>
             <TouchableOpacity
@@ -167,7 +167,7 @@ const ProfileScreen = () => {
           {/* Anniversary */}
           <View className="mb-4">
             <View className="flex-row items-center mb-2">
-              <Fontisto name="date" size={22} color="#FF002E" />
+              <Fontisto name="date" size={22} color="#02757A" />
               <Text className="text-base font-outfit-bold ml-2 text-textprimary">Anniversary</Text>
             </View>
             <TouchableOpacity
@@ -189,7 +189,7 @@ const ProfileScreen = () => {
           {/* Gender */}
           <View className="mb-4">
             <View className="flex-row items-center mb-2">
-              <AntDesign name="user" size={22} color="#FF002E" />
+              <AntDesign name="user" size={22} color="#02757A" />
               <Text className="text-base font-outfit-bold ml-2 text-textprimary">Gender</Text>
             </View>
             {isEditing ? (

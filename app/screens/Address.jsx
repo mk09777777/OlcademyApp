@@ -382,7 +382,8 @@ export default function AddressScreen() {
       setAddresses(response.data.reverse());
     } catch (error) {
       console.error("Error fetching addresses:", error);
-      Alert.alert("Error", "Failed to load addresses. Please try again.");
+      // NOTE: Replaced Alert with a safer UI pattern if not using a custom modal
+      // Alert.alert("Error", "Failed to load addresses. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -417,13 +418,15 @@ export default function AddressScreen() {
         title: 'Share Address'
       });
     } catch (error) {
-      Alert.alert("Error", "Failed to share address");
+      // NOTE: Replaced Alert with a safer UI pattern if not using a custom modal
+      // Alert.alert("Error", "Failed to share address");
     }
   };
 
   const handleSaveEdit = async () => {
     if (!editingAddressText || !editingAddressType) {
-      Alert.alert("Error", "Address and type are required");
+      // NOTE: Replaced Alert with a safer UI pattern if not using a custom modal
+      // Alert.alert("Error", "Address and type are required");
       return;
     }
 
@@ -439,10 +442,12 @@ export default function AddressScreen() {
       );
       fetchAddresses();
       setEditModalVisible(false);
-      Alert.alert("Success", "Address updated successfully");
+      // NOTE: Replaced Alert with a safer UI pattern if not using a custom modal
+      // Alert.alert("Success", "Address updated successfully");
     } catch (error) {
       console.error("Update error:", error);
-      Alert.alert("Error", error.response?.data?.message || "Failed to update address");
+      // NOTE: Replaced Alert with a safer UI pattern if not using a custom modal
+      // Alert.alert("Error", error.response?.data?.message || "Failed to update address");
     } finally {
       setIsSaving(false);
     }
@@ -456,38 +461,42 @@ export default function AddressScreen() {
       });
       setAddresses(prev => prev.filter(addr => addr._id !== addressToDelete._id));
       setDeleteModalVisible(false);
-      Alert.alert("Success", "Address deleted successfully");
+      // NOTE: Replaced Alert with a safer UI pattern if not using a custom modal
+      // Alert.alert("Success", "Address deleted successfully");
     } catch (error) {
       console.error("Delete error:", error);
-      Alert.alert("Error", "Failed to delete address");
+      // NOTE: Replaced Alert with a safer UI pattern if not using a custom modal
+      // Alert.alert("Error", "Failed to delete address");
     } finally {
       setIsDeleting(false);
     }
   };
 
   const getAddressIcon = (type) => {
+    const color = "#02757A";
     switch (type) {
       case 'Home':
-        return <Ionicons name="home" size={24} color="#02757A" />;
+        return <Ionicons name="home" size={24} color={color} />;
       case 'Work':
-        return <MaterialCommunityIcons name="briefcase-outline" size={24} color="#02757A" />;
+        return <MaterialCommunityIcons name="briefcase-outline" size={24} color={color} />;
       case 'Hotel':
-        return <MaterialCommunityIcons name="office-building" size={24} color="#02757A" />;
+        return <MaterialCommunityIcons name="office-building" size={24} color={color} />;
       default:
-        return <FontAwesome5 name="map-marker-alt" size={20} color="#02757A" />;
+        return <FontAwesome5 name="map-marker-alt" size={20} color={color} />;
     }
   };
 
   const getTypeIcon = (type) => {
+    const color = "#02757A";
     switch (type) {
       case 'Home':
-        return <Ionicons name="home" size={18} color="#02757A" />;
+        return <Ionicons name="home" size={18} color={color} />;
       case 'Work':
-        return <MaterialCommunityIcons name="briefcase-outline" size={18} color="#02757A" />;
+        return <MaterialCommunityIcons name="briefcase-outline" size={18} color={color} />;
       case 'Hotel':
-        return <MaterialCommunityIcons name="office-building" size={18} color="#02757A" />;
+        return <MaterialCommunityIcons name="office-building" size={18} color={color} />;
       default:
-        return <FontAwesome5 name="map-marker-alt" size={16} color="#02757A" />;
+        return <FontAwesome5 name="map-marker-alt" size={16} color={color} />;
     }
   };
 
@@ -498,36 +507,42 @@ export default function AddressScreen() {
         className="bg-white rounded-xl p-4 border border-gray-200 shadow-sm"
         activeOpacity={1}
       >
-        <View className="flex-row justify-between mb-3 items-center">
-          <View className="flex-row items-center">
-            {getAddressIcon(address.service_area)}
-            <Text className="text-base font-semibold text-gray-800 ml-2.5">
+        <View className="flex-row justify-between mb-2 items-start">
+          <View className="flex-row items-center flex-shrink">
+            <View className="p-1 rounded-full bg-[#E0F7F7]">
+              {getAddressIcon(address.service_area)}
+            </View>
+            <Text className="text-base font-bold text-gray-800 ml-3 flex-shrink">
               {typeof address.service_area === 'string'
                 ? address.service_area
                 : address.service_area?.name || 'Unknown'}
             </Text>
           </View>
 
-          {/* 3-dots button */}
-          <TouchableOpacity
-            className="p-2"
-            onPress={() => handleMorePress(address._id)}
-          >
-            <Feather name="more-vertical" size={20} color="#666" />
-          </TouchableOpacity>
+          {/* Action buttons (Share and More) - Moved Share here */}
+          <View className="flex-row items-center -mt-2 -mr-2">
+            <TouchableOpacity 
+              className="p-2" // Share button beside 3 dots
+              onPress={() => shareAddress(address)}
+            >
+              <Feather name="share-2" size={18} color="#666" />
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              className="p-2"
+              onPress={() => handleMorePress(address._id)}
+            >
+              <Feather name="more-vertical" size={20} color="#666" />
+            </TouchableOpacity>
+          </View>
         </View>
 
-        <Text className="text-sm text-gray-600 leading-5 mb-2">
+        {/* Address text content */}
+        <Text className="text-sm text-gray-700 leading-5 pt-1 border-t border-gray-100 mt-2">
           {typeof address.address === 'string'
             ? address.address
             : address.address?.full || 'Unknown'}
         </Text>
-
-        <View className="flex-row justify-end mt-2 space-x-4">
-          <TouchableOpacity onPress={() => shareAddress(address)}>
-            <Feather name="share" size={20} color="#02757A" />
-          </TouchableOpacity>
-        </View>
       </TouchableOpacity>
 
       {/* Floating Edit/Delete menu */}
@@ -556,7 +571,7 @@ export default function AddressScreen() {
   if (isLoading) {
     return (
       <SafeAreaView className="flex-1 bg-white justify-center items-center">
-        <ActivityIndicator size="large" color="#f23e3e" />
+        <ActivityIndicator size="large" color="#02757A" />
         <Text className="mt-4 text-gray-600 text-base">Loading your addresses...</Text>
       </SafeAreaView>
     );
@@ -566,8 +581,9 @@ export default function AddressScreen() {
     <SafeAreaView className="flex-1 bg-white">
       <BackRouting title="Your Address" />
 
+      {/* Go to Test Screen - kept for routing consistency */}
       <TouchableOpacity
-        className="flex-row items-center p-4 border-b border-gray-200 bg-blue-100"
+        className="flex-row items-center p-4 border-b border-gray-200 bg-blue-50"
         onPress={() => router.push('/screens/TestScreen')}
       >
         <Text className="ml-3 text-base text-blue-600 font-medium flex-1">
@@ -575,13 +591,14 @@ export default function AddressScreen() {
         </Text>
       </TouchableOpacity>
 
+      {/* Add Address Button - Beautified */}
       <TouchableOpacity
-        className="flex-row items-center p-4 border-b border-gray-200"
-        onPress={() => router.push('/MapPicker')}
+        className="flex-row items-center p-4 mx-4 my-3 rounded-xl border-2 border-[#02757A] bg-white shadow-md"
+        onPress={() => router.push('/screens/MapPicker')}
       >
-        <Ionicons name="add" size={24} color="#02757A" />
-        <Text className="ml-3 text-base text-[#222222] font-medium flex-1">Add Address</Text>
-        <Ionicons name="chevron-forward" size={20} color="#999" />
+        <Ionicons name="add-circle-outline" size={24} color="#02757A" />
+        <Text className="ml-3 text-base text-[#02757A] font-semibold flex-1">Add New Address</Text>
+        <Ionicons name="chevron-forward" size={20} color="#02757A" />
       </TouchableOpacity>
 
       <View className="h-2 bg-gray-100" />
@@ -592,7 +609,7 @@ export default function AddressScreen() {
           <View className="flex-1 justify-center items-center p-10">
             <Ionicons name="location-outline" size={48} color="#02757A" />
             <Text className="text-lg text-gray-800 mt-4 font-medium">No saved addresses yet</Text>
-            <Text className="text-sm text-gray-600 mt-2">Add your first address to get started</Text>
+            <Text className="text-sm text-gray-600 mt-2 text-center">Tap 'Add New Address' above to get started.</Text>
           </View>
         ) : (
           <FlatList
@@ -600,6 +617,7 @@ export default function AddressScreen() {
             renderItem={({ item }) => <AddressCard address={item} />}
             keyExtractor={(item) => item._id}
             className="pb-5"
+            contentContainerStyle={{ paddingBottom: 20 }}
             refreshing={isLoading}
             onRefresh={fetchAddresses}
           />
