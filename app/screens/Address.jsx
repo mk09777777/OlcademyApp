@@ -577,7 +577,7 @@ export default function AddressScreen() {
 
       <TouchableOpacity
         className="flex-row items-center p-4 border-b border-gray-200"
-        onPress={() => router.push('/MapPicker')}
+        onPress={() => router.push('/screens/MapPicker')}
       >
         <Ionicons name="add" size={24} color="#02757A" />
         <Text className="ml-3 text-base text-[#222222] font-medium flex-1">Add Address</Text>
