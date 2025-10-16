@@ -118,6 +118,7 @@ export default function RootLayout() {
                       {/* Settings and Profile Screens */}
                       <Stack.Screen name="screens/ProfileScreen" options={{ headerShown: false }} />
                       <Stack.Screen name="screens/Settings" options={{ headerShown: false }} />
+                      <Stack.Screen name="screens/About" options={{ headerShown: false }} />
                       <Stack.Screen name="screens/SettingNotifications" options={{ headerShown: false }} />
                       <Stack.Screen name="screens/AccountSettings" options={{ headerShown: false }} />
                       <Stack.Screen name="screens/DeleteAccount" options={{ headerShown: false }} />
