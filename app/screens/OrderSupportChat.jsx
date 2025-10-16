@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import { View, Text, TouchableOpacity, Linking, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import BackRouting from '@/components/BackRouting';
 
 const SupportScreen = () => {
   /* Original CSS Reference:
@@ -52,55 +53,46 @@ const SupportScreen = () => {
   };
 
   return (
-    <View className="flex-1 p-5 bg-gray-50">
-      <View className="mb-8">
-        <Text className="text-xl font-bold text-gray-800 mb-2">Contact Support</Text>
-        <Text className="text-base text-gray-500" style={{ lineHeight: 22 }}>We're here to help you with any questions or issues</Text>
-      </View>
-      
-      <View className="mb-5">
-        <TouchableOpacity 
-          className="flex-row items-center justify-between bg-white p-4 rounded-xl mb-4 shadow-sm border-l-4"
-          style={{ borderLeftColor: '#3498db' }}
+    <Fragment>
+      <BackRouting title="Order Help" />
+      <View className="flex-1 bg-background p-4">
+        <View className="bg-white rounded-lg border border-border p-4 mb-4">
+          <Text className="text-textprimary text-lg font-outfit-bold mb-1">Need help with your order?</Text>
+          <Text className="text-textsecondary text-sm font-outfit leading-6">
+            Choose how you'd like to reach us and our support team will get back to you.
+          </Text>
+        </View>
+
+        <TouchableOpacity
+          className="flex-row items-center justify-between py-4 px-4 bg-white rounded-lg mb-3 border border-border"
           onPress={handleEmailPress}
-          activeOpacity={0.8}
+          activeOpacity={0.7}
         >
-          <View className="flex-row items-center flex-1">
-            <View className="w-10 h-10 rounded-full justify-center items-center mr-4" style={{ backgroundColor: '#3498db' }}>
-              <Ionicons name="mail" size={22} color="#fff" />
-            </View>
-            <View className="flex-1">
-              <Text className="text-base font-semibold text-gray-800 mb-1">Email Support</Text>
-              <Text className="text-sm text-gray-400">Get a response within 24 hours</Text>
-            </View>
+          <View className="flex-1 mr-3">
+            <Text className="text-textprimary text-base font-outfit">Email support</Text>
+            <Text className="text-textsecondary text-sm font-outfit mt-1">Get a response within 24 hours</Text>
           </View>
-          <Ionicons name="chevron-forward" size={20} color="#bdc3c7" />
+          <Ionicons name="chevron-forward" size={22} color="#222" />
         </TouchableOpacity>
-        
-        <TouchableOpacity 
-          className="flex-row items-center justify-between bg-white p-4 rounded-xl mb-4 shadow-sm border-l-4"
-          style={{ borderLeftColor: '#25D366' }}
+
+        <TouchableOpacity
+          className="flex-row items-center justify-between py-4 px-4 bg-white rounded-lg border border-border"
           onPress={handleWhatsAppPress}
-          activeOpacity={0.8}
+          activeOpacity={0.7}
         >
-          <View className="flex-row items-center flex-1">
-            <View className="w-10 h-10 rounded-full justify-center items-center mr-4" style={{ backgroundColor: '#25D366' }}>
-              <Ionicons name="logo-whatsapp" size={22} color="#fff" />
-            </View>
-            <View className="flex-1">
-              <Text className="text-base font-semibold text-gray-800 mb-1">WhatsApp Chat</Text>
-              <Text className="text-sm text-gray-400">Instant messaging support</Text>
-            </View>
+          <View className="flex-1 mr-3">
+            <Text className="text-textprimary text-base font-outfit">WhatsApp chat</Text>
+            <Text className="text-textsecondary text-sm font-outfit mt-1">Instant messaging support</Text>
           </View>
-          <Ionicons name="chevron-forward" size={20} color="#bdc3c7" />
+          <Ionicons name="chevron-forward" size={22} color="#222" />
         </TouchableOpacity>
+
+        <View className="flex-row items-center justify-center mt-auto pt-6">
+          <Ionicons name="time-outline" size={18} color="#7f8c8d" />
+          <Text className="text-sm text-textsecondary font-outfit ml-2">Support is available 24/7</Text>
+        </View>
       </View>
-      
-      <View className="flex-row items-center justify-center mt-auto pt-5 border-t border-gray-200">
-        <Ionicons name="time" size={16} color="#7f8c8d" />
-        <Text className="text-sm text-gray-500 ml-2">Available 24/7 for your convenience</Text>
-      </View>
-    </View>
+    </Fragment>
   );
 };
 

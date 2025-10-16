@@ -48,7 +48,7 @@ const LiveEventSection = () => {
         icon="chat-outline"
         title="Live Event help"
         chevron
-        onPress={() => console.log('Live Event help pressed')}
+        onPress={() => safeNavigation('/screens/LiveEventHelp')}
       />
     </View>
   );

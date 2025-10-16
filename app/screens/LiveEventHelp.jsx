@@ -38,7 +38,7 @@ const SupportScreen = () => {
       <BackRouting title="Booking Help" />
       <View className="flex-1 bg-background p-4">
         <View className="bg-white rounded-lg border border-border p-4 mb-4">
-          <Text className="text-textprimary text-lg font-outfit-bold mb-1">Need help with your booking?</Text>
+          <Text className="text-textprimary text-lg font-outfit-bold mb-1">Need help with your Event?</Text>
           <Text className="text-textsecondary text-sm font-outfit leading-6">
             Reach out to us using your preferred channel and we'll take care of the rest.
           </Text>
