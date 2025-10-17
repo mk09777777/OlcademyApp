@@ -301,7 +301,7 @@ fetchInitialSettings()
               <Text className="ml-3 text-textsecondary">{date} at {time}</Text>
             </View>
             <View className="flex-row items-center mb-3">
-              <AntDesign name="addusergroup" size={18} color="#525259" />
+              <AntDesign name="team" size={18} color="#525259" />
               <Text className="ml-3 text-textsecondary">{guestCount} guests</Text>
             </View>
             <View className="flex-row items-start mb-3">
