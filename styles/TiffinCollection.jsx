@@ -3,8 +3,9 @@ import { StyleSheet } from 'react-native';
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F9F9F9',
+    backgroundColor: '#fff',
     paddingHorizontal: 16,
+    paddingTop: 26,
   },
   emptyState: {
     flex: 1,
@@ -33,6 +34,7 @@ const styles = StyleSheet.create({
   firmList: {
     paddingTop: 16,
     paddingBottom: 24,
+    backgroundColor: '#fff',
   },
 });
 

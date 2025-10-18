@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, ActivityIndicator, FlatList, ScrollView, Image } from 'react-native';
+import { View, Text, TouchableOpacity, ActivityIndicator, FlatList, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { styles } from '../styles/TakewayCollection';
 import FirmCard from './FirmCard';
@@ -49,7 +49,7 @@ const TakewayCollection = () => {
   if (loading) {
     return (
       <View style={styles.loaderContainer}>
-        <ActivityIndicator size="large" color="#e23845" />
+        <ActivityIndicator size="large" color="#02757A" />
       </View>
     );
   }
@@ -103,7 +103,7 @@ const TakewayCollection = () => {
         </TouchableOpacity> */}
       </View>
 
-      <ScrollView style={styles.content}>
+      <View style={styles.content}>
         {activeTab === 'dishes' ? (
           <View style={styles.restaurantsContainer}>
             {dishes && dishes.length > 0 ? (
@@ -160,7 +160,7 @@ const TakewayCollection = () => {
             )}
           </View>
         )}
-      </ScrollView>
+      </View>
     </SafeAreaView>
   );
 };

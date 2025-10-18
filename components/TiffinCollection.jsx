@@ -54,7 +54,7 @@ export default function TiffinCollection() {
   if (loadingFavorites) {
     return (
       <View style={styles.emptyState}>
-        <ActivityIndicator size="large" color="#e23845" />
+        <ActivityIndicator size="large" color="#02757A" />
         {/* <Text style={styles.emptyStateMessage}>Loading favorites...</Text> */}
       </View>
     );

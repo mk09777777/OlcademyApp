@@ -45,28 +45,28 @@ const SupportScreen = () => {
         </View>
 
         <TouchableOpacity
-          className="flex-row items-center justify-between py-4 px-4 bg-white rounded-lg mb-3 border border-border"
-          onPress={handleEmailPress}
-          activeOpacity={0.7}
-        >
-          <View className="flex-1 mr-3">
-            <Text className="text-textprimary text-base font-outfit">Email support</Text>
-            <Text className="text-textsecondary text-sm font-outfit mt-1">Get a response within 24 hours</Text>
-          </View>
-          <Ionicons name="chevron-forward" size={22} color="#222" />
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          className="flex-row items-center justify-between py-4 px-4 bg-white rounded-lg border border-border"
-          onPress={handleWhatsAppPress}
-          activeOpacity={0.7}
-        >
-          <View className="flex-1 mr-3">
-            <Text className="text-textprimary text-base font-outfit">WhatsApp chat</Text>
-            <Text className="text-textsecondary text-sm font-outfit mt-1">Instant messaging support</Text>
-          </View>
-          <Ionicons name="chevron-forward" size={22} color="#222" />
-        </TouchableOpacity>
+                          className="flex-row items-center justify-between py-4 px-4 bg-red-500 rounded-lg mb-3 border border-border"
+                          onPress={handleEmailPress}
+                          activeOpacity={0.7}
+                        >
+                          <View className="flex-1 mr-3">
+                            <Text className="text-white text-base font-outfit">Email support</Text>
+                            <Text className="text-white text-sm font-outfit mt-1">Get a response within 24 hours</Text>
+                          </View>
+                          <Ionicons name="chevron-forward" size={22} color="#ffffff" />
+                        </TouchableOpacity>
+                
+                        <TouchableOpacity
+                          className="flex-row items-center justify-between py-4 px-4 bg-primary rounded-lg border border-border"
+                          onPress={handleWhatsAppPress}
+                          activeOpacity={0.7}
+                        >
+                          <View className="flex-1 mr-3">
+                            <Text className="text-white text-base font-outfit">WhatsApp chat</Text>
+                            <Text className="text-white text-sm font-outfit mt-1">Instant messaging support</Text>
+                          </View>
+                          <Ionicons name="chevron-forward" size={22} color="#ffffff" />
+                        </TouchableOpacity>
 
         <View className="flex-row items-center justify-center mt-auto pt-6">
           <Ionicons name="time-outline" size={18} color="#7f8c8d" />
