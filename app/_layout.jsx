@@ -67,7 +67,6 @@ export default function RootLayout() {
                       <Stack.Screen name="screens/FavoriteOrders" options={{ headerShown: false }} />
                       <Stack.Screen name="screens/NoficationsPage" options={{ headerShown: false }} />
                       <Stack.Screen name="screens/MapPicker" options={{ headerShown: false }} />
-                      <Stack.Screen name="screens/TestScreen" options={{ title: 'Test Screen' }} />
 
                       {/* Dining and Booking Screens */}
                       <Stack.Screen name="screens/DiningBooking" options={{ headerShown: false }} />
@@ -127,7 +126,7 @@ export default function RootLayout() {
                       <Stack.Screen name="screens/SendFeedback" options={{ headerShown: false }} />
 
                       {/* Miscellaneous Screens */}
-                      <Stack.Screen name="screens/Activity" options={{ title: 'Activity' }} />
+                      <Stack.Screen name="screens/Activity" options={{ headerShown: false, title: 'Activity' }}                      />
                       <Stack.Screen name="screens/RecommendationScreen" options={{ title: 'Recommendations' }} />
                       <Stack.Screen name="screens/OnMindScreens" options={{ headerShown: false }} />
                       <Stack.Screen name="screens/SelectLocation" options={{ headerShown: false }} />
