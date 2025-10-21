@@ -26,19 +26,6 @@ const filtersData = {
     { id: 6, label: "Chinese", icon: "fast-food-outline", selected: false },
   ],
 };
-// Commented out filtersData as it's not being used
-// const filtersData = {
-//   "Dietary": [
-//     { id: 1, label: "Vegetarian", icon: "leaf", selected: false },
-//     { id: 2, label: "Vegan", icon: "leaf-outline", selected: false },
-//     { id: 3, label: "Gluten Free", icon: "nutrition-outline", selected: false },
-//   ],
-//   "Cuisine": [
-//     { id: 4, label: "Italian", icon: "pizza-outline", selected: false },
-//     { id: 5, label: "Indian", icon: "restaurant-outline", selected: false },
-//     { id: 6, label: "Chinese", icon: "fast-food-outline", selected: false },
-//   ],
-// };
 
 export default function FirmDetailsTakeAway() {
   const params = useLocalSearchParams();
@@ -60,8 +47,6 @@ export default function FirmDetailsTakeAway() {
   const [firmDetails, setFirmDetails] = useState(null);
   const [toggleBookmark, setToggleBookmark] = useState(false);
   const [offersVisible, setOffersVisible] = useState(false);
-  // Commented out filterVisible state as it's not being used
-  //const [filterVisible, setFilterVisible] = useState(false);
   const [expandedOffer, setExpandedOffer] = useState(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const offers = [
@@ -69,17 +54,6 @@ export default function FirmDetailsTakeAway() {
     { id: 2, title: "Flat 20% Off on Orders Upto 200", validity: "Valid till 28th February" },
     { id: 3, title: "Items @99", validity: "Valid Today" }
   ];
-
-  // Commented out filters array as it's not being used
-  //const filters = [
-  //{ name: "Filter", icon: "filter" },
-  //{ name: "Veg", icon: "leaf" },
-  //{ name: "Non-veg", icon: "nutrition" },
-  //{ name: "Spicy", icon: "flame" },
-  //{ name: "Popular", icon: "trending-up" }
-  //];
-
-
 
   const fetchRestaurantDetails = async () => {
     try {
@@ -153,7 +127,6 @@ export default function FirmDetailsTakeAway() {
 
   const UploadRecentlyViewd = async () => {
     try {
-      // getSimilar()
       const restId = firmId
       if (!restId) return
       await axios.post(`${API_URL}/firm/recently-viewed/${restId}`, null, {
@@ -231,42 +204,6 @@ export default function FirmDetailsTakeAway() {
   const [selectedFilter, setSelectedFilter] = useState([]);
   const [addError, setAddError] = useState(null);
 
-  //const toggleFilter = (category, filterId) => {
-  //setFilter((prevFilters) => ({
-  //...prevFilters,
-  //[category]: prevFilters[category].map((filter) =>
-  //filter.id === filterId ? { ...filter, selected: !filter.selected } : filter
-  //),
-  //}));
-  //};
-
-  //const clearFilters = () => {
-  //setFilter((prevFilters) =>
-  //Object.keys(prevFilters).reduce((acc, category) => {
-  //acc[category] = prevFilters[category].map((filter) => ({
-  //...filter,
-  //selected: false,
-  //}));
-  //return acc;
-  //}, {})
-  //);
-  //};
-
-  // Commented out handleFilterPress function
-  //const handleFilterPress = (filterName) => {
-  //if (filterName === 'Filter') {
-  //setFilterVisible(true);
-  //} else {
-  //setSelectedFilter((prevFilters) =>
-  //prevFilters.includes(filterName)
-  //? prevFilters.filter((filter) => filter !== filterName)
-  //: [...prevFilters, filterName]
-  //);
-  //}
-  //};
-
-  // Commented out selectedCount as it's not being used
-  //const selectedCount = Object.values(filter).flat().filter((f) => f.selected).length;
 
   const renderItem = ({ item }) => {
     const cartItems = getCartItems();
@@ -325,7 +262,6 @@ export default function FirmDetailsTakeAway() {
 
     return (
       <View className="flex-row p-4 bg-white mb-1 ml-3 mr-3 rounded-lg shadow-sm">
-        {/* Left side: Image */}
         <View className="w-32 h-40 mr-4">
           <Image
             source={item?.image_urls?.[0]
@@ -335,7 +271,6 @@ export default function FirmDetailsTakeAway() {
           />
         </View>
 
-        {/* Right side: Details */}
         <View className="flex-1">
           <Text className="text-textprimary font-outfit-bold text-base mb-1">{item?.productName || item?.name || 'Unnamed Item'}</Text>
           <Text className="text-textprimary font-outfit-bold text-md mb-1">{item?.price || 'Price not available'}</Text>
@@ -351,7 +286,6 @@ export default function FirmDetailsTakeAway() {
             </View>
           )}
 
-          {/* ADD / Quantity Controls at bottom */}
           {quantity > 0 ? (
             <View className="bg-light border-primary flex-row border-2 rounded-lg justify-center items-center">
               <TouchableOpacity onPress={handleDecrement}>
@@ -419,27 +353,21 @@ export default function FirmDetailsTakeAway() {
           <TouchableOpacity onPress={() => router.back()} className="rounded-full bg-black/40 p-2 items-center justify-center">
             <Ionicons name='chevron-back' size={28} color='white' />
           </TouchableOpacity>
-          {/* <View className="flex-row items-center">
-            <TouchableOpacity>
-              <AntDesign name='sharealt' size={28} color='white' />
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => setToggleBookmark(!toggleBookmark)}
-              className="ml-3"
-            >
-              {toggleBookmark ?
-                <Ionicons name='bookmark' size={28} color='white' /> :
-                <Ionicons name='bookmark-outline' size={28} color='white' />
-              }
-            </TouchableOpacity>
-          </View> */}
         </View>
-        <View className="absolute bottom-3 left-0 right-0 h-[60%] flex-row justify-between items-center">
+        <View
+          className="absolute bottom-3 left-0 right-0 h-[60%] flex-row justify-between items-center"
+          style={{ zIndex: 20, elevation: 12 }}
+        >
           <LinearGradient
             colors={["#18181800", "#18181866", "#181818CC"]}
             start={{ x: 0, y: 0 }}
             end={{ x: 0, y: 1 }}
-            style={{ flexDirection: "row", width: "100%", justifyContent: "space-between" }}
+            style={{
+              flexDirection: "row",
+              width: "100%",
+              justifyContent: "space-between",
+              zIndex: 20,
+            }}
           >
             <View className="w-[80%] p-1 mt-15">
               <View>
@@ -499,7 +427,7 @@ export default function FirmDetailsTakeAway() {
         </View>
       </View>
 
-     <ScrollView className="flex-1">
+  <ScrollView className="flex-1" style={{ zIndex: 1 }}>
        <View className="flex-row items-center my-4">
         <View className="flex-1 h-px bg-border" />
         <Text className="text-textsecondary font-outfit-bold mx-4 text-sm">Offers</Text>
@@ -521,63 +449,6 @@ export default function FirmDetailsTakeAway() {
         <Text className="text-textsecondary font-outfit-bold mx-4 text-sm">MENU</Text>
         <View className="flex-1 h-px bg-border" />
       </View>
-
-      {/* Commented out filter container section */}
-      {/* <View style={styles.filterContainer}>
-        <FlatList
-          data={filters}
-          horizontal={true}
-          showsHorizontalScrollIndicator={false}
-          keyExtractor={(item) => item.name}
-          renderItem={({ item }) => {
-            const isSelected = selectedFilter.includes(item.name);
-            const renderIcon = () => {
-              switch (item.name) {
-                case "Filter":
-                  return (
-                    <FontAwesome
-                      name={item.icon}
-                      size={16}
-                      color={!isSelected ? "#e23845" : "white"}
-                      style={{ marginRight: 4 }}
-                    />
-                  )
-                case "Non-veg":
-                case "Spicy":
-                  return (
-                    <Ionicons
-                      name={item.icon}
-                      size={16}
-                      color={!isSelected ? "#e23845" : "white"}
-                      style={{ marginRight: 4 }}
-                    />
-                  )
-                default:
-                  return (
-                    <MaterialCommunityIcons
-                      name={item.icon}
-                      size={16}
-                      color={!isSelected ? "#e23845" : "white"}
-                      style={{ marginRight: 4 }}
-                    />
-                  )
-              }
-            }
-            return (
-              <TouchableOpacity
-                style={[styles.filterButton, isSelected && styles.selectedFilterButton]}
-                onPress={() => handleFilterPress(item.name)}
-              >
-                {renderIcon()}
-                <Text style={!isSelected ? styles.filterText : styles.selectedFilterText}>
-                  {item.name}
-                </Text>
-              </TouchableOpacity>
-            );
-          }}
-        />
-      </View> */}
-
       <FlatList
         data={categories}
         keyExtractor={(category) => category}
@@ -644,63 +515,6 @@ export default function FirmDetailsTakeAway() {
           </View>
         </View>
       </Modal>
-
-      {/* Commented out filter modal section */}
-      {/* <Modal visible={filterVisible} transparent animationType="slide">
-        <View style={styles.filterOverlay}>
-          <View style={styles.filterModalContainer}>
-            <Text style={styles.filterHeader}>Filters and Sorting</Text>
-            <FlatList
-              data={Object.entries(filter)}
-              keyExtractor={(item) => item[0]}
-              renderItem={({ item }) => {
-                const category = item[0];
-                const filterItems = item[1];
-
-                if (!Array.isArray(filterItems)) return null;
-
-                return (
-                  <View style={styles.filterSection}>
-                    <Text style={styles.filterSectionTitle}>{category}</Text>
-                    <View style={styles.filterChipContainer}>
-                      {filterItems.map((filter) => (
-                        <TouchableOpacity
-                          key={filter.id}
-                          style={[styles.filterChip, filter.selected && styles.filterChipSelected]}
-                          onPress={() => toggleFilter(category, filter.id)}
-                        >
-                          {filter.icon && (
-                            <Ionicons
-                              name={filter.icon}
-                              size={16}
-                              color={filter.selected ? "#fff" : "#333"}
-                              style={{ marginRight: 5 }}
-                            />
-                          )}
-                          <Text style={[styles.filterChipText, filter.selected && styles.filterChipTextSelected]}>
-                            {filter.label}
-                          </Text>
-                          {filter.selected && (
-                            <Ionicons name="close" size={14} color="#fff" style={{ marginLeft: 5 }} />
-                          )}
-                        </TouchableOpacity>
-                      ))}
-                    </View>
-                  </View>
-                );
-              }}
-            />
-            <View style={styles.filterFooter}>
-              <TouchableOpacity onPress={clearFilters} style={styles.filterClearButton}>
-                <Text style={styles.filterClearButtonText}>Clear All</Text>
-              </TouchableOpacity>
-              <TouchableOpacity onPress={() => setFilterVisible(false)} style={styles.filterApplyButton}>
-                <Text style={styles.filterApplyButtonText}>Apply ({selectedCount})</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-      </Modal> */}
      </ScrollView>
      
      {getTotalItems() > 0 && (
