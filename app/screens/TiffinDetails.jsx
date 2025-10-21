@@ -68,24 +68,24 @@ const TiffinDetails = () => {
     showCustomization: false,
     selectedMenuItem: null
   });
- const UploadRecentlyViewd = useCallback(async () => {
+  const UploadRecentlyViewd = useCallback(async () => {
     try {
       const restId = tiffinId;
       if (!restId) {
         console.warn("No restaurant ID available for recently viewed tracking");
         return;
       }
-  
+
       const response = await axios.post(
         `${Api_url}/firm/recently-viewed/${restId}`,
-          {},
+        {},
         { withCredentials: true }
       );
-  
+
       if (response.status !== 200 && response.status !== 201) {
         throw new Error(`Unexpected status code: ${response.status}`);
       }
-  
+
       console.log("Recently viewed uploaded successfully:", response.data);
     } catch (err) {
       console.error("Failed to upload recently viewed:", err);
@@ -111,7 +111,7 @@ const TiffinDetails = () => {
 
       const response = await axios.get(`${Api_url}/api/get-tiffin/${tiffinId}`);
       const { success, tiffin } = response.data;
-// console.log(JSON.stringify(response.data))
+      // console.log(JSON.stringify(response.data))
       if (success && tiffin) {
         const transformedData = transformServiceData(tiffin);
         setService(transformedData);
@@ -377,100 +377,114 @@ const TiffinDetails = () => {
   const renderMenuItem = useCallback((item) => {
     if (!item?.id || !item?.name) return null;
     return (
-      <View key={item.id} style={styles.menuItem}>
-        <View style={styles.menuItemImageContainer}>
-          <Image
-            source={item.image}
-            style={styles.menuItemImage}
-            resizeMode="cover"
-            defaultSource={require('../../assets/images/food1.jpg')}
-          />
+      <View
+        key={item.id}
+        className="flex-row items-stretch w-[370px] h-[110px] bg-white border border-[#c1c1c1] rounded-xl mb-3 p-[5px] shadow-sm"
+      >
+        
+        <View className="w-[100px] h-full items-center justify-start pt-1">
+          <View className="relative w-[85px] h-[85px] rounded-xl overflow-hidden border border-[#c1c1c1]">
+            <Image
+              source={item.image}
+              resizeMode="cover"
+              defaultSource={require('../../assets/images/food1.jpg')}
+              className="w-full h-full"
+            />
 
-          {item.isVeg !== undefined && (
-            <View style={styles.vegBadge}>
-              <MaterialCommunityIcons
-                name={item.isVeg ? 'circle' : 'triangle'}
-                size={12}
-                color={item.isVeg ? '#4CAF50' : '#FF4B3A'}
-              />
-            </View>
-          )}
-
-          <View style={styles.addOnModalContainer}>
-            <TouchableOpacity
-              style={[styles.addButton]}
-              onPress={() => handleOpenModal(item)}
-            >
-              <Text style={styles.addButtonLabel}>ADD</Text>
-            </TouchableOpacity>
+            {/* Veg / Non-Veg Badge */}
+            {item.isVeg !== undefined && (
+              <View className="absolute top-1 left-1 bg-white rounded-full p-[2px]">
+                <MaterialCommunityIcons
+                  name={item.isVeg ? 'circle' : 'triangle'}
+                  size={12}
+                  color={item.isVeg ? '#4CAF50' : '#FF4B3A'}
+                />
+              </View>
+            )}
           </View>
+
         </View>
 
-        <View style={styles.menuItemContent}>
+        {/* Right Section - Content */}
+        <View className="flex-1 pl-4 pr-2 py-1 justify-between">
           <View>
-            <View style={styles.menuItemHeader}>
-              <Text style={styles.menuItemTitle} numberOfLines={1}>
-                {item.name}
-              </Text>
-            </View>
+            {/* Item Title */}
+            <Text className="text-[16px] font-bold text-[#333] mb-1" numberOfLines={1}>
+              {item.name}
+            </Text>
 
-          
-
+            {/* Description */}
             {item.description && (
-              <Text style={styles.menuItemDescription} numberOfLines={2}>
+              <Text
+                className="text-[13px] text-[#666] leading-[18px]"
+                numberOfLines={1}
+              >
                 {item.description}
                 {item.description.length > 60 && (
-                  <Text style={{ color: '#FF4B3A' }}>...more</Text>
+                  <Text className="text-[#FF4B3A]">...more</Text>
                 )}
               </Text>
             )}
-              <Text style={styles.menuItemPrice}>
-              ₹ {item.price || item.basePrice || 0}
-            </Text>
+
+            <View className="flex-row items-center justify-between mt-1">
+              {/* Price */}
+              <Text className="text-[16px] font-bold text-[#FF4B3A]">
+                ₹ {item.price || item.basePrice || 0}
+              </Text>
+
+              <TouchableOpacity
+                onPress={() => handleOpenModal(item)}
+                className="bg-[#FF4B3F] rounded-lg w-20 py-1"
+              >
+                <Text className="text-white text-[14px] font-bold text-center">
+                  ADD
+                </Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
       </View>
     );
   }, [menuState.cartItems, menuState.wishlistItems, handleOpenModal, toggleWishlist]);
 
-const DeliveryCitiesList = ({ cities }) => {
-  const [showAll, setShowAll] = useState(false);
-  const maxVisible = 3;
+  const DeliveryCitiesList = ({ cities }) => {
+    const [showAll, setShowAll] = useState(false);
+    const maxVisible = 3;
 
-  // Process the cities data correctly - split the first item by commas
-  // const allCities = cities.length > 0
-  //   ? cities[0].split(',').map(city => city.trim()).filter(city => city.length > 0)
-  //   : [];
-  const allCities=cities
-// console.log(allCities)
-  const toggleShowAll = () => {
-    setShowAll(!showAll);
-  };
+    // Process the cities data correctly - split the first item by commas
+    // const allCities = cities.length > 0
+    //   ? cities[0].split(',').map(city => city.trim()).filter(city => city.length > 0)
+    //   : [];
+    const allCities = cities
+    // console.log(allCities)
+    const toggleShowAll = () => {
+      setShowAll(!showAll);
+    };
 
-  const visibleCities = showAll ? allCities : allCities.slice(0, maxVisible);
-  const hasMoreCities = allCities.length > maxVisible;
+    const visibleCities = showAll ? allCities : allCities.slice(0, maxVisible);
+    const hasMoreCities = allCities.length > maxVisible;
 
-  return (
-    <View style={styles.deliveryCitiesContainer}>
-      <View style={styles.citiesWrapper}>
-        {visibleCities.map((city, index) => (
-          <View key={index} style={styles.cityPill}>
-            <Text style={styles.cityText}>{city}</Text>
-          </View>
-        ))}
-        {hasMoreCities && (
-          <TouchableOpacity onPress={toggleShowAll} activeOpacity={0.7}>
-            <View style={styles.moreLessPill}>
-              <Text style={styles.moreLessText}>
-                {showAll ? 'Show Less' : `+${allCities.length - maxVisible} More`}
-              </Text>
+    return (
+      <View style={styles.deliveryCitiesContainer}>
+        <View style={styles.citiesWrapper}>
+          {visibleCities.map((city, index) => (
+            <View key={index} style={styles.cityPill}>
+              <Text style={styles.cityText}>{city}</Text>
             </View>
-          </TouchableOpacity>
-        )}
+          ))}
+          {hasMoreCities && (
+            <TouchableOpacity onPress={toggleShowAll} activeOpacity={0.7}>
+              <View style={styles.moreLessPill}>
+                <Text style={styles.moreLessText}>
+                  {showAll ? 'Show Less' : `+${allCities.length - maxVisible} More`}
+                </Text>
+              </View>
+            </TouchableOpacity>
+          )}
+        </View>
       </View>
-    </View>
-  );
-};
+    );
+  };
   if (loading && !service) {
     return (
       <SafeAreaView className="flex-1 justify-center items-center bg-background">
@@ -507,10 +521,11 @@ const DeliveryCitiesList = ({ cities }) => {
         }
       >
         <View className="flex-row justify-between items-center p-4 bg-white">
-          <IconButton
-            icon="arrow-left"
+          <MaterialCommunityIcons
+            name="arrow-left"
             size={26}
-            onPress={() => router.back()}
+            color="black" 
+            onPress={() => router.back()} 
           />
           <View className="flex-row items-center space-x-3">
             <TouchableOpacity onPress={() => setIsFavorite(!isFavorite)}>
@@ -521,7 +536,7 @@ const DeliveryCitiesList = ({ cities }) => {
               />
             </TouchableOpacity>
             <AntDesign
-              name='sharealt'
+              name='share-alt'
               size={30}
               color="rgba(0, 0, 0, 0.8)"
               onPress={handleShare}
@@ -535,77 +550,77 @@ const DeliveryCitiesList = ({ cities }) => {
             currentIndex={currentImageIndex}
             onIndexChange={setCurrentImageIndex}
           />
-              <View style={styles.overlayContainer}>
-              <TouchableOpacity
-                onPress={() => router.push({
-                  pathname: '/screens/TiffinDetailsScreen',
-                  params: {
-                    restaurant: JSON.stringify({
-                      ...service,
-                      kitchenName: service.title,
-                      ratings: service.rating,
-                      menu: service.menu,
-                      deliveryCity: service.deliveryCities,
-                      category: service.tags,
-                      ownerPhoneNo: {
-                        fullNumber: service.phoneNumber
-                      }
-                    })
-                  }
-                })}
-                style={styles.titleWrapper}
-              >
-                <View style={styles.titleContainer}>
-                  <Text
-                style={styles.titleText}
-                numberOfLines={3}
-                ellipsizeMode="tail"
-              >
-                {service.title}
-              </Text>
-                  {/* {service.isVerified && (
+          <View style={styles.overlayContainer}>
+            <TouchableOpacity
+              onPress={() => router.push({
+                pathname: '/screens/TiffinDetailsScreen',
+                params: {
+                  restaurant: JSON.stringify({
+                    ...service,
+                    kitchenName: service.title,
+                    ratings: service.rating,
+                    menu: service.menu,
+                    deliveryCity: service.deliveryCities,
+                    category: service.tags,
+                    ownerPhoneNo: {
+                      fullNumber: service.phoneNumber
+                    }
+                  })
+                }
+              })}
+              style={styles.titleWrapper}
+            >
+              <View style={styles.titleContainer}>
+                <Text
+                  style={styles.titleText}
+                  numberOfLines={3}
+                  ellipsizeMode="tail"
+                >
+                  {service.title}
+                </Text>
+                {/* {service.isVerified && (
                     <MaterialCommunityIcons name="check-decagram" size={20} color="#4CAF50" />
                   )} */}
-                </View>
-                <View style={styles.infoRow}>
-                  <MaterialCommunityIcons name="phone" size={20} color="#078518ff" />
-                  <Text style={styles.infoText}>Contact: {service.phoneNumber}</Text>
-                </View>
-              </TouchableOpacity>
+              </View>
+              <View style={styles.infoRow}>
+                <MaterialCommunityIcons name="phone" size={20} color="#078518ff" />
+                <Text style={styles.infoText}>Contact: {service.phoneNumber}</Text>
+              </View>
+            </TouchableOpacity>
 
-              <TouchableOpacity
-                onPress={() => router.push({
-                  pathname: "/screens/Reviewsall",
-                  params: {
-                    firmId: service.id,
-                    restaurantName: service.title,
-                    averageRating: service.rating.toFixed(1),
-                    reviewCount: service.reviews.length,
-                    reviewType:'tiffin',
-                  }
-                })}
-                style={styles.reviewBox}
-              >
-                <View style={styles.reviewBoxTopContainer}>
-                  <View style={styles.reviewBoxUpperContainer}>
-                    <Text style={styles.reviewText}>
-                      {service.rating.toFixed(1)}
-                    </Text>
-                    <FontAwesome name="star" size={18} color="white" />
-                  </View>
-                </View>
-                <View style={styles.reviewBoxBottomContainer}>
-                  <Text style={styles.reviewCount}>
-                    {service.reviews.length}
+            <TouchableOpacity
+              onPress={() => router.push({
+                pathname: "/screens/Reviewsall",
+                params: {
+                  firmId: service.id,
+                  restaurantName: service.title,
+                  averageRating: service.rating.toFixed(1),
+                  reviewCount: service.reviews.length,
+                  reviewType: 'tiffin',
+                }
+              })}
+              style={styles.reviewBox}
+            >
+              <View style={styles.reviewBoxTopContainer}>
+                <View style={styles.reviewBoxUpperContainer}>
+                  <Text style={styles.reviewText}>
+                    {service.rating.toFixed(1)}
                   </Text>
-                  <Text style={styles.reviewCount}>Reviews</Text>
+                  <FontAwesome name="star" size={18} color="white" />
                 </View>
-              </TouchableOpacity>
-            </View>
+              </View>
+              <View style={styles.reviewBoxBottomContainer}>
+                <Text style={styles.reviewCount}>
+                  {service.reviews.length}
+                </Text>
+                <Text style={styles.reviewCount}>Reviews</Text>
+              </View>
+            </TouchableOpacity>
+          </View>
         </View>
         <View style={styles.contentContainer}>
           <View style={styles.maincontainer}>
-        
+
             <View style={styles.detailsContainer}>
               <View style={styles.infoRow}>
                 {/* <MaterialCommunityIcons
@@ -623,8 +638,8 @@ const DeliveryCitiesList = ({ cities }) => {
 
               <View style={styles.infoRow}>
                 <MaterialCommunityIcons name="home" size={20} color="#666" />
-                <Text style={styles.infoTextt}  numberOfLines={2}
-                ellipsizeMode="tail">Address: {service.address}</Text>
+                <Text style={styles.infoTextt} numberOfLines={2}
+                  ellipsizeMode="tail">Address: {service.address}</Text>
               </View>
             </View>
           </View>

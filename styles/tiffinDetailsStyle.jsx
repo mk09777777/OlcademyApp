@@ -29,82 +29,82 @@ const styles = StyleSheet.create({
     padding: 1,
   },
   titleContainer: {
-  flexDirection: "row",       // places title on left & review box on right
-  justifyContent: "space-between",
-  alignItems: "flex-start",   // keeps title top-aligned with review box
-  marginTop: 8,
-  paddingHorizontal: 10,
-},
+    flexDirection: "row",       // places title on left & review box on right
+    justifyContent: "space-between",
+    alignItems: "flex-start",   // keeps title top-aligned with review box
+    marginTop: 8,
+    paddingHorizontal: 10,
+  },
 
-title: {
-  flex: 1,                    // take available width
-  fontSize: 16,
-  fontWeight: "bold",
-  color: "#000",
-  marginRight: 10,
-  flexWrap: "wrap",
-},
-overlayContainer: {
-  position: "absolute",
-  bottom: 0,
-  left: 10,
-  right: 10,
-  flexDirection: "row",
-  justifyContent: "space-between",
-  alignItems: "flex-start",
-},
+  title: {
+    flex: 1,                    // take available width
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#000",
+    marginRight: 10,
+    flexWrap: "wrap",
+  },
+  overlayContainer: {
+    position: "absolute",
+    bottom: 0,
+    left: 10,
+    right: 10,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+  },
 
-titleWrapper: {
-  flex: 1, // takes remaining space beside review box
-  marginRight: 10,
-},
+  titleWrapper: {
+    flex: 1, // takes remaining space beside review box
+    marginRight: 10,
+  },
 
-titleText: {
-  fontSize: 16,
-  fontWeight: "bold",
-  color: "#fff",
-},
-reviewBox: {
-  marginTop: 20,
-  bottom: 20,
-  minWidth: 70,
-  borderRadius: 10,
-  right: 10,
-  borderWidth: 1,
-  borderColor: '#ccc',
-  overflow: 'hidden',   // ensures children match rounded corners
-},
+  titleText: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#fff",
+  },
+  reviewBox: {
+    marginTop: 20,
+    bottom: 20,
+    minWidth: 70,
+    borderRadius: 10,
+    right: 10,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    overflow: 'hidden',   // ensures children match rounded corners
+  },
 
-reviewBoxTopContainer: {
-  backgroundColor: 'green',
-  padding: 10,
-},
+  reviewBoxTopContainer: {
+    backgroundColor: 'green',
+    padding: 10,
+  },
 
-reviewBoxBottomContainer: {
-  backgroundColor: 'white',
-  padding: 10,
-  flexDirection: 'row',
-},
-
-
-
-reviewBoxUpperContainer: {
-  flexDirection: "row",
-  alignItems: "center",
-},
-
-reviewText: {
-  fontSize: 14,
-  color: "#fff",
-  marginRight: 4,
-},
+  reviewBoxBottomContainer: {
+    backgroundColor: 'white',
+    padding: 10,
+    flexDirection: 'row',
+  },
 
 
 
-reviewCount: {
-  fontSize: 12,
-  color: "#fff",
-},
+  reviewBoxUpperContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+
+  reviewText: {
+    fontSize: 14,
+    color: "#fff",
+    marginRight: 4,
+  },
+
+
+
+  reviewCount: {
+    fontSize: 12,
+    color: "#fff",
+  },
 
 
 
@@ -224,11 +224,11 @@ reviewCount: {
     textAlign: 'center',
     marginTop: 2,
   },
-  
+
   reviewBoxUpperContainer: {
     flexDirection: 'row',
   },
-  
+
   reviewText: {
     fontFamily: 'outfit',
     color: 'white',
@@ -241,7 +241,7 @@ reviewCount: {
     fontSize: 14,
     textAlign: 'center'
   },
-  
+
   errorText: {
     fontSize: 18,
     color: '#FF4500',
@@ -479,7 +479,7 @@ reviewCount: {
     paddingHorizontal: 20,
     borderRadius: 30,
     elevation: 5,
-    shadowColor: '#000',
+    // shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
@@ -582,30 +582,34 @@ reviewCount: {
   },
   menuItem: {
     marginBottom: 5,
-    backgroundColor: '#f7f7f7ff',
+    backgroundColor: '#fff', // ✅ no gray
     elevation: 2,
     overflow: 'hidden',
     flexDirection: 'row',
     alignItems: 'stretch',
-    padding:5,
-      borderColor:'#c1c1c1ff',
-    borderWidth:0.5,
+    padding: 5,
+    borderColor: '#c1c1c1ff',
+    borderWidth: 0.5,
     borderRadius: 12,
-    // width: 370,
-    // height: 150,
+    width: 370,
+    height: 140,
   },
-  // menuItemImageContainer: {
-  //   width: 120,
-  //   height: 130,
-  // },
+  menuItemImageContainer: {
+  width: 120,
+  height: '100%', // ✅ makes it fit the item height
+  borderRadius: 12,
+  overflow: 'hidden', // ✅ clean edges
+  backgroundColor: '#fff', // ✅ remove grey background
+  position: 'relative',
+},
   menuItemImage: {
-    width: 80,
-    height: 80,
+    width: '100%',
+    height: '100%',
     resizeMode: 'cover',
-    borderColor:'#424242ff',
-    borderWidth:1,
     borderRadius: 12,
+    backgroundColor: '#fff',
   },
+
   menuItemContent: {
     flex: 1,
     paddingHorizontal: 20,
@@ -714,7 +718,7 @@ reviewCount: {
     color: '#fff',
     fontWeight: 'bold',
     fontSize: 14,
-    textAlign:'center'
+    textAlign: 'center'
   },
   addButtonLabelc: {
     paddingBottom: 10,
@@ -894,7 +898,7 @@ reviewCount: {
     // borderRadius: 12,
     padding: 16,
     marginBottom: 16,
-    shadowColor: '#000',
+    // shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
@@ -970,12 +974,12 @@ reviewCount: {
     color: '#1976d2',
     fontWeight: '500',
   },
-   offersContainer: {
+  offersContainer: {
     marginTop: 20,
     backgroundColor: '#f8f9fa',
     borderRadius: 12,
     padding: 16,
-    shadowColor: '#000',
+    // shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
@@ -1020,24 +1024,23 @@ reviewCount: {
     borderRadius: 4,
     alignSelf: 'flex-start',
   },
-    separatorRow: {
-		flexDirection: 'row',
-		alignItems: 'center',
-		marginTop: 5,
+  separatorRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 5,
     marginBottom: 5
-	  },
+  },
   line: {
     flex: 1,
     height: 1,
     backgroundColor: '#353434ff',
   },
-	separatorText: {
-		fontFamily: 'outfit',
-		fontSize: 16,
-		// color: '#ccc',
+  separatorText: {
+    fontFamily: 'outfit',
+    fontSize: 16,
+    // color: '#ccc',
     marginHorizontal: 7
-	},
+  },
 });
 
 export default styles;
- 
