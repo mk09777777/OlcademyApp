@@ -168,7 +168,7 @@ export default function RatingInfoScreen() {
           </Text>
         </View>
 
-        <TouchableOpacity className="bg-red-500 rounded-lg p-4 items-center mb-5" activeOpacity={0.8} onPress={() => safeNavigation('profile')}>
+        <TouchableOpacity className="bg-red-500 rounded-lg p-4 items-center mb-5" activeOpacity={0.8} onPress={() => safeNavigation('/screens/User')}>
           <Text className="text-white text-lg font-semibold">Okay</Text>
         </TouchableOpacity>
       </ScrollView>

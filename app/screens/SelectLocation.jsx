@@ -282,10 +282,10 @@ export default function SelectLocation({ placeholder = "Enter area, landmark ...
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f0f0' },
+  container: { flex: 1, backgroundColor: '#ffffff' },
   header: { fontSize: 20, fontWeight: '600', margin: 20, fontFamily: 'outfit-medium' },
   searchContainer: { paddingHorizontal: 20, marginBottom: 10, borderRadius: 20 },
-  searchInput: { backgroundColor: '#fff', fontFamily:'outfit-medium', fontSize:15, },
+  searchInput: { backgroundColor: '#ffffff', fontFamily:'outfit-medium', fontSize:15, },
   addBtn: {
     backgroundColor: '#e41e3f',
     marginHorizontal: 20,
