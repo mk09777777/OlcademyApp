@@ -3,11 +3,11 @@ import { View, Text, Image, TouchableOpacity, Linking } from "react-native";
 import NotificationModalStyles from "../styles/ModalNotificationstyles";
 import * as Notifications from 'expo-notifications';
 import Constants from 'expo-constants';
+import { useFocusEffect } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Check if running in development build or Expo Go
 const isExpoGo = Constants.appOwnership === 'expo';
-import { useFocusEffect } from '@react-navigation/native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function NotificationModal({ toggle }) {
 

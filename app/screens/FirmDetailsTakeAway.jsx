@@ -519,7 +519,15 @@ export default function FirmDetailsTakeAway() {
      
      {getTotalItems() > 0 && (
         <TouchableOpacity
-          className="absolute bottom-0 left-0 right-0 bg-primary p-4 m-4 rounded-lg"
+          className="bg-primary p-4 rounded-lg"
+          style={{
+            position: 'absolute',
+            bottom: 20,
+            left: 16,
+            right: 16,
+            zIndex: 9999,
+            elevation: 20,
+          }}
           onPress={() => router.push({
             pathname: 'screens/TakeAwayCart',
             params: {

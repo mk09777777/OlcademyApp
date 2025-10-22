@@ -8,12 +8,12 @@ import NotificationModal from '../../components/NotificationModal';
 import * as Notifications from 'expo-notifications';
 import Constants from 'expo-constants';
 import { API_CONFIG } from '../../config/apiConfig';
-
-// Check if running in development build or Expo Go
-const isExpoGo = Constants.appOwnership === 'expo';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import BackRouting from "@/components/BackRouting";
 import { useSafeNavigation } from "@/hooks/navigationPage";
+
+// Check if running in development build or Expo Go
+const isExpoGo = Constants.appOwnership === 'expo';
 
 export default function NotificationSettings() {
     const [enableAll, setEnableAll] = useState(false);

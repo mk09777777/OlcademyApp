@@ -20,10 +20,10 @@ import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { useSafeNavigation } from '@/hooks/navigationPage';
 import DiningCard from '@/components/DaningCard';
+import { API_CONFIG } from '../../config/apiConfig';
 
 const windowHeight = Dimensions.get('window').height;
 const windowWidth = Dimensions.get('window').width;
-import { API_CONFIG } from '../../config/apiConfig';
 const Api_url = API_CONFIG.BACKEND_URL;
 
 const quickFilters = [

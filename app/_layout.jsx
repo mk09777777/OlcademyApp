@@ -1,5 +1,5 @@
-import React from 'react';
-import { Stack } from 'expo-router';
+import React, { useEffect } from 'react';
+import { Stack , Redirect, router , useRouter } from 'expo-router';
 import { useFonts } from 'expo-font';
 import { CartProvider } from '@/context/CartContext';
 import { Provider as PaperProvider } from 'react-native-paper';
@@ -8,12 +8,9 @@ import { StatusBar } from 'expo-status-bar';
 import { PreferencesProvider } from '@/context/PreferencesContext';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import { AuthProvider } from '../context/AuthContext';
-import { Redirect, router } from 'expo-router';
 import NotificationWatcher from '@/Model/Notifications';
-import { useEffect } from 'react';
 import * as Notifications from 'expo-notifications';
 import { LocationProvider } from '@/context/LocationContext';
-import { useRouter } from 'expo-router';
 import { OffersProvider } from '@/context/OfferContext';
 import { FirmProvider } from '@/context/FirmContext';
 

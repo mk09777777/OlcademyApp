@@ -6,7 +6,7 @@ import {
   ScrollView,
   Modal,
   TextInput,
-} from 'react-native';
+ StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   Feather,
@@ -15,7 +15,6 @@ import {
   MaterialCommunityIcons,
 } from '@expo/vector-icons';
 import BackRouting from '@/components/BackRouting';
-import { StyleSheet } from 'react-native';
 
 const OrderSummary = () => {
   /* Original CSS Reference:

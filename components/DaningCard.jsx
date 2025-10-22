@@ -12,9 +12,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import ImageGallery from '@/components/ImageGallery';
 import { MaterialIcons } from "@expo/vector-icons";
-const { width } = Dimensions.get('window');
 import axios from 'axios';
 import { API_CONFIG } from '../config/apiConfig';
+const { width } = Dimensions.get('window');
 
 const DiningCard = ({ firmId,
   firmName,
