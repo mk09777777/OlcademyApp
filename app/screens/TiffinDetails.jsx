@@ -1,8 +1,7 @@
-
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, ScrollView, TouchableOpacity, Alert, RefreshControl, ActivityIndicator, Share, Image, Dimensions, Animated, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Button, IconButton, Chip } from 'react-native-paper';
+import { Button } from 'react-native-paper';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { MaterialCommunityIcons, Ionicons, AntDesign, FontAwesome } from '@expo/vector-icons';
 import ImageGallery from '../../components/ImageGallery';
@@ -111,7 +110,7 @@ const TiffinDetails = () => {
 
       const response = await axios.get(`${Api_url}/api/get-tiffin/${tiffinId}`);
       const { success, tiffin } = response.data;
-      // console.log(JSON.stringify(response.data))
+      
       if (success && tiffin) {
         const transformedData = transformServiceData(tiffin);
         setService(transformedData);
@@ -152,7 +151,7 @@ const TiffinDetails = () => {
 
   useEffect(() => {
     fetchServiceDetails();
-    UploadRecentlyViewd(); // Call it once when component mounts
+    UploadRecentlyViewd();
   }, [fetchServiceDetails, UploadRecentlyViewd]);
 
   useEffect(() => {
@@ -453,8 +452,8 @@ const TiffinDetails = () => {
 
     // Process the cities data correctly - split the first item by commas
     // const allCities = cities.length > 0
-    //   ? cities[0].split(',').map(city => city.trim()).filter(city => city.length > 0)
-    //   : [];
+    // 	? cities[0].split(',').map(city => city.trim()).filter(city => city.length > 0)
+    // 	: [];
     const allCities = cities
     // console.log(allCities)
     const toggleShowAll = () => {
@@ -511,7 +510,7 @@ const TiffinDetails = () => {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-background">
+    <SafeAreaView edges={['bottom', 'left', 'right']} className="flex-1 bg-background">
       <ScrollView
         refreshControl={
           <RefreshControl
@@ -520,7 +519,7 @@ const TiffinDetails = () => {
           />
         }
       >
-        <View className="flex-row justify-between items-center p-4 bg-white">
+        <View className="flex-row justify-between items-center px-4 pt-4 pb-2 bg-white">
           <MaterialCommunityIcons
             name="arrow-left"
             size={26}
@@ -578,9 +577,7 @@ const TiffinDetails = () => {
                 >
                   {service.title}
                 </Text>
-                {/* {service.isVerified && (
-                    <MaterialCommunityIcons name="check-decagram" size={20} color="#4CAF50" />
-                  )} */}
+                
               </View>
               <View style={styles.infoRow}>
                 <MaterialCommunityIcons name="phone" size={20} color="#078518ff" />
@@ -623,21 +620,15 @@ const TiffinDetails = () => {
 
             <View style={styles.detailsContainer}>
               <View style={styles.infoRow}>
-                {/* <MaterialCommunityIcons
-                  name="truck-delivery"
-                  size={20}
-                  color="#666"
-                  style={styles.icon}
-                /> */}
                 <DeliveryCitiesList cities={service.deliveryCities} />
               </View>
               <View style={styles.infoRow}>
-                <MaterialCommunityIcons name="map-marker-distance" size={20} color="#666" />
+                <MaterialCommunityIcons name="map-marker-distance" size={24} color="#666" />
                 <Text style={styles.infoTextt}>Distance: {service.distance}</Text>
               </View>
 
               <View style={styles.infoRow}>
-                <MaterialCommunityIcons name="home" size={20} color="#666" />
+                <MaterialCommunityIcons name="home" size={24} color="#666" />
                 <Text style={styles.infoTextt} numberOfLines={2}
                   ellipsizeMode="tail">Address: {service.address}</Text>
               </View>
@@ -657,58 +648,6 @@ const TiffinDetails = () => {
           )}
           {/* Menu Section */}
           <View style={styles.menuSectionContainer}>
-            {/* <Text style={styles.sectionTitle}>Our Menu</Text> */}
-            {/* <View style={styles.filterContainer}>
-              <TouchableOpacity
-                style={[
-                  styles.filterButton,
-                  styles.vegFilterButton,
-                  menuState.foodFilter === FILTER_OPTIONS.VEG && styles.vegFilterButtonSelected
-                ]}
-                onPress={() => setMenuState(prev => ({ ...prev, foodFilter: FILTER_OPTIONS.VEG }))}
-              >
-                <MaterialCommunityIcons name="circle" size={16} color="#fff" />
-                <Text style={[styles.filterButtonText, styles.vegFilterText]}>Veg</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={[
-                  styles.filterButton,
-                  styles.nonVegFilterButton,
-                  menuState.foodFilter === FILTER_OPTIONS.NON_VEG && styles.nonVegFilterButtonSelected
-                ]}
-                onPress={() => setMenuState(prev => ({ ...prev, foodFilter: FILTER_OPTIONS.NON_VEG }))}
-              >
-                <MaterialCommunityIcons name="triangle" size={16} color="#fff" />
-                <Text style={[styles.filterButtonText, styles.nonVegFilterText]}>Non-Veg</Text>
-              </TouchableOpacity>
-            </View>
-
-            <View style={styles.menuCategories}>
-              <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={styles.categoriesContainer}
-              >
-                {MENU_CATEGORIES.map((category) => (
-                  <TouchableOpacity
-                    key={category}
-                    style={[
-                      styles.categoryButton,
-                      menuState.selectedCategory === category && styles.categoryButtonSelected
-                    ]}
-                    onPress={() => setMenuState(prev => ({ ...prev, selectedCategory: category }))}
-                  >
-                    <Text style={[
-                      styles.categoryButtonText,
-                      menuState.selectedCategory === category && styles.categoryButtonTextSelected
-                    ]}>
-                      {category}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-              </ScrollView>
-            </View> */}
             <View className="flex-row items-center my-4">
               <View className="flex-1 h-px bg-border" />
               <Text className="text-textsecondary font-outfit-bold mx-4 text-sm">
@@ -758,4 +697,4 @@ const TiffinDetails = () => {
   );
 };
 
-export default TiffinDetails;  
+export default TiffinDetails;
