@@ -129,8 +129,9 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
   },
-  infoText: {
-    color: '#fff',
+  infoTextt: {
+    padding:4,
+    color: '#222222',
     fontSize: 14,
   },
   loadingText: {
@@ -328,7 +329,7 @@ const styles = StyleSheet.create({
   },
   infoText: {
     marginLeft: 8,
-    color: '#666',
+    color: '#ffffff',
   },
   tagsContainer: {
     flexDirection: 'row',
