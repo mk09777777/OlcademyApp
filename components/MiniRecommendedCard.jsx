@@ -12,7 +12,7 @@ const MiniRecommendedCard = ({ name, address, image, rating, onPress }) => {
 
 
   return (
-    <TouchableOpacity activeOpacity={0.8} onPress={onPress} className="mb-2.5">
+    <TouchableOpacity activeOpacity={0.8} onPress={onPress} className="mb-2.5 mr-1.5">
       <View className="mx-1.5 bg-white rounded-[19px] overflow-hidden w-40 mb-0.5 shadow-md shadow-black" >
         <View className="relative h-[120px]">
           <ImageBackground

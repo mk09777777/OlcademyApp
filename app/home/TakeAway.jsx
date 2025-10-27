@@ -697,10 +697,10 @@ export default function TakeAway() {
         </View>
       ) : (
         <>
-          <View className="flex-row justify-between items-center">
+          <View className="flex-row justify-between items-center mr-1 ml-0.5">
             <LocationHeader />
             <View className="flex-row pr-4">
-              <TouchableOpacity
+              <TouchableOpacity className="ml-20"
                 onPress={() => router.push('/screens/NoficationsPage')}
               >
                 <Ionicons name='notifications-circle-outline' color='#02757A' size={42} style={{ marginRight: 10 }} />
@@ -713,7 +713,7 @@ export default function TakeAway() {
             </View>
           </View>
 
-          <View className="flex-row items-center justify-between">
+          <View className="flex-row items-center justify-between mr-1.5 ml-1.5">
             <SearchBar
               query={query}
               setQuery={setQuery}
@@ -819,7 +819,7 @@ export default function TakeAway() {
             ListHeaderComponent={
               query.trim() === '' ? (
                 <View>
-                  <View className="flex-row items-center mt-2.5 mb-2.5">
+                  <View className="flex-row items-center mt-4 mb-4">
                     <View className="flex-1 h-px bg-primary" />
                     <Text className="font-outfit text-xs text-textprimary mx-2">
                       WHAT'S ON YOUR MIND
@@ -835,7 +835,7 @@ export default function TakeAway() {
                       <FlatList
                         data={whatsOnYourMind}
                         renderItem={({ item }) => (
-                          <TouchableOpacity className="items-center p-2 m-1" onPress={() => router.push({
+                          <TouchableOpacity className="items-center p-2 m-1 ml-1.5 mr-1.5" onPress={() => router.push({
                             pathname: '/screens/OnMindScreens',
                             params: { name: item?.title }
                           })}>
@@ -851,8 +851,8 @@ export default function TakeAway() {
                       />
                     </ScrollView>
                   )}
-                  <View className="flex mb-4">
-                    <View className="flex-row items-center mt-2.5 mb-2.5">
+                  <View className="flex">
+                    <View className="flex-row items-center mt-4 mb-7">
                       <View className="flex-1 h-px bg-primary" />
                       <Text className="font-outfit text-xs text-textprimary mx-2">
                         RECENTLY VIEWED
@@ -860,42 +860,55 @@ export default function TakeAway() {
                       <View className="flex-1 h-px bg-primary" />
                     </View>
 
-                    <FlatList
-                      showsHorizontalScrollIndicator={false}
-                      data={recentlyViewData}
-                      horizontal
-                      keyExtractor={(item, index) => item._id + '-' + index}
-                      renderItem={({ item, index }) => (
-                        <MiniRecommendedCard
-                          key={item._id}
-                          name={item.restaurantInfo?.name}
-                          address={item.restaurantInfo?.address}
-                          image={item.restaurantInfo?.image_urls}
-                          rating={item.restaurantInfo?.ratings?.overall}
-                          onPress={() => {
-                            router.push({
-                              pathname: '/screens/FirmDetailsTakeAway',
-                              params: { firmId: item._id }
-                            });
-                          }}
-                          onFavoriteToggle={() => {
-                            setFavoriteServices(prevState =>
-                              prevState.includes(item._id)
-                                ? prevState.filter(id => id !== item._id)
-                                : [...prevState, item._id]
-                            );
-                          }}
-                          isFavorite={favoriteServices.includes(item._id)}
+                    {recentlyViewData.length > 0 ? (
+                      <FlatList
+                        showsHorizontalScrollIndicator={false}
+                        data={recentlyViewData}
+                        horizontal
+                        keyExtractor={(item, index) => item._id + '-' + index}
+                        renderItem={({ item, index }) => (
+                          <MiniRecommendedCard
+                            key={item._id}
+                            name={item.restaurantInfo?.name}
+                            address={item.restaurantInfo?.address}
+                            image={item.restaurantInfo?.image_urls}
+                            rating={item.restaurantInfo?.ratings?.overall}
+                            onPress={() => {
+                              router.push({
+                                pathname: '/screens/FirmDetailsTakeAway',
+                                params: { firmId: item._id }
+                              });
+                            }}
+                            onFavoriteToggle={() => {
+                              setFavoriteServices(prevState =>
+                                prevState.includes(item._id)
+                                  ? prevState.filter(id => id !== item._id)
+                                  : [...prevState, item._id]
+                              );
+                            }}
+                            isFavorite={favoriteServices.includes(item._id)}
+                          />
+                        )}
+                      />
+                    ) : (
+                      <View className="items-center justify-center py-6">
+                        <Image
+                          source={require('@/assets/images/nodata.png')}
+                          className="w-36 h-36"
+                          resizeMode="contain"
                         />
-                      )}
-                    />
+                        <Text className="mt-3 text-sm font-outfit text-textsecondary text-center px-6">
+                          Surf the restaurants to start building your recently viewed list.
+                        </Text>
+                      </View>
+                    )}
 
 
                   </View>
 
 
-                  <View className="flex mt-1 mb-5">
-                    <View className="flex-row items-center mt-2.5 mb-2.5">
+                  <View className="flex mt-1">
+                    <View className="flex-row items-center mt-2.5 mb-7">
                       <View className="flex-1 h-px bg-primary" />
                       <Text className="font-outfit text-xs text-textprimary mx-2">
                         POPULAR
@@ -942,19 +955,19 @@ export default function TakeAway() {
                       keyExtractor={(item, index) => item._id ? `${item._id}` : `rec-item-${index}`}
                     />
                   </View>
-                  <View className="flex-row items-center mt-2.5 mb-2.5">
+                  <View className="flex-row items-center mt-4 mb-4">
                     <View className="flex-1 h-px bg-primary" />
                     <Text className="font-outfit text-xs text-textprimary mx-2">
                       ALL RESTAURANTS
                     </Text>
                     <View className="flex-1 h-px bg-primary" />
                   </View>
-                  <View className="mb-2.5">
+                  <View className="mb-4">
                     <FlatList
                       data={quickFilters}
                       horizontal
                       showsHorizontalScrollIndicator={false}
-                      decelerationRate="fast" 
+                      decelerationRate={1}
                       keyExtractor={(item) => item.name}
                       renderItem={({ item }) => {
                         const isSelected = activeQuickFilters.includes(item.name);

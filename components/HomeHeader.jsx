@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import { useLocationContext } from '@/context/LocationContext'; // or wherever your context is
+import { useLocationContext } from '@/context/LocationContext';
 import { useRouter } from 'expo-router';
 import { useSafeNavigation } from '@/hooks/navigationPage';
 export default function LocationHeader() {

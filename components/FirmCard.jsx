@@ -90,7 +90,7 @@ useEffect(() => {
   // };
 
   return (
-    <TouchableOpacity className="bg-white rounded-3xl overflow-hidden mb-4 shadow-md shadow-black border border-gray-200" onPress={onPress}>
+    <TouchableOpacity className="bg-white rounded-3xl overflow-hidden mb-5 mr-1.5 ml-1.5 shadow-md shadow-black border border-gray-200" onPress={onPress}>
       <View style={{ height: 140 }}>
         <ImageGallery
           images={displayImages.slice(0,4)}

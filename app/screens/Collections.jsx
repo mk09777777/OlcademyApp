@@ -410,8 +410,8 @@ export default function Collections() {
         <Text style={styles.mainFilterText}>Filters</Text>
       </TouchableOpacity> */}
 
-      {/* Restaurant List */}
-      <View className="flex-1 px-3.75 py-3.75">
+  {/* Restaurant List */}
+  <View className="flex-1 mx-1.5 mt-5 px-3.75 py-3.75">
         <FlatList
           data={filteredFirms}
           refreshControl={

@@ -76,7 +76,7 @@ const styles = StyleSheet.create({
     borderRadius: 3,
   },
   horizontalList: {
-    paddingHorizontal: 5,
+    paddingHorizontal: 0,
     alignItems: 'center',
   },
   itemContainer: {

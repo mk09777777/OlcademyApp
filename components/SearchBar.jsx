@@ -3,9 +3,22 @@ import React from 'react';
 import { View, ActivityIndicator, TouchableOpacity, TextInput} from 'react-native';
 import { MaterialCommunityIcons, MaterialIcons, Feather } from '@expo/vector-icons';
 
-export default function SearchBar({ query, setQuery, isLoading, placeholder, onVoicePress }) {
+export default function SearchBar({
+  query,
+  setQuery,
+  isLoading,
+  placeholder,
+  onVoicePress,
+  fullWidth = false,
+  widthClass,
+}) {
+  const baseClasses = fullWidth
+    ? 'w-full self-stretch'
+    : widthClass || 'w-4/5 self-center';
+  const containerClasses = `${baseClasses} my-2.5`.trim();
+
   return (
-    <View className="w-4/5 self-center my-2.5">
+    <View className={containerClasses}>
       <View className="flex-row items-center bg-white rounded-xl border border-gray-200 px-3 py-2" style={{
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 1 },

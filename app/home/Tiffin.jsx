@@ -544,14 +544,14 @@ export default function Tiffin() {
   const renderSection = ({ title, subtitle, data, viewAllRoute, emptyMessage, isVertical, customSubtitleComponent }) => {
     if (!data || data.length === 0) {
       return (
-        <View className="p-4">
+        <View className={`p-4${isVertical ? ' mr-1.5 ml-1.5' : ''}`}>
           <Text className="text-center text-textsecondary">{emptyMessage}</Text>
         </View>
       );
     }
 
     return (
-      <View className="mb-4">
+      <View className={`mb-4${isVertical ? ' mr-1.5 ml-1.5' : ''}`}>
         <SectionTitleWithLines title={title} />
         <View className="flex-row justify-between items-center mb-2">
           {viewAllRoute && (
@@ -574,7 +574,7 @@ export default function Tiffin() {
           horizontal={!isVertical}
           showsHorizontalScrollIndicator={!isVertical}
           scrollEnabled={true}
-          contentContainerStyle={isVertical ? { paddingBottom: 20 } : { paddingHorizontal: 10 }}
+          contentContainerStyle={isVertical ? { paddingBottom: 20 } : { paddingLeft: 0, paddingRight: 10 }}
         />
       </View>
     );
@@ -611,8 +611,8 @@ export default function Tiffin() {
       })
     ) : (
       <>
-        <View><BannerCarousel page="Tiffin-services" /></View>
-        <Whatsonyou />
+        <View className="mr-1.5 ml-1.5"><BannerCarousel page="Tiffin-services" /></View>
+        <View className="mr-1.5 ml-1.5"><Whatsonyou /></View>
         {recentlyViewData.length > 0 && renderSection({
           title: 'RECENTLY VIEWED',
           data: recentlyViewData,
@@ -621,16 +621,22 @@ export default function Tiffin() {
         })}
         {renderSection({
           title: 'RECOMMENDED FOR YOU',
-          data: recommendedTiffins.length ? recommendedTiffins : updateRecommendedTiffins,
+          data: recommendedTiffins.length ? recommendedTiffins : [],
           emptyMessage: 'No recommendations available',
           isVertical: false
         })}
 
+        {renderSection({
+          title: 'ALL TIFFIN SERVICES',
+          data: filteredTiffinData,
+          emptyMessage: query.trim() ? 'No matching services found' : 'No services available',
+          isVertical: true,
+        })}
 
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
-          className="mb-4"
+          className="mb-4 mr-1.5 ml-1.5"
           contentContainerStyle={{ paddingHorizontal: 16 }}
         >
           <Pressable
@@ -660,13 +666,6 @@ export default function Tiffin() {
             </TouchableOpacity>
           ))}
         </ScrollView>
-
-        {renderSection({
-          title: 'ALL TIFFIN SERVICES',
-          data: filteredTiffinData,
-          emptyMessage: query.trim() ? 'No matching services found' : 'No services available',
-          isVertical: true,
-        })}
       </>
     );
   };
@@ -773,7 +772,7 @@ export default function Tiffin() {
 
     <View className="flex-1 bg-white p-4">
       <>
-        <View className="flex-row justify-between items-center">
+        <View className="flex-row justify-between items-center mr-1 ml-0.5">
           <LocationHeader />
           <View className="flex-row pr-4 items-center">
             <TouchableOpacity
@@ -789,7 +788,7 @@ export default function Tiffin() {
           </View>
         </View>
 
-        <View className="flex-row items-center justify-between ">
+        <View className="flex-row items-center justify-between mr-1.5 ml-1.5">
           <SearchBar
             query={query}
             setQuery={setQuery}

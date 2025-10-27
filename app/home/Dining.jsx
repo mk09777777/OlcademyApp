@@ -1237,7 +1237,7 @@ export default function TakeAway() {
     lon: ''
   })
   const campaigns = [
-    { id: 1, title: '50% OFF on all Orders above 499' },
+    { id: 1, title: 'Get $5 cashback on order $50' },
     { id: 2, title: 'Buy 1 Get 1 Free' },
     { id: 3, title: 'Free Delivery on First Order' }
   ]
@@ -1852,10 +1852,10 @@ export default function TakeAway() {
         </View>
       ) : (
         <>
-          <View className="flex-row justify-between items-center">
+          <View className="flex-row justify-between items-center mr-1 ml-0.5">
             <LocationHeader />
             <View className="flex-row pr-4 items-center">
-              <TouchableOpacity
+              <TouchableOpacity className="ml-20"
                 onPress={() => router.push('/screens/NoficationsPage')}
               >
                 <Ionicons name='notifications-circle-outline' color='#02757A' size={42} style={{ marginRight: 10 }} />
@@ -1868,7 +1868,7 @@ export default function TakeAway() {
             </View>
           </View>
 
-          <View className="flex-row items-center justify-between">
+          <View className="flex-row items-center justify-between mr-1.5 ml-1.5">
             <SearchBar
               query={query}
               setQuery={setQuery}
@@ -1964,7 +1964,7 @@ export default function TakeAway() {
             }
             ListHeaderComponent={
               query.trim() === '' ? (
-                <View>
+                <View className='mr-1.5 ml-1.5'>
                   <FlatList
                     horizontal
                     pagingEnabled
@@ -1974,24 +1974,24 @@ export default function TakeAway() {
                     renderItem={({ item }) => (
                       <TouchableOpacity
                         style={{ width: screenWidth - 32, marginHorizontal: 16 }}
-                        className="h-40 rounded-2.5"
+                        className="h-auto"
                       >
                         <Image
                           source={require('@/assets/images/campaign.webp')}
                           className="h-32"
-                          style={{ width: '100%' }}
+                          style={{marginLeft: '-20', marginRight: 0, width: '100%'}}
                         />
                         <Text className="text-textprimary font-outfit">{item.title}</Text>
                       </TouchableOpacity>
                     )}
                     contentContainerStyle={{ flexGrow: 0 }}
                   />
-                  <View className="flex-row items-center mt-2.5 mb-2.5">
+                  <View className="flex-row items-center mt-2.5 mb-4">
                     <View className="flex-1 h-px bg-primary" />
                     <Text className="font-outfit text-xs text-textprimary mx-2">COLLECTIONS</Text>
                     <View className="flex-1 h-px bg-primary" />
                   </View>
-                  <View>
+                  <View className='ml-0'>
                     <ScrollView horizontal={true} showsVerticalScrollIndicator={false} showsHorizontalScrollIndicator={false}>
                       <View>
                         <FlatList
@@ -1999,10 +1999,10 @@ export default function TakeAway() {
                           keyExtractor={(item) => item._id}
                           horizontal={true}
                           showsHorizontalScrollIndicator={false}
-                          contentContainerStyle={{ paddingHorizontal: 10 }}
+                          contentContainerStyle={{ paddingLeft: 0, paddingRight: 10 }}
                           renderItem={({ item }) => (
                             <TouchableOpacity
-                              className="flex-1 m-1.5 rounded-2.5 overflow-hidden"
+                              className="flex-1 mr-5 rounded-2.5 overflow-hidden"
                               onPress={() =>
                                 router.push({
                                   pathname: 'screens/Collections',
@@ -2032,8 +2032,8 @@ export default function TakeAway() {
                   </View>
 
 
-                  <View className="flex mt-2.5 mb-4">
-                    <View className="flex-row items-center mt-2.5 mb-2.5">
+                  <View className="flex">
+                    <View className="flex-row items-center mt-4 mb-7">
                       <View className="flex-1 h-px bg-primary" />
                       <Text className="font-outfit text-xs text-textprimary mx-2">
                         RECENTLY VIEWED
@@ -2041,42 +2041,55 @@ export default function TakeAway() {
                       <View className="flex-1 h-px bg-primary" />
                     </View>
 
-                    <FlatList
-                      showsHorizontalScrollIndicator={false}
-                      data={recentlyViewData}
-                      horizontal
-                      keyExtractor={(item, index) => item._id + '-' + index}
-                      renderItem={({ item, index }) => (
-                        <MiniRecommendedCard
-                          key={item._id}
-                          name={item.restaurantInfo?.name}
-                          address={item.restaurantInfo?.address}
-                          image={item.restaurantInfo?.image_urls}
-                          rating={item.restaurantInfo?.ratings?.overall}
-                          onPress={() => {
-                            router.push({
-                              pathname: '/screens/FirmDetailsDining',
-                              params: { firmId: item._id }
-                            })
-                          }}
-                          onFavoriteToggle={() => {
-                            setFavoriteServices(prevState =>
-                              prevState.includes(item._id)
-                                ? prevState.filter(id => id !== item._id)
-                                : [...prevState, item._id]
-                            )
-                          }}
-                          isFavorite={favoriteServices.includes(item._id)}
+                    {recentlyViewData.length > 0 ? (
+                      <FlatList
+                        showsHorizontalScrollIndicator={false}
+                        data={recentlyViewData}
+                        horizontal
+                        keyExtractor={(item, index) => item._id + '-' + index}
+                        renderItem={({ item, index }) => (
+                          <MiniRecommendedCard
+                            key={item._id}
+                            name={item.restaurantInfo?.name}
+                            address={item.restaurantInfo?.address}
+                            image={item.restaurantInfo?.image_urls}
+                            rating={item.restaurantInfo?.ratings?.overall}
+                            onPress={() => {
+                              router.push({
+                                pathname: '/screens/FirmDetailsDining',
+                                params: { firmId: item._id }
+                              })
+                            }}
+                            onFavoriteToggle={() => {
+                              setFavoriteServices(prevState =>
+                                prevState.includes(item._id)
+                                  ? prevState.filter(id => id !== item._id)
+                                  : [...prevState, item._id]
+                              )
+                            }}
+                            isFavorite={favoriteServices.includes(item._id)}
+                          />
+                        )}
+                      />
+                    ) : (
+                      <View className="items-center justify-center py-6">
+                        <Image
+                          source={require('@/assets/images/nodata.png')}
+                          className="w-36 h-36"
+                          resizeMode="contain"
                         />
-                      )}
-                    />
+                        <Text className="mt-3 text-sm font-outfit text-textsecondary text-center px-6">
+                          Surf the restaurants to start building your recently viewed list.
+                        </Text>
+                      </View>
+                    )}
 
 
                   </View>
 
 
-                  <View className="flex mt-1 mb-4">
-                    <View className="flex-row items-center mt-2.5 mb-2.5">
+                  <View className="flex mt-1">
+                    <View className="flex-row items-center mt-2.5 mb-7">
                       <View className="flex-1 h-px bg-primary" />
                       <Text className="font-outfit text-xs text-textprimary mx-2">POPULAR</Text>
                       <View className="flex-1 h-px bg-primary" />
@@ -2121,14 +2134,14 @@ export default function TakeAway() {
                       keyExtractor={(item, index) => item._id ? `${item._id}` : `rec-item-${index}`}
                     />
                   </View>
-                  <View className="flex-row items-center mt-2.5 mb-2.5">
+                  <View className="flex-row items-center mt-4 mb-4">
                     <View className="flex-1 h-px bg-primary" />
                     <Text className="font-outfit text-xs text-textprimary mx-2">
                       ALL RESTAURANTS
                     </Text>
                     <View className="flex-1 h-px bg-primary" />
                   </View>
-                  <View className="mb-2.5">
+                  <View className="mb-4">
                     <FlatList
                       data={quickFilters}
                       horizontal
