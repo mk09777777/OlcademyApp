@@ -3,7 +3,6 @@ import { useCallback, useState, useRef} from "react"
 
 export  const useSafeNavigation = () => {
     const router = useRouter();
-    // const[isNavigating, setIsNavigating] = useState(false);
     const isNavigatingRef = useRef(false); 
      useFocusEffect(
         useCallback(() => {
@@ -12,9 +11,16 @@ export  const useSafeNavigation = () => {
     );
     
   const safeNavigation = useCallback((path) =>  {
-    if(isNavigatingRef.current) return
+    if (isNavigatingRef.current) return;
+
     isNavigatingRef.current = true;
-    router.push(path);
+
+    try {
+      router.push(path);
+    } catch (error) {
+      isNavigatingRef.current = false;
+      throw error;
+    }
 
   }, [ router]) ;
   return {safeNavigation};
