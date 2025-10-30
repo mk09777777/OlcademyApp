@@ -13,7 +13,7 @@ export default function OffersCard({ offerTitle, offerValidity }) {
       ]}
       start={{ x: 1, y: 0 }}
       end={{ x: 0, y: 1 }}
-      className="w-48 p-4 mx-2 rounded-lg"
+      className="w-64 p-4 mx-2 rounded-lg"
     >
       <Text className="text-white font-outfit-bold text-base mb-2">{offerTitle}</Text>
       <Text className="text-white font-outfit text-sm">{offerValidity}</Text>
