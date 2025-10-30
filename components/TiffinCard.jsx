@@ -20,7 +20,7 @@ const TiffinCard = ({ firm, onPress, onFavoriteToggle, isFavorite, horizontal = 
   })();
   return (
     <TouchableOpacity onPress={onPress} activeOpacity={0.8}>
-      <View className="bg-white rounded-3xl overflow-hidden shadow-lg mb-4 border border-gray-200">
+      <View className="bg-white rounded-3xl overflow-hidden shadow-lg mb-4 mr-1.5 ml-1.5 border border-gray-200">
         <View className="relative">
           <View style={{ height: 140 }}>
             <ImageGallery

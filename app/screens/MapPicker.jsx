@@ -168,7 +168,7 @@ const resolveGoogleMapsApiKey = () => {
 export default function MapPicker() {
   const router = useRouter();
   const { safeNavigation } = useSafeNavigation();
-  const { setLocation, setRecentlyAdds, location: currentLocation } = useLocationContext();
+  const { updateLocation, setRecentlyAdds, location: currentLocation } = useLocationContext();
   const mapRef = useRef(null);
   const locationAlertVisibleRef = useRef(false);
 
@@ -244,6 +244,51 @@ export default function MapPicker() {
     { type: 'Other', icon: <FontAwesome5 name="map-marker-alt" size={16} /> },
   ];
 
+  const updateRecentLocations = useCallback(async (entry) => {
+    if (!entry?.fullAddress) {
+      return;
+    }
+
+    try {
+      const existing = await AsyncStorage.getItem('recentlyAddList');
+      let parsed = existing ? JSON.parse(existing) : [];
+      parsed = parsed.filter((item) => item.fullAddress !== entry.fullAddress);
+      parsed.unshift(entry);
+      if (parsed.length > 5) {
+        parsed = parsed.slice(0, 5);
+      }
+      await AsyncStorage.setItem('recentlyAddList', JSON.stringify(parsed));
+      setRecentlyAdds(parsed);
+    } catch (err) {
+      console.error('Failed to update recent list', err);
+    }
+  }, [setRecentlyAdds]);
+
+  const commitLocationData = useCallback(
+    async (locationEntry, options = {}) => {
+      if (!locationEntry) {
+        return null;
+      }
+
+      const { persistRecent = true } = options;
+
+      try {
+        if (typeof updateLocation === 'function') {
+          await updateLocation(locationEntry);
+        }
+      } catch (err) {
+        console.error('Failed to store location in context', err);
+      }
+
+      if (persistRecent) {
+        await updateRecentLocations(locationEntry);
+      }
+
+      return locationEntry;
+    },
+    [updateLocation, updateRecentLocations]
+  );
+
   // Search for locations based on query
   const searchLocations = async (query) => {
     if (!query || query.length < 3) {
@@ -284,62 +329,119 @@ export default function MapPicker() {
     return () => clearTimeout(timeoutId);
   }, [searchQuery]);
 
-  // Reverse geocode coordinates to get address
-  const reverseGeocodeCoordinates = async (latitude, longitude) => {
+  // Reverse geocode coordinates to get address details
+  const reverseGeocodeCoordinates = async (latitude, longitude, options = {}) => {
+    const { persist = false } = options;
     const fallbackLabel = `Lat: ${latitude.toFixed(6)}, Lon: ${longitude.toFixed(6)}`;
 
-    const tryDeviceGeocode = async () => {
-      try {
-        const deviceAddress = await Location.reverseGeocodeAsync({ latitude, longitude });
-        if (deviceAddress?.length) {
-          const [{ street, name, city, district, subregion, region, postalCode, country }] = deviceAddress;
-          const manualAddress = [name || street, district, city, subregion, region, postalCode, country]
-            .filter(Boolean)
-            .join(', ');
-
-          if (manualAddress) {
-            setAddress(manualAddress);
-            return manualAddress;
-          }
-        }
-      } catch (deviceError) {
-        console.error('Device reverse geocoding failed:', deviceError);
-      }
-
-      return null;
-    };
-
-    const deviceResult = await tryDeviceGeocode();
-    if (deviceResult) {
-      return deviceResult;
-    }
+    let locationEntry = null;
 
     try {
-      // Use Nominatim for consistency with AddressMapPicker
-      const response = await axios.get(
-        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=18&addressdetails=1`,
-        {
-          headers: {
-            'User-Agent': 'ProjectZ/1.0.0 (mayurvicky01234@gmail.com)',
+      const deviceAddress = await Location.reverseGeocodeAsync({ latitude, longitude });
+      if (deviceAddress?.length) {
+        const [{
+          street,
+          name,
+          city,
+          district,
+          subregion,
+          region,
+          country,
+        }] = deviceAddress;
+
+        const displayParts = [name, street, city, region, country].filter(Boolean);
+        const displayName = displayParts.join(', ') || fallbackLabel;
+
+        locationEntry = {
+          city: city || subregion || district || '',
+          state: region || '',
+          country: country || '',
+          area: district || subregion || '',
+          street: street || '',
+          houseNumber: name || '',
+          lat: latitude.toString(),
+          lon: longitude.toString(),
+          fullAddress: displayName,
+          display_name: displayName,
+          address: {
+            street,
+            name,
+            city,
+            district,
+            subregion,
+            region,
+            country,
           },
-        }
-      );
-
-      const addressData = response.data;
-      const displayName = addressData.display_name || fallbackLabel;
-      setAddress(displayName);
-      return displayName;
-    } catch (error) {
-      console.error('Error reverse geocoding via Nominatim:', error);
-
-      showLocationAlert(
-        'Address lookup failed',
-        'Unable to fetch your address automatically. You can continue by entering it manually.'
-      );
-
-      setAddress((prev) => prev || fallbackLabel);
-      return fallbackLabel;
+        };
+      }
+    } catch (deviceError) {
+      console.error('Device reverse geocoding failed:', deviceError);
     }
+
+    if (!locationEntry) {
+      try {
+        const response = await axios.get(
+          `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=18&addressdetails=1`,
+          {
+            headers: {
+              'User-Agent': 'ProjectZ/1.0.0 (mayurvicky01234@gmail.com)',
+            },
+          }
+        );
+
+        const addressData = response.data.address || {};
+        const displayName = response.data.display_name || fallbackLabel;
+
+        locationEntry = {
+          city: addressData.city || addressData.town || addressData.village || addressData.suburb || addressData.county || '',
+          state: addressData.state || addressData.region || '',
+          country: addressData.country || '',
+          area: addressData.suburb || addressData.neighbourhood || addressData.district || '',
+          street: addressData.road || addressData.street || addressData.residential || '',
+          houseNumber: addressData.house_number || '',
+          lat: latitude.toString(),
+          lon: longitude.toString(),
+          fullAddress: displayName,
+          display_name: displayName,
+          address: addressData,
+        };
+      } catch (error) {
+        console.error('Error reverse geocoding via Nominatim:', error);
+        if (persist) {
+          showLocationAlert(
+            'Address lookup failed',
+            'Unable to fetch your address automatically. You can continue by entering it manually.'
+          );
+        }
+      }
+    }
+
+    if (!locationEntry) {
+      locationEntry = {
+        ...{
+          city: '',
+          state: '',
+          country: '',
+          area: '',
+          street: '',
+          houseNumber: '',
+          address: {},
+        },
+        lat: latitude.toString(),
+        lon: longitude.toString(),
+        fullAddress: fallbackLabel,
+        display_name: fallbackLabel,
+      };
+    }
+
+    setCurrentAddress(locationEntry.fullAddress);
+    setAddress(locationEntry.fullAddress);
+
+    if (persist) {
+      await commitLocationData(locationEntry);
+    }
+
+    return locationEntry;
   };
 
   // Handle selection of a search result
@@ -355,8 +457,27 @@ export default function MapPicker() {
       };
       setRegion(newRegion);
       setSelectedCoordinate({ latitude: lat, longitude: lon });
-      setCurrentAddress(result.display_name);
-      setAddress(result.display_name);
+      const address = result.address || {};
+      const fallbackLabel = result.display_name || result.fullAddress || `Lat: ${lat.toFixed(6)}, Lon: ${lon.toFixed(6)}`;
+
+      const locationEntry = {
+        id: result.id || result.place_id,
+        city: result.city || address.city || address.town || address.village || address.suburb || address.county || '',
+        state: result.state || address.state || '',
+        country: result.country || address.country || '',
+        area: address.suburb || address.neighbourhood || address.district || '',
+        street: address.road || address.street || address.residential || '',
+        houseNumber: address.house_number || '',
+        lat: lat.toString(),
+        lon: lon.toString(),
+        fullAddress: fallbackLabel,
+        display_name: fallbackLabel,
+        address,
+      };
+
+      setCurrentAddress(locationEntry.fullAddress);
+      setAddress(locationEntry.fullAddress);
+      await commitLocationData(locationEntry);
       setTimeout(() => {
         if (mapRef.current) {
           mapRef.current.animateToRegion(newRegion, 1000);
@@ -474,9 +595,7 @@ export default function MapPicker() {
           mapRef.current.animateToRegion(newRegion, 1000);
         }
       }, 100);
-      const addr = await reverseGeocodeCoordinates(coords.latitude, coords.longitude);
-      setCurrentAddress(addr);
-      setAddress(addr);
+      await reverseGeocodeCoordinates(coords.latitude, coords.longitude, { persist: true });
     } catch (error) {
       console.error('Error getting current location:', error);
       showLocationAlert('Location Error', 'Could not get current location. Please try again.');
@@ -492,9 +611,7 @@ export default function MapPicker() {
       latitude: newRegion.latitude,
       longitude: newRegion.longitude
     });
-    const addr = await reverseGeocodeCoordinates(newRegion.latitude, newRegion.longitude);
-    setCurrentAddress(addr);
-    setAddress(addr);
+    await reverseGeocodeCoordinates(newRegion.latitude, newRegion.longitude);
   };
 
   // Initialize with current location on component mount
@@ -517,9 +634,7 @@ export default function MapPicker() {
             setCurrentAddress(currentLocation.fullAddress);
             setAddress(currentLocation.fullAddress);
           } else {
-            const addr = await reverseGeocodeCoordinates(lat, lon);
-            setCurrentAddress(addr);
-            setAddress(addr);
+            await reverseGeocodeCoordinates(lat, lon);
           }
           setTimeout(() => {
             if (mapRef.current) {
@@ -716,11 +831,7 @@ export default function MapPicker() {
             onPress={(e) => {
               const { coordinate } = e.nativeEvent;
               setSelectedCoordinate(coordinate);
-              reverseGeocodeCoordinates(coordinate.latitude, coordinate.longitude)
-                .then(addr => {
-                  setCurrentAddress(addr);
-                  setAddress(addr);
-                });
+              reverseGeocodeCoordinates(coordinate.latitude, coordinate.longitude, { persist: true }).catch(() => {});
             }}
             showsUserLocation
             showsMyLocationButton={false}
@@ -734,11 +845,7 @@ export default function MapPicker() {
                 onDragEnd={(e) => {
                   const { latitude, longitude } = e.nativeEvent.coordinate;
                   setSelectedCoordinate({ latitude, longitude });
-                  reverseGeocodeCoordinates(latitude, longitude)
-                    .then(addr => {
-                      setCurrentAddress(addr);
-                      setAddress(addr);
-                    });
+                  reverseGeocodeCoordinates(latitude, longitude, { persist: true }).catch(() => {});
                 }}
               />
             )}
