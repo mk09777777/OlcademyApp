@@ -310,9 +310,9 @@ export default function FirmDetailsTakeAway() {
   if (loading) {
     return (
       <SafeAreaView className="flex-1 justify-center items-center bg-[#f0fafaff]">
-            <ActivityIndicator size="large" color="#02757A" />
-            <Text className="text-textsecondary font-outfit mt-4">Loading service details...</Text>
-          </SafeAreaView>
+        <ActivityIndicator size="large" color="#02757A" />
+        <Text className="text-textsecondary font-outfit mt-4">Loading service details...</Text>
+      </SafeAreaView>
     );
   }
 
@@ -396,7 +396,8 @@ export default function FirmDetailsTakeAway() {
             </View>
 
             <TouchableOpacity
-              className="rounded-2xl mt-28 mr-2.5 mb-3"
+              // Kept your margins, changed rounding, and added shadow for depth
+              className="rounded-lg shadow-md shadow-black/15 mt-28 mr-2.5 mb-3"
               onPress={() => router.push({
                 pathname: "/screens/Reviewsall",
                 params: {
@@ -408,116 +409,125 @@ export default function FirmDetailsTakeAway() {
                 }
               })}
             >
-              <View className="bg-green-600 p-2 rounded-t-2xl">
-                <View className="flex-row items-center justify-center">
-                  <Text className="text-white text-base mr-2 font-outfit">
+              {/* Top Part: Rating + Star */}
+              <View className="bg-green-600 p-2 rounded-t-lg">
+                {/* Added space-x-1 for spacing between text and star */}
+                <View className="flex-row items-center justify-center space-x-1">
+                  {/* Made text smaller and bold for a cleaner look */}
+                  <Text className="text-white text-sm font-bold font-outfit">
                     {firmDetails?.restaurantInfo?.ratings?.overall?.toFixed(1) || '4.5'}
                   </Text>
-                  <FontAwesome name='star' size={18} color='white' />
+                  <FontAwesome name='star' size={14} color='white' />
                 </View>
               </View>
-              <View className="bg-white rounded-b-2xl">
-                <Text className="text-xs text-gray-800 text-center mt-1 font-outfit">
+
+              {/* Bottom Part: Count + "Reviews" */}
+              <View className="bg-white rounded-b-lg px-2 py-1.5 items-center">
+                {/* Added font-bold to the number and changed color for contrast */}
+                <Text className="text-xs text-gray-900 font-bold font-outfit">
                   {firmDetails?.restaurantInfo?.ratings?.totalReviews || '2179'}
                 </Text>
-                <Text className="text-xs text-gray-800 text-center" style={{ fontFamily: 'outfit' }}>Reviews</Text>
+                {/* Made "Reviews" text lighter as it's a sub-label */}
+                <Text className="text-xs text-gray-500 font-outfit">
+                  Reviews
+                </Text>
               </View>
             </TouchableOpacity>
           </LinearGradient>
         </View>
       </View>
 
-  <ScrollView className="flex-1" style={{ zIndex: 1 }}>
-       <View className="flex-row items-center my-4">
-        <View className="flex-1 h-px bg-border" />
-        <Text className="text-textsecondary font-outfit-bold mx-4 text-sm">Offers</Text>
-        <View className="flex-1 h-px bg-border" />
-      </View>
-      <View className="mb-5">
-        <FlatList
-          data={offers}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          keyExtractor={item => item.id.toString()}
-          renderItem={({ item }) => <OffersCard offerTitle={item.title} offerValidity={item.validity} />}
-          contentContainerStyle={{ paddingHorizontal: 10 }}
-        />
-      </View>
-
-      <View className="flex-row items-center my-4">
-        <View className="flex-1 h-px bg-border" />
-        <Text className="text-textsecondary font-outfit-bold mx-4 text-sm">MENU</Text>
-        <View className="flex-1 h-px bg-border" />
-      </View>
-      <FlatList
-        data={categories}
-        keyExtractor={(category) => category}
-        renderItem={({ item: category }) => (
-          <View className="mb-4">
-            <TouchableOpacity className="flex-row justify-between items-center p-4 bg-white border-b border-border" onPress={() => toggleCategory(category)}>
-              <Text className="text-textprimary font-outfit-bold text-lg">{category}</Text>
-              <Feather name={collapsed[category] ? "chevron-down" : "chevron-up"} size={20} color="#333333" />
-            </TouchableOpacity>
-            {!collapsed[category] && (
-              <FlatList
-                data={groupedProducts[category]}
-                keyExtractor={(item) => item._id}
-                renderItem={renderItem}
-              />
-            )}
-          </View>
-        )}
-      />
-
-      <Modal visible={offersVisible} transparent animationType="slide">
-        <View className="flex-1 bg-black/50 justify-end">
-          <View className="bg-white rounded-t-3xl p-6 max-h-4/5">
-            <Text className="text-textprimary font-outfit-bold text-xl mb-2">Offers at {firmDetails?.restaurantInfo?.name || "Restaurant"}</Text>
-            <Text className="text-textsecondary font-outfit text-base mb-4">Restaurant Coupons</Text>
-            <FlatList
-              data={offers}
-              keyExtractor={(item) => item._id || item.id}
-              renderItem={({ item }) => (
-                <View className="bg-background border border-border rounded-lg p-4 mb-3">
-                  <TouchableOpacity
-                    className="flex-row items-center justify-between"
-                    onPress={() =>
-                      setExpandedOffer(expandedOffer === item._id ? null : item._id)
-                    }
-                  >
-                    <Ionicons name={item.icon} size={22} color="#007BFF" />
-                    <Text className="text-textprimary font-outfit-bold text-base flex-1 mx-3">{item.title}</Text>
-                    <Ionicons
-                      name={expandedOffer === item.id ? "chevron-up" : "chevron-down"}
-                      size={22}
-                      color="#333"
-                    />
-                  </TouchableOpacity>
-                  {expandedOffer === item._id && (
-                    <View className="mt-3 pt-3 border-t border-border">
-                      {item.code && (
-                        <Text className="text-primary font-outfit-bold text-sm mb-2">Use code {item?.code} | above {item?.minOrder}</Text>
-                      )}
-                      {item.details?.map((detail, index) => (
-                        <View key={index} className="flex-row items-center mb-1">
-                          <Ionicons name="checkmark-circle-outline" size={18} color="green" />
-                          <Text className="text-textsecondary font-outfit text-sm ml-2">{detail}</Text>
-                        </View>
-                      ))}
-                    </View>
-                  )}
-                </View>
-              )}
-            />
-            <TouchableOpacity onPress={() => setOffersVisible(false)} className="bg-primary p-4 rounded-lg mt-4">
-              <Text className="text-white font-outfit-bold text-center">Close</Text>
-            </TouchableOpacity>
-          </View>
+      <ScrollView className="flex-1" style={{ zIndex: 1 }}>
+        <View className="flex-row items-center my-4">
+          <View className="flex-1 h-px bg-border" />
+          <Text className="text-textsecondary font-outfit-bold mx-4 text-sm">Offers</Text>
+          <View className="flex-1 h-px bg-border" />
         </View>
-      </Modal>
-     </ScrollView>
-     
-     {getTotalItems() > 0 && (
+        <View className="mb-5">
+          <FlatList
+            data={offers}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            keyExtractor={item => item.id.toString()}
+            renderItem={({ item }) => <OffersCard offerTitle={item.title} offerValidity={item.validity} />}
+            contentContainerStyle={{ paddingHorizontal: 10 }}
+          />
+        </View>
+
+        <View className="flex-row items-center my-4">
+          <View className="flex-1 h-px bg-border" />
+          <Text className="text-textsecondary font-outfit-bold mx-4 text-sm">MENU</Text>
+          <View className="flex-1 h-px bg-border" />
+        </View>
+        <FlatList
+          data={categories}
+          keyExtractor={(category) => category}
+          renderItem={({ item: category }) => (
+            <View className="mb-4">
+              <TouchableOpacity className="flex-row justify-between items-center p-4 bg-white border-b border-border" onPress={() => toggleCategory(category)}>
+                <Text className="text-textprimary font-outfit-bold text-lg">{category}</Text>
+                <Feather name={collapsed[category] ? "chevron-down" : "chevron-up"} size={20} color="#333333" />
+              </TouchableOpacity>
+              {!collapsed[category] && (
+                <FlatList
+                  data={groupedProducts[category]}
+                  keyExtractor={(item) => item._id}
+                  renderItem={renderItem}
+                />
+              )}
+            </View>
+          )}
+        />
+
+        <Modal visible={offersVisible} transparent animationType="slide">
+          <View className="flex-1 bg-black/50 justify-end">
+            <View className="bg-white rounded-t-3xl p-6 max-h-4/5">
+              <Text className="text-textprimary font-outfit-bold text-xl mb-2">Offers at {firmDetails?.restaurantInfo?.name || "Restaurant"}</Text>
+              <Text className="text-textsecondary font-outfit text-base mb-4">Restaurant Coupons</Text>
+              <FlatList
+                data={offers}
+                keyExtractor={(item) => item._id || item.id}
+                renderItem={({ item }) => (
+                  <View className="bg-background border border-border rounded-lg p-4 mb-3">
+                    <TouchableOpacity
+                      className="flex-row items-center justify-between"
+                      onPress={() =>
+                        setExpandedOffer(expandedOffer === item._id ? null : item._id)
+                      }
+                    >
+                      <Ionicons name={item.icon} size={22} color="#007BFF" />
+                      <Text className="text-textprimary font-outfit-bold text-base flex-1 mx-3">{item.title}</Text>
+                      <Ionicons
+                        name={expandedOffer === item.id ? "chevron-up" : "chevron-down"}
+                        size={22}
+                        color="#333"
+                      />
+                    </TouchableOpacity>
+                    {expandedOffer === item._id && (
+                      <View className="mt-3 pt-3 border-t border-border">
+                        {item.code && (
+                          <Text className="text-primary font-outfit-bold text-sm mb-2">Use code {item?.code} | above {item?.minOrder}</Text>
+                        )}
+                        {item.details?.map((detail, index) => (
+                          <View key={index} className="flex-row items-center mb-1">
+                            <Ionicons name="checkmark-circle-outline" size={18} color="green" />
+                            <Text className="text-textsecondary font-outfit text-sm ml-2">{detail}</Text>
+                          </View>
+                        ))}
+                      </View>
+                    )}
+                  </View>
+                )}
+              />
+              <TouchableOpacity onPress={() => setOffersVisible(false)} className="bg-primary p-4 rounded-lg mt-4">
+                <Text className="text-white font-outfit-bold text-center">Close</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
+      </ScrollView>
+
+      {getTotalItems() > 0 && (
         <TouchableOpacity
           className="bg-primary p-4 rounded-lg"
           style={{
