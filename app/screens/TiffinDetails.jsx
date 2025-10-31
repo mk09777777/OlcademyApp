@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, ScrollView, TouchableOpacity, Alert, RefreshControl, ActivityIndicator, Share, Image, Dimensions, Animated, Text } from 'react-native';
+import { View, ScrollView, TouchableOpacity, Alert, RefreshControl, ActivityIndicator, Share, Image, Dimensions, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button } from 'react-native-paper';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -8,17 +8,12 @@ import ImageGallery from '../../components/ImageGallery';
 import { useCart } from '../../context/CartContext';
 import axios from 'axios';
 import { API_CONFIG } from '../../config/apiConfig';
-import styles from '../../styles/tiffinDetailsStyle';
+
 const Api_url = API_CONFIG.BACKEND_URL;
 const { width } = Dimensions.get('window');
 
 const MENU_CATEGORIES = [
-  'All',
-  'Recommended',
-  'Thali',
-  'Meals',
-  'Combos',
-  'Specials'
+  'All', 'Recommended', 'Thali', 'Meals', 'Combos', 'Specials'
 ];
 
 const FILTER_OPTIONS = {
@@ -67,6 +62,7 @@ const TiffinDetails = () => {
     showCustomization: false,
     selectedMenuItem: null
   });
+
   const UploadRecentlyViewd = useCallback(async () => {
     try {
       const restId = tiffinId;
@@ -283,6 +279,7 @@ const TiffinDetails = () => {
       const priceDisplay = availablePlans.map(plan =>
         `${plan.label}: ₹${plan.price.toFixed(2)}${plan.discount > 0 ? ` (${plan.discount}% off)` : ''}`
       ).join(' | ');
+      
       const mealImage = meal.images?.length > 0
         ? { uri: meal.images[0] }
         : require('../../assets/images/food1.jpg');
@@ -378,9 +375,9 @@ const TiffinDetails = () => {
     return (
       <View
         key={item.id}
-        className="flex-row items-stretch w-[370px] h-[110px] bg-white border border-[#c1c1c1] rounded-xl mb-3 p-[5px] shadow-sm"
+        className="flex-row items-stretch w-full h-[110px] bg-white border border-[#c1c1c1] rounded-xl mb-3 p-[5px] shadow-sm"
       >
-        
+        {/* Left Section - Image */}
         <View className="w-[100px] h-full items-center justify-start pt-1">
           <View className="relative w-[85px] h-[85px] rounded-xl overflow-hidden border border-[#c1c1c1]">
             <Image
@@ -401,23 +398,19 @@ const TiffinDetails = () => {
               </View>
             )}
           </View>
-
         </View>
 
         {/* Right Section - Content */}
         <View className="flex-1 pl-4 pr-2 py-1 justify-between">
           <View>
             {/* Item Title */}
-            <Text className="text-[16px] font-bold text-[#333] mb-1" numberOfLines={1}>
+            <Text className="text-base font-bold text-[#333] mb-1" numberOfLines={1}>
               {item.name}
             </Text>
 
             {/* Description */}
             {item.description && (
-              <Text
-                className="text-[13px] text-[#666] leading-[18px]"
-                numberOfLines={1}
-              >
+              <Text className="text-[13px] text-[#666] leading-[18px]" numberOfLines={1}>
                 {item.description}
                 {item.description.length > 60 && (
                   <Text className="text-[#FF4B3A]">...more</Text>
@@ -427,7 +420,7 @@ const TiffinDetails = () => {
 
             <View className="flex-row items-center justify-between mt-1">
               {/* Price */}
-              <Text className="text-[16px] font-bold text-[#FF4B3A]">
+              <Text className="text-base font-bold text-[#FF4B3A]">
                 ₹ {item.price || item.basePrice || 0}
               </Text>
 
@@ -435,7 +428,7 @@ const TiffinDetails = () => {
                 onPress={() => handleOpenModal(item)}
                 className="bg-[#FF4B3F] rounded-lg w-20 py-1"
               >
-                <Text className="text-white text-[14px] font-bold text-center">
+                <Text className="text-white text-sm font-bold text-center">
                   ADD
                 </Text>
               </TouchableOpacity>
@@ -450,31 +443,23 @@ const TiffinDetails = () => {
     const [showAll, setShowAll] = useState(false);
     const maxVisible = 3;
 
-    // Process the cities data correctly - split the first item by commas
-    // const allCities = cities.length > 0
-    // 	? cities[0].split(',').map(city => city.trim()).filter(city => city.length > 0)
-    // 	: [];
-    const allCities = cities
-    // console.log(allCities)
-    const toggleShowAll = () => {
-      setShowAll(!showAll);
-    };
-
+    const allCities = cities;
     const visibleCities = showAll ? allCities : allCities.slice(0, maxVisible);
     const hasMoreCities = allCities.length > maxVisible;
 
     return (
-      <View style={styles.deliveryCitiesContainer}>
-        <View style={styles.citiesWrapper}>
+      <View className="flex-1">
+        <View className="flex-row flex-wrap gap-2">
           {visibleCities.map((city, index) => (
-            <View key={index} style={styles.cityPill}>
-              <Text style={styles.cityText}>{city}</Text>
+            <View key={index} className="bg-pink-50 rounded-2xl py-2 px-3 mb-2">
+              <Text className="text-xs text-gray-800">{city}</Text>
             </View>
           ))}
+          
           {hasMoreCities && (
-            <TouchableOpacity onPress={toggleShowAll} activeOpacity={0.7}>
-              <View style={styles.moreLessPill}>
-                <Text style={styles.moreLessText}>
+            <TouchableOpacity onPress={() => setShowAll(!showAll)} activeOpacity={0.7}>
+              <View className="bg-blue-50 rounded-2xl py-2 px-3">
+                <Text className="text-xs text-blue-600 font-medium">
                   {showAll ? 'Show Less' : `+${allCities.length - maxVisible} More`}
                 </Text>
               </View>
@@ -484,20 +469,21 @@ const TiffinDetails = () => {
       </View>
     );
   };
+
   if (loading && !service) {
     return (
-      <SafeAreaView className="flex-1 justify-center items-center bg-background">
+      <SafeAreaView className="flex-1 justify-center items-center bg-[#F8F8F8]">
         <ActivityIndicator size="large" color="#FF002E" />
-        <Text className="text-textsecondary font-outfit mt-4">Loading service details...</Text>
+        <Text className="text-[#666666] mt-4">Loading service details...</Text>
       </SafeAreaView>
     );
   }
 
   if (error || !service) {
     return (
-      <SafeAreaView className="flex-1 justify-center items-center bg-background p-4">
+      <SafeAreaView className="flex-1 justify-center items-center bg-[#F8F8F8] p-6">
         <MaterialCommunityIcons name="alert-circle" size={48} color="#FF002E" />
-        <Text className="text-primary text-center font-outfit mb-4">{error || 'Service not found'}</Text>
+        <Text className="text-[#FF002E] text-lg my-4 text-center">{error || 'Service not found'}</Text>
         <Button
           mode="contained"
           onPress={fetchServiceDetails}
@@ -510,7 +496,7 @@ const TiffinDetails = () => {
   }
 
   return (
-    <SafeAreaView edges={['bottom', 'left', 'right']} className="flex-1 bg-background">
+    <SafeAreaView edges={['bottom', 'left', 'right']} className="flex-1 bg-[#F8F8F8]">
       <ScrollView
         refreshControl={
           <RefreshControl
@@ -519,6 +505,7 @@ const TiffinDetails = () => {
           />
         }
       >
+        {/* Header */}
         <View className="flex-row justify-between items-center px-4 pt-4 pb-2 bg-white">
           <MaterialCommunityIcons
             name="arrow-left"
@@ -543,13 +530,17 @@ const TiffinDetails = () => {
           </View>
         </View>
 
-        <View className="h-80">
+        {/* Hero Image Section */}
+        <View className="h-80 relative bg-black overflow-hidden">
           <ImageGallery
             images={service.images}
             currentIndex={currentImageIndex}
             onIndexChange={setCurrentImageIndex}
           />
-          <View style={styles.overlayContainer}>
+          
+          {/* Overlay Container */}
+          <View className="absolute bottom-3 left-3 right-3 flex-row justify-between items-end z-10">
+            {/* Title Wrapper */}
             <TouchableOpacity
               onPress={() => router.push({
                 pathname: '/screens/TiffinDetailsScreen',
@@ -561,30 +552,27 @@ const TiffinDetails = () => {
                     menu: service.menu,
                     deliveryCity: service.deliveryCities,
                     category: service.tags,
-                    ownerPhoneNo: {
-                      fullNumber: service.phoneNumber
-                    }
+                    ownerPhoneNo: { fullNumber: service.phoneNumber }
                   })
                 }
               })}
-              style={styles.titleWrapper}
+              className="flex-1 mr-3"
             >
-              <View style={styles.titleContainer}>
-                <Text
-                  style={styles.titleText}
-                  numberOfLines={3}
-                  ellipsizeMode="tail"
-                >
+              <View className="mb-2">
+                <Text className="text-white text-base font-bold" numberOfLines={3}>
                   {service.title}
                 </Text>
-                
               </View>
-              <View style={styles.infoRow}>
-                <MaterialCommunityIcons name="phone" size={20} color="#078518ff" />
-                <Text style={styles.infoText}>Contact: {service.phoneNumber}</Text>
+              
+              <View className="flex-row items-center">
+                <MaterialCommunityIcons name="phone" size={20} color="#078518" />
+                <Text className="ml-2 text-white text-sm">
+                  Contact: {service.phoneNumber}
+                </Text>
               </View>
             </TouchableOpacity>
 
+            {/* Review Box */}
             <TouchableOpacity
               onPress={() => router.push({
                 pathname: "/screens/Reviewsall",
@@ -596,90 +584,128 @@ const TiffinDetails = () => {
                   reviewType: 'tiffin',
                 }
               })}
-              style={styles.reviewBox}
+              className="mt-5 mb-5 min-w-[70px] rounded-xl border border-gray-300 overflow-hidden"
             >
-              <View style={styles.reviewBoxTopContainer}>
-                <View style={styles.reviewBoxUpperContainer}>
-                  <Text style={styles.reviewText}>
+              {/* Top - Green Background */}
+              <View className="bg-green-600 p-2.5">
+                <View className="flex-row items-center">
+                  <Text className="text-white text-sm mr-1">
                     {service.rating.toFixed(1)}
                   </Text>
                   <FontAwesome name="star" size={18} color="white" />
                 </View>
               </View>
-              <View style={styles.reviewBoxBottomContainer}>
-                <Text style={styles.reviewCount}>
+              
+              {/* Bottom - White Background */}
+              <View className="bg-white p-2.5 flex-row">
+                <Text className="text-gray-800 text-xs">
                   {service.reviews.length}
                 </Text>
-                <Text style={styles.reviewCount}>Reviews</Text>
+                <Text className="text-gray-800 text-xs ml-1">Reviews</Text>
               </View>
             </TouchableOpacity>
           </View>
         </View>
-        <View style={styles.contentContainer}>
-          <View style={styles.maincontainer}>
 
-            <View style={styles.detailsContainer}>
-              <View style={styles.infoRow}>
+        {/* Main Content Container */}
+        <View className="p-1">
+          {/* Main Container Box */}
+          <View className="bg-white rounded-xl p-4 mb-4 shadow-md">
+            {/* Details Container */}
+            <View className="border-t border-gray-200 pt-2.5">
+              {/* Delivery Cities */}
+              <View className="flex-row items-center mb-2">
                 <DeliveryCitiesList cities={service.deliveryCities} />
               </View>
-              <View style={styles.infoRow}>
+              
+              {/* Distance Info */}
+              <View className="flex-row items-center mb-2">
                 <MaterialCommunityIcons name="map-marker-distance" size={24} color="#666" />
-                <Text style={styles.infoTextt}>Distance: {service.distance}</Text>
+                <Text className="ml-2 text-gray-800 text-sm p-1">
+                  Distance: {service.distance}
+                </Text>
               </View>
 
-              <View style={styles.infoRow}>
+              {/* Address */}
+              <View className="flex-row items-center mb-2">
                 <MaterialCommunityIcons name="home" size={24} color="#666" />
-                <Text style={styles.infoTextt} numberOfLines={2}
-                  ellipsizeMode="tail">Address: {service.address}</Text>
+                <Text className="ml-2 text-gray-800 text-sm p-1" numberOfLines={2}>
+                  Address: {service.address}
+                </Text>
               </View>
             </View>
           </View>
+
+          {/* Offers Section */}
           {service.offers && service.offers.length > 0 && (
-            <View style={styles.offersContainer}>
-              <Text style={styles.sectionTitle}>Special Offers</Text>
+            <View className="mt-5 bg-gray-50 rounded-xl p-4 shadow-md mb-4">
+              <Text className="text-lg font-semibold text-gray-800 mb-3 pb-1.5 border-b border-gray-300">
+                Special Offers
+              </Text>
               {service.offers.map((offer, index) => (
-                <View key={index} style={styles.offerItem}>
-                  <Text style={styles.offerTitle}>{offer.name}</Text>
-                  <Text style={styles.offerDescription}>{offer.description}</Text>
-                  <Text style={styles.offerCode}>Code: {offer.code}</Text>
+                <View 
+                  key={index} 
+                  className="bg-white rounded-lg p-3.5 mb-3 border-l-4 border-blue-500"
+                >
+                  <Text className="text-base font-semibold text-gray-800 mb-1">
+                    {offer.name}
+                  </Text>
+                  <Text className="text-sm text-gray-600 mb-2 leading-5">
+                    {offer.description}
+                  </Text>
+                  <Text className="text-sm font-bold text-green-600 bg-green-50 py-1 px-2 rounded self-start">
+                    Code: {offer.code}
+                  </Text>
                 </View>
               ))}
             </View>
           )}
+
           {/* Menu Section */}
-          <View style={styles.menuSectionContainer}>
+          <View className="mt-1">
+            {/* Separator with Text */}
             <View className="flex-row items-center my-4">
-              <View className="flex-1 h-px bg-border" />
-              <Text className="text-textsecondary font-outfit-bold mx-4 text-sm">
+              <View className="flex-1 h-px bg-gray-300" />
+              <Text className="text-gray-600 font-semibold mx-4 text-sm">
                 Tiffin Meals
               </Text>
-              <View className="flex-1 h-px bg-border" />
+              <View className="flex-1 h-px bg-gray-300" />
             </View>
+
+            {/* Menu List */}
             <ScrollView
               showsVerticalScrollIndicator={false}
-              contentContainerStyle={styles.menuList}
+              className="px-2.5"
             >
               {menuState.filteredMenu.length > 0 ? (
                 menuState.filteredMenu.map(renderMenuItem)
               ) : (
-                <View style={styles.emptyState}>
+                <View className="flex-1 justify-center items-center p-5">
                   <MaterialCommunityIcons name="food-off" size={48} color="#666" />
-                  <Text style={styles.emptyStateText}>No items found in this category</Text>
+                  <Text className="mt-2.5 text-gray-600">
+                    No items found in this category
+                  </Text>
                 </View>
               )}
             </ScrollView>
           </View>
 
-          <View style={styles.TermsContainer}>
-            <Text style={styles.sectionTitle}>Terms & Conditions</Text>
-            <Text style={styles.description}>{service.termsAndConditions}</Text>
+          {/* Terms & Conditions */}
+          <View className="p-5 bg-gray-50 mb-2.5">
+            <Text className="text-lg font-bold mb-3 text-gray-800">
+              Terms & Conditions
+            </Text>
+            <Text className="text-sm text-gray-700 mb-3.5 leading-6">
+              {service.termsAndConditions}
+            </Text>
           </View>
         </View>
       </ScrollView>
 
+      {/* Bottom Checkout Button */}
       {getTotalItems() > 0 && (
         <TouchableOpacity
-          className="absolute bottom-0 left-0 right-0 bg-primary p-4 m-4 rounded-lg"
+          className="absolute bottom-0 left-0 right-0 bg-[#FF002E] p-4 m-4 rounded-lg"
           onPress={() => router.push({
             pathname: '/home/Cart',
             params: {
@@ -688,8 +714,8 @@ const TiffinDetails = () => {
             }
           })}
         >
-          <Text className="text-white text-center font-outfit-bold">
-            {getTotalItems()} items | ${getSubtotal()} | Go to Cart
+          <Text className="text-white text-center font-bold">
+            {getTotalItems()} items | ₹{getSubtotal()} | Go to Cart
           </Text>
         </TouchableOpacity>
       )}
