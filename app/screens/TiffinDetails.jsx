@@ -9,6 +9,8 @@ import { useCart } from '../../context/CartContext';
 import axios from 'axios';
 import { API_CONFIG } from '../../config/apiConfig';
 import styles from '../../styles/tiffinDetailsStyle';
+import { useSafeNavigation } from "@/hooks/navigationPage";
+
 const Api_url = API_CONFIG.BACKEND_URL;
 const { width } = Dimensions.get('window');
 
@@ -56,6 +58,8 @@ const TiffinDetails = () => {
   const [error, setError] = useState(null);
   const [mainImage, setMainImage] = useState(null);
   const [localTaxes, setLocalTaxes] = useState([]);
+  const { safeNavigation } = useSafeNavigation();
+
   const [localCharges, setLocalCharges] = useState([]);
   const [localOffers, setLocalOffers] = useState([]);
   const [menuState, setMenuState] = useState({
@@ -316,7 +320,7 @@ const TiffinDetails = () => {
       return;
     }
     const firstImage = service.images.length > 0 ? service.images[0] : require('../../assets/images/food1.jpg');
-    router.push({
+   safeNavigation({
       pathname: '/screens/MealCustomizeScreen',
       params: {
         mealItem: JSON.stringify({
@@ -551,7 +555,7 @@ const TiffinDetails = () => {
           />
           <View style={styles.overlayContainer}>
             <TouchableOpacity
-              onPress={() => router.push({
+              onPress={() => safeNavigation({
                 pathname: '/screens/TiffinDetailsScreen',
                 params: {
                   restaurant: JSON.stringify({
@@ -586,7 +590,7 @@ const TiffinDetails = () => {
             </TouchableOpacity>
 
             <TouchableOpacity
-              onPress={() => router.push({
+              onPress={() => safeNavigation({
                 pathname: "/screens/Reviewsall",
                 params: {
                   firmId: service.id,
@@ -680,7 +684,7 @@ const TiffinDetails = () => {
       {getTotalItems() > 0 && (
         <TouchableOpacity
           className="absolute bottom-0 left-0 right-0 bg-primary p-4 m-4 rounded-lg"
-          onPress={() => router.push({
+          onPress={() => safeNavigation({
             pathname: '/home/Cart',
             params: {
               restaurantId: service.id,

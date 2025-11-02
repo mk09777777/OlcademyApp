@@ -8,6 +8,8 @@ import SearchBar from '@/components/SearchBar'
 import FirmCard from '@/components/FirmCard'
 import MiniRecommendedCard from '@/components/MiniRecommendedCard';
 import RadioButtonRN from 'radio-buttons-react-native'
+import { useSafeNavigation } from "@/hooks/navigationPage";
+
 // import { useBookmarkManager } from '../../hooks/BookMarkmanger';
 
 import Filterbox from '@/components/Filterbox';
@@ -45,6 +47,8 @@ export default function TakeAway() {
   const showcaseRef = useRef(null);
   const [profileData, setProfileData] = useState("");
   const [randomData, setRandomData] = useState([])
+  const { safeNavigation } = useSafeNavigation();
+
   const [favoriteServices, setFavoriteServices] = useState([]);
   const [recentlyViewData, setRecentlyViewdData] = useState([])
   const [popularData, setPopularData] = useState([])
@@ -701,12 +705,12 @@ export default function TakeAway() {
             <LocationHeader />
             <View className="flex-row pr-4">
               <TouchableOpacity className="ml-20"
-                onPress={() => router.push('/screens/NoficationsPage')}
+                onPress={() => safeNavigation('/screens/NoficationsPage')}
               >
                 <Ionicons name='notifications-circle-outline' color='#02757A' size={42} style={{ marginRight: 10 }} />
               </TouchableOpacity>
               <TouchableOpacity
-                onPress={() => router.push('/screens/User')}
+                onPress={() => safeNavigation('/screens/User')}
               >
                 <Ionicons name='person-circle-outline' size={42} color='#02757A' />
               </TouchableOpacity>
@@ -835,7 +839,7 @@ export default function TakeAway() {
                       <FlatList
                         data={whatsOnYourMind}
                         renderItem={({ item }) => (
-                          <TouchableOpacity className="items-center p-2 m-1 ml-1.5 mr-1.5" onPress={() => router.push({
+                          <TouchableOpacity className="items-center p-2 m-1 ml-1.5 mr-1.5" onPress={() => safeNavigation({
                             pathname: '/screens/OnMindScreens',
                             params: { name: item?.title }
                           })}>
@@ -874,7 +878,7 @@ export default function TakeAway() {
                             image={item.restaurantInfo?.image_urls}
                             rating={item.restaurantInfo?.ratings?.overall}
                             onPress={() => {
-                              router.push({
+                              safeNavigation({
                                 pathname: '/screens/FirmDetailsTakeAway',
                                 params: { firmId: item._id }
                               });
@@ -933,7 +937,7 @@ export default function TakeAway() {
                                 console.error('No ID found for item:', item);
                                 return;
                               }
-                              router.push({
+                              safeNavigation({
                                 pathname: '/screens/FirmDetailsTakeAway',
                                 params: {
                                   firmId: item._id
@@ -1030,7 +1034,7 @@ export default function TakeAway() {
                   proExtraB={item.proExtraB || false}
                   off={item.off || "No offer"}
                   proExtra={item.proExtra || "N/A"}
-                  onPress={() => router.push({
+                  onPress={() => safeNavigation({
                     pathname: "screens/FirmDetailsTakeAway",
                     params: { firmId: item._id }
                   })}

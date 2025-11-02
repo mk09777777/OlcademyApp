@@ -8,6 +8,8 @@ import { AntDesign, FontAwesome, FontAwesome5, Ionicons, MaterialCommunityIcons,
 import { useCart } from '@/context/CartContext';
 import ImageGallery from '@/components/ImageGallery';
 import OffersCard from '@/components/OffersCard';
+import { useSafeNavigation } from "@/hooks/navigationPage";
+
 
 
 import { API_CONFIG } from '../../config/apiConfig';
@@ -47,6 +49,8 @@ export default function FirmDetailsTakeAway() {
   const [firmDetails, setFirmDetails] = useState(null);
   const [toggleBookmark, setToggleBookmark] = useState(false);
   const [offersVisible, setOffersVisible] = useState(false);
+  const { safeNavigation } = useSafeNavigation();
+
   const [expandedOffer, setExpandedOffer] = useState(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const offers = [
@@ -377,7 +381,7 @@ export default function FirmDetailsTakeAway() {
 
               <View>
                 <TouchableOpacity
-                  onPress={() => router.push({
+                  onPress={() => safeNavigation({
                     pathname: '/screens/RestaurantDetailsScreen',
                     params: { restaurant: JSON.stringify(firmDetails) }
                   })}
@@ -403,7 +407,7 @@ export default function FirmDetailsTakeAway() {
             <TouchableOpacity
               // Kept your margins, changed rounding, and added shadow for depth
             className="absolute bottom-8 right-3 rounded-lg shadow-md shadow-black/15"
-              onPress={() => router.push({
+              onPress={() => safeNavigation({
                 pathname: "/screens/Reviewsall",
                 params: {
                   firmId: firmId,
@@ -543,7 +547,7 @@ export default function FirmDetailsTakeAway() {
             zIndex: 9999,
             elevation: 20,
           }}
-          onPress={() => router.push({
+          onPress={() => safeNavigation({
             pathname: 'screens/TakeAwayCart',
             params: {
               offers: JSON.stringify(offers),

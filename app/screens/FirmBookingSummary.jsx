@@ -13,6 +13,8 @@ import * as Notifications from 'expo-notifications';
 import Constants from 'expo-constants';
 import { API_CONFIG } from '../../config/apiConfig';
 import { api } from '../../config/httpClient'; 
+import { useSafeNavigation } from "@/hooks/navigationPage";
+
 
 // Check if running in development build or Expo Go
 const isExpoGo = Constants.appOwnership === 'expo';
@@ -40,6 +42,8 @@ export default function FirmBookingSummary() {
   const [promosWhatsapp, setPromosWhatsapp] = useState(false);
   const [socialPush, setSocialPush] = useState(false);
   const [ordersPush, setOrdersPush] = useState(false);
+  const { safeNavigation } = useSafeNavigation();
+
   const [ordersWhatsapp, setOrdersWhatsapp] = useState(false);
 
     const initialState = useRef({
@@ -182,7 +186,7 @@ fetchInitialSettings()
         Alert.alert(uploadData.title, uploadData.description);
       }
       console.log("✅ Notification saved:", response.data);
-       router.push({
+       safeNavigation({
           pathname: '/screens/OrderSceess',
           params: {
             totalAmount: '50.00',

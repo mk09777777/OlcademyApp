@@ -7,12 +7,16 @@ import TiffinCard from '@/components/TiffinCard';
 import styles from '@/styles/TiffinCollection';
 import axios from 'axios';
 import { useAuth } from '@/context/AuthContext';
+import { useSafeNavigation } from "@/hooks/navigationPage";
+
 
 import { API_CONFIG } from '../config/apiConfig';
 const Api_url = API_CONFIG.BACKEND_URL;
 
 export default function TiffinCollection() {
   const router = useRouter();
+  const { safeNavigation } = useSafeNavigation();
+
   const { user, isAuthenticated } = useAuth();
   const [favoriteTiffins, setFavoriteTiffins] = useState([]);
   const [loadingFavorites, setLoadingFavorites] = useState(false);
@@ -72,7 +76,7 @@ export default function TiffinCollection() {
         deliveryCities: item.deliveryCity || [],
       }}
       onPress={() => {
-        router.push({
+        safeNavigation({
           pathname: '/screens/TiffinDetails',
           params: { tiffinId: item._id || item.id }
         });
