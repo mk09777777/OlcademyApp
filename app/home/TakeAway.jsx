@@ -719,7 +719,7 @@ export default function TakeAway() {
 
           <View className="flex-row items-center justify-between mr-1.5 ml-1.5">
             <SearchBar
-              query={query}
+              query={query} 
               setQuery={setQuery}
               onSearch={handleSearch}
             />

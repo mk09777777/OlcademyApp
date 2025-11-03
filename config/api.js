@@ -28,10 +28,20 @@ export const API_ENDPOINTS = {
     UPDATE_STATUS: (id) => `/api/orders/${id}/status`
   },
   DiningBooking: {
+    // General list endpoint (admin/collection)
     GET_ALL: '/api/bookings',
+    // Fetch booking by id
     GET_BY_ID: (id) => `/api/bookings/${id}`,
-    CREATE: '/api/bookings',
+    // Create booking endpoint (server currently exposes '/api/bookings/create')
+    CREATE: '/api/bookings/create',
+    // Update booking by id
     UPDATE: (id) => `/api/bookings/${id}`,
+    // Cancel booking (server exposes '/api/bookings/cancel/:id')
+    CANCEL: (id) => `/api/bookings/cancel/${id}`,
+    // User-specific endpoints (server mounts bookingRoutes also at '/api/UserBookings')
+    GET_USER: '/api/UserBookings',
+    // Legacy/user-id style endpoint used in some places
+    GET_BY_USERID: '/api/bookings/userId',
     UPDATE_STATUS: (id) => `/api/bookings/${id}/status`
   }
 };

@@ -13,8 +13,12 @@ import * as Notifications from 'expo-notifications';
 import Constants from 'expo-constants';
 import { API_CONFIG } from '../../config/apiConfig';
 import { api } from '../../config/httpClient'; 
+<<<<<<< HEAD
 import { useSafeNavigation } from "@/hooks/navigationPage";
 
+=======
+import { API_ENDPOINTS } from '../../config/api';
+>>>>>>> d59707d (api end point fixed)
 
 // Check if running in development build or Expo Go
 const isExpoGo = Constants.appOwnership === 'expo';
@@ -128,7 +132,7 @@ fetchInitialSettings()
     };
     console.log('📋 Original format order data:', orderData);
     try {
-      const res = await api.post('/api/bookings/create', orderData, { params: { id: firmId } });
+  const res = await api.post(API_ENDPOINTS.DiningBooking.CREATE, orderData, { params: { id: firmId } });
       console.log('✅ Order saved:', res.data);
       if (ordersPush) await UploadNotifications(orderData);
     } catch (error) {

@@ -4,6 +4,7 @@ import * as Notifications from 'expo-notifications';
 import Constants from 'expo-constants';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { API_CONFIG } from '../config/apiConfig';
+import { API_ENDPOINTS } from '../config/api';
 
 // Check if running in development build or Expo Go
 const isExpoGo = Constants.appOwnership === 'expo';
@@ -28,7 +29,8 @@ export default function BookingNotifications() {
     setLoading(true);
     try {
 
-      const response = await axios.get(`${API_CONFIG.BACKEND_URL}/api/bookings/userId`, {
+      const url = `${API_CONFIG.BACKEND_URL}${API_ENDPOINTS.DiningBooking.GET_BY_USERID}`;
+      const response = await axios.get(url, {
         withCredentials: true,
       });
       const bookingsArray = response.data?.data || [];
