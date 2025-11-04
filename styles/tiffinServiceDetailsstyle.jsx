@@ -669,7 +669,7 @@ reviewCount: {
     left: 250,
     // paddingBottom:10,
     borderRadius: 10,
-    backgroundColor: '#FF4B3f',
+    backgroundColor: '#02757A',
     width: 100,
     paddingHorizontal: 20,
     paddingVertical: 4,
@@ -782,7 +782,7 @@ reviewCount: {
   checkoutButton: {
     flex: 1,
     borderRadius: 8,
-    backgroundColor: '#FF4B3A',
+    backgroundColor: '#02757A',
     paddingVertical: 12,
     marginLeft: 8,
   },
