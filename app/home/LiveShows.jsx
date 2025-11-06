@@ -1,13 +1,15 @@
-import { View, Text, FlatList, ImageBackground, TouchableOpacity, Image } from 'react-native'
-import React from 'react'
-import { Ionicons, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons'
-
+import { View, Text, FlatList, ImageBackground, TouchableOpacity, Image, Modal } from 'react-native'
+import React, { useState } from 'react'
+import { Ionicons } from '@expo/vector-icons'
 import SearchBar from '@/components/SearchBar'
-import { useRouter } from 'expo-router'
+import FilterShow from '@/components/FilterShow'   // ✅ updated import
 import { useSafeNavigation } from '@/hooks/navigationPage';
+
 export default function LiveShows() {
   const { safeNavigation } = useSafeNavigation();
-  
+  const [filterVisible, setFilterVisible] = useState(false); // modal toggle
+  const [appliedFilters, setAppliedFilters] = useState({}); // store applied filters
+
   const Events = [
     {
       id: 1,
@@ -16,7 +18,7 @@ export default function LiveShows() {
       startingTime: '2020/12/21 09:10 PM',
       image: require('@/assets/images/event_1.png'),
       description:
-        'Non exercitation ullamco reprehenderit incididunt. Officia incididunt id exercitation velit aliqua ut deserunt do non. Aliquip sunt dolor enim occaecat ullamco id consectetur . h nmgodl jkdkg idngn kdkntn dnvbn ngdivn lgn lg lrtk vnnknertn nvelrkng nv rklg ndfnv lrn gndfv nlnk flgnlnglrgrltr r gkrg flkvnfld trelk nglkdfg rg',
+        'Non exercitation ullamco reprehenderit incididunt. Officia incididunt id exercitation velit aliqua ut deserunt do non...',
     },
     {
       id: 2,
@@ -25,20 +27,22 @@ export default function LiveShows() {
       startingTime: '2020/12/25 08:00 PM',
       image: require('@/assets/images/event_2.png'),
       description:
-        'Lorem ipsum dolor sit amet, consectetur elit adipiscing elit. Venenatis pulvinar a amet in, suspendisse vitae, posuere eu tortor et. Und commodo, fermentum, mauris leo eget.',
+        'Lorem ipsum dolor sit amet, consectetur elit adipiscing elit...',
     },
   ];
+
   const getMonth = (dateString) => {
     const parts = dateString.split(" ")[0].split("/")
     const monthNames = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"]
     const monthIndex = parseInt(parts[1], 10) - 1
     return monthNames[monthIndex]
   }
-  
+
   const getDay = (dateString) => {
     const parts = dateString.split(" ")[0].split("/")
     return parseInt(parts[2], 10)
   }
+
   return (
     <View className="flex-1 bg-white">
       <View className="flex-1 py-4 mr-4 ml-4">
@@ -121,6 +125,17 @@ export default function LiveShows() {
             </Text>
             <View className="flex-1 h-px bg-primary" />
           </View>
+
+          {/* 👇 Filter Button BELOW ALL SHOWS */}
+          <TouchableOpacity
+            onPress={() => setFilterVisible(true)}
+            className="self-end bg-primary px-4 py-2 rounded-full mb-4"
+          >
+            <Text className="text-white font-outfit-bold text-sm">
+              Filter
+            </Text>
+          </TouchableOpacity>
+
           <FlatList
             contentContainerStyle={{ paddingBottom: 20 }}
             keyExtractor={(item) => item.id}
@@ -155,6 +170,17 @@ export default function LiveShows() {
           />
         </View>
       </View>
+
+      {/* ✅ Filter Modal with new component */}
+      <FilterShow
+        visible={filterVisible}
+        onClose={() => setFilterVisible(false)}
+        onApply={(filters) => {
+          console.log("Applied filters:", filters);
+          setAppliedFilters(filters);
+          setFilterVisible(false);
+        }}
+      />
     </View>
   )
 }
