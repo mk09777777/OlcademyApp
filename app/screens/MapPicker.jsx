@@ -17,7 +17,6 @@ import MapView, { Marker } from 'react-native-maps';
 import { useRouter } from 'expo-router';
 import { Ionicons, Feather, MaterialCommunityIcons, FontAwesome5, MaterialIcons } from '@expo/vector-icons';
 import axios from 'axios';
-import { useSafeNavigation } from '@/hooks/navigationPage';
 import { useLocationContext } from '@/context/LocationContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import BackRouting from '@/components/BackRouting';
@@ -167,7 +166,6 @@ const resolveGoogleMapsApiKey = () => {
 
 export default function MapPicker() {
   const router = useRouter();
-  const { safeNavigation } = useSafeNavigation();
   const { updateLocation, setRecentlyAdds, location: currentLocation } = useLocationContext();
   const mapRef = useRef(null);
   const locationAlertVisibleRef = useRef(false);
@@ -590,11 +588,7 @@ export default function MapPicker() {
       };
       setRegion(newRegion);
       setSelectedCoordinate({ latitude: coords.latitude, longitude: coords.longitude });
-      setTimeout(() => {
-        if (mapRef.current) {
-          mapRef.current.animateToRegion(newRegion, 1000);
-        }
-      }, 100);
+      setTimeout(() => mapRef.current?.animateToRegion(newRegion, 1000), 100);
       await reverseGeocodeCoordinates(coords.latitude, coords.longitude, { persist: true });
     } catch (error) {
       console.error('Error getting current location:', error);
@@ -605,14 +599,13 @@ export default function MapPicker() {
   };
 
   // Handle map region change
-  const handleRegionChangeComplete = async (newRegion) => {
+  const handleRegionChangeComplete = useCallback((newRegion) => {
     setRegion(newRegion);
-    setSelectedCoordinate({
+    setSelectedCoordinate((prev) => prev ?? {
       latitude: newRegion.latitude,
-      longitude: newRegion.longitude
+      longitude: newRegion.longitude,
     });
-    await reverseGeocodeCoordinates(newRegion.latitude, newRegion.longitude);
-  };
+  }, []);
 
   // Initialize with current location on component mount
   useEffect(() => {
@@ -749,7 +742,7 @@ export default function MapPicker() {
     }
   };
 
-  const getTagStyle = (type) => ({
+  const getTagStyle = useCallback((type) => ({
     flexDirection: 'row',
     alignItems: 'center',
     padding: 8,
@@ -759,13 +752,13 @@ export default function MapPicker() {
     borderWidth: 1,
     borderRadius: 30,
     borderColor: addressType === type ? '#02757A' : '#ccc',
-    backgroundColor: addressType === type ? '#ffffff' : '#fff',
-  });
+    backgroundColor: '#ffffff',
+  }), [addressType]);
 
-  const getTextStyle = (type) => ({
+  const getTextStyle = useCallback((type) => ({
     marginLeft: 6,
     color: addressType === type ? '#222222' : '#555',
-  });
+  }), [addressType]);
 
   if (!isGoogleMapsConfigured) {
     return (
@@ -829,9 +822,12 @@ export default function MapPicker() {
             region={region}
             onRegionChangeComplete={handleRegionChangeComplete}
             onPress={(e) => {
-              const { coordinate } = e.nativeEvent;
-              setSelectedCoordinate(coordinate);
-              reverseGeocodeCoordinates(coordinate.latitude, coordinate.longitude, { persist: true }).catch(() => {});
+              const { latitude, longitude } = e.nativeEvent.coordinate;
+              const newRegion = { latitude, longitude, latitudeDelta: region.latitudeDelta, longitudeDelta: region.longitudeDelta };
+              setRegion(newRegion);
+              setSelectedCoordinate({ latitude, longitude });
+              mapRef.current?.animateToRegion(newRegion, 400);
+              reverseGeocodeCoordinates(latitude, longitude, { persist: true }).catch(() => {});
             }}
             showsUserLocation
             showsMyLocationButton={false}
@@ -844,7 +840,10 @@ export default function MapPicker() {
                 draggable
                 onDragEnd={(e) => {
                   const { latitude, longitude } = e.nativeEvent.coordinate;
+                  const newRegion = { latitude, longitude, latitudeDelta: region.latitudeDelta, longitudeDelta: region.longitudeDelta };
+                  setRegion(newRegion);
                   setSelectedCoordinate({ latitude, longitude });
+                  mapRef.current?.animateToRegion(newRegion, 400);
                   reverseGeocodeCoordinates(latitude, longitude, { persist: true }).catch(() => {});
                 }}
               />
