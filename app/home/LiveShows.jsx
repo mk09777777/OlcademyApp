@@ -5,6 +5,7 @@ import { Ionicons, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-ic
 import SearchBar from '@/components/SearchBar'
 import { useRouter } from 'expo-router'
 import { useSafeNavigation } from '@/hooks/navigationPage';
+
 export default function LiveShows() {
   const { safeNavigation } = useSafeNavigation();
   

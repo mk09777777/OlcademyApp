@@ -426,7 +426,7 @@ const TiffinDetails = () => {
 
               <TouchableOpacity
                 onPress={() => handleOpenModal(item)}
-                className="bg-[#FF4B3F] rounded-lg w-20 py-1"
+                className="bg-primary rounded-lg w-20 py-1"
               >
                 <Text className="text-white text-sm font-bold text-center">
                   ADD
@@ -705,7 +705,7 @@ const TiffinDetails = () => {
       {/* Bottom Checkout Button */}
       {getTotalItems() > 0 && (
         <TouchableOpacity
-          className="absolute bottom-0 left-0 right-0 bg-[#FF002E] p-4 m-4 rounded-lg"
+          className="absolute bottom-0 left-0 right-0 bg-primary p-4 m-4 rounded-lg"
           onPress={() => router.push({
             pathname: '/home/Cart',
             params: {
