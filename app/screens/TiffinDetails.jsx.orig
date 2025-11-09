@@ -8,8 +8,11 @@ import ImageGallery from '../../components/ImageGallery';
 import { useCart } from '../../context/CartContext';
 import axios from 'axios';
 import { API_CONFIG } from '../../config/apiConfig';
+<<<<<<< HEAD
 import styles from '../../styles/tiffinDetailsStyle';
 import { useSafeNavigation } from "@/hooks/navigationPage";
+=======
+>>>>>>> 017b1ac (fixed bugs)
 
 const Api_url = API_CONFIG.BACKEND_URL;
 const { width } = Dimensions.get('window');
@@ -318,6 +321,7 @@ const TiffinDetails = () => {
       Alert.alert('Error', 'Unable to customize meal');
       return;
     }
+<<<<<<< HEAD
     const firstImage = service.images.length > 0 ? service.images[0] : require('../../assets/images/food1.jpg');
    safeNavigation({
       pathname: '/screens/MealCustomizeScreen',
@@ -345,6 +349,42 @@ const TiffinDetails = () => {
         returnScreen: router.pathname,
       }
     });
+=======
+    
+    try {
+      const firstImage = service.images.length > 0 ? service.images[0] : require('../../assets/images/food1.jpg');
+      
+      router.push({
+        pathname: '/screens/MealCustomizeScreen',
+        params: {
+          mealItem: JSON.stringify({
+            ...item,
+            id: item.id,
+            image: item.image || require('../../assets/images/food1.jpg'),
+            name: item.name || 'Custom Meal',
+            basePrice: item.basePrice || 0,
+            taxes: localTaxes,
+            charges: localCharges,
+            offers: localOffers,
+            isFlexibleDates: service.isFlexibleDates,
+            deliveryTimeSlots: service.deliveryTimeSlots || [],
+            category: service.tags || [],
+            description: item.description || '',
+            foodType: item.isVeg ? 'Vegetarian' : 'Non-Vegetarian'
+          }),
+          planTypes: JSON.stringify(service.mealTypes || []),
+          timeSlots: JSON.stringify(service.deliveryTimeSlots || []),
+          firmId: service.id,
+          restaurantName: service.title,
+          img: typeof firstImage === 'string' ? firstImage : JSON.stringify(firstImage),
+          tiffinId: tiffinId, // Pass tiffinId for proper return navigation
+        }
+      });
+    } catch (error) {
+      console.error('Error opening customization modal:', error);
+      Alert.alert('Error', 'Failed to open meal customization');
+    }
+>>>>>>> 017b1ac (fixed bugs)
   };
 
   const handleRefresh = useCallback(() => {
@@ -706,8 +746,13 @@ const TiffinDetails = () => {
       {/* Bottom Checkout Button */}
       {getTotalItems() > 0 && (
         <TouchableOpacity
+<<<<<<< HEAD
           className="absolute bottom-0 left-0 right-0 bg-primary p-4 m-4 rounded-lg"
           onPress={() => safeNavigation({
+=======
+          className="absolute bottom-0 left-0 right-0 bg-red-500 p-4 mx-5 mb-5 rounded-lg shadow-lg"
+          onPress={() => router.push({
+>>>>>>> 017b1ac (fixed bugs)
             pathname: '/home/Cart',
             params: {
               restaurantId: service.id,

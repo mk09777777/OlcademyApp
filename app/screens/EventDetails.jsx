@@ -10,9 +10,12 @@ export default function EventDetails() {
   const [expanded, setExpanded] = useState(false)
   const [eventDetails, setEventDetails] = useState([])
   const { safeNavigation } = useSafeNavigation();
-  useState(() => {
-    setEventDetails(JSON.parse(event))
-  },[])
+  useEffect(() => {
+  if (event) {
+    setEventDetails(JSON.parse(event));
+  }
+}, [event]);
+
   return (
     <ScrollView className="flex-1 bg-background">
       <ImageBackground 
@@ -40,7 +43,12 @@ export default function EventDetails() {
         </Text>
         <TouchableOpacity
           className="bg-primary px-6 py-3 rounded-lg"
-          onPress={() => {safeNavigation('screens/EventBooking')}}
+          onPress={() => {
+            safeNavigation(
+              `/screens/EventBooking?event=${encodeURIComponent(JSON.stringify(eventDetails))}`
+            );
+          }}
+
         >
           <Text className="text-white font-outfit-bold">
             Book

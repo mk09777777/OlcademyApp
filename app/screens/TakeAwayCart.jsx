@@ -30,6 +30,8 @@ import axios from 'axios';
 import * as Notifications from 'expo-notifications';
 import { Picker } from '@react-native-picker/picker';
 import { Schedule } from '@/components/Schedule';
+import { useSafeNavigation } from "@/hooks/navigationPage";
+
 import AsyncStorage from '@react-native-async-storage/async-storage';
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -60,6 +62,8 @@ const TakeAwayCart = () => {
   const [cartItems, setCartItems] = useState([]);
   const [billModalVisible, setBillModalVisible] = useState(false);
   const [groupedItems, setGroupedItems] = useState([]);
+  const { safeNavigation } = useSafeNavigation();
+
   const [scheduleModalVisible, setScheduleModalVisible] = useState(false);
   const [appliedOffer, setAppliedOffer] = useState(null);
   const [selectedScheduleTime, setSelectedScheduleTime] = useState(null);
@@ -536,7 +540,7 @@ const TakeAwayCart = () => {
         await fetchCart();
 
 
-        router.push({
+        safeNavigation({
           pathname: '/screens/OrderSceess',
           params: {
             orderId: response.data.data.order._id,
@@ -865,7 +869,7 @@ const TakeAwayCart = () => {
                 </View>
 
                 <TouchableOpacity
-                  onPress={() => router.push('/screens/DeliveryAddress')}
+                  onPress={() => safeNavigation('/screens/DeliveryAddress')}
                   className="mb-4"
                 >
                   <TextInput

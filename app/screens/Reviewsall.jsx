@@ -17,6 +17,8 @@ import { router, useLocalSearchParams } from "expo-router";
 import axios from "axios";
 import { useAuth } from "../../context/AuthContext";
 import { API_CONFIG } from '../../config/apiConfig';
+import { useSafeNavigation } from "@/hooks/navigationPage";
+
 
 function Reviewsall() {
   const [calculatedboxvisible, setcalculatedboxvisible] = useState(false);
@@ -27,6 +29,8 @@ function Reviewsall() {
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState(null);
   const [data, setData] = useState([]);
+  const { safeNavigation } = useSafeNavigation();
+
   const [filteredData, setFilteredData] = useState([]);
   const [sortedData, setSortedData] = useState([]);
   const [page, setPage] = useState(1);
@@ -517,7 +521,7 @@ function Reviewsall() {
               <TouchableOpacity
                 onPress={() => {
                   setSelectedComment(item);
-                  router.push({
+                  safeNavigation({
                     pathname: '/screens/commentscreen',
                     params: {
                       commentData: JSON.stringify(item),
@@ -553,7 +557,7 @@ function Reviewsall() {
       
       <TouchableOpacity
         style={ZomatoStyles.commentButton}
-        onPress={() => router.push({
+        onPress={() => safeNavigation({
           pathname: "/screens/Userrating",
           params: {
             firmId: firmId,

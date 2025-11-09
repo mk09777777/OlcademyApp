@@ -1184,6 +1184,8 @@ import Filterbox from '@/components/Filterbox'
 import LocationHeader from '@/components/HomeHeader'
 import DiningCard from '@/components/DaningCard'
 import { API_CONFIG } from '../../config/apiConfig'
+import { useSafeNavigation } from "@/hooks/navigationPage";
+
 
 const Api_url = API_CONFIG.BACKEND_URL;
 const { width: screenWidth } = Dimensions.get('window');
@@ -1202,6 +1204,8 @@ export default function TakeAway() {
   const [openNowFilter, setOpenNowFilter] = useState(false)
   const [offersFilter, setOffersFilter] = useState(false)
   const [alcoholFilter, setAlcoholFilter] = useState(null)
+  const { safeNavigation } = useSafeNavigation();
+
   const [searchResults, setSearchResults] = useState([])
   const [cursor, setCursor] = useState(null)
   const [isInitialLoading, setIsInitialLoading] = useState(true)
@@ -1856,12 +1860,12 @@ export default function TakeAway() {
             <LocationHeader />
             <View className="flex-row pr-4 items-center">
               <TouchableOpacity className="ml-20"
-                onPress={() => router.push('/screens/NoficationsPage')}
+                onPress={() => safeNavigation('/screens/NoficationsPage')}
               >
                 <Ionicons name='notifications-circle-outline' color='#02757A' size={42} style={{ marginRight: 10 }} />
               </TouchableOpacity>
               <TouchableOpacity
-                onPress={() => router.push('/screens/User')}
+                onPress={() => safeNavigation('/screens/User')}
               >
                 <Ionicons name='person-circle-outline' size={42} color='#02757A' />
               </TouchableOpacity>
@@ -2004,7 +2008,7 @@ export default function TakeAway() {
                             <TouchableOpacity
                               className="flex-1 mr-5 rounded-2.5 overflow-hidden"
                               onPress={() =>
-                                router.push({
+                                safeNavigation({
                                   pathname: 'screens/Collections',
                                   params: {
                                     collectionName: item.title,
@@ -2055,7 +2059,7 @@ export default function TakeAway() {
                             image={item.restaurantInfo?.image_urls}
                             rating={item.restaurantInfo?.ratings?.overall}
                             onPress={() => {
-                              router.push({
+                              safeNavigation({
                                 pathname: '/screens/FirmDetailsDining',
                                 params: { firmId: item._id }
                               })
@@ -2112,7 +2116,7 @@ export default function TakeAway() {
                                 console.error('No ID found for item:', item)
                                 return
                               }
-                              router.push({
+                              safeNavigation({
                                 pathname: '/screens/FirmDetailsTakeAway',
                                 params: {
                                   firmId: item._id
@@ -2207,7 +2211,7 @@ export default function TakeAway() {
                   proExtraB={item.proExtraB || false}
                   off={item.off || "No offer"}
                   proExtra={item.proExtra || "N/A"}
-                  onPress={() => router.push({
+                  onPress={() => safeNavigation({
                     pathname: "screens/FirmDetailsDining",
                     params: { firmId: item._id }
                   })}

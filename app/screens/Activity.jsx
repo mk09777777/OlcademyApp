@@ -15,9 +15,13 @@ import { Ionicons, FontAwesome, MaterialCommunityIcons } from '@expo/vector-icon
 import { useAuth } from '../../context/AuthContext';
 import BackRouting from '@/components/BackRouting';
 import { router } from 'expo-router';
+import { useSafeNavigation } from "@/hooks/navigationPage";
+
 
 
 const ActivityPage = () => {
+  const { safeNavigation } = useSafeNavigation();
+
   const { user: authUser, profileData, api } = useAuth();
   const [activeTab, setActiveTab] = useState('Reviews');
   const [isLoading, setIsLoading] = useState(false);
@@ -416,7 +420,7 @@ const ActivityPage = () => {
             style={styles.actionButton}
             onPress={() => {
               setSelectedComment(item);
-              router.push({
+              safeNavigation({
                 pathname: '/screens/commentscreen',
                 params: {
                   commentData: JSON.stringify(item),

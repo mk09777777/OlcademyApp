@@ -614,7 +614,7 @@ const MealCustomizeScreen = () => {
                     quantity: Math.max(1, prev.quantity - 1)
                   }))}
                 >
-                  <Ionicons name="remove" size={20} color="#ffffff" />
+                  <Ionicons name="remove" size={20} color="#333" />
                 </TouchableOpacity>
                 <Text className="text-base font-outfit-medium text-gray-800 px-5 min-w-[30px] text-center">
                   {state.quantity}
@@ -626,7 +626,7 @@ const MealCustomizeScreen = () => {
                     quantity: prev.quantity + 1
                   }))}
                 >
-                  <Ionicons name="add" size={20} color="#ffffff" />
+                  <Ionicons name="add" size={20} color="#333" />
                 </TouchableOpacity>
               </View>
             </View>

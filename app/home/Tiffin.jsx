@@ -693,10 +693,10 @@ export default function Tiffin() {
       <View className="flex-row justify-between items-center mr-1 ml-0.5">
         <LocationHeader />
         <View className="flex-row pr-4 items-center">
-          <TouchableOpacity onPress={() => router.push('/screens/NoficationsPage')}>
+          <TouchableOpacity onPress={() => safeNavigation('/screens/NoficationsPage')}>
             <Ionicons name='notifications-circle-outline' color='#02757A' size={42} style={{ marginRight: 10 }} />
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => router.push('/screens/User')}>
+          <TouchableOpacity onPress={() => safeNavigation('/screens/User')}>
             <Ionicons name='person-circle-outline' size={42} color='#02757A' />
           </TouchableOpacity>
         </View>
@@ -843,7 +843,7 @@ export default function Tiffin() {
                         image={item.Images}
                         rating={item.Rating}
                         onPress={() => {
-                          router.push({
+                          safeNavigation({
                             pathname: '/screens/TiffinDetails',
                             params: { tiffinId: item.id }
                           });
@@ -895,7 +895,7 @@ export default function Tiffin() {
                             console.error('No ID found for item:', item);
                             return;
                           }
-                          router.push({
+                          safeNavigation({
                             pathname: '/screens/TiffinDetails',
                             params: { tiffinId: item.id }
                           });

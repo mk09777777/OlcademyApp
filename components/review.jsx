@@ -11,6 +11,9 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 import axios from "axios";
 import { useRouter } from "expo-router";
 import { API_CONFIG } from '../config/apiConfig';
+import { useSafeNavigation } from "@/hooks/navigationPage";
+
+
 const Review = (props) => {
   const {
     data: {
@@ -20,6 +23,8 @@ const Review = (props) => {
   } = props;
 
   const [commentData, setCommentData] = useState(null);
+  const { safeNavigation } = useSafeNavigation();
+
   const [username, setUsername] = useState("");
   const [comments, setComments] = useState("");
   const [commentList, setCommentList] = useState([]);
@@ -122,7 +127,7 @@ const response = await axios.post(
       <View style={{ flex: 1 }}>
         <View style={CommentStyles.background}>
           <View style={CommentStyles.headingContainer}>
-            <TouchableOpacity onPress={() => router.push("/screens/Reviewsall")}>
+            <TouchableOpacity onPress={() => safeNavigation("/screens/Reviewsall")}>
               <Ionicons name="arrow-back" size={24} color="black" style={CommentStyles.headinImg} />
             </TouchableOpacity>
             <Text style={CommentStyles.headingText}>Review</Text>

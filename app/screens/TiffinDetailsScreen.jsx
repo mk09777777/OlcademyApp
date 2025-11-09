@@ -3,9 +3,13 @@ import { View, Text, StyleSheet, TouchableOpacity, Linking, ScrollView, Image } 
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons, MaterialIcons, FontAwesome, MaterialCommunityIcons, Entypo } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useSafeNavigation } from "@/hooks/navigationPage";
+
 
 const RestaurantDetailsScreen = () => {
   const router = useRouter();
+  const { safeNavigation } = useSafeNavigation();
+
   const params = useLocalSearchParams();
   const restaurant = params.restaurant ? JSON.parse(params.restaurant) : null;
 
@@ -107,7 +111,7 @@ const RestaurantDetailsScreen = () => {
           
           <TouchableOpacity 
             style={styles.viewReviewsButton}
-            onPress={() => router.push({
+            onPress={() => safeNavigation({
               pathname: '/screens/Reviewsall',
               params: {
                 firmId: restaurant.id,

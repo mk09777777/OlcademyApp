@@ -4,8 +4,11 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import Colors from '../components/constants/Colors';
 import styles from '../styles/FoodSection';
 import { router } from 'expo-router';
+import { useSafeNavigation } from "@/hooks/navigationPage";
+
 
 const FoodSection = () => {
+const { safeNavigation } = useSafeNavigation();
   const FoodItem = ({ icon, title, chevron, onPress }) => (
     <TouchableOpacity onPress={onPress} style={styles.section}>
       <View style={styles.iconContainer}>
@@ -35,28 +38,28 @@ const FoodSection = () => {
         icon="shopping-outline"
         title="Your Orders"
         chevron
-        onPress={() => router.push('/screens/Order')}
+        onPress={() => safeNavigation('/screens/Order')}
       />
 
       <FoodItem
         icon="heart-outline"
         title="Favorite Orders"
         chevron
-        onPress={() => router.push('/screens/FavoriteOrders')}
+        onPress={() => safeNavigation('/screens/FavoriteOrders')}
       />
 
       <FoodItem
         icon="map-marker-outline"
         title="Your Address"
         chevron
-        onPress={() => router.push('/screens/Address')}
+        onPress={() => safeNavigation('/screens/Address')}
       />
 
       <FoodItem
         icon="chat-outline"
         title="Online Ordering Help"
         chevron
-        onPress={() => router.push('/screens/OrderSupportChat')}
+        onPress={() => safeNavigation('/screens/OrderSupportChat')}
       />
     </View>
   );

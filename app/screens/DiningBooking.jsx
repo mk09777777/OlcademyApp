@@ -7,6 +7,7 @@ import BookingCard from '../../Card/TableBookingCard';
 import { useSafeNavigation } from '@/hooks/navigationPage';
 import BookingDetailsScreen from "./DiningBookingDetails";
 import { API_CONFIG } from '../../config/apiConfig';
+import { API_ENDPOINTS } from '../../config/api';
 const BookingsScreen = () => {
   const router = useRouter();
   const [userBookings, setUserBookings] = useState([]);
@@ -23,7 +24,9 @@ const BookingsScreen = () => {
   const fetchDiningBookings = async () => {
     setLoading(true);
     try {
-      const response = await axios.get(`${API_CONFIG.BACKEND_URL}/api/bookings`, {
+        // use centralized endpoints for bookings
+        const url = `${API_CONFIG.BACKEND_URL}${API_ENDPOINTS.DiningBooking.GET_USER}`;
+        const response = await axios.get(url, {
         withCredentials: true,
       });
       console.log('Fetched bookings:', JSON.stringify(response.data, null, 2));
