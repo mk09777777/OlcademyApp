@@ -1,0 +1,13 @@
+sequenceDiagram
+    participant ScannerApp
+    participant API
+    participant TicketSvc
+    participant DB as MongoDB
+
+    ScannerApp->>API: POST /tickets/validate (qrSecret, scannerId)
+    API->>TicketSvc: Verify QR secret
+    TicketSvc->>DB: Query ticket by qrSecret
+    DB-->>TicketSvc: Ticket details
+    TicketSvc->>DB: Update check-in status
+    TicketSvc-->>API: {status: VALID}
+    API-->>ScannerApp: Display "VALID" (Green)
