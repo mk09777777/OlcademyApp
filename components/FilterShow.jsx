@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import {
   View,
   Text,
@@ -7,189 +7,231 @@ import {
   StyleSheet,
   Modal,
   Platform,
+  TouchableWithoutFeedback,
 } from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 
-const FilterShow = ({
-  visible,
-  onClose,
-  onApply,
-  initialFilters = {}
-}) => {
-  const defaultFilters = {
-    sortBy: "mostPopular",
-    location: null,
-    typesOfShow: [],
-    timing: "anytime",
-    customDate: null,
-  };
+const SORT_OPTIONS = [
+  { value: "mostPopular", label: "Most Popular" },
+  { value: "newest", label: "Newest" },
+  { value: "highestRated", label: "Highest Rated" },
+];
 
-  const [filters, setFilters] = useState({
-    ...defaultFilters,
-    ...initialFilters,
-  });
+const LOCATION_OPTIONS = [
+  "Toronto",
+  "Vancouver",
+  "Montreal",
+  "Calgary",
+  "Edmonton",
+  "Ottawa",
+];
+
+const SHOW_TYPES = [
+  "Concert",
+  "Stand-up",
+  "Drama",
+  "Workshop",
+  "Festival",
+];
+
+const TIMING_OPTIONS = [
+  { value: "anytime", label: "Anytime" },
+  { value: "today", label: "Today" },
+  { value: "thisWeekend", label: "This Weekend" },
+  { value: "custom", label: "Pick a Date" },
+];
+
+const DEFAULT_FILTERS = {
+  sortBy: "mostPopular",
+  location: null,
+  typesOfShow: [],
+  timing: "anytime",
+  customDate: null,
+};
+
+const FilterShow = ({ visible, onClose, onApply, initialFilters = {} }) => {
+  const [filters, setFilters] = useState({ ...DEFAULT_FILTERS, ...initialFilters });
   const [showDatePicker, setShowDatePicker] = useState(false);
 
-  const handleSortBy = (value) =>
-    setFilters(prev => ({ ...prev, sortBy: value }));
+  useEffect(() => {
+    if (visible) {
+      setFilters({ ...DEFAULT_FILTERS, ...initialFilters });
+      setShowDatePicker(false);
+    }
+  }, [visible, initialFilters]);
 
-  const handleLocation = (loc) =>
-    setFilters(prev => ({
-      ...prev,
-      location: prev.location === loc ? null : loc
-    }));
+  const activeFilterCount = useMemo(() => {
+    let count = filters.sortBy !== DEFAULT_FILTERS.sortBy ? 1 : 0;
+    if (filters.location) count += 1;
+    if (filters.typesOfShow.length) count += 1;
+    if (filters.timing !== DEFAULT_FILTERS.timing || filters.customDate) count += 1;
+    return count;
+  }, [filters]);
 
-  const handleTypeToggle = (type) => {
-    const exists = filters.typesOfShow.includes(type);
-    setFilters(prev => ({
+  const handleChipToggle = (key, value) => {
+    if (key === "typesOfShow") {
+      setFilters((prev) => {
+        const exists = prev.typesOfShow.includes(value);
+        const nextTypes = exists
+          ? prev.typesOfShow.filter((item) => item !== value)
+          : [...prev.typesOfShow, value];
+        return { ...prev, typesOfShow: nextTypes };
+      });
+      return;
+    }
+
+    setFilters((prev) => ({
       ...prev,
-      typesOfShow: exists
-        ? prev.typesOfShow.filter(t => t !== type)
-        : [...prev.typesOfShow, type],
+      [key]: prev[key] === value ? DEFAULT_FILTERS[key] ?? null : value,
     }));
   };
 
   const handleTiming = (value) => {
-    setFilters(prev => ({ ...prev, timing: value }));
-    if (value === "custom") {
-      setShowDatePicker(true);
+    setFilters((prev) => ({
+      ...prev,
+      timing: value,
+      customDate: value === "custom" ? prev.customDate : null,
+    }));
+    setShowDatePicker(value === "custom");
+  };
+
+  const handleDateChange = (_, selectedDate) => {
+    if (Platform.OS !== "ios") {
+      setShowDatePicker(false);
+    }
+    if (selectedDate) {
+      setFilters((prev) => ({ ...prev, customDate: selectedDate, timing: "custom" }));
     }
   };
 
-  const clearAll = () => setFilters(defaultFilters);
+  const clearAll = () => {
+    setFilters({ ...DEFAULT_FILTERS });
+    setShowDatePicker(false);
+  };
 
   const applyFilters = () => {
     onApply(filters);
     onClose();
   };
 
-  const handleDateChange = (event, selectedDate) => {
-    setShowDatePicker(Platform.OS === "ios");
-    if (selectedDate) {
-      setFilters(prev => ({
-        ...prev,
-        customDate: selectedDate,
-        timing: "custom",
-      }));
-    }
-  };
+  const formattedCustomDate = filters.customDate
+    ? new Date(filters.customDate).toLocaleDateString(undefined, {
+        weekday: "short",
+        month: "short",
+        day: "numeric",
+      })
+    : null;
 
   return (
-    <Modal
-      visible={visible}
-      animationType="slide"
-      transparent
-      onRequestClose={onClose}
-    >
+    <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
       <View style={styles.overlay}>
-        <View style={styles.container}>
+        <TouchableWithoutFeedback onPress={onClose}>
+          <View style={styles.backdrop} />
+        </TouchableWithoutFeedback>
+
+        <View style={styles.sheet}>
+          <View style={styles.grabber} />
           <View style={styles.header}>
-            <Text style={styles.headerText}>Filter Shows</Text>
-            <TouchableOpacity onPress={onClose}>
-              <Text style={styles.closeText}>✕</Text>
+            <Text style={styles.title}>Filters</Text>
+            {activeFilterCount > 0 ? (
+              <View style={styles.badge}>
+                <Text style={styles.badgeText}>{activeFilterCount}</Text>
+              </View>
+            ) : null}
+            <TouchableOpacity onPress={onClose} style={styles.closeButton}>
+              <MaterialCommunityIcons name="close" size={22} color="#111827" />
             </TouchableOpacity>
           </View>
 
-          <ScrollView style={styles.body}>
-            {/* Sort By */}
+          <ScrollView
+            style={styles.content}
+            contentContainerStyle={{ paddingBottom: 32 }}
+            showsVerticalScrollIndicator={false}
+          >
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Sort By</Text>
-              {["mostPopular", "newest", "highestRated"].map(option => (
-                <TouchableOpacity
-                  key={option}
-                  onPress={() => handleSortBy(option)}
-                  style={[
-                    styles.optionButton,
-                    filters.sortBy === option && styles.optionActive
-                  ]}
-                >
-                  <Text
-                    style={[
-                      styles.optionText,
-                      filters.sortBy === option && styles.optionTextActive
-                    ]}
-                  >
-                    {option === "mostPopular" ? "Most Popular"
-                     : option === "newest" ? "Newest"
-                     : "Highest Rated"}
-                  </Text>
-                </TouchableOpacity>
-              ))}
+              <View style={styles.chipGroup}>
+                {SORT_OPTIONS.map((option) => {
+                  const isActive = filters.sortBy === option.value;
+                  return (
+                    <TouchableOpacity
+                      key={option.value}
+                      style={[styles.chip, isActive && styles.chipActive]}
+                      onPress={() => handleChipToggle("sortBy", option.value)}
+                    >
+                      <Text style={[styles.chipText, isActive && styles.chipTextActive]}>
+                        {option.label}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
             </View>
 
-            {/* Location */}
             <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Location (Canada)</Text>
-              {["Toronto", "Vancouver", "Montreal", "Calgary", "Edmonton", "Ottawa"].map(city => (
-                <TouchableOpacity
-                  key={city}
-                  onPress={() => handleLocation(city)}
-                  style={[
-                    styles.optionButton,
-                    filters.location === city && styles.optionActive
-                  ]}
-                >
-                  <Text
-                    style={[
-                      styles.optionText,
-                      filters.location === city && styles.optionTextActive
-                    ]}
-                  >
-                    {city}
-                  </Text>
-                </TouchableOpacity>
-              ))}
+              <Text style={styles.sectionTitle}>Location</Text>
+              <View style={styles.chipGroup}>
+                {LOCATION_OPTIONS.map((city) => {
+                  const isActive = filters.location === city;
+                  return (
+                    <TouchableOpacity
+                      key={city}
+                      style={[styles.chip, isActive && styles.chipActive]}
+                      onPress={() => handleChipToggle("location", city)}
+                    >
+                      <Text style={[styles.chipText, isActive && styles.chipTextActive]}>
+                        {city}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
             </View>
 
-            {/* Type of Show */}
             <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Type of Show</Text>
-              {["Concert", "Stand-up", "Drama", "Workshop", "Festival"].map(type => (
-                <TouchableOpacity
-                  key={type}
-                  onPress={() => handleTypeToggle(type)}
-                  style={[
-                    styles.optionButton,
-                    filters.typesOfShow.includes(type) && styles.optionActive
-                  ]}
-                >
-                  <Text
-                    style={[
-                      styles.optionText,
-                      filters.typesOfShow.includes(type) && styles.optionTextActive
-                    ]}
-                  >
-                    {type}
-                  </Text>
-                </TouchableOpacity>
-              ))}
+              <Text style={styles.sectionTitle}>Event Type</Text>
+              <View style={styles.chipGroup}>
+                {SHOW_TYPES.map((type) => {
+                  const isActive = filters.typesOfShow.includes(type);
+                  return (
+                    <TouchableOpacity
+                      key={type}
+                      style={[styles.chip, isActive && styles.chipActive]}
+                      onPress={() => handleChipToggle("typesOfShow", type)}
+                    >
+                      <Text style={[styles.chipText, isActive && styles.chipTextActive]}>
+                        {type}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
             </View>
 
-            {/* Timing */}
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>When</Text>
-              {["anytime", "today", "thisWeekend", "custom"].map(t => (
-                <TouchableOpacity
-                  key={t}
-                  onPress={() => handleTiming(t)}
-                  style={[
-                    styles.optionButton,
-                    filters.timing === t && styles.optionActive
-                  ]}
-                >
-                  <Text
-                    style={[
-                      styles.optionText,
-                      filters.timing === t && styles.optionTextActive
-                    ]}
-                  >
-                    {t === "anytime" ? "Anytime"
-                     : t === "today" ? "Today"
-                     : t === "thisWeekend" ? "This Weekend"
-                     : "Pick Date"}
-                  </Text>
-                </TouchableOpacity>
-              ))}
+              <View style={styles.chipGroup}>
+                {TIMING_OPTIONS.map((option) => {
+                  const isActive =
+                    filters.timing === option.value ||
+                    (option.value === "custom" && filters.customDate);
+                  return (
+                    <TouchableOpacity
+                      key={option.value}
+                      style={[styles.chip, isActive && styles.chipActive]}
+                      onPress={() => handleTiming(option.value)}
+                    >
+                      <Text style={[styles.chipText, isActive && styles.chipTextActive]}>
+                        {option.label}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+              {formattedCustomDate ? (
+                <Text style={styles.customDateLabel}>Selected: {formattedCustomDate}</Text>
+              ) : null}
               {showDatePicker && (
                 <DateTimePicker
                   value={filters.customDate || new Date()}
@@ -198,20 +240,17 @@ const FilterShow = ({
                   onChange={handleDateChange}
                 />
               )}
-              {filters.customDate && (
-                <Text style={{ marginTop: 6, color: "#555" }}>
-                  Selected Date: {filters.customDate.toDateString()}
-                </Text>
-              )}
             </View>
           </ScrollView>
 
           <View style={styles.footer}>
-            <TouchableOpacity onPress={clearAll} style={styles.clearBtn}>
-              <Text style={{ color: "#02757A" }}>Clear All</Text>
+            <TouchableOpacity style={styles.secondaryButton} onPress={clearAll}>
+              <Text style={styles.secondaryButtonText}>Reset</Text>
             </TouchableOpacity>
-            <TouchableOpacity onPress={applyFilters} style={styles.applyBtn}>
-              <Text style={{ color: "#fff" }}>Apply Filters</Text>
+            <TouchableOpacity style={styles.primaryButton} onPress={applyFilters}>
+              <Text style={styles.primaryButtonText}>
+                Apply{activeFilterCount ? ` (${activeFilterCount})` : ""}
+              </Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -220,86 +259,133 @@ const FilterShow = ({
   );
 };
 
-
 export default FilterShow;
 
 const styles = StyleSheet.create({
   overlay: {
-    flex:1,
-    backgroundColor:"rgba(0,0,0,0.4)",
-    justifyContent:"flex-end",
+    flex: 1,
+    justifyContent: "flex-end",
   },
-  container: {
-    backgroundColor:"#fff",
-    borderTopLeftRadius:20,
-    borderTopRightRadius:20,
-    maxHeight:"85%",
+  backdrop: {
+    flex: 1,
+    backgroundColor: "rgba(15, 23, 42, 0.35)",
+  },
+  sheet: {
+    backgroundColor: "#ffffff",
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    paddingBottom: 24,
+    maxHeight: "85%",
+  },
+  grabber: {
+    alignSelf: "center",
+    width: 48,
+    height: 4,
+    backgroundColor: "#E5E7EB",
+    borderRadius: 999,
+    marginTop: 12,
   },
   header: {
-    flexDirection:"row",
-    justifyContent:"space-between",
-    padding:16,
-    borderBottomWidth:1,
-    borderColor:"#eee",
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 24,
+    paddingTop: 12,
   },
-  headerText: {
-    fontSize:18,
-    fontWeight:"bold",
+  title: {
+    fontSize: 20,
+    fontWeight: "700",
+    color: "#111827",
   },
-  closeText: {
-    fontSize:20,
-    color:"#444",
+  badge: {
+    marginLeft: 12,
+    backgroundColor: "#02757A",
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 999,
   },
-  body: {
-    paddingHorizontal:16,
+  badgeText: {
+    color: "#ffffff",
+    fontSize: 12,
+    fontWeight: "600",
+  },
+  closeButton: {
+    marginLeft: "auto",
+    padding: 4,
+  },
+  content: {
+    marginTop: 16,
+    paddingHorizontal: 24,
   },
   section: {
-    marginVertical:12,
+    marginBottom: 24,
   },
   sectionTitle: {
-    fontSize:16,
-    fontWeight:"600",
-    marginBottom:8,
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#1F2937",
+    marginBottom: 12,
   },
-  optionButton: {
-    padding:10,
-    borderWidth:1,
-    borderColor:"#ccc",
-    borderRadius:8,
-    marginVertical:4,
+  chipGroup: {
+    flexDirection: "row",
+    flexWrap: "wrap",
   },
-  optionActive: {
-    backgroundColor:"#02757A",
-    borderColor:"#02757A",
+  chip: {
+    borderWidth: 1,
+    borderColor: "#D1D5DB",
+    borderRadius: 999,
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    marginRight: 12,
+    marginBottom: 12,
+    backgroundColor: "#F9FAFB",
   },
-  optionText: {
-    color:"#333",
-    textAlign:"center",
+  chipActive: {
+    backgroundColor: "#02757A",
+    borderColor: "#02757A",
   },
-  optionTextActive: {
-    color:"#fff",
-    fontWeight:"600",
+  chipText: {
+    color: "#4B5563",
+    fontSize: 13,
+    fontWeight: "500",
+  },
+  chipTextActive: {
+    color: "#ffffff",
+  },
+  customDateLabel: {
+    marginTop: 6,
+    color: "#374151",
+    fontSize: 13,
+    fontWeight: "500",
   },
   footer: {
-    flexDirection:"row",
-    padding:16,
-    borderTopWidth:1,
-    borderColor:"#eee",
+    flexDirection: "row",
+    paddingHorizontal: 24,
+    marginTop: 8,
   },
-  clearBtn: {
-    flex:1,
-    alignItems:"center",
-    padding:12,
-    borderWidth:1,
-    borderColor:"#02757A",
-    borderRadius:10,
-    marginRight:10,
+  secondaryButton: {
+    flex: 1,
+    borderWidth: 1,
+    borderColor: "#02757A",
+    borderRadius: 12,
+    paddingVertical: 14,
+    alignItems: "center",
+    marginRight: 12,
   },
-  applyBtn: {
-    flex:1,
-    alignItems:"center",
-    padding:12,
-    backgroundColor:"#02757A",
-    borderRadius:10,
+  secondaryButtonText: {
+    color: "#02757A",
+    fontSize: 15,
+    fontWeight: "600",
+  },
+  primaryButton: {
+    flex: 1,
+    borderRadius: 12,
+    backgroundColor: "#02757A",
+    paddingVertical: 14,
+    alignItems: "center",
+  },
+  primaryButtonText: {
+    color: "#ffffff",
+    fontSize: 15,
+    fontWeight: "700",
   },
 });

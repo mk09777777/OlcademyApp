@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { View, ActivityIndicator, Text, FlatList } from 'react-native';
+import { useGlobalSearchParams } from 'expo-router';
 import MainTabs from '../../components/MainEvent';
 import EventCard from '../../Card/EventCard';
 import EventDetailsModal from '../../Model/EventModal';
-import { events as sharedEvents } from '../../Data/EventData';
+import { events as sharedEvents, eventCategories } from '../../Data/EventData';
 import BackRouting from '@/components/BackRouting';
 const EventsTabView = () => {
   /* Original CSS Reference:
@@ -31,6 +32,17 @@ const EventsTabView = () => {
   const [loading, setLoading] = useState(true);
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
+  const params = useGlobalSearchParams();
+  const focusCategoryParam = params?.focusCategory;
+  const resolvedFocusCategory = Array.isArray(focusCategoryParam)
+    ? focusCategoryParam[0]
+    : focusCategoryParam;
+  const activeCategoryKey = resolvedFocusCategory && resolvedFocusCategory !== 'all'
+    ? resolvedFocusCategory
+    : null;
+  const activeCategoryMeta = activeCategoryKey
+    ? eventCategories.find((category) => category.key === activeCategoryKey)
+    : null;
 
   useEffect(() => {
     const fetchEvents = async () => {
@@ -58,6 +70,9 @@ const EventsTabView = () => {
 
     return events.filter(event => {
       const eventDate = new Date(event.dateTime); // Ensure date is in correct format
+      if (activeCategoryKey && event.category !== activeCategoryKey) {
+        return false;
+      }
 
       if (activeMainTab === 'all') return true;
       if (activeMainTab === 'active') return event.status === 'active';
@@ -73,6 +88,13 @@ const EventsTabView = () => {
       <BackRouting tittle="Live Event"/>
       {/* ✅ Updated MainTabs */}
       <MainTabs activeTab={activeMainTab} onTabChange={setActiveMainTab} />
+      {activeCategoryMeta ? (
+        <View className="px-4 py-2">
+          <Text className="text-xs font-outfit text-textsecondary">
+            Showing {activeCategoryMeta.title}
+          </Text>
+        </View>
+      ) : null}
       
       {/* Show loading indicator when fetching data */}
       {loading ? (
