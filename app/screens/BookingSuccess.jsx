@@ -1,25 +1,39 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo } from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { MotiView, MotiText } from "moti";
 import { MaterialIcons } from "@expo/vector-icons";
+import { getEventById } from "@/Data/EventData";
 
 export default function BookingSuccess() {
   const router = useRouter();
   const params = useLocalSearchParams();
-  const { eventName, attendees, autoRedirect } = params;
+  const { eventName, attendees, autoRedirect, eventId, buyerEmail } = params;
+
+  const resolvedEventName = useMemo(() => {
+    if (eventName) {
+      return eventName;
+    }
+    if (eventId) {
+      const found = getEventById(eventId);
+      return found?.title ?? "the event";
+    }
+    return "the event";
+  }, [eventId, eventName]);
+
+  const attendeeLabel = attendees ?? "1";
 
   useEffect(() => {
     if (autoRedirect === "true") {
       const timer = setTimeout(() => {
-        router.replace("/home/EventScreen");
+        router.replace("/home/Events");
       }, 5000);
       return () => clearTimeout(timer);
     }
   }, [autoRedirect, router]);
 
   const handleOkClick = () => {
-    router.replace("/home/EventScreen");
+    router.replace("/home/Events");
   };
 
   return (
@@ -62,7 +76,7 @@ export default function BookingSuccess() {
       >
         Your tickets for{" "}
         <Text className="font-outfit-bold text-textprimary">
-          {eventName || "the event"}
+          {resolvedEventName}
         </Text>{" "}
         have been successfully booked.
       </MotiText>
@@ -76,9 +90,20 @@ export default function BookingSuccess() {
       >
         Number of Attendees:{" "}
         <Text className="font-outfit-bold text-textprimary">
-          {attendees || "1"}
+          {attendeeLabel}
         </Text>
       </MotiText>
+
+      {buyerEmail ? (
+        <MotiText
+          className="text-xs text-textsecondary font-outfit"
+          from={{ opacity: 0, translateY: 20 }}
+          animate={{ opacity: 1, translateY: 0 }}
+          transition={{ duration: 400, delay: 1100 }}
+        >
+          Confirmation sent to {buyerEmail}.
+        </MotiText>
+      ) : null}
 
       {/* ✅ Auto-redirect Info */}
       {autoRedirect === "true" && (

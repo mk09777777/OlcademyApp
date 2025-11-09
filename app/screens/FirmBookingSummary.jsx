@@ -13,12 +13,7 @@ import * as Notifications from 'expo-notifications';
 import Constants from 'expo-constants';
 import { API_CONFIG } from '../../config/apiConfig';
 import { api } from '../../config/httpClient'; 
-<<<<<<< HEAD
-import { useSafeNavigation } from "@/hooks/navigationPage";
-
-=======
 import { API_ENDPOINTS } from '../../config/api';
->>>>>>> d59707d (api end point fixed)
 
 // Check if running in development build or Expo Go
 const isExpoGo = Constants.appOwnership === 'expo';

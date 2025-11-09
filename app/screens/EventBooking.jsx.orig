@@ -225,7 +225,7 @@ export default function EventBooking() {
 
           <TouchableOpacity
             className="bg-primary px-6 py-3 rounded-lg mt-6"
-            onPress={() => safeNavigation('/home/LiveShows')}
+            onPress={() => safeNavigation('/home/Events')}
           >
             <Text className="text-white font-outfit-bold">Back to Events</Text>
           </TouchableOpacity>

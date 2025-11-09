@@ -1,48 +1,68 @@
 import { View, Text, ScrollView, ImageBackground, TouchableOpacity, TextInput, Alert } from 'react-native';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useGlobalSearchParams } from 'expo-router';
 import { useSafeNavigation } from '@/hooks/navigationPage';
 import { Ionicons } from '@expo/vector-icons';
+import { getEventById } from '@/Data/EventData';
 
 export default function EventBooking() {
-  const { event } = useGlobalSearchParams();
+  const { eventId, event } = useGlobalSearchParams();
   const [eventDetails, setEventDetails] = useState(null);
   const [ticketCount, setTicketCount] = useState(1);
   const [selectedSection, setSelectedSection] = useState('General Admission');
   const [buyerName, setBuyerName] = useState('');
   const [buyerEmail, setBuyerEmail] = useState('');
-  const [paymentDone, setPaymentDone] = useState(false);
   const { safeNavigation } = useSafeNavigation();
 
   useEffect(() => {
-    if (event) {
-      setEventDetails(JSON.parse(event));
+    if (eventId) {
+      const found = getEventById(eventId);
+      setEventDetails(found ?? null);
+      return;
     }
-  }, [event]);
 
-  const ticketPrice = selectedSection === 'VIP' ? 1499 : 799;
+    if (event) {
+      try {
+        setEventDetails(JSON.parse(event));
+      } catch (parseError) {
+        console.warn('Unable to parse event payload:', parseError);
+        setEventDetails(null);
+      }
+    }
+  }, [event, eventId]);
+
+  const pricing = useMemo(() => ({
+    general: eventDetails?.pricing?.general ?? 799,
+    vip: eventDetails?.pricing?.vip ?? 1499,
+  }), [eventDetails]);
+
+  const ticketPrice = selectedSection === 'VIP' ? pricing.vip : pricing.general;
   const totalPrice = ticketCount * ticketPrice;
+  const formattedTotal = totalPrice.toLocaleString('en-IN');
+  const scheduleLabel = eventDetails
+    ? `${eventDetails.date}${eventDetails.startTime ? ` | ${eventDetails.startTime}${eventDetails.endTime ? ` - ${eventDetails.endTime}` : ''}` : ''}`
+    : '';
 
   const handleBooking = () => {
+    if (!eventDetails) {
+      return;
+    }
     if (!buyerName.trim() || !buyerEmail.trim()) {
       Alert.alert('Please fill in your name and email before booking.');
       return;
     }
     // Mock payment success
-    Alert.alert(
-      'Proceed to Payment',
-      `Amount: ₹${totalPrice}`,
-      [
-        { text: 'Cancel', style: 'cancel' },
-        { 
-          text: 'Pay Now', 
-          onPress: () => {
-            setPaymentDone(true);
-            Alert.alert('Payment Successful!', 'Your booking has been confirmed.');
-          } 
-        }
-      ]
-    );
+    safeNavigation({
+      pathname: '/screens/EventBookingSummary',
+      params: {
+        eventId: eventDetails.id,
+        attendees: String(ticketCount),
+        section: selectedSection,
+        total: String(totalPrice),
+        buyerName,
+        buyerEmail,
+      },
+    });
   };
 
   if (!eventDetails) {
@@ -57,18 +77,17 @@ export default function EventBooking() {
     <ScrollView className="flex-1 bg-background">
       {/* Header Image */}
       <ImageBackground
-        source={eventDetails.image}
+        source={eventDetails.bannerImage || eventDetails.image}
         className="h-60 justify-end"
       >
         <View className="p-4 pb-6 bg-black bg-opacity-40">
           <Text className="text-white text-2xl font-outfit-bold">{eventDetails.title}</Text>
-          <Text className="text-white text-base font-outfit">Sat, Feb 8 | 6PM onwards</Text>
+          <Text className="text-white text-base font-outfit">{scheduleLabel}</Text>
         </View>
       </ImageBackground>
 
       {/* Booking Form */}
-      {!paymentDone ? (
-        <View className="p-4">
+      <View className="p-4">
           <Text className="text-textprimary text-lg font-outfit-bold mb-3">
             Booking Details
           </Text>
@@ -88,7 +107,7 @@ export default function EventBooking() {
                   selectedSection === type ? 'text-primary' : 'text-textprimary'
                 }`}
               >
-                {type} — ₹{type === 'VIP' ? '1499' : '799'}
+                {type} — ₹{type === 'VIP' ? pricing.vip : pricing.general}
               </Text>
             </TouchableOpacity>
           ))}
@@ -139,7 +158,7 @@ export default function EventBooking() {
             <Text className="text-textprimary font-outfit">Section: {selectedSection}</Text>
             <Text className="text-textprimary font-outfit">Tickets: {ticketCount}</Text>
             <Text className="text-primary font-outfit-bold text-lg mt-2">
-              Total: ₹{totalPrice}
+              Total: ₹{formattedTotal}
             </Text>
           </View>
 
@@ -150,29 +169,7 @@ export default function EventBooking() {
           >
             <Text className="text-white font-outfit-bold text-lg">Proceed to Pay</Text>
           </TouchableOpacity>
-        </View>
-      ) : (
-        // Confirmation View after payment
-        <View className="p-6 items-center">
-          <Ionicons name="checkmark-circle" size={80} color="#22c55e" />
-          <Text className="text-2xl font-outfit-bold text-green-600 mt-4">
-            Booking Confirmed!
-          </Text>
-          <Text className="text-textsecondary text-center mt-2">
-            Your tickets for {eventDetails.title} have been successfully booked.
-          </Text>
-          <Text className="text-primary font-outfit mt-2">
-            You will receive confirmation at {buyerEmail}.
-          </Text>
-
-          <TouchableOpacity
-            className="bg-primary px-6 py-3 rounded-lg mt-6"
-            onPress={() => safeNavigation('/home/LiveShows')}
-          >
-            <Text className="text-white font-outfit-bold">Back to Events</Text>
-          </TouchableOpacity>
-        </View>
-      )}
+      </View>
     </ScrollView>
   );
 }

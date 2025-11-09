@@ -164,6 +164,8 @@ const resolveGoogleMapsApiKey = () => {
   );
 };
 
+const DEFAULT_DELTA = 0.01;
+
 export default function MapPicker() {
   const router = useRouter();
   const { updateLocation, setRecentlyAdds, location: currentLocation } = useLocationContext();
@@ -211,8 +213,8 @@ export default function MapPicker() {
   const [region, setRegion] = useState({
     latitude: 19.1573,
     longitude: 73.2631,
-    latitudeDelta: 0.01,
-    longitudeDelta: 0.01,
+    latitudeDelta: DEFAULT_DELTA,
+    longitudeDelta: DEFAULT_DELTA,
   });
 
   // AddressMapPicker states
@@ -442,19 +444,93 @@ export default function MapPicker() {
     return locationEntry;
   };
 
+  // Central handler that drops the marker, optionally recenters the map, and fetches address data.
+  const handleMapCoordinateSelection = useCallback(
+    (coordinate, options = {}) => {
+      if (!coordinate) {
+        return;
+      }
+
+      const {
+        persist = true,
+        centerMap = false,
+        animationDuration = 350,
+        skipReverseGeocode = false,
+        regionOverride,
+      } = options;
+
+      const { latitude, longitude } = coordinate;
+
+      setSelectedCoordinate({ latitude, longitude });
+
+      let geocodePromise = null;
+
+      setRegion((prev) => {
+        const nextRegion = {
+          latitude,
+          longitude,
+          latitudeDelta:
+            regionOverride?.latitudeDelta ?? prev?.latitudeDelta ?? DEFAULT_DELTA,
+          longitudeDelta:
+            regionOverride?.longitudeDelta ?? prev?.longitudeDelta ?? DEFAULT_DELTA,
+        };
+
+        if (centerMap) {
+          requestAnimationFrame(() => {
+            if (mapRef.current) {
+              mapRef.current.animateToRegion(nextRegion, animationDuration);
+            }
+          });
+        }
+
+        return nextRegion;
+      });
+
+      if (!skipReverseGeocode) {
+        geocodePromise = reverseGeocodeCoordinates(
+          latitude,
+          longitude,
+          persist ? { persist: true } : {}
+        ).catch(() => {});
+      }
+
+      return geocodePromise;
+    },
+    [reverseGeocodeCoordinates]
+  );
+
+  const handleMapPress = useCallback(
+    (event) => {
+      handleMapCoordinateSelection(event?.nativeEvent?.coordinate);
+    },
+    [handleMapCoordinateSelection]
+  );
+
+  const handleMarkerDragEnd = useCallback(
+    (event) => {
+      handleMapCoordinateSelection(event?.nativeEvent?.coordinate);
+    },
+    [handleMapCoordinateSelection]
+  );
+
   // Handle selection of a search result
   const handleSelectSearchResult = async (result) => {
     try {
       const lat = parseFloat(result.lat);
       const lon = parseFloat(result.lon);
-      const newRegion = {
-        latitude: lat,
-        longitude: lon,
-        latitudeDelta: 0.01,
-        longitudeDelta: 0.01,
-      };
-      setRegion(newRegion);
-      setSelectedCoordinate({ latitude: lat, longitude: lon });
+      handleMapCoordinateSelection(
+        { latitude: lat, longitude: lon },
+        {
+          persist: false,
+          centerMap: true,
+          animationDuration: 1000,
+          skipReverseGeocode: true,
+          regionOverride: {
+            latitudeDelta: DEFAULT_DELTA,
+            longitudeDelta: DEFAULT_DELTA,
+          },
+        }
+      );
       const address = result.address || {};
       const fallbackLabel = result.display_name || result.fullAddress || `Lat: ${lat.toFixed(6)}, Lon: ${lon.toFixed(6)}`;
 
@@ -476,11 +552,6 @@ export default function MapPicker() {
       setCurrentAddress(locationEntry.fullAddress);
       setAddress(locationEntry.fullAddress);
       await commitLocationData(locationEntry);
-      setTimeout(() => {
-        if (mapRef.current) {
-          mapRef.current.animateToRegion(newRegion, 1000);
-        }
-      }, 100);
       setShowSearchModal(false);
       setSearchQuery('');
       setSearchResults([]);
@@ -580,16 +651,18 @@ export default function MapPicker() {
         throw new Error('No coordinates returned from location services');
       }
 
-      const newRegion = {
-        latitude: coords.latitude,
-        longitude: coords.longitude,
-        latitudeDelta: 0.01,
-        longitudeDelta: 0.01,
-      };
-      setRegion(newRegion);
-      setSelectedCoordinate({ latitude: coords.latitude, longitude: coords.longitude });
-      setTimeout(() => mapRef.current?.animateToRegion(newRegion, 1000), 100);
-      await reverseGeocodeCoordinates(coords.latitude, coords.longitude, { persist: true });
+      await handleMapCoordinateSelection(
+        { latitude: coords.latitude, longitude: coords.longitude },
+        {
+          persist: true,
+          centerMap: true,
+          animationDuration: 1000,
+          regionOverride: {
+            latitudeDelta: DEFAULT_DELTA,
+            longitudeDelta: DEFAULT_DELTA,
+          },
+        }
+      );
     } catch (error) {
       console.error('Error getting current location:', error);
       showLocationAlert('Location Error', 'Could not get current location. Please try again.');
@@ -615,25 +688,24 @@ export default function MapPicker() {
         if (currentLocation && currentLocation.lat && currentLocation.lon) {
           const lat = parseFloat(currentLocation.lat);
           const lon = parseFloat(currentLocation.lon);
-          const newRegion = {
-            latitude: lat,
-            longitude: lon,
-            latitudeDelta: 0.01,
-            longitudeDelta: 0.01,
-          };
-          setRegion(newRegion);
-          setSelectedCoordinate({ latitude: lat, longitude: lon });
-          if (currentLocation.fullAddress) {
+          const hasFullAddress = Boolean(currentLocation.fullAddress);
+          await handleMapCoordinateSelection(
+            { latitude: lat, longitude: lon },
+            {
+              persist: false,
+              centerMap: true,
+              animationDuration: 1000,
+              skipReverseGeocode: hasFullAddress,
+              regionOverride: {
+                latitudeDelta: DEFAULT_DELTA,
+                longitudeDelta: DEFAULT_DELTA,
+              },
+            }
+          );
+          if (hasFullAddress) {
             setCurrentAddress(currentLocation.fullAddress);
             setAddress(currentLocation.fullAddress);
-          } else {
-            await reverseGeocodeCoordinates(lat, lon);
           }
-          setTimeout(() => {
-            if (mapRef.current) {
-              mapRef.current.animateToRegion(newRegion, 1000);
-            }
-          }, 500);
         } else {
           await getCurrentLocation();
         }
@@ -819,16 +891,9 @@ export default function MapPicker() {
           <MapView
             ref={mapRef}
             style={StyleSheet.absoluteFillObject}
-            region={region}
+            initialRegion={region}
             onRegionChangeComplete={handleRegionChangeComplete}
-            onPress={(e) => {
-              const { latitude, longitude } = e.nativeEvent.coordinate;
-              const newRegion = { latitude, longitude, latitudeDelta: region.latitudeDelta, longitudeDelta: region.longitudeDelta };
-              setRegion(newRegion);
-              setSelectedCoordinate({ latitude, longitude });
-              mapRef.current?.animateToRegion(newRegion, 400);
-              reverseGeocodeCoordinates(latitude, longitude, { persist: true }).catch(() => {});
-            }}
+            onPress={handleMapPress}
             showsUserLocation
             showsMyLocationButton={false}
             googleMapsApiKey={googleMapsApiKey}
@@ -838,14 +903,7 @@ export default function MapPicker() {
                 coordinate={selectedCoordinate}
                 pinColor="#e41e3f"
                 draggable
-                onDragEnd={(e) => {
-                  const { latitude, longitude } = e.nativeEvent.coordinate;
-                  const newRegion = { latitude, longitude, latitudeDelta: region.latitudeDelta, longitudeDelta: region.longitudeDelta };
-                  setRegion(newRegion);
-                  setSelectedCoordinate({ latitude, longitude });
-                  mapRef.current?.animateToRegion(newRegion, 400);
-                  reverseGeocodeCoordinates(latitude, longitude, { persist: true }).catch(() => {});
-                }}
+                onDragEnd={handleMarkerDragEnd}
               />
             )}
           </MapView>

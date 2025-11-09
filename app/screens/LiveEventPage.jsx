@@ -3,7 +3,7 @@ import { View, ActivityIndicator, Text, FlatList } from 'react-native';
 import MainTabs from '../../components/MainEvent';
 import EventCard from '../../Card/EventCard';
 import EventDetailsModal from '../../Model/EventModal';
-import { mockEvents } from '../../Data/EventData';
+import { events as sharedEvents } from '../../Data/EventData';
 import BackRouting from '@/components/BackRouting';
 const EventsTabView = () => {
   /* Original CSS Reference:
@@ -39,8 +39,8 @@ const EventsTabView = () => {
 
         // Simulating an API call with a delay
         setTimeout(() => {
-          console.log("Mock Events:", mockEvents);
-          setEvents(mockEvents || []); // Ensure it sets an array
+          console.log('Loaded events:', sharedEvents);
+          setEvents(sharedEvents || []);
           setLoading(false);
         }, 1010);
       } catch (error) {
