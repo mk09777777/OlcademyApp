@@ -20,17 +20,18 @@
 //   // return isAuthenticated ? 
 //     <Redirect href="/home" /> 
 // }
-import React from 'react'
-import { Redirect } from 'expo-router'
+import { Text, View } from 'react-native';
+import { Redirect } from 'expo-router';
+
 export const unstable_settings = {
   initialRouteName: 'auth',
 };
 
-export default function index() {
-
+export default function Index() {
+  // Temporary debug to see if file is loaded
+  // return <View style={{flex:1, justifyContent:'center', alignItems:'center'}}><Text>Index Loaded</Text></View>;
   return (<>
     <Redirect href="auth"/>
-
     </>
   )
 }
