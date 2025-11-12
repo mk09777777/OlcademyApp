@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView } from 'react-native';
+import { View, ScrollView } from 'react-native';
 import {
   Modal,
   Portal,
@@ -104,27 +104,27 @@ const FilterModal = ({
       <Modal
         visible={visible}
         onDismiss={onDismiss}
-        contentContainerStyle={styles.modalContainer}
+        contentContainerClassName="bg-white mx-4 rounded-lg h-4/5"
       >
-        <View style={styles.header}>
-          <Text variant="titleLarge" style={styles.title}>
+        <View className="flex-row justify-between items-center p-4 border-b border-gray-200">
+          <Text variant="titleLarge" className="font-outfit-bold">
             Filters
           </Text>
           <IconButton icon="close" size={24} onPress={onDismiss} />
         </View>
 
-        <ScrollView style={styles.content}>
-          <View style={styles.section}>
-            <Text variant="titleMedium" style={styles.sectionTitle}>
+        <ScrollView className="flex-1">
+          <View className="p-4">
+            <Text variant="titleMedium" className="mb-3 font-outfit-medium">
               Diet Type
             </Text>
-            <View style={styles.chipContainer}>
+            <View className="flex-row flex-wrap gap-2">
               {dietTypes.map((type) => (
                 <Chip
                   key={type}
                   selected={localFilters.dietType.includes(type)}
                   onPress={() => toggleDietType(type)}
-                  style={styles.chip}
+                  className="mb-1"
                 >
                   {type}
                 </Chip>
@@ -132,19 +132,19 @@ const FilterModal = ({
             </View>
           </View>
 
-          <Divider style={styles.divider} />
+          <Divider className="bg-gray-200" />
 
-          <View style={styles.section}>
-            <Text variant="titleMedium" style={styles.sectionTitle}>
+          <View className="p-4">
+            <Text variant="titleMedium" className="mb-3 font-outfit-medium">
               Meal Type
             </Text>
-            <View style={styles.chipContainer}>
+            <View className="flex-row flex-wrap gap-2">
               {mealTypes.map((type) => (
                 <Chip
                   key={type}
                   selected={localFilters.mealTypes.includes(type)}
                   onPress={() => toggleMealType(type)}
-                  style={styles.chip}
+                  className="mb-1"
                 >
                   {type}
                 </Chip>
@@ -152,19 +152,19 @@ const FilterModal = ({
             </View>
           </View>
 
-          <Divider style={styles.divider} />
+          <Divider className="bg-gray-200" />
 
-          <View style={styles.section}>
-            <Text variant="titleMedium" style={styles.sectionTitle}>
+          <View className="p-4">
+            <Text variant="titleMedium" className="mb-3 font-outfit-medium">
               Cuisine Type
             </Text>
-            <View style={styles.chipContainer}>
+            <View className="flex-row flex-wrap gap-2">
               {cuisineTypes.map((type) => (
                 <Chip
                   key={type}
                   selected={localFilters.cuisineTypes.includes(type)}
                   onPress={() => toggleCuisineType(type)}
-                  style={styles.chip}
+                  className="mb-1"
                 >
                   {type}
                 </Chip>
@@ -172,18 +172,18 @@ const FilterModal = ({
             </View>
           </View>
 
-          <Divider style={styles.divider} />
+          <Divider className="bg-gray-200" />
 
-          <View style={styles.section}>
-            <Text variant="titleMedium" style={styles.sectionTitle}>
+          <View className="p-4">
+            <Text variant="titleMedium" className="mb-3 font-outfit-medium">
               Price Range
             </Text>
-            <View style={styles.sliderContainer}>
-              <Text style={styles.rangeText}>
+            <View className="mt-2">
+              <Text className="text-center mb-2 color-gray-600 font-outfit">
                 {formatPrice(localFilters.priceRange[0])} - {formatPrice(localFilters.priceRange[1])}
               </Text>
               <Slider
-                style={styles.slider}
+                className="w-full h-10"
                 minimumValue={0}
                 maximumValue={1000}
                 step={50}
@@ -195,18 +195,18 @@ const FilterModal = ({
             </View>
           </View>
 
-          <Divider style={styles.divider} />
+          <Divider className="bg-gray-200" />
 
-          <View style={styles.section}>
-            <Text variant="titleMedium" style={styles.sectionTitle}>
+          <View className="p-4">
+            <Text variant="titleMedium" className="mb-3 font-outfit-medium">
               Maximum Distance
             </Text>
-            <View style={styles.sliderContainer}>
-              <Text style={styles.rangeText}>
+            <View className="mt-2">
+              <Text className="text-center mb-2 color-gray-600 font-outfit">
                 {formatDistance(localFilters.maxDistance)}
               </Text>
               <Slider
-                style={styles.slider}
+                className="w-full h-10"
                 minimumValue={1}
                 maximumValue={20}
                 step={1}
@@ -218,10 +218,10 @@ const FilterModal = ({
             </View>
           </View>
 
-          <Divider style={styles.divider} />
+          <Divider className="bg-gray-200" />
 
-          <View style={styles.section}>
-            <View style={styles.switchContainer}>
+          <View className="p-4">
+            <View className="flex-row justify-between items-center">
               <Text variant="titleMedium">Subscription Available Only</Text>
               <Switch
                 value={localFilters.subscriptionOnly}
@@ -232,18 +232,18 @@ const FilterModal = ({
           </View>
         </ScrollView>
 
-        <View style={styles.footer}>
+        <View className="flex-row justify-between p-4 border-t border-gray-200">
           <Button
             mode="outlined"
             onPress={handleReset}
-            style={styles.resetButton}
+            className="flex-1 mr-3"
           >
             Reset
           </Button>
           <Button
             mode="contained"
             onPress={handleApply}
-            style={styles.applyButton}
+            className="flex-1"
           >
             Apply Filters
           </Button>
@@ -253,6 +253,7 @@ const FilterModal = ({
   );
 };
 
+/* COMMENTED OUT STYLESHEET - CONVERTED TO NATIVEWIND
 const styles = StyleSheet.create({
   modalContainer: {
     backgroundColor: COLORS.BACKGROUND.PRIMARY,
@@ -324,5 +325,6 @@ const styles = StyleSheet.create({
     flex: 1,
   },
 });
+*/
 
 export default FilterModal; 

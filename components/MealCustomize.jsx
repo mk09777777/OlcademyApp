@@ -14,7 +14,6 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { Calendar } from 'react-native-calendars';
 import RNPickerSelect from 'react-native-picker-select';
-import styles from '../styles/mealCustomizationStyle';
 
 const MealCustomizationModal = ({
   visible = false,
@@ -301,52 +300,52 @@ const MealCustomizationModal = ({
       transparent={false}
       onRequestClose={handleClose}
     >
-      <View style={styles.modalContainer}>
-        <View style={styles.modalHeader}>
-          <Text style={styles.modalTitle}>Customize Your Meal</Text>
-          <TouchableOpacity onPress={handleClose} style={styles.closeButton}>
+      <View className="flex-1 bg-white">
+        <View className="flex-row justify-between items-center p-4 border-b border-gray-200">
+          <Text className="text-xl font-outfit-bold color-gray-900">Customize Your Meal</Text>
+          <TouchableOpacity onPress={handleClose} className="p-2">
             <Ionicons name="close" size={24} color="#666" />
           </TouchableOpacity>
         </View>
 
-        <ScrollView style={styles.modalScroll}>
+        <ScrollView className="flex-1 p-4">
           {mealItem && (
-            <View style={styles.mealInfo}>
-              <Text style={styles.mealName}>{mealItem.name}</Text>
-              <Text style={styles.mealPrice}>
+            <View className="mb-6 p-4 bg-gray-50 rounded-lg">
+              <Text className="text-lg font-outfit-bold color-gray-900">{mealItem.name}</Text>
+              <Text className="text-xl font-outfit-bold color-primary mt-2">
                 ${state.selectedPlan
                   ? state.selectedPlan.price.toFixed(2)
                   : (mealItem.basePrice || 0).toFixed(2)}
               </Text>
-              <Text style={styles.mealDescription}>{mealItem.description}</Text>
+              <Text className="text-sm color-gray-600 font-outfit mt-2">{mealItem.description}</Text>
             </View>
           )}
 
-          <View style={styles.customizationForm}>
-            <View style={styles.formGroup}>
-              <Text style={styles.formLabel}>Plan Type</Text>
-              <View style={styles.dropdownContainer}>
+          <View>
+            <View className="mb-6">
+              <Text className="text-base font-outfit-bold color-gray-900 mb-3">Plan Type</Text>
+              <View className="border border-gray-200 rounded-lg">
                 <RNPickerSelect
                   onValueChange={handlePlanChange}
                   items={Plan_TYPES}
                   placeholder={{ label: 'Select a plan type', value: null }}
-                  value={state.selectedPlan.value}
+                  value={state.selectedPlan?.value}
                   style={pickerSelectStyles}
                   useNativeAndroidPickerStyle={false}
                 />
               </View>
               {state.selectedPlan && (
-                <Text style={styles.discountText}>
+                <Text className="text-sm color-green-600 font-outfit mt-2">
                   {state.selectedPlan.discountText}
                 </Text>
               )}
             </View>
 
             {state.selectedPlan && (
-              <View style={styles.formGroup}>
-                <Text style={styles.formLabel}>{getInstructionText()}</Text>
+              <View className="mb-6">
+                <Text className="text-base font-outfit-bold color-gray-900 mb-3">{getInstructionText()}</Text>
                 <Calendar
-                  style={styles.calendarContainer}
+                  className="border border-gray-200 rounded-lg"
                   markedDates={getMarkedDates()}
                   onDayPress={handleDayPress}
                   markingType="period"
@@ -368,9 +367,9 @@ const MealCustomizationModal = ({
               </View>
             )}
 
-            <View style={styles.formGroup}>
-              <Text style={styles.formLabel}>Delivery Time</Text>
-              <View style={styles.dropdownContainer}>
+            <View className="mb-6">
+              <Text className="text-base font-outfit-bold color-gray-900 mb-3">Delivery Time</Text>
+              <View className="border border-gray-200 rounded-lg">
                 <RNPickerSelect
                   onValueChange={handleTimeSlotChange}
                   items={TIME_SLOTS}
@@ -383,16 +382,17 @@ const MealCustomizationModal = ({
             </View>
 
             {ADDONS.length > 0 && (
-              <View style={styles.formGroup}>
-                <Text style={styles.formLabel}>Add Extra Items</Text>
-                <View style={styles.addonsContainer}>
+              <View className="mb-6">
+                <Text className="text-base font-outfit-bold color-gray-900 mb-3">Add Extra Items</Text>
+                <View className="flex-row flex-wrap gap-2">
                   {ADDONS.map((addon) => (
                     <TouchableOpacity
                       key={addon.key}
-                      style={[
-                        styles.addonOption,
-                        state.selectedAddons.some(a => a.value === addon.value) && styles.addonSelected
-                      ]}
+                      className={`px-4 py-2 rounded-lg border ${
+                        state.selectedAddons.some(a => a.value === addon.value)
+                          ? 'bg-primary border-primary'
+                          : 'bg-white border-gray-200'
+                      }`}
                       onPress={() => {
                         setState(prev => {
                           const isSelected = prev.selectedAddons.some(a => a.value === addon.value);
@@ -405,18 +405,22 @@ const MealCustomizationModal = ({
                         });
                       }}
                     >
-                      <Text style={styles.addonLabel}>{addon.label}</Text>
+                      <Text className={`text-sm font-outfit ${
+                        state.selectedAddons.some(a => a.value === addon.value)
+                          ? 'text-white'
+                          : 'color-gray-700'
+                      }`}>{addon.label}</Text>
                     </TouchableOpacity>
                   ))}
                 </View>
               </View>
             )}
 
-            <View style={styles.formGroup}>
-              <Text style={styles.formLabel}>Quantity</Text>
-              <View style={styles.quantityContainer}>
+            <View className="mb-6">
+              <Text className="text-base font-outfit-bold color-gray-900 mb-3">Quantity</Text>
+              <View className="flex-row items-center justify-center bg-gray-100 rounded-lg p-2">
                 <TouchableOpacity
-                  style={styles.quantityButton}
+                  className="p-2 bg-white rounded-lg"
                   onPress={() => setState(prev => ({
                     ...prev,
                     quantity: Math.max(1, prev.quantity - 1)
@@ -424,9 +428,9 @@ const MealCustomizationModal = ({
                 >
                   <Ionicons name="remove" size={20} color="#4CAF50" />
                 </TouchableOpacity>
-                <Text style={styles.quantityText}>{state.quantity}</Text>
+                <Text className="text-lg font-outfit-bold color-gray-900 mx-6">{state.quantity}</Text>
                 <TouchableOpacity
-                  style={styles.quantityButton}
+                  className="p-2 bg-white rounded-lg"
                   onPress={() => setState(prev => ({
                     ...prev,
                     quantity: prev.quantity + 1
@@ -437,41 +441,42 @@ const MealCustomizationModal = ({
               </View>
             </View>
 
-            <View style={styles.priceBreakdown}>
-              <Text style={styles.priceBreakdownText}>
+            <View className="bg-gray-50 p-4 rounded-lg">
+              <Text className="text-base color-gray-700 font-outfit mb-2">
                 Subtotal: ${calculateTotal().subtotal.toFixed(2)}
               </Text>
               {calculateTotal().discount > 0 && (
-                <Text style={styles.priceBreakdownText}>
-                  Discount: -S{calculateTotal().discount.toFixed(2)}
+                <Text className="text-base color-gray-700 font-outfit mb-2">
+                  Discount: -${calculateTotal().discount.toFixed(2)}
                 </Text>
               )}
-              <Text style={[styles.priceBreakdownText, styles.totalPrice]}>
+              <Text className="text-lg font-outfit-bold color-primary">
                 Total: ${calculateTotal().total.toFixed(2)}
               </Text>
             </View>
           </View>
         </ScrollView>
 
-        <View style={styles.actionBar}>
+        <View className="flex-row p-4 border-t border-gray-200 gap-3">
           <TouchableOpacity
-            style={styles.cancelButton}
+            className="flex-1 py-3 border border-gray-300 rounded-lg items-center"
             onPress={handleClose}
           >
-            <Text style={styles.cancelButtonText}>Cancel</Text>
+            <Text className="text-base font-outfit color-gray-700">Cancel</Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={[
-              styles.submitButton,
-              (!state.selectedPlan || !state.selectedTimeSlots.length) && styles.submitButtonDisabled
-            ]}
+            className={`flex-1 py-3 rounded-lg items-center ${
+              (!state.selectedPlan || !state.selectedTimeSlots.length)
+                ? 'bg-gray-300'
+                : 'bg-primary'
+            }`}
             onPress={handleSubmit}
             disabled={!state.selectedPlan || !state.selectedTimeSlots.length || state.isLoading}
           >
             {state.isLoading ? (
-              <ActivityIndicator color="red" />
+              <ActivityIndicator color="white" />
             ) : (
-              <Text style={styles.mealPrice}>
+              <Text className="text-white font-outfit-bold text-base">
                 ${(state.selectedPlan?.price || mealItem?.basePrice || 0).toFixed(2)}
               </Text>
             )}
@@ -487,35 +492,26 @@ const pickerSelectStyles = StyleSheet.create({
     fontSize: 16,
     paddingVertical: 12,
     paddingHorizontal: 15,
-    borderWidth: 1,
-    borderColor: '#e0e0e0',
-    borderRadius: 8,
     color: '#333',
     paddingRight: 30,
-    backgroundColor: '#fff',
+    backgroundColor: 'transparent',
   },
   inputAndroid: {
     fontSize: 16,
     paddingHorizontal: 15,
     paddingVertical: 12,
-    borderWidth: 1,
-    borderColor: '#e0e0e0',
-    borderRadius: 8,
     color: '#333',
     paddingRight: 30,
-    paddingLeft: 30,
-    backgroundColor: '#fff',
+    paddingLeft: 15,
+    backgroundColor: 'transparent',
   },
   inputWeb: {
     fontSize: 16,
     paddingHorizontal: 15,
     paddingVertical: 12,
-    borderWidth: 1,
-    borderColor: '#e0e0e0',
-    borderRadius: 8,
     color: '#333',
     paddingRight: 30,
-    backgroundColor: '#fff',
+    backgroundColor: 'transparent',
   },
   iconContainer: {
     top: 10,
@@ -525,5 +521,9 @@ const pickerSelectStyles = StyleSheet.create({
     color: '#999',
   },
 });
+
+/* COMMENTED OUT STYLESHEET - CONVERTED TO NATIVEWIND
+Original styles converted to NativeWind classes above
+*/
 
 export default MealCustomizationModal;

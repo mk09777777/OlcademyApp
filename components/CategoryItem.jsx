@@ -2,7 +2,6 @@ import React from 'react';
 import { TouchableOpacity } from 'react-native';
 import { Text } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import styles from '../styles/tiffinstyle';
 
 export const CategoryItem = ({ 
   category, 
@@ -11,23 +10,21 @@ export const CategoryItem = ({
 }) => {
   return (
     <TouchableOpacity
-      style={[
-        styles.categoryItem,
-        isSelected && styles.categoryItemSelected
-      ]}
+      className={`flex-row items-center p-3 m-1 rounded-lg border ${
+        isSelected ? 'bg-orange-50 border-orange-500' : 'bg-white border-gray-200'
+      }`}
       onPress={() => onSelect(category.id)}
     >
       <MaterialCommunityIcons
         name={category?.icon || 'help-circle'}
         size={24}
         color={isSelected ? '#FF4500' : '#666'}
-        style={styles.categoryIcon}
+        className="mr-2"
       />
       <Text
-        style={[
-          styles.categoryText,
-          isSelected && styles.categoryTextSelected
-        ]}
+        className={`text-sm font-outfit ${
+          isSelected ? 'color-orange-600 font-outfit-bold' : 'color-gray-700'
+        }`}
       >
         {category?.name || 'Category'}
       </Text>

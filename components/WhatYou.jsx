@@ -1,10 +1,6 @@
 import React from 'react';
-import { View, Text, Image, ScrollView, StyleSheet, Dimensions, TouchableOpacity } from 'react-native';
+import { View, Text, Image, ScrollView, TouchableOpacity } from 'react-native';
 import { router } from 'expo-router';
-
-const { width } = Dimensions.get('window');
-const ITEM_WIDTH = 80; // Fixed width for each item
-const ITEM_MARGIN = 10; // Margin between items
 
 const foodData = [
   { id: '1', name: 'Punjabi', image: require('@/assets/images/dish.jpg') },
@@ -18,27 +14,34 @@ const foodData = [
 
 const Whatsonyou = () => {
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>WHAT'S ON YOUR MIND?</Text>
-        <View style={styles.underline} />
+    <View className="bg-white my-2.5">
+      <View className="items-center mb-4">
+        <Text className="font-bold text-[16px] text-[#222222] uppercase tracking-wider mb-1 mx-2">
+          WHAT'S ON YOUR MIND?
+        </Text>
+        <View className="w-[50px] h-[3px] bg-[#FF6B6B] rounded-md" />
       </View>
-      <ScrollView 
+
+      <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.horizontalList}
+        contentContainerStyle={{ alignItems: 'center', paddingHorizontal: 0 }}
       >
         {foodData.map((item) => (
-          <TouchableOpacity 
-            key={item.id} 
-            style={styles.itemContainer}
-            onPress={() => router.push({
-              pathname: '/screens/tiffinonmind',
-              params: { name: item?.name }
-            })}
+          <TouchableOpacity
+            key={item.id}
+            className="w-[80px] items-center justify-center"
+            onPress={() =>
+              router.push({
+                pathname: '/screens/tiffinonmind',
+                params: { name: item?.name },
+              })
+            }
           >
-            <Image source={item.image} style={styles.image} />
-            <Text style={styles.label}>{item.name}</Text>
+            <Image source={item.image} className="w-[60px] h-[60px] rounded-full mb-1.5" />
+            <Text className="text-[13px] font-medium text-[#333] text-center">
+              {item.name}
+            </Text>
           </TouchableOpacity>
         ))}
       </ScrollView>
@@ -47,6 +50,8 @@ const Whatsonyou = () => {
 };
 
 export default Whatsonyou;
+
+/* ---------------- OLD STYLESHEET (Commented Out) ----------------
 
 const styles = StyleSheet.create({
   container: {
@@ -65,8 +70,8 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
     marginBottom: 5,
     fontFamily: 'outfit',
-		fontSize: 16,
-		color: '#222222',
+    fontSize: 16,
+    color: '#222222',
     marginHorizontal: 7
   },
   underline: {
@@ -81,7 +86,6 @@ const styles = StyleSheet.create({
   },
   itemContainer: {
     width: ITEM_WIDTH,
-    // marginRight: ITEM_MARGIN,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -99,3 +103,5 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
 });
+
+---------------------------------------------------------------- */

@@ -1,16 +1,19 @@
 import React from 'react';
 import { View, TouchableOpacity, Text } from 'react-native';
-import styles from '../styles/EventPage';
 
 const MainTabs = ({ activeTab, onTabChange }) => (
-  <View style={styles.mainTabContainer}>
+  <View className="flex-row bg-gray-100 rounded-lg p-1 mx-4 mb-4">
     {['all','upcoming','active', 'past'].map((tab) => (
       <TouchableOpacity
         key={tab}
-        style={[styles.mainTab, activeTab === tab && styles.activeMainTab]}
+        className={`flex-1 py-2 px-3 rounded-md items-center ${
+          activeTab === tab ? 'bg-white shadow-sm' : 'bg-transparent'
+        }`}
         onPress={() => onTabChange(tab)}
       >
-        <Text style={[styles.mainTabText, activeTab === tab && styles.activeMainTabText]}>
+        <Text className={`text-sm font-outfit ${
+          activeTab === tab ? 'color-primary font-outfit-bold' : 'color-gray-600'
+        }`}>
           {tab.charAt(0).toUpperCase() + tab.slice(1)}
         </Text>
       </TouchableOpacity>

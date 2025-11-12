@@ -374,7 +374,7 @@ function Reviewsall() {
 
   if (loading && page === 1) {
     return (
-      <View style={ZomatoStyles.loadingContainer}>
+      <View className="flex-1 justify-center items-center">
         <ActivityIndicator size="large" color="#0000ff" />
       </View>
     );
@@ -382,10 +382,10 @@ function Reviewsall() {
 
   if (error) {
     return (
-      <View style={ZomatoStyles.errorContainer}>
-        <Text style={ZomatoStyles.errorText}>{error}</Text>
-        <TouchableOpacity onPress={() => window.location.reload()} style={ZomatoStyles.retryButton}>
-          <Text style={ZomatoStyles.retryText}>Retry</Text>
+      <View className="flex-1 justify-center items-center p-5">
+        <Text className="text-lg font-outfit-bold color-red-600 text-center mb-4">{error}</Text>
+        <TouchableOpacity onPress={() => window.location.reload()} className="bg-primary px-6 py-3 rounded-lg">
+          <Text className="text-white font-outfit-bold">Retry</Text>
         </TouchableOpacity>
       </View>
     );
@@ -393,45 +393,41 @@ function Reviewsall() {
 
   return (
     <Fragment>
-      <View style={ZomatoStyles.background}>
-        <View style={ZomatoStyles.headercontainer}>
+      <View className="flex-1 bg-white">
+        <View className="flex-row items-center justify-between p-4 bg-white border-b border-gray-200">
           <TouchableOpacity onPress={() => router.back()}>
-            <Ionicons name="chevron-back" size={32} color="black" style={ZomatoStyles.headingImg} />
+            <Ionicons name="chevron-back" size={32} color="black" />
           </TouchableOpacity>
-          <Text style={ZomatoStyles.HeadingText}>{params.restaurantName || "Reviews"}</Text>
-          <MaterialCommunityIcons name="share-outline" size={32} color="black" style={ZomatoStyles.headingImg2} />
+          <Text className="text-lg font-outfit-bold color-gray-800">{params.restaurantName || "Reviews"}</Text>
+          <MaterialCommunityIcons name="share-outline" size={32} color="black" />
         </View>
 
-        
-
-        <View style={ZomatoStyles.SearchContainer}>
-          <AntDesign name="search1" size={24} color="#E91E63" style={ZomatoStyles.searchImg} />
-          <View style={ZomatoStyles.SearchInput}>
+        <View className="flex-row items-center bg-gray-50 mx-4 my-2 px-3 py-2 rounded-lg">
+          <AntDesign name="search1" size={24} color="#E91E63" className="mr-2" />
+          <View className="flex-1">
             <TextInput
-              style={ZomatoStyles.SearchInput}
+              className="flex-1 text-base font-outfit color-gray-800"
               placeholder="Search in reviews"
               placeholderTextColor={"#6b7280ef"}
             />
           </View>
         </View>
 
-        <View style={ZomatoStyles.filters}>
+        <View className="flex-row items-center px-4 py-2">
           <FlatList
             data={filters}
             keyExtractor={(item, index) => index.toString()}
             renderItem={({ item }) => (
-              <View style={ZomatoStyles.otherfilters}>
+              <View className="mr-2">
                 <TouchableOpacity onPress={() => handleActive(item)}>
-                  <View style={[
-                    ZomatoStyles.verified,
-                    filtersActive[item] && ZomatoStyles.VerifiedActive
-                  ]}>
-                    
-                    <Text style={ZomatoStyles.RelevanceText}>
-                      <MaterialIcons name={item === "verified" ? "verified" : "photo"} size={16} color="black" />
+                  <View className={`flex-row items-center px-3 py-2 rounded-full border ${
+                    filtersActive[item] ? 'bg-primary border-primary' : 'bg-gray-100 border-gray-300'
+                  }`}>
+                    <Text className={`text-sm font-outfit ${filtersActive[item] ? 'text-white' : 'color-gray-800'}`}>
+                      <MaterialIcons name={item === "verified" ? "verified" : "photo"} size={16} color={filtersActive[item] ? "white" : "black"} />
                       {"  "}{item === "verified" ? "Verified" : "With Photos"}
                     </Text>
-                    {filtersActive[item] && <Entypo name="cross" size={20} color="black" style={ZomatoStyles.DropImg} />}
+                    {filtersActive[item] && <Entypo name="cross" size={20} color="white" className="ml-1" />}
                   </View>
                 </TouchableOpacity>
               </View>
@@ -439,9 +435,9 @@ function Reviewsall() {
             horizontal={true}
           />
           
-          <TouchableOpacity style={ZomatoStyles.RevanceActive} onPress={togglepref}>
-            <Text style={ZomatoStyles.RelevanceText}>{pref || "Relevance"}</Text>
-            <MaterialIcons name="arrow-drop-down" size={22} color="black" style={ZomatoStyles.DropImg} />
+          <TouchableOpacity className="flex-row items-center px-3 py-2 bg-gray-100 rounded-full" onPress={togglepref}>
+            <Text className="text-sm font-outfit color-gray-800">{pref || "Relevance"}</Text>
+            <MaterialIcons name="arrow-drop-down" size={22} color="black" className="ml-1" />
           </TouchableOpacity>
           <Modal animationType="slide" transparent={true} visible={perfervisible} onRequestClose={togglepref}>
             <Preference togglepref={togglepref} senddatatoparent={handlechildpref} message={pref} />
@@ -456,63 +452,57 @@ function Reviewsall() {
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
         ListEmptyComponent={
-          <View style={ZomatoStyles.emptyContainer}>
-            <Text style={ZomatoStyles.emptyText}>No reviews found</Text>
+          <View className="flex-1 justify-center items-center p-8">
+            <Text className="text-lg font-outfit-medium color-gray-600 text-center">No reviews found</Text>
           </View>
         }
         renderItem={({ item }) => (
-          <View style={ZomatoStyles.commentMainContainer}>
-            <View style={ZomatoStyles.commentcontainer}>
-              <View style={ZomatoStyles.commentheadingcontainer}>
-                <View style={ZomatoStyles.ratingStartcontainer}>
+          <View className="bg-white mb-4 mx-4 rounded-lg shadow-sm">
+            <View className="p-4">
+              <View className="flex-row justify-between items-start mb-3">
+                <View className="flex-row items-center flex-1">
                   <FontAwesome name="user-circle-o" size={33} color="#b5b9dc" />
-                  <View style={ZomatoStyles.commentnamecontainer}>
-                    <Text style={ZomatoStyles.commentName}>{item.user?.username || "Anonymous"}</Text>
-                    <Text style={ZomatoStyles.commentfollowers}>{item.user.followers} Followers • {getDaysAgo(item.createdAt)}</Text>
+                  <View className="ml-3 flex-1">
+                    <Text className="text-base font-outfit-semibold color-gray-800">{item.user?.username || "Anonymous"}</Text>
+                    <Text className="text-sm font-outfit color-gray-600">{item.user.followers} Followers • {getDaysAgo(item.createdAt)}</Text>
                   </View>
                   <TouchableOpacity
                     onPress={() => handleFollow(item._id, item.reviewType)}
-                    style={[ZomatoStyles.followButton, item.isFollowing && ZomatoStyles.followingButton]}
+                    className={`px-3 py-1 rounded-full ${item.isFollowing ? 'bg-primary' : 'bg-gray-100'}`}
                   >
-                    {/* <Text style={[ZomatoStyles.followButtonText, item.isFollowing && ZomatoStyles.followingButtonText]}>
-                      {item.isFollowing : "Following" : "Follow"}
+                    {/* <Text className={`text-sm font-outfit ${item.isFollowing ? 'text-white' : 'color-gray-800'}`}>
+                      {item.isFollowing ? "Following" : "Follow"}
                     </Text> */}
                   </TouchableOpacity>
                 </View>
-                <View style={ZomatoStyles.commentRatingcontainer}>
-                  <View style={ZomatoStyles.RatingsContainer2}>
-                    <Text style={ZomatoStyles.RatingText}>{item.rating}</Text>
-                    <AntDesign name="star" size={11} color="white" style={ZomatoStyles.RatingImg} />
+                <View className="items-end">
+                  <View className="flex-row items-center bg-primary px-2 py-1 rounded">
+                    <Text className="text-white text-sm font-outfit-bold">{item.rating}</Text>
+                    <AntDesign name="star" size={11} color="white" className="ml-1" />
                   </View>
-                  <View style={ZomatoStyles.commentverifiedtextcontainer}>
+                  <View className="flex-row items-center mt-1">
                     {item.verified && (
                       <>
-                        <MaterialIcons name="verified" size={10} color="#6b7280ef" style={ZomatoStyles.verifiedimg} />
-                        <Text style={ZomatoStyles.commentverified}>Verified order</Text>
+                        <MaterialIcons name="verified" size={10} color="#6b7280ef" />
+                        <Text className="text-xs font-outfit color-gray-500 ml-1">Verified order</Text>
                       </>
                     )}
                   </View>
                 </View>
               </View>
-              <Text style={ZomatoStyles.commentText}>{item.comment}</Text>
-              {/* {item.images && item.images.length > 0 && (
-                <View style={ZomatoStyles.commentimgContainer}>
-                  <Image source={{ uri: item.images[0] }} style={ZomatoStyles.commentimg} />
-                </View>
-              )} */}
-              
+              <Text className="text-sm font-outfit color-gray-700 leading-5">{item.comment}</Text>
             </View>
-            <View style={ZomatoStyles.commenttabscontainer}>
+            <View className="flex-row border-t border-gray-100">
               <TouchableOpacity
                 onPress={() => handleLike(item._id, item.reviewType)}
-                style={ZomatoStyles.commenttabbox}
+                className="flex-1 flex-row items-center justify-center py-3"
               >
                 <AntDesign
                   name={item.isLiked ? "like1" : "like2"}
                   size={20}
                   color={item.isLiked ? "#E91E63" : "black"}
                 />
-                <Text style={[ZomatoStyles.commenttabtext, item.isLiked && {color: "#E91E63"}]}>{item.likes || 0}  </Text>
+                <Text className={`text-sm font-outfit ml-2 ${item.isLiked ? 'color-pink-600' : 'color-gray-800'}`}>{item.likes || 0}</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={() => {
@@ -528,14 +518,14 @@ function Reviewsall() {
                     }
                   });
                 }}
-                style={ZomatoStyles.commenttabbox}
+                className="flex-1 flex-row items-center justify-center py-3 border-l border-gray-100"
               >
                 <MaterialCommunityIcons
                   name="comment-outline"
                   size={20}
                   color="black"
                 />
-                <Text style={ZomatoStyles.commenttabtext}>Comment</Text>
+                <Text className="text-sm font-outfit color-gray-800 ml-2">Comment</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -544,7 +534,7 @@ function Reviewsall() {
         onEndReachedThreshold={0.1}
         ListFooterComponent={
           loading && page > 1 ? (
-            <View style={ZomatoStyles.loadingContainer}>
+            <View className="py-4 items-center">
               <ActivityIndicator size="small" color="#0000ff" />
             </View>
           ) : null
@@ -552,7 +542,7 @@ function Reviewsall() {
       />
       
       <TouchableOpacity
-        style={ZomatoStyles.commentButton}
+        className="absolute bottom-5 right-5 bg-primary px-4 py-3 rounded-full shadow-lg"
         onPress={() => router.push({
           pathname: "/screens/Userrating",
           params: {
@@ -564,9 +554,9 @@ function Reviewsall() {
         })}
         activeOpacity={0.9}
       >
-        <View style={ZomatoStyles.commentButtonContent}>
+        <View className="flex-row items-center">
           <MaterialIcons name="rate-review" size={20} color="#FFF" />
-          <Text style={ZomatoStyles.commentButtonText}>Write a Review</Text>
+          <Text className="text-white font-outfit-semibold ml-2">Write a Review</Text>
         </View>
       </TouchableOpacity>
     </Fragment>

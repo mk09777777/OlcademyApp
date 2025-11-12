@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import {
   View,
   Image,
-  StyleSheet,
   Dimensions,
   ScrollView,
   TouchableOpacity,
@@ -41,7 +40,7 @@ const MenuImage = ({ images = [] }) => {
         horizontal
         pagingEnabled
         showsHorizontalScrollIndicator={false}
-        style={styles.container}
+        className="flex-1"
       >
         {galleryImages.map((image, index) => (
           <TouchableOpacity
@@ -50,7 +49,8 @@ const MenuImage = ({ images = [] }) => {
           >
             <Image
               source={typeof image === 'string' ? { uri: image } : image}
-              style={styles.image}
+              className="rounded-2xl"
+              style={{ width: windowWidth * 0.4, height: windowHeight * 0.2 }}
               resizeMode="cover"
             />
           </TouchableOpacity>
@@ -61,10 +61,10 @@ const MenuImage = ({ images = [] }) => {
         <Modal
           visible={selectedImageIndex !== null}
           onDismiss={() => setSelectedImageIndex(null)}
-          contentContainerStyle={styles.modalContainer}
+          contentContainerClassName="flex-1 bg-black/90 justify-center items-center"
         >
           <TouchableOpacity
-            style={styles.closeButton}
+            className="absolute top-10 right-5 z-10 p-2 bg-black/50 rounded-lg"
             onPress={() => setSelectedImageIndex(null)}
           >
             <MaterialCommunityIcons name="close" size={24} color="#fff" />
@@ -78,21 +78,21 @@ const MenuImage = ({ images = [] }) => {
                     ? { uri: galleryImages[selectedImageIndex] } 
                     : galleryImages[selectedImageIndex]
                 }
-                style={styles.modalImage}
+                className="w-full h-full"
                 resizeMode="contain"
               />
               
               {galleryImages.length > 1 && (
                 <>
                   <TouchableOpacity 
-                    style={[styles.navButton, styles.prevButton]} 
+                    className="absolute left-5 top-1/2 -mt-5 p-4 bg-black/50 rounded-full z-10" 
                     onPress={handlePrev}
                   >
                     <MaterialCommunityIcons name="chevron-left" size={40} color="#fff" />
                   </TouchableOpacity>
                   
                   <TouchableOpacity 
-                    style={[styles.navButton, styles.nextButton]} 
+                    className="absolute right-5 top-1/2 -mt-5 p-4 bg-black/50 rounded-full z-10" 
                     onPress={handleNext}
                   >
                     <MaterialCommunityIcons name="chevron-right" size={40} color="#fff" />
@@ -107,6 +107,7 @@ const MenuImage = ({ images = [] }) => {
   );
 };
 
+/* COMMENTED OUT STYLESHEET - CONVERTED TO NATIVEWIND
 const styles = StyleSheet.create({
   container: {
    flex:1,
@@ -150,5 +151,6 @@ const styles = StyleSheet.create({
     right: 20,
   },
 });
+*/
 
 export default MenuImage;

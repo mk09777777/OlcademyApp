@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Linking, ScrollView, Image } from 'react-native';
+import { View, Text, TouchableOpacity, Linking, ScrollView, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons, MaterialIcons, FontAwesome, MaterialCommunityIcons, Entypo } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -75,38 +75,39 @@ const RestaurantDetailsScreen = () => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <ScrollView contentContainerStyle={styles.contentContainer}>
+    <SafeAreaView className="flex-1 bg-white">
+      <ScrollView contentContainerClassName="pb-20">
         {/* Header with back button */}
-        <View style={styles.header}>
-          <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+        <View className="flex-row items-center justify-between px-4 py-3 bg-white border-b border-border">
+          <TouchableOpacity onPress={() => router.back()} className="p-2">
             <Ionicons name="chevron-back" size={24} color="#333" />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Tiffin Service Details</Text>
+          <Text className="text-lg font-outfit-bold color-gray-900 flex-1 text-center">Tiffin Service Details</Text>
+          <View className="w-10" />
         </View>
 
         {/* Restaurant Image */}
         {restaurant.images && restaurant.images.length > 0 ? (
           <Image 
             source={{ uri: restaurant.images[0] }}
-            style={styles.image}
+            className="w-full h-48"
             resizeMode="cover"
           />
         ) : (
-          <View style={styles.imagePlaceholder}>
+          <View className="w-full h-48 bg-gray-400 items-center justify-center">
             <FontAwesome name="cutlery" size={50} color="#fff" />
           </View>
         )}
 
-        <Text style={styles.title}>{restaurant.kitchenName}</Text>
+        <Text className="text-2xl font-outfit-bold color-gray-900 px-4 mt-4">{restaurant.kitchenName}</Text>
 
-        <View style={styles.ratingContainer}>
+        <View className="flex-row items-center px-4 mt-2">
           <FontAwesome name="star" size={14} color="#ffcc00" />
-          <Text style={styles.ratingText}>{restaurant.ratings?.toFixed(1) || '4.4'}</Text>
-          <Text style={styles.ratingCount}>({formatReviewsCount()})</Text>
+          <Text className="text-base font-outfit-semibold color-gray-800 ml-1">{restaurant.ratings?.toFixed(1) || '4.4'}</Text>
+          <Text className="text-sm font-outfit color-gray-600 ml-1">({formatReviewsCount()})</Text>
           
           <TouchableOpacity 
-            style={styles.viewReviewsButton}
+            className="ml-4 px-3 py-1 bg-primary rounded-full"
             onPress={() => router.push({
               pathname: '/screens/Reviewsall',
               params: {
@@ -117,54 +118,54 @@ const RestaurantDetailsScreen = () => {
               }
             })}
           >
-            <Text style={styles.viewReviewsText}>View Reviews</Text>
+            <Text className="text-white text-sm font-outfit-semibold">View Reviews</Text>
           </TouchableOpacity>
         </View>
 
-        <Text style={styles.subtitle}>
+        <View className="flex-row items-center px-4 mt-2">
           <MaterialCommunityIcons name="calendar-range" size={14} color="#555" />
-          Available Plans: {formatMealPlans()}
-        </Text>
+          <Text className="text-sm font-outfit color-gray-600 ml-1">Available Plans: {formatMealPlans()}</Text>
+        </View>
 
-        <View style={styles.addressContainer}>
+        <View className="flex-row items-center px-4 mt-2">
           <MaterialIcons name="delivery-dining" size={16} color="#555" />
-          <Text style={styles.address}>{formatDeliveryCities()}</Text>
+          <Text className="text-sm font-outfit color-gray-600 ml-1 flex-1">{formatDeliveryCities()}</Text>
         </View>
 
         {/* Action Icons */}
-        <View style={styles.actionsRow}>
+        <View className="flex-row justify-around px-4 py-4 bg-gray-50 mx-4 mt-4 rounded-lg">
           {restaurant.ownerPhoneNo?.fullNumber && (
             <TouchableOpacity
-              style={styles.iconButton}
+              className="items-center py-2 px-3"
               onPress={() => Linking.openURL(`tel:${restaurant.ownerPhoneNo.fullNumber.replace(/\s/g, '')}`)}
             >
               <Ionicons name="call-outline" size={20} color="#007f3f" />
-              <Text style={styles.iconButtonText}>Call</Text>
+              <Text className="text-xs font-outfit color-gray-700 mt-1">Call</Text>
             </TouchableOpacity>
           )}
 
           {restaurant.deliveryCity && restaurant.deliveryCity.length > 0 && (
             <TouchableOpacity
-              style={styles.iconButton}
+              className="items-center py-2 px-3"
               onPress={() => Linking.openURL(`https://maps.google.com/?q=${restaurant.deliveryCity[0].split(',')[0]}`)}
             >
               <MaterialIcons name="directions" size={20} color="#007f3f" />
-              <Text style={styles.iconButtonText}>Directions</Text>
+              <Text className="text-xs font-outfit color-gray-700 mt-1">Directions</Text>
             </TouchableOpacity>
           )}
           
           {restaurant.websiteURL && (
             <TouchableOpacity
-              style={styles.iconButton}
+              className="items-center py-2 px-3"
               onPress={() => Linking.openURL(restaurant.websiteURL)}
             >
               <MaterialCommunityIcons name="web" size={20} color="#007f3f" />
-              <Text style={styles.iconButtonText}>Website</Text>
+              <Text className="text-xs font-outfit color-gray-700 mt-1">Website</Text>
             </TouchableOpacity>
           )}
 
           <TouchableOpacity 
-            style={styles.iconButton}
+            className="items-center py-2 px-3"
             onPress={() => {
               Share.share({
                 message: `Check out ${restaurant.kitchenName} on TiffinStash!`,
@@ -174,77 +175,77 @@ const RestaurantDetailsScreen = () => {
             }}
           >
             <Ionicons name="share-social-outline" size={20} color="#007f3f" />
-            <Text style={styles.iconButtonText}>Share</Text>
+            <Text className="text-xs font-outfit color-gray-700 mt-1">Share</Text>
           </TouchableOpacity>
         </View>
 
         {/* Divider */}
-        <View style={styles.divider} />
+        <View className="h-px bg-border mx-4 my-4" />
 
         {/* About Section */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>About This Service</Text>
-          <Text style={styles.infoText}>
+        <View className="px-4 mb-6">
+          <Text className="text-lg font-outfit-bold color-gray-900 mb-3">About This Service</Text>
+          <Text className="text-sm font-outfit color-gray-600 leading-5">
             {restaurant.additionalInfo || 'Premium home-style tiffin service with multiple meal options.'}
           </Text>
         </View>
 
         {/* Delivery Times */}
         {restaurant.deliveryTimeSlots && restaurant.deliveryTimeSlots.length > 0 && (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Delivery Time Slots</Text>
+          <View className="px-4 mb-6">
+            <Text className="text-lg font-outfit-bold color-gray-900 mb-3">Delivery Time Slots</Text>
             {restaurant.deliveryTimeSlots.map((slot, index) => (
-              <View key={index} style={styles.infoRow}>
+              <View key={index} className="flex-row items-center mb-2">
                 <MaterialCommunityIcons name="clock-outline" size={16} color="#555" />
-                <Text style={styles.infoText}>{slot}</Text>
+                <Text className="text-sm font-outfit color-gray-600 ml-2 flex-1">{slot}</Text>
               </View>
             ))}
           </View>
         )}
 
         {/* Terms and Conditions */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Terms & Conditions</Text>
-          <Text style={styles.infoText}>{restaurant.termsAndConditions}</Text>
+        <View className="px-4 mb-6">
+          <Text className="text-lg font-outfit-bold color-gray-900 mb-3">Terms & Conditions</Text>
+          <Text className="text-sm font-outfit color-gray-600 leading-5">{restaurant.termsAndConditions}</Text>
         </View>
 
         {/* Additional Info */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Additional Information</Text>
-          <View style={styles.infoRow}>
+        <View className="px-4 mb-6">
+          <Text className="text-lg font-outfit-bold color-gray-900 mb-3">Additional Information</Text>
+          <View className="flex-row items-center mb-2">
             <MaterialCommunityIcons name="clock-outline" size={16} color="#555" />
-            <Text style={styles.infoText}>Order Cut-off: 9:00 PM previous day</Text>
+            <Text className="text-sm font-outfit color-gray-600 ml-2 flex-1">Order Cut-off: 9:00 PM previous day</Text>
           </View>
           {restaurant.ownerPhoneNo?.fullNumber && (
-            <View style={styles.infoRow}>
+            <View className="flex-row items-center mb-2">
               <MaterialCommunityIcons name="phone" size={16} color="#555" />
-              <Text style={styles.infoText}>Contact: {restaurant.ownerPhoneNo.fullNumber}</Text>
+              <Text className="text-sm font-outfit color-gray-600 ml-2 flex-1">Contact: {restaurant.ownerPhoneNo.fullNumber}</Text>
             </View>
           )}
           {restaurant.address && (
-            <View style={styles.infoRow}>
+            <View className="flex-row items-center mb-2">
               <MaterialCommunityIcons name="map-marker" size={16} color="#555" />
-              <Text style={styles.infoText}>Address: {restaurant.address}</Text>
+              <Text className="text-sm font-outfit color-gray-600 ml-2 flex-1">Address: {restaurant.address}</Text>
             </View>
           )}
         </View>
 
         {/* Divider */}
-        <View style={styles.divider} />
+        <View className="h-px bg-border mx-4 my-4" />
 
         {/* Feedback */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Feedback</Text>
-          <Text style={styles.feedbackText}>Have questions or feedback about this service?</Text>
+        <View className="px-4 mb-6">
+          <Text className="text-lg font-outfit-bold color-gray-900 mb-3">Feedback</Text>
+          <Text className="text-sm font-outfit color-gray-600 mb-4">Have questions or feedback about this service?</Text>
           <TouchableOpacity 
-            style={styles.feedbackButton}
+            className="bg-primary py-3 px-6 rounded-lg items-center"
             onPress={() => {
               if (restaurant.ownerPhoneNo?.fullNumber) {
                 Linking.openURL(`tel:${restaurant.ownerPhoneNo.fullNumber.replace(/\s/g, '')}`);
               }
             }}
           >
-            <Text style={styles.feedbackButtonText}>Contact Provider</Text>
+            <Text className="text-white text-sm font-outfit-semibold">Contact Provider</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>

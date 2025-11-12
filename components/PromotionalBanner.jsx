@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Image, TouchableOpacity } from 'react-native';
 import { Text } from 'react-native-paper';
-import styles from '../styles/tiffinstyle';
+// import styles from '../styles/tiffinstyle';
 
  const PromotionalBanner = ({
   banner,
@@ -18,19 +18,17 @@ import styles from '../styles/tiffinstyle';
   return (
     <TouchableOpacity
       onPress={onPress}
-      style={[
-        styles.promotionalBanner,
-        { backgroundColor: backgroundColor || '#FFE4E1' }
-      ]}
+      className="rounded-lg p-4 mx-4 my-2"
+      style={{ backgroundColor: backgroundColor || '#FFE4E1' }}
     >
-      <View style={styles.bannerContent}>
-        <View style={styles.bannerTextContainer}>
-        <Text style={[styles.bannerTitle, { color: textColor }]}>{title}</Text>
-        <Text style={[styles.bannerSubtitle, { color: textColor }]}>{subtitle}</Text>
+      <View className="flex-row items-center justify-between">
+        <View className="flex-1 pr-4">
+        <Text className="text-lg font-bold mb-1" style={{ color: textColor }}>{title}</Text>
+        <Text className="text-sm" style={{ color: textColor }}>{subtitle}</Text>
         </View>
         <Image
           source={image}
-          style={styles.bannerImage}
+          className="w-20 h-20"
           resizeMode="contain"
         />
       </View>

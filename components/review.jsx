@@ -1,8 +1,8 @@
 import React, { Fragment, useState, useEffect } from "react";
 import { TouchableOpacity, View, Text, FlatList, TextInput } from "react-native";
-import CommentStyles from "../styles/commentstyles";
+// import CommentStyles from "../styles/commentstyles";
 import Ionicons from '@expo/vector-icons/Ionicons';
-import ZomatoStyles from "../styles/zomatostyles";
+// import ZomatoStyles from "../styles/zomatostyles";
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
@@ -120,56 +120,56 @@ const response = await axios.post(
   return (
     <Fragment>
       <View style={{ flex: 1 }}>
-        <View style={CommentStyles.background}>
-          <View style={CommentStyles.headingContainer}>
+        <View className="bg-white flex-1">
+          <View className="flex-row items-center p-4 border-b border-gray-200">
             <TouchableOpacity onPress={() => router.push("/screens/Reviewsall")}>
-              <Ionicons name="arrow-back" size={24} color="black" style={CommentStyles.headinImg} />
+              <Ionicons name="arrow-back" size={24} color="black" className="mr-4" />
             </TouchableOpacity>
-            <Text style={CommentStyles.headingText}>Review</Text>
+            <Text className="text-lg font-semibold">Review</Text>
           </View>
 
           {commentData && (
             <View>
-              <View style={ZomatoStyles.commentcontainer}>
-                <View style={ZomatoStyles.commentheadingcontainer}>
-                  <View style={ZomatoStyles.ratingStartcontainer}>
+              <View className="p-4 bg-white border-b border-gray-100">
+                <View className="flex-row justify-between items-start mb-3">
+                  <View className="flex-row items-center">
                     <FontAwesome name="user-circle-o" size={33} color="#b5b9dc" />
-                    <View style={ZomatoStyles.commentnamecontainer}>
-                      <Text style={ZomatoStyles.commentName}>{commentData.authorName}</Text>
-                      <Text style={ZomatoStyles.commentfollowers}>{commentData.followers} Followers</Text>
+                    <View className="ml-2">
+                      <Text className="font-semibold text-base">{commentData.authorName}</Text>
+                      <Text className="text-sm text-gray-500">{commentData.followers} Followers</Text>
                     </View>
                   </View>
-                  <View style={ZomatoStyles.commentRatingcontainer}>
-                    <View style={ZomatoStyles.RatingsContainer2}>
-                      <Text style={ZomatoStyles.RatingText}>{commentData.rating}</Text>
+                  <View className="items-end">
+                    <View className="flex-row items-center bg-green-600 px-2 py-1 rounded">
+                      <Text className="text-white font-semibold text-sm mr-1">{commentData.rating}</Text>
                       <AntDesign name="star" size={11} color="white" />
                     </View>
-                    <View style={ZomatoStyles.commentverifiedtextcontainer}>
+                    <View className="flex-row items-center mt-1">
                       <MaterialIcons name="verified" size={10} color="#6b7280ef" />
-                      <Text style={ZomatoStyles.commentverified}>Verified order</Text>
+                      <Text className="text-xs text-gray-500 ml-1">Verified order</Text>
                     </View>
                   </View>
                 </View>
-                <Text style={ZomatoStyles.commentText}>{commentData.reviewText}</Text>
-                <View style={ZomatoStyles.LikeCommentCalculateContainer}>
-                  <Text style={ZomatoStyles.commentText2}>{new Date(commentData.date).toLocaleDateString()}</Text>
-                  <Text style={ZomatoStyles.commentText2}>{commentData.likes || 0} helpful votes, {commentData.comments?.length || 0} comments</Text>
+                <Text className="text-gray-800 text-sm leading-5 mb-3">{commentData.reviewText}</Text>
+                <View className="flex-row justify-between">
+                  <Text className="text-xs text-gray-500">{new Date(commentData.date).toLocaleDateString()}</Text>
+                  <Text className="text-xs text-gray-500">{commentData.likes || 0} helpful votes, {commentData.comments?.length || 0} comments</Text>
                 </View>
               </View>
 
-              <View style={CommentStyles.commentValuesContainer}>
-                <View style={ZomatoStyles.commenttabscontainer}>
-                  <TouchableOpacity style={ZomatoStyles.commenttabbox}>
+              <View className="px-4 py-2">
+                <View className="flex-row justify-around">
+                  <TouchableOpacity className="flex-row items-center py-2">
                     <AntDesign name={isLiked ? "like1" : "like2"} size={20} color="black" />
-                    <Text style={ZomatoStyles.commenttabtext}>Helpful</Text>
+                    <Text className="ml-2 text-sm text-gray-700">Helpful</Text>
                   </TouchableOpacity>
-                  <TouchableOpacity style={ZomatoStyles.commenttabbox}>
+                  <TouchableOpacity className="flex-row items-center py-2">
                     <MaterialCommunityIcons name="comment-text-outline" size={20} color="black" />
-                    <Text style={ZomatoStyles.commenttabtext}>Comment</Text>
+                    <Text className="ml-2 text-sm text-gray-700">Comment</Text>
                   </TouchableOpacity>
-                  <View style={ZomatoStyles.commenttabbox}>
+                  <View className="flex-row items-center py-2">
                     <Fontisto name="share" size={20} color="black" />
-                    <Text style={ZomatoStyles.commenttabtext}>Share</Text>
+                    <Text className="ml-2 text-sm text-gray-700">Share</Text>
                   </View>
                 </View>
               </View>
@@ -182,28 +182,28 @@ const response = await axios.post(
             data={commentData.comments}
             keyExtractor={(item, index) => index.toString()}
             renderItem={({ item }) => (
-              <View style={CommentStyles.commentNameContainer}>
-                <Text style={CommentStyles.commentName}>{item.username || "NA"}</Text>
-                <Text style={CommentStyles.commentvalue}>{item.comment}</Text>
-                <Text style={CommentStyles.commenttime}>{getDaysAgo(item.date)}</Text>
+              <View className="p-4 border-b border-gray-100">
+                <Text className="font-semibold text-sm mb-1">{item.username || "NA"}</Text>
+                <Text className="text-gray-800 text-sm mb-1">{item.comment}</Text>
+                <Text className="text-xs text-gray-500">{getDaysAgo(item.date)}</Text>
               </View>
             )}
           />
         ) : (
-          <Text style={{ textAlign: "center", marginTop: 10 }}>No comments found.</Text>
+          <Text className="text-center mt-2.5 text-gray-500">No comments found.</Text>
         )}
       </View>
 
-      <View style={CommentStyles.commeninputboc}>
-        <View style={CommentStyles.commentinputContainer}>
+      <View className="bg-white border-t border-gray-200 p-4">
+        <View className="flex-row items-center">
           <TextInput
             placeholder="Write a comment..."
-            style={CommentStyles.commentInput}
+            className="flex-1 border border-gray-300 rounded-lg px-3 py-2 mr-3"
             value={comments}
             onChangeText={setComments}
           />
           <TouchableOpacity onPress={setcommentdata}>
-            <Text style={CommentStyles.Post}>Post</Text>
+            <Text className="text-blue-600 font-semibold">Post</Text>
           </TouchableOpacity>
         </View>
       </View>

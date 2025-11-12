@@ -3,7 +3,7 @@ import React, { useCallback, useEffect, useState } from 'react'
 import { useFocusEffect, useRouter } from 'expo-router'
 import Ionicons from '@expo/vector-icons/Ionicons'
 import AsyncStorage from '@react-native-async-storage/async-storage'
-import { styles } from '@/styles/PhoneNumberInputStyles'
+// import { styles } from '@/styles/PhoneNumberInputStyles'
 
 const STORAGE_KEY = 'pendingCountrySelection'
 const DEFAULT_COUNTRY = {
@@ -58,23 +58,23 @@ export default function PhoneNumberEntry({ value = '', onChangePhone, onCountryC
   }
 
   return (
-    <View style={styles.phoneNumberEntry}>
+    <View className="flex-row items-center border border-gray-300 rounded-lg">
       <TouchableOpacity
-        style={styles.selectCountryCode}
+        className="flex-row items-center px-3 py-3 border-r border-gray-300"
         onPress={openCountryPicker}
         activeOpacity={0.7}
       >
         <Image
           source={{ uri: `https://flagsapi.com/${countryCode}/flat/32.png` }}
-          style={styles.countryIcon}
+          className="w-8 h-8 mr-2"
         />
   <Ionicons name="chevron-down" size={16} color="gray" />
       </TouchableOpacity>
 
-      <View style={styles.phoneNumberInputContainer}>
-        <Text style={styles.dialCode}>{dialCode}</Text>
+      <View className="flex-row items-center flex-1 px-3">
+        <Text className="text-gray-700 mr-2">{dialCode}</Text>
         <TextInput
-          style={styles.phoneNumberInput}
+          className="flex-1 py-3 text-base"
           keyboardType="number-pad"
           value={phoneNumber}
           onChangeText={handleNumberChange}

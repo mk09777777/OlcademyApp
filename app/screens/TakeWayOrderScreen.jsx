@@ -6,8 +6,7 @@ import {
   FlatList,
   TextInput,
   Image,
-  ActivityIndicator,
-  StyleSheet
+  ActivityIndicator
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -135,21 +134,21 @@ export default function TakeawayOrdersScreen() {
   const renderFooter = () => {
     if (!loading) return null;
     return (
-      <View style={styles.loadingFooter}>
+      <View className="py-4 items-center">
         <ActivityIndicator size="small" color="#02757A" />
-        <Text style={styles.footerText}>Loading more orders...</Text>
+        <Text className="text-sm font-outfit color-gray-600 mt-2">Loading more orders...</Text>
       </View>
     );
   };
 
   const renderError = () => (
-    <View style={styles.errorContainer}>
-      <Text style={styles.errorText}>{error}</Text>
+    <View className="flex-1 items-center justify-center p-4">
+      <Text className="text-base font-outfit color-red-600 text-center mb-4">{error}</Text>
       <TouchableOpacity
-        style={styles.retryButton}
+        className="bg-primary px-6 py-3 rounded-lg"
         onPress={() => fetchOrders(1)}
       >
-        <Text style={styles.retryButtonText}>Retry</Text>
+        <Text className="text-white font-outfit-medium">Retry</Text>
       </TouchableOpacity>
     </View>
   );
@@ -190,12 +189,12 @@ export default function TakeawayOrdersScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView className="flex-1 bg-white">
       {/* Search Bar */}
-      <View style={styles.searchContainer}>
-        <Ionicons name="search" size={20} color="#666" style={styles.searchIcon} />
+      <View className="flex-row items-center bg-gray-50 mx-4 my-2 px-3 py-2 rounded-lg">
+        <Ionicons name="search" size={20} color="#666" className="mr-2" />
         <TextInput
-          style={styles.searchInput}
+          className="flex-1 text-base font-outfit color-gray-800"
           placeholder="Search orders..."
           value={searchQuery}
           onChangeText={setSearchQuery}
@@ -203,28 +202,28 @@ export default function TakeawayOrdersScreen() {
       </View>
 
       {/* Tabs */}
-      <View style={styles.tabContainer}>
+      <View className="flex-row bg-white border-b border-gray-200">
         <TouchableOpacity
-          style={[styles.tab, activeTab === 'all' ? styles.activeTab : null]}
+          className={`flex-1 py-3 items-center ${activeTab === 'all' ? 'border-b-2 border-primary' : ''}`}
           onPress={() => setActiveTab('all')}
         >
-          <Text style={[styles.tabText, activeTab === 'all' ? styles.activeTabText : null]}>
+          <Text className={`text-sm font-outfit-medium ${activeTab === 'all' ? 'color-primary' : 'color-gray-600'}`}>
             All Orders
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
-          style={[styles.tab, activeTab === 'active' ? styles.activeTab : null]}
+          className={`flex-1 py-3 items-center ${activeTab === 'active' ? 'border-b-2 border-primary' : ''}`}
           onPress={() => setActiveTab('active')}
         >
-          <Text style={[styles.tabText, activeTab === 'active' ? styles.activeTabText : null]}>
+          <Text className={`text-sm font-outfit-medium ${activeTab === 'active' ? 'color-primary' : 'color-gray-600'}`}>
             Active
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
-          style={[styles.tab, activeTab === 'past' ? styles.activeTab : null]}
+          className={`flex-1 py-3 items-center ${activeTab === 'past' ? 'border-b-2 border-primary' : ''}`}
           onPress={() => setActiveTab('past')}
         >
-          <Text style={[styles.tabText, activeTab === 'past' ? styles.activeTabText : null]}>
+          <Text className={`text-sm font-outfit-medium ${activeTab === 'past' ? 'color-primary' : 'color-gray-600'}`}>
             Past Orders
           </Text>
         </TouchableOpacity>
@@ -235,25 +234,25 @@ export default function TakeawayOrdersScreen() {
 
       {/* Orders List */}
       {loading && orders.length === 0 ? (
-        <View style={styles.loadingContainer}>
+        <View className="flex-1 items-center justify-center">
           <ActivityIndicator size="large" color="#02757A" />
-          <Text style={styles.loadingText}>Loading your orders...</Text>
+          <Text className="text-base font-outfit color-gray-600 mt-4">Loading your orders...</Text>
         </View>
       ) : (
         <FlatList
           data={getFilteredOrders()}
           renderItem={renderOrderItem}
           keyExtractor={(item) => item._id}
-          contentContainerStyle={styles.flatListContent}
+          contentContainerClassName="pb-4"
           ListEmptyComponent={
             !error && (
-              <View style={styles.emptyContainer}>
+              <View className="flex-1 items-center justify-center p-8">
                 <Image
                   source={require('../../assets/images/logo.jpg')}
-                  style={styles.emptyImage}
+                  className="w-24 h-24 mb-4"
                   resizeMode="contain"
                 />
-                <Text style={styles.emptyText}>
+                <Text className="text-lg font-outfit-medium color-gray-600 text-center">
                   {activeTab === 'all'
                     ? 'No orders found'
                     : activeTab === 'active'
@@ -273,123 +272,3 @@ export default function TakeawayOrdersScreen() {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f8f8f8',
-  },
-  searchContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#fff',
-    margin: 12,
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    borderWidth: 1,
-    borderColor: '#e0e0e0',
-  },
-  searchIcon: {
-    marginRight: 8,
-  },
-  searchInput: {
-    flex: 1,
-    fontSize: 16,
-    color: '#333',
-    fontFamily: 'outfit',
-    paddingVertical: 10,
-  },
-  tabContainer: {
-    flexDirection: 'row',
-    backgroundColor: '#fff',
-    paddingHorizontal: 16,
-    marginBottom: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
-  },
-  tab: {
-    flex: 1,
-    alignItems: 'center',
-    paddingVertical: 12,
-    borderBottomWidth: 2,
-    borderBottomColor: 'transparent',
-  },
-  activeTab: {
-    borderBottomColor: '#02757A',
-  },
-  tabText: {
-    fontSize: 14,
-    color: '#666',
-    fontFamily: 'outfit',
-  },
-  activeTabText: {
-    color: '#02757A',
-    fontFamily: 'outfit-bold',
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  loadingText: {
-    marginTop: 10,
-    fontSize: 16,
-    color: '#666',
-    fontFamily: 'outfit',
-  },
-  errorContainer: {
-    padding: 20,
-    backgroundColor: '#fee2e2',
-    margin: 16,
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  errorText: {
-    fontSize: 16,
-    color: '#b91c1c',
-    fontFamily: 'outfit-bold',
-    marginBottom: 8,
-  },
-  retryButton: {
-    backgroundColor: '#02757A',
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 8,
-  },
-  retryButtonText: {
-    fontSize: 16,
-    color: '#fff',
-    fontFamily: 'outfit-bold',
-  },
-  emptyContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 32,
-  },
-  emptyImage: {
-    width: 120,
-    height: 120,
-    marginBottom: 16,
-    opacity: 0.7,
-  },
-  emptyText: {
-    fontSize: 16,
-    color: '#666',
-    fontFamily: 'outfit',
-    textAlign: 'center',
-  },
-  flatListContent: {
-    padding: 16,
-    paddingBottom: 80,
-  },
-  loadingFooter: {
-    padding: 16,
-    alignItems: 'center',
-  },
-  footerText: {
-    marginTop: 8,
-    fontSize: 14,
-    color: '#666',
-    fontFamily: 'outfit',
-  },
-});

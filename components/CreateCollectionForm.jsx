@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { View, Modal, TouchableOpacity } from 'react-native';
 import { Text, TextInput, Button } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import styles from '@/styles/Collection';
 
 export default function CreateCollectionForm({ visible, onClose, onSubmit, collectionType }) {
   const [title, setTitle] = useState('');
@@ -44,11 +43,11 @@ export default function CreateCollectionForm({ visible, onClose, onSubmit, colle
       transparent={true}
       onRequestClose={onClose}
     >
-      <View style={styles.modalOverlay}>
-        <View style={styles.modalContent}>
-          <View style={styles.modalHeader}>
-            <Text style={styles.modalTitle}>Create New Collection</Text>
-            <TouchableOpacity onPress={onClose} style={styles.closeButton}>
+      <View className="flex-1 bg-black/50 justify-center items-center">
+        <View className="bg-white rounded-2xl p-6 mx-4 w-11/12 max-w-md">
+          <View className="flex-row justify-between items-center mb-6">
+            <Text className="text-xl font-outfit-bold color-gray-900">Create New Collection</Text>
+            <TouchableOpacity onPress={onClose} className="p-2">
               <MaterialCommunityIcons name="close" size={24} color="#666" />
             </TouchableOpacity>
           </View>
@@ -58,7 +57,7 @@ export default function CreateCollectionForm({ visible, onClose, onSubmit, colle
             label="Title"
             value={title}
             onChangeText={setTitle}
-            style={styles.input}
+            className="mb-4"
             outlineColor="#ddd"
             activeOutlineColor="#E41E3F"
           />
@@ -68,7 +67,7 @@ export default function CreateCollectionForm({ visible, onClose, onSubmit, colle
             label="Description"
             value={description}
             onChangeText={setDescription}
-            style={styles.input}
+            className="mb-4"
             outlineColor="#ddd"
             activeOutlineColor="#E41E3F"
             multiline
@@ -81,7 +80,7 @@ export default function CreateCollectionForm({ visible, onClose, onSubmit, colle
                 label="Date"
                 value={date}
                 onChangeText={setDate}
-                style={styles.input}
+                className="mb-4"
                 outlineColor="#ddd"
                 activeOutlineColor="#E41E3F"
                 placeholder="e.g., March 25-27, 2025"
@@ -92,7 +91,7 @@ export default function CreateCollectionForm({ visible, onClose, onSubmit, colle
                 label="Location"
                 value={location}
                 onChangeText={setLocation}
-                style={styles.input}
+                className="mb-4"
                 outlineColor="#ddd"
                 activeOutlineColor="#E41E3F"
                 placeholder="e.g., City Center"
@@ -100,20 +99,21 @@ export default function CreateCollectionForm({ visible, onClose, onSubmit, colle
             </>
           )}
 
-          <View style={styles.modalActions}>
+          <View className="flex-row justify-end gap-3 mt-6">
             <Button
               mode="outlined"
               onPress={onClose}
-              style={styles.cancelButton}
-              labelStyle={styles.cancelButtonText}
+              className="flex-1"
+              buttonColor="transparent"
+              textColor="#666"
             >
               Cancel
             </Button>
             <Button
               mode="contained"
               onPress={handleSubmit}
-              style={styles.submitButton}
-              labelStyle={styles.submitButtonText}
+              className="flex-1"
+              buttonColor="#E41E3F"
               disabled={!title.trim()}
             >
               Create

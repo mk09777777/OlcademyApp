@@ -3,7 +3,6 @@ import {
   View,
   Text,
   TouchableOpacity,
-  StyleSheet,
   ScrollView,
   FlatList,
   Alert,
@@ -184,11 +183,11 @@ export default function SelectLocation({ placeholder = "Enter area, landmark ...
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <BackRouting style={{ backgroundColor: '#ffffffff', fontFamily: 'outfit-bold',}} tittle='Select Location' />
-      <ScrollView keyboardShouldPersistTaps="handled" style={{ backgroundColor: '#ffffffff' }}>
-        {/* <Text style={styles.header}>Select Location</Text> */}
-        <View style={styles.searchContainer}>
+    <SafeAreaView className="flex-1 bg-white">
+      <BackRouting className="bg-white" tittle='Select Location' />
+      <ScrollView keyboardShouldPersistTaps="handled" className="bg-white">
+        {/* <Text className="text-xl font-outfit-bold color-gray-800 p-4">Select Location</Text> */}
+        <View className="p-4">
           <TextInput
             mode="outlined"
             placeholder={placeholder}
@@ -200,7 +199,7 @@ export default function SelectLocation({ placeholder = "Enter area, landmark ...
                 text.length > 2 ? fetchSuggestions(text) : setSuggestions([]);
               }, 500));
             }}
-            style={[styles.searchInput, { color: '#000' }]}
+            className="bg-white"
             theme={{
               colors: { text: '#000', onSurface: '#000', primary: '#E41E3F', placeholder: '#666' }
             }}
@@ -228,50 +227,50 @@ export default function SelectLocation({ placeholder = "Enter area, landmark ...
         <FlatList
           data={suggestions}
           keyExtractor={item => item.place_id.toString()}
-          style={styles.suggestionList}
+          className="mx-4"
           renderItem={({ item }) => (
             <TouchableOpacity
-              style={styles.suggestionItem}
+              className="flex-row items-center p-4 border-b border-gray-100"
               onPress={() => handleSuggestionSelect({ ...item, id: item.place_id })}
             >
-              <Text style={styles.suggestionText}>{item.display_name}</Text>
+              <Text className="flex-1 text-sm font-outfit color-gray-800">{item.display_name}</Text>
             </TouchableOpacity>
           )}
         />
 
-        <View style={{ backgroundColor: "#fff", marginLeft: 20, marginRight: 20, borderRadius: 10, elevation: 3 }}>
+        <View className="bg-white mx-5 rounded-2.5 shadow-md">
           <TouchableOpacity
-            style={styles.addBtn}
+            className="bg-primary mx-5 p-2 rounded-lg mb-2.5 items-center justify-center flex-row mt-2.5"
             onPress={() => safeNavigation({ pathname: '/screens/MapPicker' })}
           >
-            <Text style={{ color: 'white', fontSize: 26, fontFamily: 'outfit-bold',}}>+</Text>
-            <Text style={styles.addBtnTxt}> Add Address</Text>
+            <Text className="text-white text-2xl font-outfit-bold">+</Text>
+            <Text className="text-white font-outfit-bold"> Add Address</Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={styles.useLocationBtn}
+            className="bg-blue-50 p-3 mx-5 rounded-lg mb-2.5 items-center mt-1"
             onPress={getCurrentLocation}
           >
-            <Text style={styles.useLocationTxt}>{loading ? 'Fetching...' : '📍 Use Current Location'}</Text>
+            <Text className="color-gray-800 font-outfit-bold text-base">{loading ? 'Fetching...' : '📍 Use Current Location'}</Text>
           </TouchableOpacity>
         </View>
 
-        <View style={styles.separatorRow}>
-          <View style={styles.line} />
-          <Text style={styles.separatorText}>Recent locations</Text>
-          <View style={styles.line} />
+        <View className="flex-row items-center mt-7.5 mb-2.5">
+          <View className="flex-1 h-0.5 bg-gray-300" />
+          <Text className="text-lg color-gray-400 mx-2 font-outfit-bold">Recent locations</Text>
+          <View className="flex-1 h-0.5 bg-gray-300" />
         </View>
 
         <FlatList
           data={recentlyAdds}
           keyExtractor={(item, index) => index.toString()}
           renderItem={({ item }) => (
-            <TouchableOpacity onPress={() => handleSuggestionSelect(item)} style={styles.RecentlyContainer}>
-              <View style={{ justifyContent: "center", alignItems: "center" }}>
-                <FontAwesome6 name="clock" size={20} color="#999999" style={styles.Logo} />
+            <TouchableOpacity onPress={() => handleSuggestionSelect(item)} className="flex-row bg-white rounded-2.5 mx-5 mt-2 p-2.5 shadow-md mb-2.5">
+              <View className="justify-center items-center">
+                <FontAwesome6 name="clock" size={20} color="#999999" className="ml-1 mr-4" />
               </View>
-              <View style={styles.RecentlyTextContainer}>
-                <Text style={styles.RecText1}>{item.city || 'Unknown City'}</Text>
-                <Text style={styles.RecText2}>{item.fullAddress}</Text>
+              <View className="flex-col mr-10">
+                <Text className="color-gray-800 text-base font-outfit-medium">{item.city || 'Unknown City'}</Text>
+                <Text className="color-gray-800 text-sm font-outfit mt-1">{item.fullAddress}</Text>
               </View>
             </TouchableOpacity>
           )}
@@ -281,6 +280,7 @@ export default function SelectLocation({ placeholder = "Enter area, landmark ...
   );
 }
 
+/* COMMENTED OUT STYLESHEET - CONVERTED TO NATIVEWIND
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#ffffff' },
   header: { fontSize: 20, fontWeight: '600', margin: 20, fontFamily: 'outfit-medium' },
@@ -351,10 +351,11 @@ const styles = StyleSheet.create({
   },
   RecText2: {
     color: "black",
-        fontFamily:'outfit-medium',
+    fontFamily:'outfit-medium',
     fontSize: 14,
     fontWeight: "400",
     marginTop: 4,
     fontFamily: 'outfit-medium',
   }
 });
+*/

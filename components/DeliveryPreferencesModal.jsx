@@ -3,7 +3,6 @@ import {
   View,
   Text,
   Modal,
-  StyleSheet,
   TouchableOpacity,
   TextInput,
   ScrollView,
@@ -45,16 +44,14 @@ const DeliveryPreferencesModal = ({
     return (
       <TouchableOpacity
         key={time}
-        style={[
-          styles.timeSlot,
-          isSelected && styles.selectedTimeSlot,
-        ]}
+        className={`flex-row items-center justify-between p-4 rounded-lg ${
+          isSelected ? 'bg-green-50 border border-green-500' : 'bg-gray-100'
+        }`}
         onPress={() => setSelectedTimeSlot(time)}
       >
-        <Text style={[
-          styles.timeSlotText,
-          isSelected && styles.selectedTimeSlotText,
-        ]}>
+        <Text className={`text-base font-outfit ${
+          isSelected ? 'color-green-600 font-outfit-bold' : 'color-gray-700'
+        }`}>
           {time}
         </Text>
         {isSelected && (
@@ -71,70 +68,72 @@ const DeliveryPreferencesModal = ({
       transparent={true}
       onRequestClose={onClose}
     >
-      <View style={styles.modalContainer}>
-        <View style={styles.modalContent}>
-          <View style={styles.header}>
-            <Text style={styles.title}>Update Delivery Preferences</Text>
-            <TouchableOpacity onPress={onClose} style={styles.closeButton}>
+      <View className="flex-1 bg-black/50 justify-end">
+        <View className="bg-white rounded-t-2xl max-h-[90%]">
+          <View className="flex-row justify-between items-center p-5 border-b border-gray-100">
+            <Text className="text-xl font-outfit-bold color-gray-700">Update Delivery Preferences</Text>
+            <TouchableOpacity onPress={onClose} className="p-2">
               <Ionicons name="close" size={24} color="#333" />
             </TouchableOpacity>
           </View>
 
-          <ScrollView style={styles.scrollView}>
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Delivery Time</Text>
-              <Text style={styles.sectionSubtitle}>
+          <ScrollView className="flex-1">
+            <View className="p-5 border-b border-gray-100">
+              <Text className="text-lg font-outfit-bold color-gray-700 mb-2">Delivery Time</Text>
+              <Text className="text-sm color-gray-500 font-outfit mb-4">
                 Select your preferred delivery time
               </Text>
-              <View style={styles.timeSlotsContainer}>
+              <View className="gap-3">
                 {timeSlots.map(renderTimeSlot)}
               </View>
             </View>
 
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Delivery Address</Text>
-              <Text style={styles.sectionSubtitle}>
+            <View className="p-5 border-b border-gray-100">
+              <Text className="text-lg font-outfit-bold color-gray-700 mb-2">Delivery Address</Text>
+              <Text className="text-sm color-gray-500 font-outfit mb-4">
                 Enter your complete delivery address
               </Text>
               <TextInput
-                style={styles.addressInput}
+                className="bg-gray-100 rounded-lg p-3 text-base font-outfit min-h-[100px]"
                 value={address}
                 onChangeText={setAddress}
                 placeholder="Enter your delivery address"
                 multiline
                 numberOfLines={3}
+                textAlignVertical="top"
               />
             </View>
 
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Delivery Instructions</Text>
-              <Text style={styles.sectionSubtitle}>
+            <View className="p-5 border-b border-gray-100">
+              <Text className="text-lg font-outfit-bold color-gray-700 mb-2">Delivery Instructions</Text>
+              <Text className="text-sm color-gray-500 font-outfit mb-4">
                 Add any special instructions for delivery (optional)
               </Text>
               <TextInput
-                style={styles.instructionsInput}
+                className="bg-gray-100 rounded-lg p-3 text-base font-outfit min-h-[80px]"
                 value={instructions}
                 onChangeText={setInstructions}
                 placeholder="e.g., Please ring the doorbell"
                 multiline
                 numberOfLines={2}
+                textAlignVertical="top"
               />
             </View>
           </ScrollView>
 
-          <View style={styles.footer}>
+          <View className="flex-row p-5 border-t border-gray-100 gap-3">
             <TouchableOpacity
-              style={styles.cancelButton}
+              className="flex-1 p-4 rounded-lg bg-gray-100 items-center"
               onPress={onClose}
             >
-              <Text style={styles.cancelButtonText}>Cancel</Text>
+              <Text className="text-base font-outfit-bold color-gray-500">Cancel</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
-              style={styles.saveButton}
+              className="flex-1 p-4 rounded-lg bg-green-500 items-center"
               onPress={handleSave}
             >
-              <Text style={styles.saveButtonText}>Save Changes</Text>
+              <Text className="text-base font-outfit-bold text-white">Save Changes</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -143,6 +142,7 @@ const DeliveryPreferencesModal = ({
   );
 };
 
+/* COMMENTED OUT STYLESHEET - CONVERTED TO NATIVEWIND
 const styles = StyleSheet.create({
   modalContainer: {
     flex: 1,
@@ -262,5 +262,6 @@ const styles = StyleSheet.create({
     color: '#fff',
   },
 });
+*/
 
 export default DeliveryPreferencesModal; 

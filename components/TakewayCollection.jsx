@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, ActivityIndicator, FlatList, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { styles } from '../styles/TakewayCollection';
+// import { styles } from '../styles/TakewayCollection';
 import FirmCard from './FirmCard';
 import { API_CONFIG } from '../config/apiConfig';
 import { useRouter } from 'expo-router';
@@ -48,7 +48,7 @@ const TakewayCollection = () => {
 
   if (loading) {
     return (
-      <View style={styles.loaderContainer}>
+      <View className="flex-1 justify-center items-center">
         <ActivityIndicator size="large" color="#02757A" />
       </View>
     );
@@ -56,34 +56,34 @@ const TakewayCollection = () => {
 
   if (error) {
     return (
-      <View style={styles.errorContainer}>
-        <Text style={styles.errorText}>{error}</Text>
-        <TouchableOpacity style={styles.retryButton} onPress={fetchRestaurants}>
-          <Text style={styles.retryText}>Retry</Text>
+      <View className="flex-1 justify-center items-center p-4">
+        <Text className="text-red-500 text-center mb-4">{error}</Text>
+        <TouchableOpacity className="bg-blue-500 px-4 py-2 rounded" onPress={fetchRestaurants}>
+          <Text className="text-white font-semibold">Retry</Text>
         </TouchableOpacity>
       </View>
     );
   }
 
   const EmptyBookmarkCard = () => (
-    <View style={styles.emptyContainer}>
+    <View className="flex-1 justify-center items-center p-8">
       <Image
         source={require('../assets//images/food.jpg')}
-        style={styles.emptyImage}
+        className="w-32 h-32 mb-4"
       />
-      <Text style={styles.emptyTitle}>No bookmarks yet</Text>
-      <Text style={styles.emptySubtitle}>Save your favorite restaurants and they'll appear here</Text>
+      <Text className="text-xl font-bold text-center mb-2">No bookmarks yet</Text>
+      <Text className="text-gray-600 text-center mb-6">Save your favorite restaurants and they'll appear here</Text>
       <TouchableOpacity
-        style={styles.exploreButton}
+        className="bg-blue-500 px-6 py-3 rounded-lg"
         onPress={() => router.push('/home')}
       >
-        <Text style={styles.exploreButtonText}>Explore Restaurants</Text>
+        <Text className="text-white font-semibold">Explore Restaurants</Text>
       </TouchableOpacity>
     </View>
   );
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView className="flex-1 bg-white">
       <View >
         {/* <TouchableOpacity
           style={[styles.tab, activeTab === 'dishes' && styles.activeTab]}
@@ -103,9 +103,9 @@ const TakewayCollection = () => {
         </TouchableOpacity> */}
       </View>
 
-      <View style={styles.content}>
+      <View className="flex-1">
         {activeTab === 'dishes' ? (
-          <View style={styles.restaurantsContainer}>
+          <View className="flex-1">
             {dishes && dishes.length > 0 ? (
               <FlatList
                 data={dishes}
@@ -124,7 +124,7 @@ const TakewayCollection = () => {
             )}
           </View>
         ) : (
-          <View style={styles.restaurantsContainer}>
+          <View className="flex-1">
             {allRestaurants && allRestaurants.length > 0 ? (
               <FlatList
                 data={allRestaurants}

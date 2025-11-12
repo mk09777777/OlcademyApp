@@ -464,17 +464,17 @@ const TiffinDetails = () => {
     const hasMoreCities = allCities.length > maxVisible;
 
     return (
-      <View style={styles.deliveryCitiesContainer}>
-        <View style={styles.citiesWrapper}>
+      <View className="mb-4">
+        <View className="flex-row flex-wrap">
           {visibleCities.map((city, index) => (
-            <View key={index} style={styles.cityPill}>
-              <Text style={styles.cityText}>{city}</Text>
+            <View key={index} className="bg-gray-100 px-3 py-1 rounded-full mr-2 mb-2">
+              <Text className="text-sm font-outfit color-gray-700">{city}</Text>
             </View>
           ))}
           {hasMoreCities && (
             <TouchableOpacity onPress={toggleShowAll} activeOpacity={0.7}>
-              <View style={styles.moreLessPill}>
-                <Text style={styles.moreLessText}>
+              <View className="bg-primary px-3 py-1 rounded-full mr-2 mb-2">
+                <Text className="text-sm font-outfit-bold text-white">
                   {showAll ? 'Show Less' : `+${allCities.length - maxVisible} More`}
                 </Text>
               </View>
@@ -549,7 +549,7 @@ const TiffinDetails = () => {
             currentIndex={currentImageIndex}
             onIndexChange={setCurrentImageIndex}
           />
-          <View style={styles.overlayContainer}>
+          <View className="absolute bottom-0 left-0 right-0 bg-white/90 p-4">
             <TouchableOpacity
               onPress={() => router.push({
                 pathname: '/screens/TiffinDetailsScreen',
@@ -567,11 +567,11 @@ const TiffinDetails = () => {
                   })
                 }
               })}
-              style={styles.titleWrapper}
+              className="mb-3"
             >
-              <View style={styles.titleContainer}>
+              <View className="mb-2">
                 <Text
-                  style={styles.titleText}
+                  className="text-xl font-outfit-bold color-gray-900"
                   numberOfLines={3}
                   ellipsizeMode="tail"
                 >
@@ -579,9 +579,9 @@ const TiffinDetails = () => {
                 </Text>
                 
               </View>
-              <View style={styles.infoRow}>
+              <View className="flex-row items-center">
                 <MaterialCommunityIcons name="phone" size={20} color="#078518ff" />
-                <Text style={styles.infoText}>Contact: {service.phoneNumber}</Text>
+                <Text className="text-sm font-outfit color-gray-700 ml-2">Contact: {service.phoneNumber}</Text>
               </View>
             </TouchableOpacity>
 
@@ -596,58 +596,53 @@ const TiffinDetails = () => {
                   reviewType: 'tiffin',
                 }
               })}
-              style={styles.reviewBox}
+              className="bg-primary rounded-lg p-3 min-w-20 items-center"
             >
-              <View style={styles.reviewBoxTopContainer}>
-                <View style={styles.reviewBoxUpperContainer}>
-                  <Text style={styles.reviewText}>
-                    {service.rating.toFixed(1)}
-                  </Text>
-                  <FontAwesome name="star" size={18} color="white" />
-                </View>
+              <View className="flex-row items-center mb-1">
+                <Text className="text-white font-outfit-bold text-lg mr-1">
+                  {service.rating.toFixed(1)}
+                </Text>
+                <FontAwesome name="star" size={18} color="white" />
               </View>
-              <View style={styles.reviewBoxBottomContainer}>
-                <Text style={styles.reviewCount}>
+              <View className="items-center">
+                <Text className="text-white font-outfit text-xs">
                   {service.reviews.length}
                 </Text>
-                <Text style={styles.reviewCount}>Reviews</Text>
+                <Text className="text-white font-outfit text-xs">Reviews</Text>
               </View>
             </TouchableOpacity>
           </View>
         </View>
-        <View style={styles.contentContainer}>
-          <View style={styles.maincontainer}>
+        <View className="p-4">
+          <View className="bg-white rounded-lg p-4 mb-4">
+            <View className="mb-4">
+              <DeliveryCitiesList cities={service.deliveryCities} />
+            </View>
+            <View className="flex-row items-center mb-3">
+              <MaterialCommunityIcons name="map-marker-distance" size={24} color="#666" />
+              <Text className="text-sm font-outfit color-gray-700 ml-2 flex-1">Distance: {service.distance}</Text>
+            </View>
 
-            <View style={styles.detailsContainer}>
-              <View style={styles.infoRow}>
-                <DeliveryCitiesList cities={service.deliveryCities} />
-              </View>
-              <View style={styles.infoRow}>
-                <MaterialCommunityIcons name="map-marker-distance" size={24} color="#666" />
-                <Text style={styles.infoTextt}>Distance: {service.distance}</Text>
-              </View>
-
-              <View style={styles.infoRow}>
-                <MaterialCommunityIcons name="home" size={24} color="#666" />
-                <Text style={styles.infoTextt} numberOfLines={2}
-                  ellipsizeMode="tail">Address: {service.address}</Text>
-              </View>
+            <View className="flex-row items-center">
+              <MaterialCommunityIcons name="home" size={24} color="#666" />
+              <Text className="text-sm font-outfit color-gray-700 ml-2 flex-1" numberOfLines={2}
+                ellipsizeMode="tail">Address: {service.address}</Text>
             </View>
           </View>
           {service.offers && service.offers.length > 0 && (
-            <View style={styles.offersContainer}>
-              <Text style={styles.sectionTitle}>Special Offers</Text>
+            <View className="bg-white rounded-lg p-4 mb-4">
+              <Text className="text-lg font-outfit-bold color-gray-900 mb-3">Special Offers</Text>
               {service.offers.map((offer, index) => (
-                <View key={index} style={styles.offerItem}>
-                  <Text style={styles.offerTitle}>{offer.name}</Text>
-                  <Text style={styles.offerDescription}>{offer.description}</Text>
-                  <Text style={styles.offerCode}>Code: {offer.code}</Text>
+                <View key={index} className="bg-green-50 p-3 rounded-lg mb-2">
+                  <Text className="text-base font-outfit-bold color-gray-900">{offer.name}</Text>
+                  <Text className="text-sm font-outfit color-gray-700 mt-1">{offer.description}</Text>
+                  <Text className="text-sm font-outfit-bold color-primary mt-1">Code: {offer.code}</Text>
                 </View>
               ))}
             </View>
           )}
           {/* Menu Section */}
-          <View style={styles.menuSectionContainer}>
+          <View className="bg-white rounded-lg p-4 mb-4">
             <View className="flex-row items-center my-4">
               <View className="flex-1 h-px bg-border" />
               <Text className="text-textsecondary font-outfit-bold mx-4 text-sm">
@@ -657,22 +652,22 @@ const TiffinDetails = () => {
             </View>
             <ScrollView
               showsVerticalScrollIndicator={false}
-              contentContainerStyle={styles.menuList}
+              contentContainerClassName="pb-4"
             >
               {menuState.filteredMenu.length > 0 ? (
                 menuState.filteredMenu.map(renderMenuItem)
               ) : (
-                <View style={styles.emptyState}>
+                <View className="flex-1 items-center justify-center py-8">
                   <MaterialCommunityIcons name="food-off" size={48} color="#666" />
-                  <Text style={styles.emptyStateText}>No items found in this category</Text>
+                  <Text className="text-base font-outfit color-gray-600 text-center mt-2">No items found in this category</Text>
                 </View>
               )}
             </ScrollView>
           </View>
 
-          <View style={styles.TermsContainer}>
-            <Text style={styles.sectionTitle}>Terms & Conditions</Text>
-            <Text style={styles.description}>{service.termsAndConditions}</Text>
+          <View className="bg-white rounded-lg p-4 mb-4">
+            <Text className="text-lg font-outfit-bold color-gray-900 mb-3">Terms & Conditions</Text>
+            <Text className="text-sm font-outfit color-gray-700 leading-5">{service.termsAndConditions}</Text>
           </View>
         </View>
       </ScrollView>
