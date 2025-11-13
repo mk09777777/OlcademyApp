@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import {
-  StyleSheet,
+  // StyleSheet,
   View,
   Text,
   Image,
@@ -104,79 +104,79 @@ const TakeawayOrderCard = ({ order, onToggleFavorite, onOrderCancelled }) => {
   const renderPriceDetails = () => {
     return (
       <ScrollView >
-        <View style={styles.modalContent}>
-          <View style={styles.header}>
-            <View style={styles.headersub}>
+        <View className="p-2.5">
+          <View className="flex-col items-center mb-4 pb-4 border-b border-gray-200">
+            <View className="flex-row">
             <MaterialIcons name="info" size={24} color="#0D9488" />
-            <Text style={styles.headerText}> 
+            <Text className="text-xl font-extrabold text-gray-900 ml-2"> 
               Order Details  
             </Text> </View>
-            <Text style={styles.orderId}>OrderId:-  {order._id}</Text>
+            <Text className="text-red-600">OrderId:-  {order._id}</Text>
           </View>
 
-          <View style={styles.detailsGrid}>
-            <View style={styles.detailItem}>
-              <Text style={styles.detailLabel}>
+          <View className="mb-5">
+            <View className="mb-4">
+              <Text className="font-semibold text-gray-600 mb-1">
                 <MaterialCommunityIcons name="store" size={18} color="#3B82F6" /> Restaurant:
               </Text>
-              <Text style={styles.detailText}>
-                <Text style={styles.bold}>Name: </Text>{order.items[0]?.sourceEntityId?.restaurantInfo?.name || "N/A"}
+              <Text className="ml-5 text-gray-700">
+                <Text className="font-bold">Name: </Text>{order.items[0]?.sourceEntityId?.restaurantInfo?.name || "N/A"}
               </Text>
-              <Text style={styles.detailText}>
-                <Text style={styles.bold}>Address: </Text>{order.items[0]?.sourceEntityId?.restaurantInfo?.address || "N/A"}
+              <Text className="ml-5 text-gray-700">
+                <Text className="font-bold">Address: </Text>{order.items[0]?.sourceEntityId?.restaurantInfo?.address || "N/A"}
               </Text>
             </View>
 
-            <View style={styles.detailItem}>
-              <Text style={styles.detailLabel}>
+            <View className="mb-4">
+              <Text className="font-semibold text-gray-600 mb-1">
                 <FontAwesome name="tag" size={18} color="#8B5CF6" /> Order Type:
               </Text>
-              <Text style={styles.detailText}>Takeaway</Text>
+              <Text className="ml-5 text-gray-700">Takeaway</Text>
             </View>
 
-            <View style={styles.detailItem}>
-              <Text style={styles.detailLabel}>
+            <View className="mb-4">
+              <Text className="font-semibold text-gray-600 mb-1">
                 <Feather name="clock" size={18} color="#F59E0B" /> Order Placed:
               </Text>
-              <Text style={styles.detailText}>{formatDate(order.orderTime)} at {formatTime(order.orderTime)}</Text>
+              <Text className="ml-5 text-gray-700">{formatDate(order.orderTime)} at {formatTime(order.orderTime)}</Text>
             </View>
 
-            <View style={styles.detailItem}>
-              <Text style={styles.detailLabel}>
+            <View className="mb-4">
+              <Text className="font-semibold text-gray-600 mb-1">
                 <Feather name="clock" size={18} color="#10B981" /> Scheduled Takeaway Time:
               </Text>
-              <Text style={styles.detailText}>{order.deliverTime}</Text>
+              <Text className="ml-5 text-gray-700">{order.deliverTime}</Text>
             </View>
 
             {order.specialInstructions && (
-              <View style={styles.specialInstructions}>
-                <Text style={styles.detailLabel}>
+              <View className="bg-gray-50 p-3 rounded-md border border-gray-200 mt-2.5">
+                <Text className="font-semibold text-gray-600 mb-1">
                   <MaterialIcons name="info" size={18} color="#6B7280" /> Special Instructions:
                 </Text>
-                <Text style={styles.italicText}>{order.specialInstructions}</Text>
+                <Text className="italic ml-5 mt-1">{order.specialInstructions}</Text>
               </View>
             )}
           </View>
 
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Order Items:</Text>
-            <View style={styles.itemsContainer}>
+          <View className="mb-5 pt-4 border-t border-gray-200">
+            <Text className="font-bold text-lg text-gray-900 mb-2.5">Order Items:</Text>
+            <View className="mt-2.5">
               {order.items?.map((item, idx) => (
-                <View key={idx} style={styles.itemCard}>
-                  <View style={styles.itemDetails}>
-                    <Text style={styles.itemName}>{item.name}</Text>
-                    <Text style={styles.itemMeta}>Qty: {item.quantity}</Text>
-                    {item.foodType && <Text style={styles.itemMeta}>Food Type: {item.foodType}</Text>}
+                <View key={idx} className="flex-row justify-between items-center bg-gray-50 p-3 rounded-md mb-2 shadow-sm">
+                  <View className="flex-1">
+                    <Text className="font-medium text-gray-900">{item.name}</Text>
+                    <Text className="text-xs text-gray-500">Qty: {item.quantity}</Text>
+                    {item.foodType && <Text className="text-xs text-gray-500">Food Type: {item.foodType}</Text>}
                   </View>
-                  <Text style={styles.itemPrice}>${(item.price * item.quantity).toFixed(2)}</Text>
+                  <Text className="font-semibold text-teal-600">${(item.price * item.quantity).toFixed(2)}</Text>
                 </View>
               ))}
             </View>
           </View>
 
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Payment Summary:</Text>
-            <View style={styles.paymentSummary}>
+          <View className="mb-5 pt-4 border-t border-gray-200">
+            <Text className="font-bold text-lg text-gray-900 mb-2.5">Payment Summary:</Text>
+            <View className="mt-2.5">
               <View style={styles.paymentRow}>
                 <Text>Subtotal:</Text>
                 <Text>${order.subtotal?.toFixed(2)}</Text>
@@ -224,37 +224,37 @@ const TakeawayOrderCard = ({ order, onToggleFavorite, onOrderCancelled }) => {
           </View>
 
           <TouchableOpacity
-            style={styles.cancelOrderButton}
+            className="bg-red-600 p-2.5 rounded-lg mt-1.5 items-center"
             onPress={() => setIsCancelModalVisible(true)}
           >
-            <Text style={styles.cancelOrderButtonText}>Cancel Order</Text>
+            <Text className="text-white font-medium">Cancel Order</Text>
           </TouchableOpacity>
 
           {order.subStatus && order.subStatus.length > 0 && (
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Order Timeline:</Text>
-              <View style={styles.timeline}>
+            <View className="mb-5 pt-4 border-t border-gray-200">
+              <Text className="font-bold text-lg text-gray-900 mb-2.5">Order Timeline:</Text>
+              <View className="ml-5 border-l-2 border-gray-200 pl-5">
                 {order.subStatus
                   .sort((a, b) => new Date(a.date) - new Date(b.date))
                   .map((statusEntry, idx) => (
-                    <View key={idx} style={styles.timelineItem}>
-                      <View style={styles.timelineDot}>
+                    <View key={idx} className="mb-5 relative">
+                      <View className="absolute -left-8 top-0 w-6 h-6 rounded-full bg-blue-50 justify-center items-center border-4 border-white">
                         {statusEntry.status === "delivered" ? (
                           <AntDesign name="check" size={12} color="#10B981" />
                         ) : (
                           <Feather name="clock" size={12} color="#F59E0B" />
                         )}
                       </View>
-                      <View style={styles.timelineContent}>
-                        <View style={styles.timelineHeader}>
-                          <Text style={styles.timelineTitle}>{statusEntry.status}</Text>
+                      <View className="ml-2.5">
+                        <View className="flex-row items-center mb-1">
+                          <Text className="font-semibold text-gray-900 capitalize">{statusEntry.status}</Text>
                           {idx === order.subStatus.length - 1 && (
-                            <View style={styles.latestBadge}>
-                              <Text style={styles.latestBadgeText}>Latest</Text>
+                            <View className="bg-blue-100 px-2 py-0.5 rounded-xl ml-2">
+                              <Text className="text-blue-800 text-xs font-medium">Latest</Text>
                             </View>
                           )}
                         </View>
-                        <Text style={styles.timelineDate}>
+                        <Text className="text-xs text-gray-400 mb-2">
                           On {formatDate(statusEntry.date)} at {formatTime(statusEntry.date)}
                         </Text>
                       </View>
@@ -272,18 +272,18 @@ const TakeawayOrderCard = ({ order, onToggleFavorite, onOrderCancelled }) => {
   const isActiveOrder = !['delivered', 'cancelled', 'rejected', 'user_cancel'].includes(order.status?.toLowerCase());
 
   return (
-    <View style={styles.orderCard}>
-      <View style={styles.restaurantHeader}>
-        <View style={styles.restaurantInfo}>
+    <View className="bg-white rounded-xl mb-4 p-4 shadow-sm">
+      <View className="flex-row justify-between items-start mb-3">
+        <View className="flex-row flex-1">
           <Image
             source={order.image}
-            style={styles.restaurantImage}
+            className="w-15 h-15 rounded-lg mr-3"
           />
-          <View style={styles.restaurantDetails}>
-            <Text style={styles.restaurantName} numberOfLines={1} ellipsizeMode="tail">
+          <View className="flex-1">
+            <Text className="text-base font-semibold mb-1 text-gray-800" numberOfLines={1} ellipsizeMode="tail">
               {order.restaurantname || 'Restaurant'}
             </Text>
-            <Text style={styles.location} numberOfLines={1} ellipsizeMode="tail">
+            <Text className="text-sm text-gray-600 mb-1.5" numberOfLines={1} ellipsizeMode="tail">
               {order.location || 'Location not specified'}
             </Text>
           </View>
@@ -297,44 +297,42 @@ const TakeawayOrderCard = ({ order, onToggleFavorite, onOrderCancelled }) => {
         </TouchableOpacity>
       </View>
 
-      <View style={styles.orderItems}>
+      <View className="mb-3">
         {order.items?.map((item, index) => (
-          <View key={index} style={styles.orderItem}>
+          <View key={index} className="flex-row items-center mb-1.5">
             {item.veg ? (
-              <View style={styles.vegIcon}>
-                <View style={styles.vegIconInner} />
+              <View className="w-4 h-4 border border-green-600 mr-2 justify-center items-center">
+                <View className="w-2 h-2 bg-green-600 rounded" />
               </View>
             ) : (
-              <View style={[styles.vegIcon, styles.nonVegIcon]}>
-                <View style={[styles.vegIconInner, styles.nonVegIconInner]} />
+              <View className="w-4 h-4 border border-red-600 mr-2 justify-center items-center">
+                <View className="w-2 h-2 bg-red-600 rounded" />
               </View>
             )}
-            <Text style={styles.itemText} numberOfLines={1} ellipsizeMode="tail">
+            <Text className="text-sm text-gray-800 flex-1" numberOfLines={1} ellipsizeMode="tail">
               {item.quantity || 1} × {item.name || 'Item'}
             </Text>
           </View>
         ))}
       </View>
 
-      <View style={styles.orderFooter}>
+      <View className="flex-row justify-between items-center mt-2 pt-3 border-t border-gray-100">
         <View>
-          <Text style={styles.orderDate}>
+          <Text className="text-sm text-gray-600">
             {formatDate(order.orderTime)} at {formatTime(order.orderTime)}
           </Text>
           <Text
-            style={[
-              styles.orderStatus,
-              { color: getStatusColor(order.status) },
-            ]}
+            className="text-sm font-medium mt-0.5 capitalize"
+            style={{ color: getStatusColor(order.status) }}
           >
             {order.status || 'Status unknown'}
           </Text>
         </View>
         <TouchableOpacity
-          style={styles.amountContainer}
+          className="flex-row items-center"
           onPress={() => setIsPriceModalVisible(true)}
         >
-          <Text style={styles.amount}>${(order.amount || 0).toFixed(2)}</Text>
+          <Text className="text-base font-semibold text-gray-800">${(order.amount || 0).toFixed(2)}</Text>
           <Ionicons name="chevron-forward" size={16} color="#666" />
         </TouchableOpacity>
 
@@ -348,9 +346,9 @@ const TakeawayOrderCard = ({ order, onToggleFavorite, onOrderCancelled }) => {
         animationType="slide"
         onRequestClose={() => setIsPriceModalVisible(false)}
       >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContainer}>
-            <View style={styles.priceDetailsContainer}>
+        <View className="flex-1 bg-black/50 justify-center items-center">
+          <View className="bg-white rounded-xl w-[90%] max-h-[90%] p-2.5">
+            <View className="my-2">
               <TouchableOpacity onPress={() => setIsPriceModalVisible(false)}>
                 <Ionicons name="close" size={24} color="#666" />
               </TouchableOpacity>
@@ -368,32 +366,32 @@ const TakeawayOrderCard = ({ order, onToggleFavorite, onOrderCancelled }) => {
         animationType="slide"
         onRequestClose={() => setIsCancelModalVisible(false)}
       >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContainer}>
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Cancel Order #{order._id.slice(-6)}</Text>
+        <View className="flex-1 bg-black/50 justify-center items-center">
+          <View className="bg-white rounded-xl w-[90%] max-h-[90%] p-2.5">
+            <View className="flex-row justify-between items-center mb-1.5 border-b border-gray-100 pb-1.5">
+              <Text className="text-lg font-semibold text-gray-800">Cancel Order #{order._id.slice(-6)}</Text>
               <TouchableOpacity onPress={() => setIsCancelModalVisible(false)}>
                 <Ionicons name="close" size={24} color="#666" />
               </TouchableOpacity>
             </View>
-            <View style={styles.modalContent}>
-              <Text style={styles.modalText}>Please provide a reason for cancelling this order:</Text>
+            <View className="p-2.5">
+              <Text className="text-base text-gray-800 mb-2">Please provide a reason for cancelling this order:</Text>
               <TextInput
-                style={styles.cancelReasonInput}
+                className="border border-gray-300 rounded-lg p-3 my-3 min-h-[100px]"
                 multiline
                 numberOfLines={4}
                 placeholder="e.g., Change of plans, moving, received wrong order, etc."
                 value={cancelReason}
                 onChangeText={setCancelReason}
               />
-              {message ? <Text style={styles.messageText}>{message}</Text> : null}
-              <View style={styles.cancelButtonContainer}>
+              {message ? <Text className="text-red-600 my-2 text-center">{message}</Text> : null}
+              <View className="mt-4">
                 <TouchableOpacity
-                  style={[styles.actionButton, styles.cancelButton]}
+                  className="p-3 rounded-lg items-center bg-red-600"
                   onPress={handleCancelOrderSubmit}
                   disabled={!cancelReason.trim() || cancellingOrderId === order._id}
                 >
-                  <Text style={styles.cancelButtonText}>
+                  <Text className="text-white font-medium">
                     {cancellingOrderId === order._id ? 'Cancelling...' : 'Submit Cancellation'}
                   </Text>
                 </TouchableOpacity>
@@ -406,18 +404,7 @@ const TakeawayOrderCard = ({ order, onToggleFavorite, onOrderCancelled }) => {
   );
 };
 
-const styles = StyleSheet.create({
-  orderCard: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    marginBottom: 16,
-    padding: 16,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-  },
+/*
   restaurantHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -765,11 +752,12 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '500',
   },
-  timelineDate: {
-    fontSize: 12,
-    color: '#9CA3AF',
-    marginBottom: 8,
-  },
-});
+//   timelineDate: {
+//     fontSize: 12,
+//     color: '#9CA3AF',
+//     marginBottom: 8,
+//   },
+// });
+*/
 
 export default TakeawayOrderCard;
