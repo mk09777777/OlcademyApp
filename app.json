@@ -1,7 +1,7 @@
 {
   "expo": {
     "jsEngine": "hermes",
-    "name": "Frontend",
+    "name": "projectz",
     "slug": "projectz",
     "version": "1.0.0",
     "sdkVersion": "54.0.0",
@@ -12,7 +12,7 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.mayurk0523.Frontend",
+      "bundleIdentifier": "com.mayurk0523.projectz",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
       }
@@ -23,7 +23,7 @@
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.mayurk0523.Frontend",
+      "package": "com.mayurk0523.projectz",
       "softwareKeyboardLayoutMode": "resize",
       "permissions": [
         "ACCESS_FINE_LOCATION",
