@@ -1,6 +1,8 @@
 import React from 'react';
-import { View, Text, Image ,TouchableOpacity} from 'react-native';
+import { View, Text, Image, TouchableOpacity } from 'react-native';
+import { MaterialIcons } from '@expo/vector-icons';
 import styles from '../styles/TakewayCollection';
+import { Colors } from '../components/constants';
 
 const RestaurantCard = ({ restaurant, onPress }) => {
   const { 
@@ -20,12 +22,14 @@ const RestaurantCard = ({ restaurant, onPress }) => {
     </View>
   );  
   return (
-    <TouchableOpacity style={styles.restaurantCard} onPress={onPress}>
-    <View style={styles.restaurantCard}>
+    <TouchableOpacity style={styles.restaurantCard} onPress={onPress} activeOpacity={0.7}>
       <Image source={image} style={styles.restaurantImage} />
       <TouchableOpacity 
               style={styles.bookmarkButton}
-              onPress={() => toggleBookmark(item.id)}
+              onPress={(e) => {
+                e.stopPropagation();
+                toggleBookmark(item.id);
+              }}
               activeOpacity={0.7}
             >
               <MaterialIcons 
@@ -54,7 +58,6 @@ const RestaurantCard = ({ restaurant, onPress }) => {
           </View>
         )}
       </View>
-    </View>
     </TouchableOpacity>
   );
 };

@@ -1241,9 +1241,9 @@ export default function TakeAway() {
     lon: ''
   })
   const campaigns = [
-    { id: 1, title: 'Get $5 cashback on order $50' },
-    { id: 2, title: 'Buy 1 Get 1 Free' },
-    { id: 3, title: 'Free Delivery on First Order' }
+    { id: 1, title: '🎉 Get $5 cashback on orders above $50!' },
+    { id: 2, title: '🍕 Buy 1 Get 1 Free on selected items' },
+    { id: 3, title: '🚚 Free delivery on your first order' }
   ]
   const sortOptions = useMemo(() => ([
     { id: 1, label: 'Price Low to High', value: 'default' },
@@ -1977,63 +1977,65 @@ export default function TakeAway() {
                     keyExtractor={(item) => item.id.toString()}
                     renderItem={({ item }) => (
                       <TouchableOpacity
-                        style={{ width: screenWidth - 32, marginHorizontal: 16 }}
-                        className="h-auto"
+                        style={{ width: screenWidth - 40 }}
+                        className="mx-2 rounded-xl overflow-hidden shadow-sm bg-white"
+                        activeOpacity={0.8}
                       >
-                        <Image
-                          source={require('@/assets/images/campaign.webp')}
-                          className="h-32"
-                          style={{marginLeft: '-20', marginRight: 0, width: '100%'}}
-                        />
-                        <Text className="text-textprimary font-outfit">{item.title}</Text>
+                        <View className="relative">
+                          <Image
+                            source={require('@/assets/images/campaign.webp')}
+                            className="h-28 w-full"
+                            style={{ resizeMode: 'cover' }}
+                          />
+                          <View className="absolute inset-0 bg-gradient-to-r from-black/30 to-transparent" />
+                          <View className="absolute bottom-0 left-0 right-0 p-3">
+                            <Text className="text-white font-outfit-bold text-base shadow-lg">
+                              {item.title}
+                            </Text>
+                          </View>
+                        </View>
                       </TouchableOpacity>
                     )}
-                    contentContainerStyle={{ flexGrow: 0 }}
+                    contentContainerStyle={{ paddingHorizontal: 8 }}
                   />
                   <View className="flex-row items-center mt-2.5 mb-4">
                     <View className="flex-1 h-px bg-primary" />
                     <Text className="font-outfit text-xs text-textprimary mx-2">COLLECTIONS</Text>
                     <View className="flex-1 h-px bg-primary" />
                   </View>
-                  <View className='ml-0'>
-                    <ScrollView horizontal={true} showsVerticalScrollIndicator={false} showsHorizontalScrollIndicator={false}>
-                      <View>
-                        <FlatList
-                          data={collections}
-                          keyExtractor={(item) => item._id}
-                          horizontal={true}
-                          showsHorizontalScrollIndicator={false}
-                          contentContainerStyle={{ paddingLeft: 0, paddingRight: 10 }}
-                          renderItem={({ item }) => (
-                            <TouchableOpacity
-                              className="flex-1 mr-5 rounded-2.5 overflow-hidden"
-                              onPress={() =>
-                                safeNavigation({
-                                  pathname: 'screens/Collections',
-                                  params: {
-                                    collectionName: item.title,
-                                  },
-                                })
-                              }
-                            >
-                              <ImageBackground
-                                source={{ uri: item.photoApp }}
-                                className="w-40 h-32 justify-end p-2.5 rounded-3xl overflow-hidden"
-                                imageStyle={{ borderRadius: 10 }}
-                              >
-                                <View className="bg-black/50 p-2.5 items-center flex-wrap w-full">
-                                  <Text className="text-white text-sm font-outfit-bold text-center" numberOfLines={1}>
-                                    {item.title}
-                                  </Text>
-                                  <Text className="text-white">{item.restaurants.length} Places <Ionicons name="chevron-forward" size={18} color="#fff" /></Text>
-                                </View>
-                              </ImageBackground>
-                            </TouchableOpacity>
-                          )}
-                        />
-                      </View>
-                    </ScrollView>
-                  </View>
+                  <FlatList
+                    data={collections}
+                    keyExtractor={(item) => item._id}
+                    horizontal={true}
+                    showsHorizontalScrollIndicator={false}
+                    contentContainerStyle={{ paddingLeft: 0, paddingRight: 10 }}
+                    renderItem={({ item }) => (
+                      <TouchableOpacity
+                        className="flex-1 mr-5 rounded-2.5 overflow-hidden"
+                        onPress={() =>
+                          safeNavigation({
+                            pathname: 'screens/Collections',
+                            params: {
+                              collectionName: item.title,
+                            },
+                          })
+                        }
+                      >
+                        <ImageBackground
+                          source={{ uri: item.photoApp }}
+                          className="w-40 h-32 justify-end p-2.5 rounded-3xl overflow-hidden"
+                          imageStyle={{ borderRadius: 10 }}
+                        >
+                          <View className="bg-black/50 p-2.5 items-center flex-wrap w-full">
+                            <Text className="text-white text-sm font-outfit-bold text-center" numberOfLines={1}>
+                              {item.title}
+                            </Text>
+                            <Text className="text-white">{item.restaurants.length} Places <Ionicons name="chevron-forward" size={18} color="#fff" /></Text>
+                          </View>
+                        </ImageBackground>
+                      </TouchableOpacity>
+                    )}
+                  />
 
 
                   <View className="flex">

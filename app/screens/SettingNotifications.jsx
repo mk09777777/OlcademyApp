@@ -12,8 +12,9 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import BackRouting from "@/components/BackRouting";
 import { useSafeNavigation } from "@/hooks/navigationPage";
 
-// Check if running in development build or Expo Go
-const isExpoGo = Constants.appOwnership === 'expo';
+//const isExpoGo = Constants.appOwnership === 'expo';
+
+const isExpoGo = Constants.executionEnvironment === 'storeClient';
 
 export default function NotificationSettings() {
     const [enableAll, setEnableAll] = useState(false);
@@ -24,8 +25,9 @@ export default function NotificationSettings() {
     const [ordersWhatsapp, setOrdersWhatsapp] = useState(false);
     const [buttonActive, setButtonActive] = useState(false);
     const [notificationmodal, setNotificationModal] = useState(false);
+
     const { safeNavigation } = useSafeNavigation();
-    
+
     const initialState = useRef({
         enableAll: false,
         promosPush: false,
@@ -43,12 +45,11 @@ export default function NotificationSettings() {
     const checkNotificationPermission = async () => {
         try {
             if (isExpoGo) {
-                console.log('📱 Running in Expo Go - notifications limited');
                 await AsyncStorage.setItem('notification_permission', 'limited');
                 setNotificationModal(false);
                 return;
             }
-            
+
             const { status } = await Notifications.getPermissionsAsync();
             if (status === 'granted') {
                 await AsyncStorage.setItem('notification_permission', 'granted');
@@ -68,7 +69,7 @@ export default function NotificationSettings() {
                 credentials: 'include',
             });
             const settings = await response.json();
-            
+
             setEnableAll(settings.enableAll);
             setPromosPush(settings.promoPush);
             setPromosWhatsapp(settings.promoWhatsapp);
@@ -89,35 +90,73 @@ export default function NotificationSettings() {
         }
     };
 
-    useEffect(() => {
+    // Check if Save button should activate
+    const updateButtonState = (updatedState) => {
         const hasChanged =
-            enableAll !== initialState.current.enableAll ||
-            promosPush !== initialState.current.promosPush ||
-            promosWhatsapp !== initialState.current.promosWhatsapp ||
-            socialPush !== initialState.current.socialPush ||
-            ordersPush !== initialState.current.ordersPush ||
-            ordersWhatsapp !== initialState.current.ordersWhatsapp;
+            updatedState.enableAll !== initialState.current.enableAll ||
+            updatedState.promosPush !== initialState.current.promosPush ||
+            updatedState.promosWhatsapp !== initialState.current.promosWhatsapp ||
+            updatedState.socialPush !== initialState.current.socialPush ||
+            updatedState.ordersPush !== initialState.current.ordersPush ||
+            updatedState.ordersWhatsapp !== initialState.current.ordersWhatsapp;
 
         setButtonActive(hasChanged);
-    }, [enableAll, promosPush, promosWhatsapp, socialPush, ordersPush, ordersWhatsapp]);
+    };
 
+    // Helper to update enableAll dynamically
+    const checkIfAllEnabled = (changed = {}) => {
+        const updated = {
+            promosPush,
+            promosWhatsapp,
+            socialPush,
+            ordersPush,
+            ordersWhatsapp,
+            ...changed,
+        };
+
+        const allEnabled =
+            updated.promosPush &&
+            updated.promosWhatsapp &&
+            updated.socialPush &&
+            updated.ordersPush &&
+            updated.ordersWhatsapp;
+
+        setEnableAll(allEnabled);
+
+        updateButtonState({
+            enableAll: allEnabled,
+            ...updated,
+        });
+    };
+
+    // Enable All / Disable All
     const onToggleEnableAll = (value) => {
         setEnableAll(value);
-        if (value) {
-            setPromosPush(true);
-            setPromosWhatsapp(true);
-            setSocialPush(true);
-            setOrdersPush(true);
-            setOrdersWhatsapp(true);
-        }
+
+        setPromosPush(value);
+        setPromosWhatsapp(value);
+        setSocialPush(value);
+        setOrdersPush(value);
+        setOrdersWhatsapp(value);
+
+        const updatedAll = {
+            enableAll: value,
+            promosPush: value,
+            promosWhatsapp: value,
+            socialPush: value,
+            ordersPush: value,
+            ordersWhatsapp: value,
+        };
+
+        updateButtonState(updatedAll);
     };
 
     const submitNotificationSettings = async () => {
         const payload = {
-            enableAll: enableAll,
+            enableAll,
             promoPush: promosPush,
             promoWhatsapp: promosWhatsapp,
-            socialPush: socialPush,
+            socialPush,
             orderPush: ordersPush,
             orderWhatsapp: ordersWhatsapp,
         };
@@ -155,17 +194,24 @@ export default function NotificationSettings() {
                     showsVerticalScrollIndicator={false}
                     contentContainerStyle={{ padding: 16, paddingBottom: 96 }}
                 >
+
+                    {/* Enable All Section */}
                     <View className="bg-white rounded-lg border border-border p-4 mb-3">
                         <View className="flex-row items-start justify-between">
                             <View className="flex-row flex-1">
                                 <Ionicons name="notifications-outline" size={22} color="#222" />
                                 <View className="ml-3 flex-1">
-                                    <Text className="text-textprimary font-outfit-bold text-base">Enable all</Text>
-                                    <Text className="text-textsecondary font-outfit text-sm mt-1">
-                                        Activate all notifications
+                                    <Text className="text-textprimary font-outfit-bold text-base">
+                                        {enableAll ? "Disable all" : "Enable all"}
                                     </Text>
+
+                                    <Text className="text-textsecondary font-outfit text-sm mt-1">
+                                        {enableAll ? "All notifications activated" : "All notifications are disabled"}
+                                    </Text>
+
                                 </View>
                             </View>
+
                             <Switch
                                 value={enableAll}
                                 onValueChange={onToggleEnableAll}
@@ -175,7 +221,7 @@ export default function NotificationSettings() {
                         </View>
                     </View>
 
-                    {/* Promos and Offers Section */}
+                    {/* Promos & Offers */}
                     <View className="bg-white rounded-lg border border-border p-4 mb-3">
                         <View className="flex-row">
                             <MaterialIcons name="local-offer" size={22} color="#9C27B0" />
@@ -188,6 +234,8 @@ export default function NotificationSettings() {
                         </View>
 
                         <View className="border-t border-border mt-4 pt-4">
+
+                            {/* Push */}
                             <View className="flex-row justify-between items-center mb-4">
                                 <View className="flex-row items-center">
                                     <MaterialIcons name="notifications-active" size={18} color={promosPush ? "#FF002E" : "#9E9E9E"} />
@@ -195,13 +243,16 @@ export default function NotificationSettings() {
                                 </View>
                                 <Switch
                                     value={promosPush}
-                                    onValueChange={setPromosPush}
+                                    onValueChange={(v) => {
+                                        setPromosPush(v);
+                                        checkIfAllEnabled({ promosPush: v });
+                                    }}
                                     trackColor={{ false: '#E0E0E0', true: '#ffdbdf' }}
                                     thumbColor={promosPush ? '#FF002E' : '#fff'}
-                                    disabled={enableAll}
                                 />
                             </View>
 
+                            {/* WhatsApp */}
                             <View className="flex-row justify-between items-center">
                                 <View className="flex-row items-center">
                                     <FontAwesome5 name="whatsapp" size={18} color={promosWhatsapp ? "#FF002E" : "#9E9E9E"} />
@@ -209,16 +260,18 @@ export default function NotificationSettings() {
                                 </View>
                                 <Switch
                                     value={promosWhatsapp}
-                                    onValueChange={setPromosWhatsapp}
+                                    onValueChange={(v) => {
+                                        setPromosWhatsapp(v);
+                                        checkIfAllEnabled({ promosWhatsapp: v });
+                                    }}
                                     trackColor={{ false: '#E0E0E0', true: '#ffdbdf' }}
                                     thumbColor={promosWhatsapp ? '#FF002E' : '#fff'}
-                                    disabled={enableAll}
                                 />
                             </View>
                         </View>
                     </View>
 
-                    {/* Social Notifications Section */}
+                    {/* Social Notifications */}
                     <View className="bg-white rounded-lg border border-border p-4 mb-3">
                         <View className="flex-row">
                             <Ionicons name="people-outline" size={22} color="#2196F3" />
@@ -235,17 +288,20 @@ export default function NotificationSettings() {
                                 <MaterialIcons name="notifications-active" size={18} color={socialPush ? "#FF002E" : "#9E9E9E"} />
                                 <Text className="text-textprimary font-outfit ml-3">Push</Text>
                             </View>
+
                             <Switch
                                 value={socialPush}
-                                onValueChange={setSocialPush}
+                                onValueChange={(v) => {
+                                    setSocialPush(v);
+                                    checkIfAllEnabled({ socialPush: v });
+                                }}
                                 trackColor={{ false: '#E0E0E0', true: '#ffdbdf' }}
                                 thumbColor={socialPush ? '#FF002E' : '#fff'}
-                                disabled={enableAll}
                             />
                         </View>
                     </View>
 
-                    {/* Orders and Purchases Section */}
+                    {/* Orders & Purchases */}
                     <View className="bg-white rounded-lg border border-border p-4">
                         <View className="flex-row">
                             <Ionicons name="receipt-outline" size={22} color="#4CAF50" />
@@ -258,6 +314,8 @@ export default function NotificationSettings() {
                         </View>
 
                         <View className="border-t border-border mt-4 pt-4">
+
+                            {/* Push */}
                             <View className="flex-row justify-between items-center mb-4">
                                 <View className="flex-row items-center">
                                     <MaterialIcons name="notifications-active" size={18} color={ordersPush ? "#FF002E" : "#9E9E9E"} />
@@ -265,13 +323,16 @@ export default function NotificationSettings() {
                                 </View>
                                 <Switch
                                     value={ordersPush}
-                                    onValueChange={setOrdersPush}
+                                    onValueChange={(v) => {
+                                        setOrdersPush(v);
+                                        checkIfAllEnabled({ ordersPush: v });
+                                    }}
                                     trackColor={{ false: '#E0E0E0', true: '#ffdbdf' }}
                                     thumbColor={ordersPush ? '#FF002E' : '#fff'}
-                                    disabled={enableAll}
                                 />
                             </View>
 
+                            {/* WhatsApp */}
                             <View className="flex-row justify-between items-center">
                                 <View className="flex-row items-center">
                                     <FontAwesome5 name="whatsapp" size={18} color={ordersWhatsapp ? "#FF002E" : "#9E9E9E"} />
@@ -279,14 +340,18 @@ export default function NotificationSettings() {
                                 </View>
                                 <Switch
                                     value={ordersWhatsapp}
-                                    onValueChange={setOrdersWhatsapp}
+                                    onValueChange={(v) => {
+                                        setOrdersWhatsapp(v);
+                                        checkIfAllEnabled({ ordersWhatsapp: v });
+                                    }}
                                     trackColor={{ false: '#E0E0E0', true: '#ffdbdf' }}
                                     thumbColor={ordersWhatsapp ? '#FF002E' : '#fff'}
-                                    disabled={enableAll}
                                 />
                             </View>
+
                         </View>
                     </View>
+
                 </ScrollView>
 
                 {/* Save Button */}

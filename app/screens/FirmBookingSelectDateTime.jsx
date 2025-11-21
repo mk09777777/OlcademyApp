@@ -144,7 +144,62 @@ export default function SelectDateTime() {
         <DateTimePicker
           mode="single"
           date={date}
-          onChange={(params) => setDate(params.date)}
+          onChange={(params) => {
+              const newDate = params.date;
+              setDate(newDate);
+              setSelectedTime(null);
+              setSelectedScheduleTime(null);
+
+              setTimeout(() => {
+                try {
+                  // Determine day name string (ex: Monday)
+                  const selectedDay = dayjs(newDate).format("dddd");
+
+                  // Find matching offer for that day
+                  fetch(`${API_CONFIG.BACKEND_URL}/api/operating-hours/formatted-with-offers-only/${firmId}`)
+                    .then(res => res.json())
+                    .then(result => {
+                      const offers = Array.isArray(result.availableOffers) ? result.availableOffers : [];
+                      const dayOffer = offers.find(item => item.day === selectedDay);
+
+                      const timeSlots = dayOffer?.timeSlots || [];
+
+                      const lunch = [];
+                      const dinner = [];
+
+                      for (const slot of timeSlots) {
+                        const [time, period] = slot.slot.split(" ");
+                        const [hourStr, minuteStr] = time.split(":");
+                        let hour = parseInt(hourStr, 10);
+                        const minute = parseInt(minuteStr, 10);
+
+                        if (period === "PM" && hour !== 12) hour += 12;
+                        if (period === "AM" && hour === 12) hour = 0;
+
+                        if (hour < 17 || (hour === 17 && minute === 0)) {
+                          lunch.push(slot);
+                        } else {
+                          dinner.push(slot);
+                        }
+                      }
+
+                      // If the selected tab is lunch, check lunch slots
+                      const current = selectedTab === "Lunch" ? lunch : dinner;
+
+                      if (current.length === 0) {
+                        // No slots → force schedule modal
+                        setScheduleModalVisible(true);
+                      }
+                    })
+                    .catch(() => {
+                      // API failed → force schedule modal
+                      setScheduleModalVisible(true);
+                    });
+                } catch {
+                  setScheduleModalVisible(true);
+                }
+              }, 100);
+            }}
           calendarTextStyle={{ fontFamily: 'outfit' }}
           todayTextStyle={{ color: 'black' }}
           todayContainerStyle={{ borderColor: '#02757A' }}

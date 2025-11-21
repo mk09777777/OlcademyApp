@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   FlatList,
@@ -11,38 +11,50 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { IconButton } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useSafeNavigation } from '@/hooks/navigationPage';
+
 const { width } = Dimensions.get('window');
 
 export default function PhotoGallery() {
-  /* Original CSS Reference:
-   * container: { flex: 1, backgroundColor: '#fff' }
-   * header: { flexDirection: 'row', alignItems: 'center', padding: 16, borderBottomWidth: 1, borderBottomColor: '#eee' }
-   * gridContainer: { padding: 4 }
-   * imageContainer: { flex: 1, margin: 4 }
-   * image: { width: (width - 24) / 2, height: (width - 24) / 2, borderRadius: 8 }
-   * emptyContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' }
-   * emptyText: { fontSize: 16, color: '#666' }
-   */
   const { image_urls } = useLocalSearchParams();
   const router = useRouter();
-  const { safeNavigation } = useSafeNavigation();
-  let imageList = [];
-  try {
-    imageList = image_urls ? JSON.parse(image_urls) : [];
-  } catch (error) {
-    console.error('Failed to parse images:', error);
-  }
+  const { safeNavigation } = useSafeNavigation() || {};
+
+  const [imageList, setImageList] = useState([]);
+
+  // Parse images safely
+  useEffect(() => {
+    try {
+      let parsed = image_urls ? JSON.parse(image_urls) : [];
+
+      // If a single image is passed, wrap it
+      if (!Array.isArray(parsed)) {
+        parsed = [parsed];
+      }
+
+      setImageList(parsed);
+    } catch (error) {
+      console.error('Failed to parse images:', error);
+      setImageList([]);
+    }
+  }, [image_urls]);
 
   const handleBack = () => {
     router.back();
   };
 
   const handleImagePress = (image) => {
+    if (!safeNavigation) {
+      console.warn("Navigation not ready yet");
+      return;
+    }
+
+    const index = imageList.findIndex((img) => img === image);
+
     safeNavigation({
-      pathname: '/screens/FullScreenGallery',
+      pathname: "/screens/FullScreenGallery",
       params: {
-        images: JSON.stringify(imageList),
-        initialImage: imageList.indexOf(image),
+        images: JSON.stringify(imageList),       // ALWAYS send full list
+        initialImage: index >= 0 ? index : 0,    // Correct index
       },
     });
   };
@@ -51,6 +63,7 @@ export default function PhotoGallery() {
     <TouchableOpacity
       className="flex-1 m-1"
       onPress={() => handleImagePress(item)}
+      activeOpacity={0.8}
     >
       <Image
         source={{ uri: item }}
@@ -64,11 +77,7 @@ export default function PhotoGallery() {
   return (
     <SafeAreaView className="flex-1 bg-white">
       <View className="flex-row items-center p-4 border-b border-gray-200">
-        <IconButton
-          icon="arrow-left"
-          size={24}
-          onPress={handleBack}
-        />
+        <IconButton icon="arrow-left" size={24} onPress={handleBack} />
       </View>
 
       {imageList.length === 0 ? (
@@ -88,5 +97,3 @@ export default function PhotoGallery() {
     </SafeAreaView>
   );
 }
-
-

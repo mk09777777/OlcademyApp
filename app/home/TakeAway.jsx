@@ -542,6 +542,8 @@ export default function TakeAway() {
   };
 
   const handleApplyFilterboxFilters = (filters) => {
+    console.log('Applying filters:', filters);
+    
     // Find the matching sort option
     const selectedOption = sortOptions.find(opt =>
       opt.value === filters.sortBy ||
@@ -550,12 +552,12 @@ export default function TakeAway() {
 
     setSelectedSortOption(selectedOption || null);
     setSelectedCuisines(filters.cuisines ? filters.cuisines.split(',') : []);
-    setMinRatingFilter(filters.minRating || null);
-    setMaxRatingFilter(filters.maxRating || null);
-    setPriceRangeFilter(filters.priceRange ? [filters.priceRange] : []);
+    setMinRatingFilter(filters.minRating ? parseFloat(filters.minRating) : null);
+    setMaxRatingFilter(filters.maxRating ? parseFloat(filters.maxRating) : null);
+    setPriceRangeFilter(filters.priceRange ? [parseInt(filters.priceRange)] : []);
     setOpenNowFilter(filters.openNow || false);
     setOffersFilter(filters.offers || false);
-    setAlcoholFilter(filters.Alcohol || null);
+    setAlcoholFilter(filters.Alcohol || false);
     setSelectedFeatures(filters.feature ? filters.feature.split(',') : []);
     setIsVegOnly(filters.Dietary?.includes('vegetarian') || false);
     setFiltersVisible(false);

@@ -1,7 +1,7 @@
 import React from 'react';
 import { TouchableOpacity, Image, Text, View } from 'react-native';
 
-const CollectionCard = ({ collection, onPress }) => (
+const CollectionCard = React.memo(({ collection, onPress }) => (
   <TouchableOpacity
     className="bg-white rounded-xl mb-4 overflow-hidden shadow-md"
     onPress={() => onPress(collection)}
@@ -22,6 +22,6 @@ const CollectionCard = ({ collection, onPress }) => (
       )}
     </View>
   </TouchableOpacity>
-);
+));
 
 export default CollectionCard;

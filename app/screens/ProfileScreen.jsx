@@ -1,6 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, ScrollView, Image } from 'react-native';
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  ScrollView,
+  Image,
+  Alert
+} from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import * as ImagePicker from 'expo-image-picker';
 import { useAuth } from '../../context/AuthContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import AntDesign from '@expo/vector-icons/AntDesign';
@@ -11,11 +20,14 @@ import axios from 'axios';
 import { API_CONFIG } from '../../config/apiConfig';
 
 const ProfileScreen = () => {
-  const { user } = useAuth();
+  const { user, setUser } = useAuth(); // <-- Necessary for instant UI update
+
   const [isEditing, setIsEditing] = useState(false);
   const [showDobPicker, setShowDobPicker] = useState(false);
   const [showAnniversaryPicker, setShowAnniversaryPicker] = useState(false);
   const [fieldToUpdate, setFieldToUpdate] = useState('');
+  const [uploadingImage, setUploadingImage] = useState(false);
+
   const [localProfile, setLocalProfile] = useState({
     name: '',
     email: '',
@@ -55,35 +67,92 @@ const ProfileScreen = () => {
     });
   };
 
-  const handleUpdate = async () => {
-    if (isEditing) {
-      try {
-        const updatedProfile = {
-          ...user,
-          username: localProfile.name,
-          email: localProfile.email,
-          dob: localProfile.dob.toISOString(),
-          anniversary: localProfile.anniversary.toISOString(),
-          gender: localProfile.gender,
-          mobile: localProfile.mobile
-        };
+  // ⭐ PICK IMAGE
+  const pickProfileImage = async () => {
+    if (!isEditing) return;
 
-        await axios.post(`${API_CONFIG.BACKEND_URL}/user/profileEdit`, updatedProfile, {
-          withCredentials: true
-        });
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaType.Images,
+      allowsEditing: true,
+      quality: 0.7
+    });
 
-        await AsyncStorage.setItem('userData', JSON.stringify(updatedProfile));
-        console.log('Profile updated successfully');
-      } catch (error) {
-        console.error('Error updating profile:', error);
+    if (result.canceled) return;
+
+    const uri = result.assets[0].uri;
+    setLocalProfile(prev => ({ ...prev, profileImage: uri }));
+
+    await uploadImageToServer(uri);
+  };
+
+  // ⭐ UPLOAD IMAGE
+  const uploadImageToServer = async (uri) => {
+    try {
+      setUploadingImage(true);
+
+      let formData = new FormData();
+      formData.append('profileImage', {
+        uri,
+        type: "image/jpeg",
+        name: "profile.jpg"
+      });
+
+      const response = await axios.post(
+        `${API_CONFIG.BACKEND_URL}/user/uploadProfilePic`,
+        formData,
+        { headers: { "Content-Type": "multipart/form-data" } }
+      );
+
+      if (response.data?.url) {
+        setLocalProfile(prev => ({ ...prev, profileImage: response.data.url }));
       }
+    } catch (err) {
+      Alert.alert("Upload Error", "Could not upload image");
+    } finally {
+      setUploadingImage(false);
     }
-    setIsEditing(!isEditing);
+  };
+
+  // ⭐ UPDATE PROFILE
+  const handleUpdate = async () => {
+    if (!isEditing) {
+      setIsEditing(true);
+      return;
+    }
+
+    try {
+      const updatedProfile = {
+        ...user,
+        username: localProfile.name,
+        email: localProfile.email,
+        profilePic: localProfile.profileImage,
+        dob: localProfile.dob.toISOString(),
+        anniversary: localProfile.anniversary.toISOString(),
+        gender: localProfile.gender,
+        mobile: localProfile.mobile
+      };
+
+      await axios.post(`${API_CONFIG.BACKEND_URL}/user/profileEdit`, updatedProfile, {
+        withCredentials: true
+      });
+
+      // ⭐ Update async storage & auth context
+      await AsyncStorage.setItem('userData', JSON.stringify(updatedProfile));
+      setUser(updatedProfile); // << Immediate UI update
+
+      Alert.alert("Success", "Profile updated successfully!");
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      Alert.alert("Error", "Could not update profile");
+    }
+
+    setIsEditing(false);
   };
 
   const handleDateChange = (event, selectedDate) => {
     const currentDate =
       selectedDate || (fieldToUpdate === 'dob' ? localProfile.dob : localProfile.anniversary);
+
     if (fieldToUpdate === 'dob') {
       setShowDobPicker(false);
       handleChange('dob', currentDate);
@@ -97,24 +166,27 @@ const ProfileScreen = () => {
     <View className="flex-1 bg-background">
       <BackRouting />
       <ScrollView contentContainerStyle={{ padding: 20, paddingBottom: 40 }}>
-        {/* Profile Picture */}
-        <View className="items-center mt-6 mb-4">
-          {localProfile.profileImage ? (
-            <Image
-              source={{ uri: localProfile.profileImage }}
-              resizeMode="contain"
-              className="w-40 h-40 rounded-full border-4 border-primary"
-            />
-          ) : (
-            <View className="w-40 h-40 rounded-full bg-light justify-center items-center border-4 border-primary">
-              <Text className="text-5xl text-primary font-outfit-bold">{profileInitial}</Text>
-            </View>
-          )}
-        </View>
 
-        {/* Field Container */}
+        {/* ⭐ PROFILE PHOTO */}
+        <TouchableOpacity onPress={pickProfileImage}>
+          <View className="items-center mt-6 mb-4">
+            {localProfile.profileImage ? (
+              <Image
+                source={{ uri: localProfile.profileImage }}
+                resizeMode="cover"
+                className="w-40 h-40 rounded-full border-4 border-primary"
+              />
+            ) : (
+              <View className="w-40 h-40 rounded-full bg-light justify-center items-center border-4 border-primary">
+                <Text className="text-5xl text-primary font-outfit-bold">{profileInitial}</Text>
+              </View>
+            )}
+            {uploadingImage && <Text className="text-primary mt-2">Uploading...</Text>}
+          </View>
+        </TouchableOpacity>
+
+        {/* FIELD CONTAINER */}
         <View className="bg-white rounded-xl shadow-sm p-4">
-          {/* Field Template */}
           {[
             { label: 'Name', icon: <AntDesign name="user" size={22} color="#02757A" />, key: 'name' },
             { label: 'Email', icon: <Fontisto name="email" size={22} color="#02757A" />, key: 'email' },
@@ -128,7 +200,7 @@ const ProfileScreen = () => {
               <View className="border border-border rounded-lg px-3 py-2">
                 {isEditing && key !== 'email' ? (
                   <TextInput
-                    value={(localProfile )[key]}
+                    value={(localProfile)[key]}
                     onChangeText={text => handleChange(key, text)}
                     className="text-base text-textprimary"
                     keyboardType={key === 'mobile' ? 'phone-pad' : 'default'}
@@ -142,7 +214,7 @@ const ProfileScreen = () => {
             </View>
           ))}
 
-          {/* DOB Field */}
+          {/* DOB */}
           <View className="mb-4">
             <View className="flex-row items-center mb-2">
               <Fontisto name="date" size={22} color="#02757A" />
@@ -164,7 +236,7 @@ const ProfileScreen = () => {
             )}
           </View>
 
-          {/* Anniversary */}
+          {/* ANNIVERSARY */}
           <View className="mb-4">
             <View className="flex-row items-center mb-2">
               <Fontisto name="date" size={22} color="#02757A" />
@@ -186,7 +258,7 @@ const ProfileScreen = () => {
             )}
           </View>
 
-          {/* Gender */}
+          {/* GENDER */}
           <View className="mb-4">
             <View className="flex-row items-center mb-2">
               <AntDesign name="user" size={22} color="#02757A" />
@@ -211,7 +283,7 @@ const ProfileScreen = () => {
           </View>
         </View>
 
-        {/* Button */}
+        {/* BUTTON */}
         <TouchableOpacity
           className="bg-primary p-3 rounded-lg items-center mt-6 shadow-sm"
           onPress={handleUpdate}

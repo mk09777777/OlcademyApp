@@ -15,7 +15,7 @@ export default function ProfileHeader() {
   return (
     <TouchableOpacity 
       onPress={handlePress} 
-      className="p-4 items-center"
+      className="pt-0 pb-3 px-0 items-center"
       activeOpacity={0.7}
     >
       {user?.profilePicture ? (
@@ -24,7 +24,7 @@ export default function ProfileHeader() {
           className="w-20 h-20 rounded-full mb-2.5"
         />
       ) : (
-        <View className="w-20 h-20 rounded-full bg-blue-50 justify-center items-center border-2 border-white shadow-md">
+        <View className="w-20  h-20 rounded-full bg-blue-50 justify-center items-center border-2 border-white shadow-md">
           <Text className="text-3xl text-primary font-bold">{profileInitial}</Text>
         </View>
       )}

@@ -33,27 +33,21 @@ export default function RootLayout() {
   return (
     <SafeAreaProvider>
       <AuthProvider>
-        {({ isAuthenticated, loading }) => {
-          if (!isAuthenticated && router.canGoBack()) {
-            return <Redirect href="/auth/LoginScreen" />;
-          }
-
-            return (
-            <CartProvider>
-              <OffersProvider>
-              <PreferencesProvider>
-                <FirmProvider value={{ firms: [], loading: false }}>
+        <CartProvider>
+          <OffersProvider>
+            <PreferencesProvider>
+              <FirmProvider value={{ firms: [], loading: false }}>
                 <PaperProvider>
                   <ErrorBoundary>
-                  <SafeAreaView
-                    style={{ flex: 1, backgroundColor: '#ffffff' }}
-                    edges={['right', 'left', 'bottom', 'top']}
-                  >
-                    <StatusBar style="dark" />
-                    <LocationProvider>
-                    <NotificationHandler />
-                    <NotificationWatcher />
-                    <Stack>
+                    <SafeAreaView
+                      style={{ flex: 1, backgroundColor: '#ffffff' }}
+                      edges={['right', 'left', 'bottom', 'top']}
+                    >
+                      <StatusBar style="dark" />
+                      <LocationProvider>
+                        <NotificationHandler />
+                        <NotificationWatcher />
+                        <Stack>
                       {/* Core Screens */}
                       <Stack.Screen name="home" options={{ headerShown: false }} />
                       <Stack.Screen name="auth" options={{ headerShown: false }} />
@@ -130,17 +124,15 @@ export default function RootLayout() {
                       <Stack.Screen name="screens/SelectLocation" options={{ headerShown: false }} />
                       <Stack.Screen name="screens/PhotoGallery" options={{ headerShown: false, animation: 'fade' }} />
                       <Stack.Screen name="screens/FullScreenGallery" options={{ headerShown: false, presentation: 'modal' }} />
-                    </Stack>
-                    </LocationProvider>
-                  </SafeAreaView>
+                        </Stack>
+                      </LocationProvider>
+                    </SafeAreaView>
                   </ErrorBoundary>
                 </PaperProvider>
-                </FirmProvider>
-              </PreferencesProvider>
-              </OffersProvider>
-            </CartProvider>
-            );
-        }}
+              </FirmProvider>
+            </PreferencesProvider>
+          </OffersProvider>
+        </CartProvider>
       </AuthProvider>
     </SafeAreaProvider>
   );

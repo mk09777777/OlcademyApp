@@ -10,8 +10,6 @@ import ImageGallery from '@/components/ImageGallery';
 import OffersCard from '@/components/OffersCard';
 import { useSafeNavigation } from "@/hooks/navigationPage";
 
-
-
 import { API_CONFIG } from '../../config/apiConfig';
 const API_BASE_URL = API_CONFIG.BACKEND_URL;
 const API_URL = API_CONFIG.BACKEND_URL;
@@ -336,7 +334,13 @@ export default function FirmDetailsTakeAway() {
 
   return (
     <View className="flex-1 bg-background">
-  <View className="h-64 overflow-hidden ">
+
+      {/* --------------------------------------------- */}
+      {/* ✅ FIXED TOP IMAGE + GRADIENT + TEXT SECTION */}
+      {/* --------------------------------------------- */}
+
+      <View className="h-64 overflow-hidden">
+        
         <ImageGallery
           style={{ backgroundColor: "rgba(0, 0, 0, 0.63)" }}
           images={
@@ -347,104 +351,111 @@ export default function FirmDetailsTakeAway() {
           currentIndex={currentImageIndex}
           onIndexChange={(index) => setCurrentImageIndex(index)}
         />
+
+        {/* Dark Gradient */}
         <LinearGradient
-          colors={['transparent', 'rgba(0, 0, 0, 0.8)']}
+          colors={["transparent", "rgba(22, 21, 21, 0.9)"]}
           className="absolute inset-0"
-          start={{ x: 0.5, y: 0.5 }}
-          end={{ x: 0.5, y: 1 }}
         />
 
+        {/* Back Button */}
         <View className="absolute top-4 left-4 right-4 flex-row justify-between items-center z-10">
-          <TouchableOpacity onPress={() => router.back()} className="rounded-full bg-black/40 p-2 items-center justify-center">
-            <Ionicons name='chevron-back' size={28} color='white' />
+          <TouchableOpacity
+            onPress={() => router.back()}
+            className="rounded-full bg-black/40 p-2"
+          >
+            <Ionicons name="chevron-back" size={28} color="white" />
           </TouchableOpacity>
         </View>
 
-        <View
-          className="absolute bottom-3 left-0 right-0 h-[60%] flex-row justify-between items-center"
-          style={{ zIndex: 20, elevation: 12 }}
-        >
-          <LinearGradient
-            colors={['rgba(0,0,0,0)',
-    'rgba(0,0,0,0.59)',
-    'rgba(0,0,0,0.6)',]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 0, y: 1 }}
-            style={{
-              flexDirection: "row",
-              width: "100%",
-              justifyContent: "space-between",
-              zIndex: 20,
-            }}
-          >
-            <View className="w-[80%] px-6 mb-3 mt-14">
+        {/* Text Content Container
+            >> KEY FIXES:
+            - add right padding (pr-28) so long text doesn't sit under the floating review box horizontally
+            - add bottom padding (pb-16) so text stays above the floating review box vertically
+        */}
+        <View className="absolute bottom-4 left-4 z-20 pr-28 pb-2">
 
-              <View>
-                <TouchableOpacity
-                  onPress={() => safeNavigation({
-                    pathname: '/screens/RestaurantDetailsScreen',
-                    params: { restaurant: JSON.stringify(firmDetails) }
-                  })}
-                >
-                  <Text className="text-white font-outfit-bold text-xl mb-1">
-                    {firmDetails?.restaurantInfo?.name || "Restaurant"}
-                  </Text>
-                </TouchableOpacity>
-                <Text className="text-white/80 font-outfit text-sm mb-1">
-                  {firmDetails?.restaurantInfo?.address}
-                </Text>
-                <Text className="text-white/80 font-outfit text-sm mb-1">
-                  {Array.isArray(firmDetails?.restaurantInfo?.cuisines)
-                    ? firmDetails.restaurantInfo.cuisines.join(' • ')
-                    : firmDetails?.restaurantInfo?.cuisines || 'Italian • Dessert'}
-                </Text>
-                <Text className="text-white/80 font-outfit text-sm">
-                  {firmDetails?.restaurantInfo?.priceRange || '₹1010 for Two'}
-                </Text>
-              </View>
-            </View>
+          <View className="bg-black/40 rounded-2xl p-4 w-full">
 
             <TouchableOpacity
-              // Kept your margins, changed rounding, and added shadow for depth
-            className="absolute bottom-8 right-3 rounded-lg shadow-md shadow-black/15"
-              onPress={() => safeNavigation({
-                pathname: "/screens/Reviewsall",
-                params: {
-                  firmId: firmId,
-                  restaurantName: firmDetails?.restaurantInfo?.name,
-                  averageRating: firmDetails?.restaurantInfo?.ratings?.overall,
-                  reviewCount: firmDetails?.restaurantInfo?.ratings?.totalReviews,
-                  reviewType: "dining"
-                }
-              })}
+              onPress={() =>
+                safeNavigation({
+                  pathname: "/screens/RestaurantDetailsScreen",
+                  params: { restaurant: JSON.stringify(firmDetails) },
+                })
+              }
             >
-              {/* Top Part: Rating + Star */}
-              <View className="bg-green-600 p-2 rounded-t-lg">
-                {/* Added space-x-1 for spacing between text and star */}
-                <View className="flex-row items-center justify-center space-x-1">
-                  {/* Made text smaller and bold for a cleaner look */}
-                  <Text className="text-white text-sm font-bold font-outfit">
-                    {firmDetails?.restaurantInfo?.ratings?.overall?.toFixed(1) || '4.5'}
-                  </Text>
-                  <FontAwesome name='star' size={14} color='white' />
-                </View>
-              </View>
-
-              {/* Bottom Part: Count + "Reviews" */}
-              <View className="bg-white rounded-b-lg px-2 py-1.5 items-center">
-                {/* Added font-bold to the number and changed color for contrast */}
-                <Text className="text-xs text-gray-900 font-bold font-outfit">
-                  {firmDetails?.restaurantInfo?.ratings?.totalReviews || '2179'}
-                </Text>
-                {/* Made "Reviews" text lighter as it's a sub-label */}
-                <Text className="text-xs text-gray-500 font-outfit">
-                  Reviews
-                </Text>
-              </View>
+              <Text className="text-white font-outfit-bold text-xl mb-1">
+                {firmDetails?.restaurantInfo?.name || "Restaurant"}
+              </Text>
             </TouchableOpacity>
-          </LinearGradient>
+
+            <Text
+              className="text-white/80 font-outfit text-sm mb-1"
+              numberOfLines={1}
+            >
+              {firmDetails?.restaurantInfo?.address}
+            </Text>
+
+            <Text
+              className="text-white/80 font-outfit text-sm mb-1"
+              numberOfLines={1}
+            >
+              {Array.isArray(firmDetails?.restaurantInfo?.cuisines)
+                ? firmDetails.restaurantInfo.cuisines.join(" • ")
+                : firmDetails?.restaurantInfo?.cuisines || "Italian • Dessert"}
+            </Text>
+
+            <Text className="text-white/80 font-outfit text-sm">
+              {firmDetails?.restaurantInfo?.priceRange || "₹1010 for Two"}
+            </Text>
+          </View>
+
         </View>
+
+        {/* Floating Reviews Box
+            >> KEPT STYLE & LAYOUT UNCHANGED, only the position nudged slightly
+            to play nicely with the above padding. z-index kept high so it remains visually above image.
+        */}
+        <TouchableOpacity
+          className="absolute bottom-6 right-4 rounded-lg shadow-md shadow-black/15 z-30"
+          onPress={() =>
+            safeNavigation({
+              pathname: "/screens/Reviewsall",
+              params: {
+                firmId: firmId,
+                restaurantName: firmDetails?.restaurantInfo?.name,
+                averageRating: firmDetails?.restaurantInfo?.ratings?.overall,
+                reviewCount: firmDetails?.restaurantInfo?.ratings?.totalReviews,
+                reviewType: "dining",
+              },
+            })
+          }
+        >
+          <View className="bg-green-600 p-2 rounded-t-lg">
+            <View className="flex-row items-center justify-center space-x-1">
+              <Text className="text-white text-sm font-bold font-outfit">
+                {firmDetails?.restaurantInfo?.ratings?.overall?.toFixed(1) ||
+                  "4.5"}
+              </Text>
+              <FontAwesome name="star" size={14} color="white" />
+            </View>
+          </View>
+
+          <View className="bg-white rounded-b-lg px-2 py-1.5 items-center">
+            <Text className="text-xs text-gray-900 font-bold font-outfit">
+              {firmDetails?.restaurantInfo?.ratings?.totalReviews || "2179"}
+            </Text>
+            <Text className="text-xs text-gray-500 font-outfit">Reviews</Text>
+          </View>
+        </TouchableOpacity>
+
       </View>
+
+      {/* --------------------------------------------- */}
+      {/* END FIXED SECTION */}
+      {/* --------------------------------------------- */}
+
 
       <ScrollView className="flex-1" style={{ zIndex: 1 }}>
         <View className="flex-row items-center my-4">

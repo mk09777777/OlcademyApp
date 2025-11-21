@@ -20,7 +20,7 @@ const TiffinRestaurantCard = ({ restaurant, onPress }) => {
   );
 
   return (
-    <TouchableOpacity style={styles.restaurantCard} onPress={onPress}>
+    <TouchableOpacity style={styles.restaurantCard} onPress={onPress} activeOpacity={0.7}>
       <Image source={image} style={styles.restaurantImage} />
       <View style={styles.restaurantInfo}>
         <View style={styles.timeDistance}>

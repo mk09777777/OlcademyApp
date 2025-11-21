@@ -1,6 +1,5 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { router } from 'expo-router';
 import { API_CONFIG } from '../config/apiConfig';
 import axios from 'axios';
 const api = axios.create({
@@ -50,19 +49,16 @@ export const AuthProvider = ({ children }) => {
             await AsyncStorage.removeItem('userData');
             setIsAuthenticated(false);
             setUser(null);
-            router.replace('/auth/LoginScreen'); 
           }
         } else {
-          console.log('No stored user data, redirecting to login');
+          console.log('No stored user data');
           setIsAuthenticated(false);
-          router.replace('/auth/LoginScreen'); 
         }
       } catch (error) {
         console.error('Auth check error:', error);
         setIsAuthenticated(false);
         setUser(null);
         await AsyncStorage.removeItem('userData');
-        router.replace('/auth/LoginScreen'); 
       } finally {
         setLoading(false);
       }
@@ -84,8 +80,7 @@ export const AuthProvider = ({ children }) => {
       } catch (profileError) {
         console.warn('Profile fetch after login failed:', profileError.message);
       }
-      
-      router.replace('home');
+
     } catch (error) {
       console.error('Login error:', error);
       throw error;
@@ -110,19 +105,15 @@ export const AuthProvider = ({ children }) => {
         setIsAuthenticated(false);
         setUser(null);
         setProfileData({});
-        router.replace('/auth/LoginScreen');
       } catch (cleanupError) {
         console.error('Storage cleanup error:', cleanupError);
-        router.replace('/auth/LoginScreen');
       }
     }
   };
 
   return (
     <AuthContext.Provider value={{ user, isAuthenticated, loading, login, logout, profileData, setProfileData, api }}>
-      {typeof children === 'function'
-        ? children({ isAuthenticated, loading })
-        : children}
+      {children}
     </AuthContext.Provider>
   );
 };

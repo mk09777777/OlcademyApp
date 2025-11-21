@@ -16,7 +16,7 @@ import axios from 'axios';
 import { API_CONFIG } from '../config/apiConfig';
 const { width } = Dimensions.get('window');
 
-const DiningCard = ({ firmId,
+const DiningCard = React.memo(({ firmId,
   firmName,
   area,
   image,
@@ -165,7 +165,7 @@ const DiningCard = ({ firmId,
       </View>
     </TouchableOpacity>
   );
-};
+});
 
 
 export default DiningCard;
