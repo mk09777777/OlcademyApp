@@ -167,11 +167,15 @@ export default function Events() {
   }, []);
 
   const handleCategoryPress = useCallback((categoryKey) => {
-    setSelectedCategory(categoryKey);
-    safeNavigation({
-      pathname: 'screens/LiveEventPage',
-      params: categoryKey && categoryKey !== 'all' ? { focusCategory: categoryKey } : {},
-    });
+    try {
+      setSelectedCategory(categoryKey);
+      safeNavigation({
+        pathname: 'screens/LiveEventPage',
+        params: categoryKey && categoryKey !== 'all' ? { focusCategory: categoryKey } : {},
+      });
+    } catch (error) {
+      console.error('Navigation error:', error);
+    }
   }, [safeNavigation]);
 
   const renderListHeader = useCallback(() => (

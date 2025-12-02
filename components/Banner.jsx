@@ -9,8 +9,9 @@ import {
   Text
 } from "react-native";
 import axios from "axios";
+import ErrorHandler from './ErrorHandler';
 
-const API = 'https://backend-0wyj.onrender.com';
+const API = 'https://project-z-backend-apis.onrender.com';
 
 const BannerCarousel = ({ page }) => {
   const [banners, setBanners] = useState([]);
@@ -148,9 +149,57 @@ const BannerCarousel = ({ page }) => {
 
   if (loading) return <ActivityIndicator className="h-25 justify-center items-center" size="large" />;
   if (error) return (
-    <View className="h-25 bg-red-50 justify-center items-center p-5">
-      <Text>Error loading banners</Text>
-    </View>
+    <ErrorHandler
+      error={error}
+      onRetry={() => {
+        setError(null);
+        // Retry fetching banners
+        const fetchBanners = async () => {
+          try {
+            setLoading(true);
+            const response = await axios.get(
+              `${API}/banners/active`,
+              { withCredentials: true }
+            );
+            
+            const processedBanners = response.data.map(banner => {
+              const fixArray = (field) => {
+                if (!banner[field]) return [];
+                if (Array.isArray(banner[field])) return banner[field];
+                
+                try {
+                  const parsed = JSON.parse(banner[field].replace(/\\"/g, '"'));
+                  return Array.isArray(parsed) ? parsed : [];
+                } catch (e) {
+                  return [];
+                }
+              };
+
+              return {
+                ...banner,
+                cities: fixArray('cities'),
+                pages: fixArray('pages')
+              };
+            });
+
+            const pageBanners = processedBanners.filter(banner => 
+              banner.pages.includes(page)
+            );
+
+            setBanners(pageBanners);
+          } catch (err) {
+            console.error("Error fetching banners:", err);
+            setError(err.message);
+          } finally {
+            setLoading(false);
+          }
+        };
+        fetchBanners();
+      }}
+      title="Unable to load banners"
+      message="Failed to load promotional banners. Please try again."
+      style={{ height: 100 }}
+    />
   );
   if (validBanners.length === 0) return null;
 

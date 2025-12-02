@@ -28,6 +28,7 @@ import { useAuth } from '@/context/AuthContext';
 import FilterModal from '@/components/FilterModal';
 import BannerCarousel from '@/components/Banner';
 import MiniRecommendedCard from '@/components/MiniRecommendedCard';
+import ErrorHandler from '@/components/ErrorHandler';
 
 const Api_url = 'https://backend-0wyj.onrender.com';
 
@@ -142,6 +143,7 @@ export default function Tiffin() {
       });
     } catch (error) {
       console.error('Error fetching location:', error);
+      setError('Failed to detect location');
       setLocation({
         city: 'Unknown City',
         state: '',
@@ -173,6 +175,7 @@ export default function Tiffin() {
     } catch (error) {
       console.error('Error fetching recently viewed data:', error);
       setRecentlyViewdData([]);
+      setError('Failed to load recently viewed tiffins');
     }
   }, []);
 
@@ -419,6 +422,7 @@ export default function Tiffin() {
       } catch (error) {
         console.error('Error searching tiffins:', error);
         setSearchResults([]);
+        setError('Failed to search tiffins');
       } finally {
         setIsSearching(false);
       }
@@ -791,8 +795,21 @@ export default function Tiffin() {
         </View>
       )}
 
+      {/* Error Handler */}
+      {error && !loading && (
+        <ErrorHandler
+          error={error}
+          onRetry={() => {
+            setError(null);
+            fetchInitialData();
+          }}
+          title="Oops! Something went wrong"
+          message={error}
+        />
+      )}
+
       {/* Not Found Message */}
-      {notFound && (
+      {notFound && !error && (
         <View className="p-4 items-center">
           <Text className="text-textsecondary text-base">
             No tiffin services found with these filters
@@ -867,8 +884,19 @@ export default function Tiffin() {
                       resizeMode="contain"
                     />
                     <Text className="mt-3 text-sm font-outfit text-textsecondary text-center px-6">
-                      Browse tiffin services to start building your recently viewed list.
+                      {error ? 'Unable to load recently viewed tiffins' : 'Browse tiffin services to start building your recently viewed list.'}
                     </Text>
+                    {error && (
+                      <TouchableOpacity
+                        className="mt-3 bg-primary px-4 py-2 rounded-lg"
+                        onPress={() => {
+                          setError(null);
+                          FetchRecentlyViewData();
+                        }}
+                      >
+                        <Text className="text-white font-outfit-medium">Retry</Text>
+                      </TouchableOpacity>
+                    )}
                   </View>
                 )}
               </View>

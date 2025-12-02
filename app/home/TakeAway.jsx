@@ -9,6 +9,7 @@ import FirmCard from '@/components/FirmCard'
 import MiniRecommendedCard from '@/components/MiniRecommendedCard';
 import RadioButtonRN from 'radio-buttons-react-native'
 import { useSafeNavigation } from "@/hooks/navigationPage";
+import ErrorHandler from '@/components/ErrorHandler';
 
 // import { useBookmarkManager } from '../../hooks/BookMarkmanger';
 
@@ -398,6 +399,7 @@ export default function TakeAway() {
     } catch (error) {
       console.error('Error fetching recently viewed data:', error);
       setRecentlyViewdData([]);
+      setError('Failed to load recently viewed restaurants');
     }
   }, []);
 
@@ -476,6 +478,7 @@ export default function TakeAway() {
       } catch (error) {
         console.error('Error searching restaurants:', error);
         setSearchResults([]);
+        setError('Failed to search restaurants');
       } finally {
         setIsSearching(false);
       }
@@ -626,8 +629,19 @@ export default function TakeAway() {
         }
       } catch (error) {
         console.error('Error fetching vegetarian data:', error);
+        setError('Failed to load vegetarian restaurants');
 
         const elapsed = Date.now() - startTime;
+        const remaining = MIN_LOADING_TIME - elapsed;
+
+        if (remaining > 0) {
+          setTimeout(() => {
+            setLoadingVegData(false);
+          }, remaining);
+        } else {
+          setLoadingVegData(false);
+        }
+      }psed = Date.now() - startTime;
         const remaining = MIN_LOADING_TIME - elapsed;
 
         if (remaining > 0) {
@@ -660,6 +674,7 @@ export default function TakeAway() {
       // }
     } catch (error) {
       console.error("Error updating vegMode", error);
+      setError('Failed to update veg mode preference');
     }
   };
   const handleGetVegMode = async () => {
@@ -671,6 +686,7 @@ export default function TakeAway() {
       setIsVegOnly(response.data.vegMode); // response is { vegMode: true/false }
     } catch (error) {
       console.error("Error fetching vegMode", error);
+      setError('Failed to load veg mode preference');
     }
   };
 
@@ -792,7 +808,19 @@ export default function TakeAway() {
             </View>
           )}
 
-          {notFound && (
+          {error && !loading && (
+            <ErrorHandler
+              error={error}
+              onRetry={() => {
+                setError(null);
+                fetchInitialData();
+              }}
+              title="Oops! Something went wrong"
+              message={error}
+            />
+          )}
+
+          {notFound && !error && (
             <View className="p-4 items-center">
               <Text className="text-textsecondary text-base">No restaurants found with these filters</Text>
             </View>
@@ -904,8 +932,19 @@ export default function TakeAway() {
                           resizeMode="contain"
                         />
                         <Text className="mt-3 text-sm font-outfit text-textsecondary text-center px-6">
-                          Surf the restaurants to start building your recently viewed list.
+                          {error ? 'Unable to load recently viewed restaurants' : 'Surf the restaurants to start building your recently viewed list.'}
                         </Text>
+                        {error && (
+                          <TouchableOpacity
+                            className="mt-3 bg-primary px-4 py-2 rounded-lg"
+                            onPress={() => {
+                              setError(null);
+                              FetchRecentlyViewData();
+                            }}
+                          >
+                            <Text className="text-white font-outfit-medium">Retry</Text>
+                          </TouchableOpacity>
+                        )}
                       </View>
                     )}
 

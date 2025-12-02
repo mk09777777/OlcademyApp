@@ -27,6 +27,7 @@ export const LocationProvider = ({ children }) => {
       await AsyncStorage.setItem('currentLocation', JSON.stringify(newLocation));
     } catch (error) {
       console.error('Error saving location to storage:', error);
+      // Continue without storage - don't break the app
     }
   }, []);
 
@@ -63,6 +64,7 @@ export const LocationProvider = ({ children }) => {
       }
     } catch (error) {
       console.error('Device reverse geocoding failed:', error);
+      // Return fallback location with coordinates
     }
 
     return {
@@ -85,6 +87,7 @@ export const LocationProvider = ({ children }) => {
       return currentPosition.coords;
     } catch (error) {
       console.error('Error getting device location:', error);
+      // Return null to trigger fallback behavior
       return null;
     }
   }, []);
@@ -106,6 +109,7 @@ export const LocationProvider = ({ children }) => {
           }
         } catch (recentError) {
           console.error('Error loading recent locations:', recentError);
+          // Continue with empty recent list
         }
         
         // Try to load saved location from storage first
@@ -131,6 +135,7 @@ export const LocationProvider = ({ children }) => {
       } catch (error) {
         console.error('Error initializing location:', error);
         setLocation(EMPTY_LOCATION);
+        // App continues with empty location
       } finally {
         setIsLoading(false);
       }

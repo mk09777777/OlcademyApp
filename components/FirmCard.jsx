@@ -44,15 +44,19 @@ useEffect(() => {
     }
   };
 
-  fetchIsLiked();
+  if (firmId) {
+    fetchIsLiked();
+  }
 }, [firmId]);
 
   const handleClick = async () => {
+    const previousState = isFavorited;
     try {
+      setIsFavorited((prev) => !prev); // Optimistic update
       await addtoFavorite(firmId);
-      setIsFavorited((prev) => !prev);
     } catch (err) {
       console.error("Error updating favorite:", err);
+      setIsFavorited(previousState); // Revert on error
     }
   };
 

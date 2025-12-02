@@ -40,6 +40,7 @@ export const AuthProvider = ({ children }) => {
                 setProfileData(profileResponse.data);
               } catch (profileError) {
                 console.warn('Profile fetch failed:', profileError.message);
+                // Continue with auth - profile is not critical
               }
             } else {
               throw new Error('User validation failed');
@@ -79,6 +80,7 @@ export const AuthProvider = ({ children }) => {
         setProfileData(profileResponse.data);
       } catch (profileError) {
         console.warn('Profile fetch after login failed:', profileError.message);
+        // Login still successful even if profile fails
       }
 
     } catch (error) {
