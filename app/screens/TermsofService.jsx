@@ -1,5 +1,5 @@
 import React from 'react';
-import { ScrollView, Text, View, Linking } from 'react-native';
+import { ScrollView, Text, Linking } from 'react-native';
 
 const TermsOfService = () => {
   return (
