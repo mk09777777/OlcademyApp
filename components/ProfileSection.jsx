@@ -83,7 +83,6 @@ import React, { useState } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import styles from '../styles/ProfileSection';
 import { useSafeNavigation } from '@/hooks/navigationPage';
 
 const ProfileSection = () => {
@@ -91,25 +90,20 @@ const ProfileSection = () => {
   const { safeNavigation } = useSafeNavigation();
 
   const ProfileItem = ({ icon, title, value, chevron, onPress, children }) => (
-    <TouchableOpacity style={styles.menuItem} onPress={onPress}>
-      <View style={styles.menuItemLeft}>
-        <View style={styles.iconContainer}>
+    <TouchableOpacity className="flex-row items-center justify-between py-4 px-4 bg-white border-b border-gray-100" onPress={onPress}>
+      <View className="flex-row items-center flex-1">
+        <View className="w-10 h-10 rounded-full bg-gray-50 items-center justify-center mr-3">
           <MaterialCommunityIcons name={icon} size={22} color="#000000" />
         </View>
-        <Text style={styles.menuItemTitle}>{title}</Text>
+        <Text className="text-base font-outfit-medium color-gray-800">{title}</Text>
       </View>
-      <View style={styles.menuItemRight}>
+      <View className="flex-row items-center">
         {value && (
-          <Text
-            style={[
-              styles.menuItemValue,
-              value.includes('%') && styles.percentageText,
-            ]}
-          >
+          <Text className="text-sm font-outfit color-gray-600 mr-2">
             {value}
           </Text>
         )}
-        <View style={styles.menuItemRight}>
+        <View className="flex-row items-center">
           {children}
           {chevron && (
             <MaterialCommunityIcons
@@ -124,7 +118,7 @@ const ProfileSection = () => {
   );
 
   const StarRating = ({ rating }) => (
-    <View style={styles.starContainer}>
+    <View className="flex-row mr-2">
       {Array.from({ length: 5 }).map((_, index) => (
         <MaterialCommunityIcons
           key={index}
@@ -137,8 +131,8 @@ const ProfileSection = () => {
   );
 
   return (
-    <View style={styles.container}>
-      <View style={styles.menuContainer}>
+    <View className="flex-1">
+      <View className="bg-white rounded-lg mx-4 my-2 overflow-hidden shadow-sm">
         <ProfileItem
           icon="account-outline"
           title="Your profile"

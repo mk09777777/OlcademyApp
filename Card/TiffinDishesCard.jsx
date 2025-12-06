@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, Image, TouchableOpacity } from 'react-native';
-import styles from '../styles/TiffinCollection';
+// import styles from '../styles/TiffinCollection';
 
 const TiffinDishCard = ({ dish }) => {
   const { 
@@ -16,39 +16,39 @@ const TiffinDishCard = ({ dish }) => {
   } = dish;
 
   const VegIcon = () => (
-    <View style={styles.vegIcon}>
-      <View style={styles.vegInner}>
-        <View style={styles.vegDot} />
+    <View className="w-4 h-4 border border-green-600 justify-center items-center">
+      <View className="w-3 h-3 justify-center items-center">
+        <View className="w-2 h-2 bg-green-600 rounded-full" />
       </View>
     </View>
   );
 
   return (
-    <View style={styles.dishCard}>
-      <View style={styles.dishLeft}>
+    <View className="flex-row bg-white p-4 mb-3 rounded-lg shadow-sm">
+      <View className="flex-1 pr-3">
         {isVeg && <VegIcon />}
-        <Text style={styles.dishName}>{name}</Text>
-        <Text style={styles.quantityText}>{mealType}</Text>
+        <Text className="text-base font-semibold text-gray-900 mb-1">{name}</Text>
+        <Text className="text-sm text-gray-600 mb-1">{mealType}</Text>
         {rating && (
-          <View style={styles.dishRating}>
-            <Text style={styles.ratingStars}>{'★'.repeat(Math.floor(rating))}</Text>
-            <Text style={styles.reviewCount}>({reviews})</Text>
+          <View className="flex-row items-center mb-2">
+            <Text className="text-yellow-500 mr-1">{'★'.repeat(Math.floor(rating))}</Text>
+            <Text className="text-xs text-gray-500">({reviews})</Text>
           </View>
         )}
-        <View style={styles.priceContainer}>
-          <Text style={styles.dishPrice}>₹{price}</Text>
+        <View className="flex-row items-center">
+          <Text className="text-lg font-bold text-gray-900 mr-2">₹{price}</Text>
           {originalPrice && (
-            <Text style={styles.originalPrice}>₹{originalPrice}</Text>
+            <Text className="text-sm text-gray-500 line-through">₹{originalPrice}</Text>
           )}
         </View>
       </View>
-      <View style={styles.dishRight}>
-        <Image source={image} style={styles.dishImage} />
-        <TouchableOpacity style={styles.addButton}>
-          <Text style={styles.addButtonText}>SUBSCRIBE{customizable ? ' +' : ''}</Text>
+      <View className="items-center">
+        <Image source={image} className="w-20 h-20 rounded-lg mb-2" />
+        <TouchableOpacity className="bg-blue-600 px-3 py-2 rounded-lg">
+          <Text className="text-white font-semibold text-xs">SUBSCRIBE{customizable ? ' +' : ''}</Text>
         </TouchableOpacity>
         {customizable && (
-          <Text style={styles.customizableText}>customizable</Text>
+          <Text className="text-xs text-gray-500 mt-1">customizable</Text>
         )}
       </View>
     </View>

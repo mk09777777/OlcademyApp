@@ -3,7 +3,6 @@ import {
   View,
   Text,
   TouchableOpacity,
-  StyleSheet,
   Platform,
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -12,13 +11,13 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 const DatePicker = ({ visible, value, onChange, onClose }) => {
   if (Platform.OS === 'android') {
     return (
-      <View style={styles.container}>
-        <View style={styles.header}>
-          <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-            <Text style={styles.closeButtonText}>Cancel</Text>
+      <View className="bg-white rounded-t-2xl p-4">
+        <View className="flex-row justify-between items-center mb-4">
+          <TouchableOpacity onPress={onClose} className="p-2">
+            <Text className="text-base color-gray-500 font-outfit">Cancel</Text>
           </TouchableOpacity>
-          <TouchableOpacity onPress={onClose} style={styles.doneButton}>
-            <Text style={styles.doneButtonText}>Done</Text>
+          <TouchableOpacity onPress={onClose} className="p-2">
+            <Text className="text-base color-green-500 font-outfit-bold">Done</Text>
           </TouchableOpacity>
         </View>
         <DateTimePicker
@@ -54,6 +53,7 @@ const DatePicker = ({ visible, value, onChange, onClose }) => {
   ) : null;
 };
 
+/* COMMENTED OUT STYLESHEET - CONVERTED TO NATIVEWIND
 const styles = StyleSheet.create({
   container: {
     backgroundColor: '#fff',
@@ -83,5 +83,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 });
+*/
 
 export default DatePicker; 

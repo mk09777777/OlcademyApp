@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, FlatList, ActivityIndicator, Modal, TextInput, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
+import { View, Text, FlatList, ActivityIndicator, Modal, TextInput, TouchableOpacity, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import axios from 'axios';
@@ -268,12 +268,12 @@ export default function TiffinOrdersScreen() {
   );
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView className="flex-1 bg-white">
       {/* Search Bar */}
-      <View style={styles.searchContainer}>
-        <Ionicons name="search" size={20} color="#666" style={styles.searchIcon} />
+      <View className="flex-row items-center bg-gray-50 mx-4 my-2 px-3 py-2 rounded-lg">
+        <Ionicons name="search" size={20} color="#666" className="mr-2" />
         <TextInput
-          style={styles.searchInput}
+          className="flex-1 text-base font-outfit color-gray-800"
           placeholder="Search orders..."
           value={searchQuery}
           onChangeText={setSearchQuery}
@@ -281,28 +281,28 @@ export default function TiffinOrdersScreen() {
       </View>
 
       {/* Tabs */}
-      <View style={styles.tabContainer}>
+      <View className="flex-row bg-white border-b border-gray-200">
         <TouchableOpacity
-          style={[styles.tab, activeTab === 'all' ? styles.activeTab : null]}
+          className={`flex-1 py-3 items-center ${activeTab === 'all' ? 'border-b-2 border-primary' : ''}`}
           onPress={() => setActiveTab('all')}
         >
-          <Text style={[styles.tabText, activeTab === 'all' ? styles.activeTabText : null]}>
+          <Text className={`text-sm font-outfit-medium ${activeTab === 'all' ? 'color-primary' : 'color-gray-600'}`}>
             All Orders
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
-          style={[styles.tab, activeTab === 'active' ? styles.activeTab : null]}
+          className={`flex-1 py-3 items-center ${activeTab === 'active' ? 'border-b-2 border-primary' : ''}`}
           onPress={() => setActiveTab('active')}
         >
-          <Text style={[styles.tabText, activeTab === 'active' ? styles.activeTabText : null]}>
+          <Text className={`text-sm font-outfit-medium ${activeTab === 'active' ? 'color-primary' : 'color-gray-600'}`}>
             Active
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
-          style={[styles.tab, activeTab === 'past' ? styles.activeTab : null]}
+          className={`flex-1 py-3 items-center ${activeTab === 'past' ? 'border-b-2 border-primary' : ''}`}
           onPress={() => setActiveTab('past')}
         >
-          <Text style={[styles.tabText, activeTab === 'past' ? styles.activeTabText : null]}>
+          <Text className={`text-sm font-outfit-medium ${activeTab === 'past' ? 'color-primary' : 'color-gray-600'}`}>
             Past Orders
           </Text>
         </TouchableOpacity>
@@ -310,25 +310,25 @@ export default function TiffinOrdersScreen() {
 
       {/* Orders List */}
       {initialLoad && loading ? (
-        <View style={styles.loadingContainer}>
+        <View className="flex-1 items-center justify-center">
           <ActivityIndicator size="large" color="#02757A" />
-          <Text style={styles.loadingText}>Loading your orders...</Text>
+          <Text className="text-base font-outfit color-gray-600 mt-4">Loading your orders...</Text>
         </View>
       ) : error ? (
-        <View style={styles.errorContainer}>
-          <Text style={styles.errorText}>{error}</Text>
-          <Text style={styles.errorSubText}>Please refresh the page or try again later.</Text>
+        <View className="p-5 bg-red-50 m-5 rounded-lg items-center">
+          <Text className="text-base font-outfit-bold color-red-700 mb-1">{error}</Text>
+          <Text className="text-sm font-outfit color-gray-600">Please refresh the page or try again later.</Text>
         </View>
       ) : (
         <FlatList
           data={getFilteredOrders()}
           renderItem={renderOrderItem}
           keyExtractor={(item) => item._id}
-          contentContainerStyle={styles.flatListContent}
+          contentContainerClassName="p-2.5 pb-20"
           ListEmptyComponent={
             !error && (
-              <View style={styles.emptyContainer}>
-                <Text style={styles.emptyText}>
+              <View className="items-center justify-center p-8">
+                <Text className="text-base font-outfit color-gray-600 text-center">
                   {activeTab === 'all'
                     ? 'No orders found'
                     : activeTab === 'active'
@@ -340,12 +340,12 @@ export default function TiffinOrdersScreen() {
           }
           ListFooterComponent={
             loading ? (
-              <View style={styles.footerLoading}>
+              <View className="p-4 items-center">
                 <ActivityIndicator size="small" color="#02757A" />
-                <Text style={styles.footerLoadingText}>Loading more orders...</Text>
+                <Text className="text-sm font-outfit color-gray-600 mt-2">Loading more orders...</Text>
               </View>
             ) : !hasMore && bookings.length > 0 ? (
-              <Text style={styles.noMoreText}>You've seen all your tiffin orders.</Text>
+              <Text className="text-center p-4 text-sm font-outfit color-gray-600">You've seen all your tiffin orders.</Text>
             ) : null
           }
           onEndReached={handleLoadMore}
@@ -362,52 +362,53 @@ export default function TiffinOrdersScreen() {
         transparent={true}
         onRequestClose={closeCancelModal}
       >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContainer}>
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Cancel Order #{selectedOrder?._id.slice(-6)}</Text>
-              <TouchableOpacity onPress={closeCancelModal} style={styles.closeButton}>
+        <View className="flex-1 bg-black/50 justify-center items-center">
+          <View className="bg-white rounded-3 w-11/12 max-h-4/5 p-4">
+            <View className="flex-row justify-between items-center border-b border-gray-200 pb-3">
+              <Text className="text-xl font-outfit-bold color-gray-800">Cancel Order #{selectedOrder?._id.slice(-6)}</Text>
+              <TouchableOpacity onPress={closeCancelModal} className="p-1">
                 <Ionicons name="close" size={24} color="#666" />
               </TouchableOpacity>
             </View>
 
-            <ScrollView style={styles.modalContent}>
-              <Text style={styles.cancelModalText}>
+            <ScrollView className="mt-3">
+              <Text className="text-base font-outfit color-gray-800 mb-3">
                 Please provide a reason for cancelling this order:
               </Text>
 
               <TextInput
-                style={styles.cancelReasonInput}
+                className="border border-gray-200 rounded-lg p-3 text-sm font-outfit color-gray-800 min-h-25 mb-3"
                 multiline
                 numberOfLines={4}
                 placeholder="e.g., Change of plans, moving, received wrong order, etc."
                 value={cancelReason}
                 onChangeText={setCancelReason}
+                style={{ textAlignVertical: 'top' }}
               />
 
               {message ? (
-                <Text style={message.includes('successfully') ? styles.successMessage : styles.errorMessage}>
+                <Text className={`text-sm font-outfit mb-3 text-center ${message.includes('successfully') ? 'color-green-600' : 'color-red-600'}`}>
                   {message}
                 </Text>
               ) : null}
 
-              <View style={styles.cancelModalButtons}>
+              <View className="flex-row justify-between mt-3">
                 <TouchableOpacity
-                  style={[styles.cancelModalButton, styles.cancelModalButtonSecondary]}
+                  className="flex-1 p-3 rounded-lg items-center mx-1 bg-gray-100 border border-gray-200"
                   onPress={closeCancelModal}
                 >
-                  <Text style={styles.cancelModalButtonSecondaryText}>Go Back</Text>
+                  <Text className="text-base font-outfit color-gray-800">Go Back</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity
-                  style={[styles.cancelModalButton, styles.cancelModalButtonPrimary, !cancelReason.trim() || cancellingOrderId === selectedOrder?._id ? styles.disabledButton : null]}
+                  className={`flex-1 p-3 rounded-lg items-center mx-1 ${!cancelReason.trim() || cancellingOrderId === selectedOrder?._id ? 'bg-gray-300' : 'bg-red-600'}`}
                   onPress={handleCancelOrderSubmit}
                   disabled={!cancelReason.trim() || cancellingOrderId === selectedOrder?._id}
                 >
                   {cancellingOrderId === selectedOrder?._id ? (
                     <ActivityIndicator color="white" />
                   ) : (
-                    <Text style={styles.cancelModalButtonPrimaryText}>Submit Cancellation</Text>
+                    <Text className="text-base font-outfit-bold text-white">Submit Cancellation</Text>
                   )}
                 </TouchableOpacity>
               </View>
@@ -418,215 +419,3 @@ export default function TiffinOrdersScreen() {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f8f8f8',
-  },
-  searchContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#fff',
-    margin: 12,
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    borderWidth: 1,
-    borderColor: '#e0e0e0',
-  },
-  searchIcon: {
-    marginRight: 8,
-  },
-  searchInput: {
-    flex: 1,
-    fontSize: 16,
-    color: '#333',
-    fontFamily: 'outfit',
-    paddingVertical: 10,
-  },
-  tabContainer: {
-    flexDirection: 'row',
-    backgroundColor: '#fff',
-    paddingHorizontal: 16,
-    marginBottom: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
-  },
-  tab: {
-    flex: 1,
-    alignItems: 'center',
-    paddingVertical: 12,
-    borderBottomWidth: 2,
-    borderBottomColor: 'transparent',
-  },
-  activeTab: {
-    borderBottomColor: '#02757A',
-  },
-  tabText: {
-    fontSize: 14,
-    color: '#666',
-    fontFamily: 'outfit',
-  },
-  activeTabText: {
-    color: '#02757A',
-    fontFamily: 'outfit-bold',
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  loadingText: {
-    marginTop: 10,
-    fontSize: 16,
-    color: '#666',
-    fontFamily: 'outfit',
-  },
-  errorContainer: {
-    padding: 20,
-    backgroundColor: '#fee2e2',
-    margin: 20,
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  errorText: {
-    fontSize: 16,
-    color: '#b91c1c',
-    fontFamily: 'outfit-bold',
-    marginBottom: 5,
-  },
-  errorSubText: {
-    fontSize: 12,
-    color: '#666',
-    fontFamily: 'outfit',
-  },
-  emptyContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 32,
-  },
-  emptyText: {
-    fontSize: 16,
-    color: '#666',
-    fontFamily: 'outfit',
-    textAlign: 'center',
-  },
-  flatListContent: {
-    padding: 10,
-    paddingBottom: 80,
-  },
-  footerLoading: {
-    padding: 16,
-    alignItems: 'center',
-  },
-  footerLoadingText: {
-    marginTop: 8,
-    fontSize: 14,
-    color: '#666',
-    fontFamily: 'outfit',
-  },
-  noMoreText: {
-    textAlign: 'center',
-    padding: 16,
-    fontSize: 14,
-    color: '#666',
-    fontFamily: 'outfit',
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  modalContainer: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    width: '90%',
-    maxHeight: '80%',
-    padding: 16,
-  },
-  modalHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
-    paddingBottom: 12,
-  },
-  modalTitle: {
-    fontSize: 20,
-    color: '#333',
-    fontFamily: 'outfit-bold',
-  },
-  closeButton: {
-    padding: 4,
-  },
-  modalContent: {
-    marginTop: 12,
-  },
-  cancelModalText: {
-    fontSize: 16,
-    color: '#333',
-    fontFamily: 'outfit',
-    marginBottom: 12,
-  },
-  cancelReasonInput: {
-    borderWidth: 1,
-    borderColor: '#e0e0e0',
-    borderRadius: 8,
-    padding: 12,
-    fontSize: 14,
-    color: '#333',
-    fontFamily: 'outfit',
-    minHeight: 100,
-    textAlignVertical: 'top',
-    marginBottom: 12,
-  },
-  successMessage: {
-    fontSize: 14,
-    color: '#0f8a65',
-    fontFamily: 'outfit',
-    marginBottom: 12,
-    textAlign: 'center',
-  },
-  errorMessage: {
-    fontSize: 14,
-    color: '#e23744',
-    fontFamily: 'outfit',
-    marginBottom: 12,
-    textAlign: 'center',
-  },
-  cancelModalButtons: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 12,
-  },
-  cancelModalButton: {
-    flex: 1,
-    padding: 12,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginHorizontal: 4,
-  },
-  cancelModalButtonPrimary: {
-    backgroundColor: '#FF002E',
-  },
-  cancelModalButtonSecondary: {
-    backgroundColor: '#f8f8f8',
-    borderWidth: 1,
-    borderColor: '#e0e0e0',
-  },
-  cancelModalButtonPrimaryText: {
-    fontSize: 16,
-    color: '#fff',
-    fontFamily: 'outfit-bold',
-  },
-  cancelModalButtonSecondaryText: {
-    fontSize: 16,
-    color: '#333',
-    fontFamily: 'outfit',
-  },
-  disabledButton: {
-    backgroundColor: '#ccc',
-  },
-});

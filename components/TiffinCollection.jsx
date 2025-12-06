@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { View, FlatList, Alert,  StyleSheet } from 'react-native';
+import { View, FlatList, Alert } from 'react-native';
 import { useGlobalSearchParams, useRouter } from 'expo-router';
 import { Text, ActivityIndicator, } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import TiffinCard from '@/components/TiffinCard';
-import styles from '@/styles/TiffinCollection';
 import axios from 'axios';
 import { useAuth } from '@/context/AuthContext';
 import { useSafeNavigation } from "@/hooks/navigationPage";
@@ -57,9 +56,9 @@ export default function TiffinCollection() {
 
   if (loadingFavorites) {
     return (
-      <View style={styles.emptyState}>
+      <View className="flex-1 items-center justify-center p-10">
         <ActivityIndicator size="large" color="#02757A" />
-        {/* <Text style={styles.emptyStateMessage}>Loading favorites...</Text> */}
+        {/* <Text className="text-base font-outfit color-gray-600 text-center mt-4">Loading favorites...</Text> */}
       </View>
     );
   }
@@ -87,17 +86,16 @@ export default function TiffinCollection() {
   );
 
   return (
-    <View style={styles.container}>
+    <View className="flex-1 bg-white">
       {favoriteTiffins.length === 0 ? (
-        <View style={styles.emptyState}>
+        <View className="flex-1 items-center justify-center p-10">
           <MaterialCommunityIcons
             name="food-off"
             size={48}
             color="#666"
-            style={styles.emptyStateIcon}
           />
-          <Text style={styles.emptyStateTitle}>No Favorite Tiffin Services</Text>
-          <Text style={styles.emptyStateMessage}>
+          <Text className="text-lg font-outfit-medium color-gray-800 mt-4 mb-2">No Favorite Tiffin Services</Text>
+          <Text className="text-base font-outfit color-gray-600 text-center">
             You haven't liked any tiffin services yet.
           </Text>
         </View>
@@ -106,7 +104,7 @@ export default function TiffinCollection() {
           data={favoriteTiffins}
           renderItem={renderTiffinCard}
           keyExtractor={item => item._id || item.id}
-          contentContainerStyle={styles.firmList}
+          contentContainerClassName="p-4"
           showsVerticalScrollIndicator={false}
         />
       )}

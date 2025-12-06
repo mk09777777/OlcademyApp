@@ -320,7 +320,7 @@ const PopularService = () => {
           value={searchQuery}
           onChangeText={setSearchQuery}
           placeholder="Search popular services..."
-          style={{flex: 1, marginHorizontal: 10}}
+          className="flex-1 mx-2.5"
         />
         <TouchableOpacity onPress={() => setShowFilterModal(true)}>
           <MaterialCommunityIcons name="tune" size={24} color="#333" />
@@ -352,7 +352,7 @@ const PopularService = () => {
           renderItem={renderServiceItem}
           keyExtractor={item => item.Title}
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={{padding: 20}}
+          contentContainerClassName="p-5"
           refreshControl={
             <RefreshControl
               refreshing={isRefreshing}
@@ -383,7 +383,7 @@ const PopularService = () => {
   );
 };
 
-// Add these styles to your tiffinstyle.js
+/* COMMENTED OUT STYLESHEET - CONVERTED TO NATIVEWIND
 const styles = {
     container: {
       flex: 1,
@@ -456,6 +456,9 @@ const styles = {
       flex: 1,
       justifyContent: 'center',
       alignItems: 'center',
+    },
+};
+ms: 'center',
       padding: 40,
     },
     emptyText: {
@@ -495,6 +498,6 @@ const styles = {
       paddingVertical: 8,
     },
   // ... keep your existing styles
-};
+};*/
 
 export default PopularService;

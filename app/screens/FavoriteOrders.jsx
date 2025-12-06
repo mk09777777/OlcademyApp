@@ -255,80 +255,46 @@ const prepareOrderData = (order) => {
       <BackRouting tittle ="Favorite Orders"/>
       {/* Tabs */}
       <View className="px-5 py-3">
-        <View 
-          style={{
-            backgroundColor: '#d9e9e9ff',
-            borderRadius: 30,
-            flexDirection: 'row',
-            position: 'relative',
-          }}
-        >
+        <View className="bg-gray-200 rounded-full flex-row relative">
           {/* Active Tab Indicator */}
           <View
+            className="absolute top-0 w-1/2 h-full bg-primary rounded-full"
             style={{
-              position: 'absolute',
-              top: 0,
               left: activeTab === 'Takeaway' ? 0 : '50%',
-              width: '50%',
-              height: '100%',
-              backgroundColor: '#02757A',
-              borderRadius: 30,
             }}
           />
           
           <TouchableOpacity
-            style={{
-              flex: 1,
-              flexDirection: 'row',
-              alignItems: 'center',
-              justifyContent: 'center',
-              paddingVertical: 12,
-              borderRadius: 30,
-            }}
+            className="flex-1 flex-row items-center justify-center py-3 rounded-full"
             onPress={() => setActiveTab('Takeaway')}
           >
-            <Ionicons 
-              name="fast-food" 
-              size={20} 
-              color={activeTab === 'Takeaway' ? '#FFFFFF' : '#02757A'} 
-              style={{ marginRight: 8 }}
-            />
+            <View className="mr-2">
+              <Ionicons 
+                name="fast-food" 
+                size={20} 
+                color={activeTab === 'Takeaway' ? '#FFFFFF' : '#02757A'} 
+              />
+            </View>
             <Text 
-              style={{
-                fontSize: 14,
-                fontWeight: '600',
-                fontFamily: 'outfit-medium',
-                color: activeTab === 'Takeaway' ? '#FFFFFF' : '#02757A',
-              }}
+              className={`text-sm font-outfit-semibold ${activeTab === 'Takeaway' ? 'text-white' : 'text-primary'}`}
             >
               Takeaway
             </Text>
           </TouchableOpacity>
           
           <TouchableOpacity
-            style={{
-              flex: 1,
-              flexDirection: 'row',
-              alignItems: 'center',
-              justifyContent: 'center',
-              paddingVertical: 12,
-              borderRadius: 30,
-            }}
+            className="flex-1 flex-row items-center justify-center py-3 rounded-full"
             onPress={() => setActiveTab('Tiffin')}
           >
-            <MaterialCommunityIcons 
-              name="food-takeout-box" 
-              size={20} 
-              color={activeTab === 'Tiffin' ? '#FFFFFF' : '#02757A'} 
-              style={{ marginRight: 8 }}
-            />
+            <View className="mr-2">
+              <MaterialCommunityIcons 
+                name="food-takeout-box" 
+                size={20} 
+                color={activeTab === 'Tiffin' ? '#FFFFFF' : '#02757A'} 
+              />
+            </View>
             <Text 
-              style={{
-                fontSize: 14,
-                fontWeight: '600',
-                fontFamily: 'outfit-medium',
-                color: activeTab === 'Tiffin' ? '#FFFFFF' : '#02757A',
-              }}
+              className={`text-sm font-outfit-semibold ${activeTab === 'Tiffin' ? 'text-white' : 'text-primary'}`}
             >
               Tiffin
             </Text>
@@ -349,7 +315,7 @@ const prepareOrderData = (order) => {
           data={orders}
           renderItem={renderItem}
           keyExtractor={(item) => item._id}
-          contentContainerStyle={{ padding: 16 }}
+          contentContainerClassName="p-4"
           ListEmptyComponent={
             !error && (
               <View className="flex-1 items-center justify-center py-12">

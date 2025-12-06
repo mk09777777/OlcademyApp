@@ -2,7 +2,6 @@ import React from 'react';
 import { View, Image, TouchableOpacity } from 'react-native';
 import { Text } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import styles from '@/styles/Collection';
 
 const formatCurrency = (value) => {
   if (typeof value !== 'number') {
@@ -25,7 +24,7 @@ export default function EventCard({ event, onPress }) {
           source={coverImage || require('@/assets/images/placeholder.png')}
           style={styles.firmImage}
         />
-        <View style={styles.firmContent}>
+        <View className="p-4">
           <View>
             <Text style={styles.firmName}>{event.title}</Text>
             {event.firmName ? (
@@ -56,8 +55,8 @@ export default function EventCard({ event, onPress }) {
         </View>
 
         {event.featured && (
-          <View style={styles.offerBadge}>
-            <Text style={styles.offerText}>Featured</Text>
+          <View className="absolute top-2 right-2 bg-orange-500 px-2 py-1 rounded">
+            <Text className="text-xs text-white font-outfit-bold">Featured</Text>
           </View>
         )}
       </View>

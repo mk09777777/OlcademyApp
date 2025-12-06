@@ -1,6 +1,6 @@
 import React, { useCallback, useState, Fragment } from 'react';
 import { View, Text, Image, TouchableOpacity, Linking } from "react-native";
-import NotificationModalStyles from "../styles/ModalNotificationstyles";
+// import NotificationModalStyles from "../styles/ModalNotificationstyles";
 import * as Notifications from 'expo-notifications';
 import Constants from 'expo-constants';
 import { useFocusEffect } from '@react-navigation/native';
@@ -57,22 +57,23 @@ export default function NotificationModal({ toggle }) {
 
   return (
     <Fragment>
-      <View style={NotificationModalStyles.background}>
-        <View style={NotificationModalStyles.mainContainer}>
+      <View className="bg-black/50 flex-1 justify-center items-center">
+        <View className="flex flex-col p-2.5 rounded-lg mx-5 bg-white">
           <Image
-            style={NotificationModalStyles.Notifimg}
+            className="w-full mx-1.5"
+            style={{ aspectRatio: 16/9, resizeMode: 'contain' }}
             source={require("../assets/images/notification.jpeg")}
           />
-          <Text style={NotificationModalStyles.NotifText}>
+          <Text className="text-base text-black font-semibold mx-2.5" style={{fontFamily: 'outfit-medium'}}>
             Want to stay updated about offers, order status and more?
           </Text>
-          <TouchableOpacity onPress={checkAndRequestPermission} style={NotificationModalStyles.NotifButton}>
-            <Text style={NotificationModalStyles.NotifText2}>
+          <TouchableOpacity onPress={checkAndRequestPermission} className="mx-4 flex flex-col justify-center items-center p-2.5 rounded-lg bg-red-500 mt-2.5">
+            <Text className="text-white text-base font-semibold" style={{fontFamily: 'outfit-medium'}}>
               Yes, enable notifications
             </Text>
           </TouchableOpacity>
-          <TouchableOpacity onPress={dismissModal} style={NotificationModalStyles.NotifButton2}>
-            <Text style={NotificationModalStyles.NotNowText}>
+          <TouchableOpacity onPress={dismissModal} className="mx-4 flex flex-col justify-center items-center p-2.5 rounded-lg bg-white mt-1.5">
+            <Text className="text-red-500 text-base font-semibold" style={{fontFamily: 'outfit-medium'}}>
               Not now
             </Text>
           </TouchableOpacity>

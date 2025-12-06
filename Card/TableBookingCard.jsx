@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import { View, Text, TouchableOpacity, Image } from 'react-native';
 
 const BookingCard = ({ booking, onPress, Rname, add, guestes, name, date, timeSlot, status, image }) => {
   const statusColor = status === 'accepted' ? '#08a742' : '#e53935';
@@ -21,39 +21,39 @@ const BookingCard = ({ booking, onPress, Rname, add, guestes, name, date, timeSl
   const formattedDate = formatDate(date);
 
   return (
-    <TouchableOpacity style={styles.card} onPress={onPress}>
-      <View style={styles.header}>
+    <TouchableOpacity className="bg-white rounded-xl mb-4 shadow-sm" onPress={onPress}>
+      <View className="flex-row p-4">
         <Image
           source={typeof image === 'string' ? { uri: image } : image}
-          style={styles.image}
+          className="w-16 h-16 rounded-lg"
         />
-        <View style={styles.restaurantInfo}>
-          <Text style={styles.restaurantName}>{Rname}</Text>
-          <Text style={styles.location}>{add}</Text>
+        <View className="ml-4 justify-center">
+          <Text className="text-lg font-outfit-bold mb-1">{Rname}</Text>
+          <Text className="text-base color-gray-500 font-outfit">{add}</Text>
         </View>
       </View>
 
-      <View style={styles.divider} />
+      <View className="h-px bg-gray-200 mx-4" />
 
-      <View style={styles.bookingInfo}>
-        <View style={styles.infoRow}>
-          <Text style={styles.label}>Name:</Text>
-          <Text style={styles.value}>{name}</Text>
+      <View className="p-4">
+        <View className="flex-row mb-2">
+          <Text className="text-base color-gray-500 w-20 font-outfit">Name:</Text>
+          <Text className="text-base font-outfit-medium">{name}</Text>
         </View>
 
-        <View style={styles.infoRow}>
-          <Text style={styles.label}>Guest:</Text>
-          <Text style={styles.value}>{guestes}</Text>
+        <View className="flex-row mb-2">
+          <Text className="text-base color-gray-500 w-20 font-outfit">Guest:</Text>
+          <Text className="text-base font-outfit-medium">{guestes}</Text>
         </View>
       </View>
 
-      <View style={styles.divider} />
+      <View className="h-px bg-gray-200 mx-4" />
 
-      <View style={styles.footer}>
-        <Text style={styles.dateTime}>
+      <View className="flex-row justify-between p-4 items-center">
+        <Text className="text-base font-outfit-medium">
           {timeSlot}, {formattedDate}
         </Text>
-        <Text style={[styles.status, { color: statusColor }]}>
+        <Text className="text-base font-outfit-medium" style={{ color: statusColor }}>
           {status}
         </Text>
       </View>
@@ -61,75 +61,6 @@ const BookingCard = ({ booking, onPress, Rname, add, guestes, name, date, timeSl
   );
 };
 
-const styles = StyleSheet.create({
-  card: {
-    backgroundColor: 'white',
-    borderRadius: 12,
-    marginBottom: 16,
-    overflow: 'hidden',
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-  },
-  header: {
-    flexDirection: 'row',
-    padding: 16,
-  },
-  image: {
-    width: 64,
-    height: 64,
-    borderRadius: 8,
-  },
-  restaurantInfo: {
-    marginLeft: 16,
-    justifyContent: 'center',
-  },
-  restaurantName: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 4,
-  },
-  location: {
-    fontSize: 16,
-    color: '#757575',
-  },
-  divider: {
-    height: 1,
-    backgroundColor: '#e0e0e0',
-    marginHorizontal: 16,
-  },
-  bookingInfo: {
-    padding: 16,
-  },
-  infoRow: {
-    flexDirection: 'row',
-    marginBottom: 8,
-  },
-  label: {
-    fontSize: 16,
-    color: '#757575',
-    width: 80,
-  },
-  value: {
-    fontSize: 16,
-    fontWeight: '500',
-  },
-  footer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    padding: 16,
-    alignItems: 'center',
-  },
-  dateTime: {
-    fontSize: 16,
-    fontWeight: '500',
-  },
-  status: {
-    fontSize: 16,
-    fontWeight: '500',
-  },
-});
+
 
 export default BookingCard;

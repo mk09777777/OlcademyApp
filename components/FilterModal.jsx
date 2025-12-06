@@ -630,7 +630,6 @@ import {
   ScrollView,
   TextInput,
   Modal,
-  StyleSheet,
 } from "react-native";
 import { MaterialIcons, MaterialCommunityIcons } from "@expo/vector-icons";
 
@@ -780,14 +779,14 @@ const [localFilters, setLocalFilters] = useState(activeFilters || defaultFilters
   };
 
   const renderSection = (title, content, filterType) => (
-    <View style={styles.sectionContainer}>
+    <View className="mb-4">
       <TouchableOpacity
-        style={styles.sectionHeader}
+        className="flex-row justify-between items-center p-4 bg-gray-50 rounded-lg"
         onPress={() =>
           setOpenSection(openSection === filterType ? null : filterType)
         }
       >
-        <Text style={styles.sectionHeaderText}>{title}</Text>
+        <Text className="text-base font-outfit-bold color-gray-900">{title}</Text>
         <MaterialIcons
           name={
             openSection === filterType
@@ -799,7 +798,7 @@ const [localFilters, setLocalFilters] = useState(activeFilters || defaultFilters
         />
       </TouchableOpacity>
       {openSection === filterType && (
-        <View style={styles.sectionContent}>{content()}</View>
+        <View className="p-4">{content()}</View>
       )}
     </View>
   );
@@ -809,13 +808,13 @@ const [localFilters, setLocalFilters] = useState(activeFilters || defaultFilters
       {FILTER_OPTIONS.SORT_BY.map((option) => (
         <TouchableOpacity
           key={option.value}
-          style={styles.option}
+          className="flex-row justify-between items-center py-3 border-b border-gray-100"
           onPress={() => handleFilterChange("sortBy", option.value)}
         >
-          <Text style={styles.optionText}>{option.label}</Text>
-          <View style={styles.radioContainer}>
+          <Text className="text-base font-outfit color-gray-900">{option.label}</Text>
+          <View className="w-5 h-5 rounded-full border-2 border-gray-300 items-center justify-center">
             {localFilters.sortBy === option.value && (
-              <View style={styles.radioSelected} />
+              <View className="w-3 h-3 rounded-full bg-primary" />
             )}
           </View>
         </TouchableOpacity>
@@ -825,27 +824,27 @@ const [localFilters, setLocalFilters] = useState(activeFilters || defaultFilters
 
   const renderCuisineOptions = () => (
     <View>
-      <View style={styles.searchBarContainer}>
-        <MaterialIcons name="search" size={24} color="#757575" />
+      <View className="flex-row items-center bg-gray-100 rounded-lg px-3 py-2 mb-4">
+        <MaterialIcons name="search" size={24} color="#757575" className="mr-2" />
         <TextInput
-          style={styles.cuisineSearchBar}
+          className="flex-1 text-sm font-outfit"
           placeholder="Search cuisines..."
           placeholderTextColor="#888"
           value={cuisineSearch}
           onChangeText={setCuisineSearch}
         />
       </View>
-      <ScrollView style={styles.cuisineList}>
+      <ScrollView className="max-h-48">
         {FILTER_OPTIONS.CUISINE.filter((c) =>
           c.label.toLowerCase().includes(cuisineSearch.toLowerCase())
         ).map((option) => (
           <TouchableOpacity
             key={option.value}
-            style={styles.option}
+            className="flex-row justify-between items-center py-3 border-b border-gray-100"
             onPress={() => handleFilterChange("cuisine", option.value)}
           >
-            <Text style={styles.optionText}>{option.label}</Text>
-            <View style={styles.checkboxContainer}>
+            <Text className="text-base font-outfit color-gray-900">{option.label}</Text>
+            <View>
               {localFilters.cuisine === option.value ? (
                 <MaterialIcons name="check-box" size={24} color="#e23845" />
               ) : (
@@ -863,35 +862,32 @@ const [localFilters, setLocalFilters] = useState(activeFilters || defaultFilters
   );
 
   const renderRatingOptions = () => (
-    <View style={styles.sliderContainer}>
-      <Text style={styles.sliderLabel}>
+    <View className="p-4">
+      <Text className="text-base font-outfit-bold color-gray-900 mb-4 text-center">
         Rating: {displayRating(localFilters.minRating)}
       </Text>
-      <View style={styles.sliderTrack}>
+      <View className="relative h-8 bg-gray-200 rounded-full mb-6">
         <View
-          style={[
-            styles.sliderProgress,
-            {
-              width: `${(localFilters.minRating / 5) * 100}%`,
-            },
-          ]}
+          className="absolute h-full bg-primary rounded-full"
+          style={{
+            width: `${(localFilters.minRating / 5) * 100}%`,
+          }}
         />
         {ratingSteps.map((val) => (
           <TouchableOpacity
             key={val}
-            style={[
-              styles.sliderThumb,
-              {
-                left: `${(val / 5) * 100}%`,
-              },
-            ]}
+            className="absolute w-6 h-6 rounded-full bg-primary border-2 border-white -mt-1"
+            style={{
+              left: `${(val / 5) * 100}%`,
+              marginLeft: -12,
+            }}
             onPress={() => handleRatingChange(val)}
           />
         ))}
       </View>
-      <View style={styles.sliderMarks}>
+      <View className="flex-row justify-between">
         {ratingSteps.map((val) => (
-          <Text key={val} style={styles.sliderMarkText}>
+          <Text key={val} className="text-xs color-gray-500 font-outfit">
             {displayRating(val)}
           </Text>
         ))}
@@ -900,44 +896,43 @@ const [localFilters, setLocalFilters] = useState(activeFilters || defaultFilters
   );
 
   const renderPriceOptions = () => (
-    <View style={styles.sliderContainer}>
-      <Text style={styles.sliderLabel}>
+    <View className="p-4">
+      <Text className="text-base font-outfit-bold color-gray-900 mb-4 text-center">
         Price Range: ${localFilters.priceRange[0]} - ${localFilters.priceRange[1]}
       </Text>
-      <View style={styles.sliderTrack}>
+      <View className="relative h-8 bg-gray-200 rounded-full mb-6">
         <View
-          style={[
-            styles.sliderProgress,
-            {
-              width: `${(localFilters.priceRange[0] / 100) * 100}%`,
-            },
-          ]}
+          className="absolute h-full bg-primary rounded-full"
+          style={{
+            width: `${(localFilters.priceRange[0] / 100) * 100}%`,
+          }}
         />
         <TouchableOpacity
-          style={[
-            styles.sliderThumb,
-            { left: `${(localFilters.priceRange[0] / 100) * 100}%` },
-          ]}
+          className="absolute w-6 h-6 rounded-full bg-primary border-2 border-white -mt-1"
+          style={{
+            left: `${(localFilters.priceRange[0] / 100) * 100}%`,
+            marginLeft: -12,
+          }}
           onPress={() => handlePriceChange(localFilters.priceRange[0])}
         />
       </View>
-      <View style={styles.sliderMarks}>
-        <Text style={styles.sliderMarkText}>${minPrice}</Text>
-        <Text style={styles.sliderMarkText}>${maxPrice}</Text>
+      <View className="flex-row justify-between">
+        <Text className="text-xs color-gray-500 font-outfit">${minPrice}</Text>
+        <Text className="text-xs color-gray-500 font-outfit">${maxPrice}</Text>
       </View>
     </View>
   );
 
   const renderSpecialOptions = () => (
     <View>
-      {FILTER_OPTIONS.SPECIAL_FILTERS.map((option) => (
+      {FILTER_OPTIONS.MORE_FILTERS.map((option) => (
         <TouchableOpacity
           key={option.value}
-          style={styles.option}
+          className="flex-row justify-between items-center py-3 border-b border-gray-100"
           onPress={() => handleFilterChange("special", option.value)}
         >
-          <Text style={styles.optionText}>{option.label}</Text>
-          <View style={styles.checkboxContainer}>
+          <Text className="text-base font-outfit color-gray-900">{option.label}</Text>
+          <View>
             {localFilters.special === option.value ? (
               <MaterialIcons name="check-box" size={24} color="#e23845" />
             ) : (
@@ -960,26 +955,26 @@ const [localFilters, setLocalFilters] = useState(activeFilters || defaultFilters
       transparent={true}
       onRequestClose={() => setIsOpen(false)}
     >
-      <View style={styles.modalOverlay}>
-        <View style={styles.filterBoxWrapper}>
-          <View style={styles.header}>
-            <View style={{ flexDirection: "row", alignItems: "center" }}>
-              <Text style={styles.headerText}>Filters</Text>
+      <View className="flex-1 bg-black/50 justify-end p-2.5">
+        <View className="bg-white rounded-t-2xl max-h-[90%] flex-1">
+          <View className="flex-row justify-between items-center p-4 border-b border-gray-200">
+            <View className="flex-row items-center">
+              <Text className="text-xl font-outfit-bold color-gray-900">Filters</Text>
               {getFilterCount() > 0 && (
-                <View style={styles.filterCountBadge}>
-                  <Text style={styles.filterCountText}>{getFilterCount()}</Text>
+                <View className="bg-primary rounded-full w-6 h-6 items-center justify-center ml-2">
+                  <Text className="text-white text-xs font-outfit-bold">{getFilterCount()}</Text>
                 </View>
               )}
             </View>
             <TouchableOpacity
               onPress={() => setIsOpen(false)}
-              style={styles.closeBtn}
+              className="p-1"
             >
               <MaterialIcons name="close" size={24} color="black" />
             </TouchableOpacity>
           </View>
 
-          <ScrollView style={styles.mainScrollView}>
+          <ScrollView className="flex-1 p-4">
             {renderSection("Sort by", renderSortOptions, "sortBy")}
             {renderSection("Cuisines", renderCuisineOptions, "cuisine")}
             {renderSection("Rating", renderRatingOptions, "rating")}
@@ -987,18 +982,18 @@ const [localFilters, setLocalFilters] = useState(activeFilters || defaultFilters
             {renderSection("Special", renderSpecialOptions, "special")}
           </ScrollView>
 
-          <View style={styles.footer}>
+          <View className="flex-row p-4 border-t border-gray-200 gap-3">
             <TouchableOpacity
-              style={styles.clearBtn}
+              className="flex-1 py-3 border border-gray-300 rounded-lg items-center"
               onPress={handleClearAll}
             >
-              <Text style={styles.clearBtnText}>Clear all</Text>
+              <Text className="text-base font-outfit color-gray-700">Clear all</Text>
             </TouchableOpacity>
             <TouchableOpacity
-              style={styles.applyBtn}
+              className="flex-1 py-3 bg-primary rounded-lg items-center"
               onPress={handleApply}
             >
-              <Text style={styles.applyBtnText}>Apply</Text>
+              <Text className="text-base font-outfit-bold text-white">Apply</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -1007,12 +1002,11 @@ const [localFilters, setLocalFilters] = useState(activeFilters || defaultFilters
   );
 };
 
+/* COMMENTED OUT STYLESHEET - CONVERTED TO NATIVEWIND
 const styles = StyleSheet.create({
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: "rgba(0,0,0,0.5)",
-    justifyContent: "flex-end",
-    padding: 10,
+  // All styles converted to NativeWind classes above
+});
+
   },
   filterBoxWrapper: {
     backgroundColor: "white",
@@ -1191,6 +1185,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: "bold",
   },
-});
+});*/
 
 export default FilterModal;

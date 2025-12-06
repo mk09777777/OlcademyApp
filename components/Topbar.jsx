@@ -1,28 +1,32 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, TouchableOpacity } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useSafeNavigation } from '@/hooks/navigationPage';
+
 export default function TopBar() {
   const router = useRouter();
   const { safeNavigation } = useSafeNavigation();
+
   return (
-    <View style={styles.topBar}>
-      <View style={styles.locationContainer}>
+    <View className="flex-row justify-between items-center p-4 bg-white border-b border-gray-200">
+      {/* Location Section */}
+      <View className="flex-row items-center flex-1">
         <MaterialIcons name="location-on" size={24} color="#E41E3F" />
-        <View style={styles.addressContainer}>
-          <Text style={styles.locationLabel}>Location</Text>
-          <TouchableOpacity style={styles.addressButton}>
-            <Text style={styles.address} numberOfLines={1}>
+        <View className="ml-2 flex-1">
+          <Text className="text-xs text-gray-500">Location</Text>
+          <TouchableOpacity className="flex-row items-center">
+            <Text className="text-base text-gray-800 font-medium flex-1" numberOfLines={1}>
               123 Main Street, City, Country
             </Text>
             <MaterialIcons name="keyboard-arrow-down" size={24} color="#333" />
           </TouchableOpacity>
         </View>
       </View>
-      
+
+      {/* Profile Button */}
       <TouchableOpacity 
-        style={styles.profileButton}
+        className="ml-4 p-2"
         onPress={() => safeNavigation('/screens/User')}
       >
         <MaterialIcons name="person" size={30} color="#333" />
@@ -31,6 +35,8 @@ export default function TopBar() {
   );
 }
 
+
+/* ---------------- OLD STYLESHEET (COMMENTED OUT) ----------------
 const styles = StyleSheet.create({
   topBar: {
     flexDirection: 'row',
@@ -69,3 +75,4 @@ const styles = StyleSheet.create({
     padding: 8,
   },
 });
+------------------------------------------------------------------ */

@@ -7,7 +7,6 @@ import {
   TextInput,
   Switch,
   Modal,
-  StyleSheet,
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 
@@ -256,19 +255,19 @@ const Filterbox = ({
     switch (activeTab) {
       case "sort":
         return (
-          <ScrollView style={styles.optionsContainer}>
+          <ScrollView className="flex-1 p-4">
             {sorts.map((item) => (
               <TouchableOpacity
                 key={item.id}
-                style={styles.option}
+                className="flex-row justify-between items-center py-4 border-b border-gray-100"
                 onPress={() => handleSortChange(item.value)}
               >
-                <Text style={styles.optionText}>{item.label}</Text>
-                <View style={styles.radioContainer}>
+                <Text className="text-base font-outfit color-gray-900">{item.label}</Text>
+                <View className="w-5 h-5 rounded-full border-2 border-gray-300 items-center justify-center">
                   {localFilters.sortBy === (sortMapping[item.value] || item.value) ? (
-                    <View style={styles.radioSelected} />
+                    <View className="w-3 h-3 rounded-full bg-primary" />
                   ) : (
-                    <View style={styles.radioUnselected} />
+                    <View className="w-3 h-3 rounded-full bg-transparent" />
                   )}
                 </View>
               </TouchableOpacity>
@@ -277,27 +276,27 @@ const Filterbox = ({
         );
       case "cuisines":
         return (
-          <View style={styles.cuisineTabContent}>
-            <View style={styles.searchBarContainer}>
+          <View className="flex-1">
+            <View className="flex-row items-center bg-gray-100 rounded-lg mx-4 mt-4 px-3 py-2">
               <MaterialIcons
                 name="search"
                 size={24}
                 color="#757575"
-                style={styles.searchIcon}
+                className="mr-2"
               />
               <TextInput
-                style={styles.cuisineSearchBar}
+                className="flex-1 text-sm font-outfit"
                 placeholder="Search cuisines..."
                 placeholderTextColor="#888"
                 value={cuisineSearch}
                 onChangeText={setCuisineSearch}
               />
             </View>
-            <ScrollView style={styles.cuisineList}>
+            <ScrollView className="flex-1 px-4">
               {filteredCuisines.map((c) => (
                 <TouchableOpacity
                   key={c.id}
-                  style={styles.option}
+                  className="flex-row justify-between items-center py-3 border-b border-gray-100"
                   onPress={() =>
                     handleCuisineChange(
                       c.value,
@@ -308,8 +307,8 @@ const Filterbox = ({
                     )
                   }
                 >
-                  <Text style={styles.optionText}>{c.label}</Text>
-                  <View style={styles.checkboxContainer}>
+                  <Text className="text-base font-outfit color-gray-900">{c.label}</Text>
+                  <View className="ml-1">
                     {localFilters.cuisines &&
                       localFilters.cuisines.split(",").includes(c.value) ? (
                       <MaterialIcons name="check-box" size={24} color="#4CAF50" />
@@ -329,36 +328,32 @@ const Filterbox = ({
       case "rating":
         const ratingValue = parseFloat(localFilters.minRating) || 0;
         return (
-          <View style={styles.sliderContainer}>
-            <Text style={styles.sliderLabel}>
+          <View className="p-4">
+            <Text className="text-base font-outfit-bold color-gray-900 mb-4">
               Rating: {displayRating(ratingValue)}
             </Text>
-            <View style={styles.sliderTrack}>
+            <View className="relative h-8 bg-gray-200 rounded-full mb-4">
               <View
-                style={[
-                  styles.sliderProgress,
-                  {
-                    width: `${(ratingSteps.indexOf(ratingValue) / (ratingSteps.length - 1)) * 100}%`,
-                  },
-                ]}
+                className="absolute h-full bg-primary rounded-full"
+                style={{
+                  width: `${(ratingSteps.indexOf(ratingValue) / (ratingSteps.length - 1)) * 100}%`,
+                }}
               />
               {ratingSteps.map((val, index) => (
                 <TouchableOpacity
                   key={val}
-                  style={[
-                    styles.sliderThumb,
-                    {
-                      left: `${(index / (ratingSteps.length - 1)) * 100}%`,
-                      backgroundColor: ratingValue >= val ? "#e23845" : "#ccc",
-                    },
-                  ]}
+                  className="absolute w-6 h-6 rounded-full border-2 border-white -mt-1"
+                  style={{
+                    left: `${(index / (ratingSteps.length - 1)) * 100}%`,
+                    backgroundColor: ratingValue >= val ? "#e23845" : "#ccc",
+                  }}
                   onPress={() => handleRatingChange(index)}
                 />
               ))}
             </View>
-            <View style={styles.sliderMarks}>
+            <View className="flex-row justify-between">
               {ratingSteps.map((val) => (
-                <Text key={val} style={styles.sliderMarkText}>
+                <Text key={val} className="text-xs color-gray-500 font-outfit">
                   {displayRating(val)}
                 </Text>
               ))}
@@ -368,39 +363,35 @@ const Filterbox = ({
       case "costForTwo":
         const costValue = parseInt(localFilters.priceRange, 10) || 60;
         return (
-          <View style={styles.sliderContainer}>
-            <Text style={styles.sliderLabel}>
+          <View className="p-4">
+            <Text className="text-base font-outfit-bold color-gray-900 mb-4 text-center">
               Cost for two: {displayCost(costValue)}
             </Text>
-            <View style={styles.sliderTrack}>
+            <View className="relative h-1 bg-gray-200 rounded-full mb-6">
               <View
-                style={[
-                  styles.sliderProgress,
-                  {
-                    width: `${((costValue - 60) / 90) * 100}%`,
-                  },
-                ]}
+                className="absolute h-full bg-primary rounded-full"
+                style={{
+                  width: `${((costValue - 60) / 90) * 100}%`,
+                }}
               />
               <TouchableOpacity
-                style={[
-                  styles.sliderThumb,
-                  {
-                    left: `${((costValue - 60) / 90) * 100}%`,
-                    backgroundColor: "#e23845",
-                  },
-                ]}
+                className="absolute w-5 h-5 rounded-full bg-primary -mt-2"
+                style={{
+                  left: `${((costValue - 60) / 90) * 100}%`,
+                  marginLeft: -10,
+                }}
                 onPressIn={() => { }}
               />
             </View>
-            <View style={styles.sliderMarks}>
-              <Text style={styles.sliderMarkText}>CAN$60</Text>
-              <Text style={styles.sliderMarkText}>CAN$150</Text>
+            <View className="flex-row justify-between">
+              <Text className="text-xs color-gray-500 font-outfit">CAN$60</Text>
+              <Text className="text-xs color-gray-500 font-outfit">CAN$150</Text>
             </View>
           </View>
         );
       case "moreFilters":
         return (
-          <ScrollView style={styles.optionsContainer}>
+          <ScrollView className="flex-1 p-4">
             {moreFilters.map((m) => {
               const isChecked =
                 m.value === "Serves Alcohol"
@@ -415,11 +406,11 @@ const Filterbox = ({
               return (
                 <TouchableOpacity
                   key={m.id}
-                  style={styles.option}
+                  className="flex-row justify-between items-center py-3 border-b border-gray-100"
                   onPress={() => handleMoreFiltersChange(m.value, !isChecked)}
                 >
-                  <Text style={styles.optionText}>{m.label}</Text>
-                  <View style={styles.checkboxContainer}>
+                  <Text className="text-base font-outfit color-gray-900">{m.label}</Text>
+                  <View>
                     {isChecked ? (
                       <MaterialIcons name="check-box" size={24} color="#e23845" />
                     ) : (
@@ -447,60 +438,57 @@ const Filterbox = ({
       transparent={true}
       onRequestClose={() => setIsOpen(false)}
     >
-      <View style={styles.modalOverlay}>
-        <View style={styles.filterBoxWrapper}>
-          <View style={styles.header}>
-            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              <Text style={styles.headerText}>Filters</Text>
+      <View className="flex-1 bg-black/50 justify-end absolute top-0 left-0 right-0 bottom-0 z-50">
+        <View className="bg-white rounded-t-2xl max-h-[90%] mx-0.5 flex-1">
+          <View className="flex-row justify-between items-center p-4 border-b border-gray-200">
+            <View className="flex-row items-center">
+              <Text className="text-xl font-outfit-bold color-gray-900">Filters</Text>
               {filterCount > 0 && (
-                <View style={styles.filterCountBadge}>
-                  <Text style={styles.filterCountText}>{filterCount}</Text>
+                <View className="bg-primary rounded-full w-6 h-6 items-center justify-center ml-2">
+                  <Text className="text-white text-xs font-outfit-bold">{filterCount}</Text>
                 </View>
               )}
             </View>
             <TouchableOpacity
               onPress={() => setIsOpen(false)}
-              style={styles.closeBtn}
+              className="p-1"
             >
               <MaterialIcons name="close" size={24} color="black" />
             </TouchableOpacity>
           </View>
 
-          <View style={styles.container}>
+          <View className="flex-row flex-1">
             <ScrollView
-              horizontal={false}
-              style={styles.sidebar}
-              contentContainerStyle={styles.sidebarContent}
+              className="w-20 bg-gray-100"
+              contentContainerClassName="flex-grow"
             >
               {filterTabs.map((tab) => (
                 <TouchableOpacity
                   key={tab.value}
-                  style={[
-                    styles.tab,
-                    activeTab === tab.value ? styles.activeTab : null,
-                  ]}
+                  className={`py-3.5 px-2 border-b border-gray-200 justify-center ${
+                    activeTab === tab.value ? 'bg-white border-l-3 border-l-primary' : ''
+                  }`}
                   onPress={() => setActiveTab(tab.value)}
                 >
                   <Text
-                    style={[
-                      styles.tabText,
-                      activeTab === tab.value ? styles.activeTabText : null,
-                    ]}
+                    className={`text-sm font-outfit ${
+                      activeTab === tab.value ? 'color-gray-900 font-outfit-bold' : 'color-gray-500'
+                    }`}
                   >
                     {tab.label}
                   </Text>
                 </TouchableOpacity>
               ))}
             </ScrollView>
-            <View style={styles.main}>{renderTabContent()}</View>
+            <View className="flex-1 bg-white">{renderTabContent()}</View>
           </View>
 
-          <View style={styles.footer}>
-            <TouchableOpacity style={styles.clearBtn} onPress={handleClearAll}>
-              <Text style={styles.clearBtnText}>Clear all</Text>
+          <View className="flex-row p-4 border-t border-gray-200 gap-3">
+            <TouchableOpacity className="flex-1 py-3 border border-gray-300 rounded-lg items-center" onPress={handleClearAll}>
+              <Text className="text-base font-outfit color-gray-700">Clear all</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.applyBtn} onPress={handleApply}>
-              <Text style={styles.applyBtnText}>Apply</Text>
+            <TouchableOpacity className="flex-1 py-3 bg-primary rounded-lg items-center" onPress={handleApply}>
+              <Text className="text-base font-outfit-bold text-white">Apply</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -509,226 +497,10 @@ const Filterbox = ({
   );
 };
 
+/* COMMENTED OUT STYLESHEET - CONVERTED TO NATIVEWIND
 const styles = StyleSheet.create({
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: "rgba(0,0,0,0.5)",
-    justifyContent: "flex-end",
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    zIndex: 1000,
-  },
-  filterBoxWrapper: {
-    backgroundColor: "white",
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    maxHeight: "90%",
-    marginHorizontal: 2,
-    alignSelf: 'stretch',
-    position: 'relative',
-    bottom: 0,
-    flexGrow: 1,
-  },
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    padding: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: "#e0e0e0",
-  },
-  headerText: {
-    fontSize: 20,
-    fontWeight: "bold",
-  },
-  closeBtn: {
-    padding: 4,
-  },
-  container: {
-    flexDirection: "row",
-    flex: 1,
-  },
-  sidebar: {
-    width: 80,
-    backgroundColor: "#f5f5f5",
-  },
-  sidebarContent: {
-    flexGrow: 1,
-  },
-  tab: {
-    paddingVertical: 14,
-    paddingHorizontal: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: "#e0e0e0",
-    justifyContent: 'center',
-  },
-  activeTab: {
-    backgroundColor: "white",
-    borderLeftWidth: 3,
-    borderLeftColor: "#e23845",
-  },
-  tabText: {
-    color: "#757575",
-    fontSize: 14,
-  },
-  activeTabText: {
-    color: "#000",
-    fontWeight: "bold",
-  },
-  main: {
-    flex: 3,
-    padding: 10,
-    backgroundColor: '#fff',
-  },
-  optionsContainer: {
-    flex: 1,
-  },
-  cuisineTabContent: {
-    flex: 1,
-  },
-  option: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingVertical: 12,
-    borderBottomWidth: 0,
-    borderBottomColor: "#f0f0f0",
-  },
-  optionText: {
-    fontSize: 16,
-  },
-  radioContainer: {
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    borderWidth: 2,
-    borderColor: '#ccc',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  radioSelected: {
-    width: 12,
-    height: 12,
-    borderRadius: 15,
-    backgroundColor: "#e23845",
-  },
-  radioUnselected: {
-    width: 12,
-    height: 12,
-    borderRadius: 15,
-    backgroundColor: "transparent",
-  },
-  checkboxContainer: {
-    marginLeft: 4,
-  },
-  searchBarContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderColor: "#e0e0e0",
-    borderWidth: 1,
-    borderRadius: 100,
-    marginBottom: 16,
-    height: 40,
-    paddingHorizontal: 10,
-  },
-  searchIcon: {
-    marginRight: 8,
-  },
-  cuisineSearchBar: {
-    flex: 1,
-    height: '100%',
-    fontSize: 14,
-    paddingVertical: 0,
-    paddingHorizontal: 0,
-  },
-  footer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    padding: 16,
-    borderTopWidth: 1,
-    borderTopColor: "#e0e0e0",
-  },
-  clearBtn: {
-    padding: 12,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: "#757575",
-    flex: 1,
-    marginRight: 8,
-    alignItems: "center",
-  },
-  clearBtnText: {
-    color: "#757575",
-    fontWeight: "bold",
-  },
-  applyBtn: {
-    padding: 12,
-    borderRadius: 8,
-    backgroundColor: "#e23845",
-    flex: 1,
-    marginLeft: 8,
-    alignItems: "center",
-  },
-  applyBtnText: {
-    color: "white",
-    fontWeight: "bold",
-  },
-  sliderContainer: {
-    padding: 15,
-  },
-  sliderLabel: {
-    fontSize: 16,
-    marginBottom: 15,
-    textAlign: 'center',
-  },
-  sliderTrack: {
-    height: 4,
-    backgroundColor: '#e0e0e0',
-    borderRadius: 2,
-    position: 'relative',
-    marginBottom: 25,
-  },
-  sliderProgress: {
-    height: 4,
-    backgroundColor: '#e23845',
-    borderRadius: 2,
-    position: 'absolute',
-    left: 0,
-  },
-  sliderThumb: {
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    backgroundColor: '#e23845',
-    position: 'absolute',
-    top: -8,
-    marginLeft: -10,
-  },
-  sliderMarks: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  sliderMarkText: {
-    fontSize: 12,
-    color: '#666',
-  },
-  filterCountBadge: {
-    backgroundColor: '#e23845',
-    borderRadius: 10,
-    width: 20,
-    height: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginLeft: 8,
-  },
-  filterCountText: {
-    color: 'white',
-    fontSize: 12,
-    fontWeight: 'bold',
-  },
+  // All styles converted to NativeWind classes above
 });
+*/
 
 export default Filterbox;

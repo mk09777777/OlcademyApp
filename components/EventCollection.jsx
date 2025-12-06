@@ -8,7 +8,6 @@ import { getEventsByCategory, events as sharedEvents } from '@/Data/EventData';
 import { useFirm } from '@/context/FirmContext';
 import EventCard from '@/components/EventCard';
 import SearchBar from '@/components/SearchBar';
-import styles from '@/styles/Collection';
 import BackRouting from '@/components/BackRouting';
 import { useSafeNavigation } from '@/hooks/navigationPage';
 export default function EventCollection() {
@@ -78,15 +77,15 @@ export default function EventCollection() {
 
   if (!collection) {
     return (
-      <View style={styles.emptyState}>
+      <View className="flex-1 justify-center items-center p-4">
         <MaterialCommunityIcons 
           name="alert-circle-outline" 
           size={48} 
           color="#666" 
-          style={styles.emptyStateIcon}
+          className="mb-4"
         />
-        <Text style={styles.emptyStateTitle}>Collection Not Found</Text>
-        <Text style={styles.emptyStateMessage}>
+        <Text className="text-lg font-outfit-bold color-gray-700 mb-2">Collection Not Found</Text>
+        <Text className="text-sm color-gray-500 font-outfit text-center">
           The collection you're looking for doesn't exist or has been removed.
         </Text>
       </View>
@@ -95,9 +94,9 @@ export default function EventCollection() {
 
   if (collection.type !== 'events' && firmsLoading) {
     return (
-      <View style={styles.emptyState}>
+      <View className="flex-1 justify-center items-center p-4">
         <ActivityIndicator size="large" />
-        <Text style={styles.emptyStateMessage}>Loading events...</Text>
+        <Text className="text-sm color-gray-500 font-outfit text-center mt-4">Loading events...</Text>
       </View>
     );
   }
@@ -122,7 +121,7 @@ export default function EventCollection() {
           <Text style={styles.collectionTitle}>{collection.title}</Text>
           <Text style={styles.collectionInfo}>{collection.description}</Text>
           {collection.date && (
-            <Text style={styles.collectionInfo}>
+            <Text className="text-sm color-gray-600 font-outfit mt-1">
               {collection.date} • {collection.location}
             </Text>
           )}
@@ -136,15 +135,15 @@ export default function EventCollection() {
       />
 
       {filteredEvents.length === 0 ? (
-        <View style={styles.emptyState}>
+        <View className="flex-1 justify-center items-center p-4">
           <MaterialCommunityIcons 
             name="calendar-blank" 
             size={48} 
             color="#666" 
-            style={styles.emptyStateIcon}
+            className="mb-4"
           />
-          <Text style={styles.emptyStateTitle}>No Events Found</Text>
-          <Text style={styles.emptyStateMessage}>
+          <Text className="text-lg font-outfit-bold color-gray-700 mb-2">No Events Found</Text>
+          <Text className="text-sm color-gray-500 font-outfit text-center">
             Try adjusting your search or check back later for new events.
           </Text>
         </View>
@@ -153,7 +152,7 @@ export default function EventCollection() {
           data={filteredEvents}
           renderItem={renderEventCard}
           keyExtractor={item => item.id}
-          contentContainerStyle={styles.firmList}
+          contentContainerClassName="p-4"
           showsVerticalScrollIndicator={false}
         />
       )}
