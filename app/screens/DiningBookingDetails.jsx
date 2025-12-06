@@ -5,6 +5,7 @@ import * as Notifications from 'expo-notifications';
 import Constants from 'expo-constants';
 import axios from 'axios';
 import { API_CONFIG } from '../../config/apiConfig';
+import { API_ENDPOINTS } from '../../config/api';
 
 // Check if running in development build or Expo Go
 const isExpoGo = Constants.appOwnership === 'expo';
@@ -144,7 +145,8 @@ const BookingDetailsScreen = ({
       Alert.alert("Booking is accepted, you can't cancel it");
     } else {
       try {
-        await axios.put(`${API_CONFIG.BACKEND_URL}/api/bookings/cancel/${id}`, {
+        const url = `${API_CONFIG.BACKEND_URL}${API_ENDPOINTS.DiningBooking.CANCEL(id)}`;
+        await axios.put(url, {
           withCredentials: true,
         });
         if (ordersPush) {

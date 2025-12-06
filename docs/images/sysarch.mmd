@@ -1,0 +1,23 @@
+graph TD
+    A[User Devices] -->|HTTPS REST| B[API Gateway]
+    B --> C1[Auth Service]
+    B --> C2[Event Service]
+    B --> C3[Order Service]
+    B --> C4[Ticket Service]
+    B --> C5[Payment Service]
+    B --> C6[Notification Service]
+
+    C2 --> D1[(MongoDB)]
+    C3 --> D1
+    C4 --> D1
+    C5 --> D2[(Redis Cache)]
+    C5 --> D3[(Stripe)]
+    C6 --> D4[(Email/SMS Provider)]
+
+    subgraph Frontend_Clients
+    W[Web: React + TailwindCSS]
+    M[Mobile: React Native + NativeWind]
+    end
+
+    W --> A
+    M --> A

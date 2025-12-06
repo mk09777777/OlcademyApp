@@ -66,7 +66,7 @@ if (isExpoGo) {
 } else {
   const client = axios.create({ baseURL: BASE, timeout: 30000, withCredentials: true });
   client.interceptors.request.use(async (config) => {
-    const { default: CookieManager } = await import('@react-native-cookies/cookies');
+  const CookieManager = require("@react-native-cookies/cookies").default;
     const cookies = await CookieManager.get(BASE);
     const cookieHeader = Object.entries(cookies).map(([k, v]) => `${k}=${v.value}`).join('; ');
     if (cookieHeader) config.headers = { ...(config.headers || {}), Cookie: cookieHeader };

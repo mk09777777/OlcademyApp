@@ -8,6 +8,8 @@ import { AntDesign, FontAwesome, FontAwesome5, Ionicons, MaterialCommunityIcons,
 import { useCart } from '@/context/CartContext';
 import ImageGallery from '@/components/ImageGallery';
 import OffersCard from '@/components/OffersCard';
+import { useSafeNavigation } from "@/hooks/navigationPage";
+
 
 
 import { API_CONFIG } from '../../config/apiConfig';
@@ -47,6 +49,8 @@ export default function FirmDetailsTakeAway() {
   const [firmDetails, setFirmDetails] = useState(null);
   const [toggleBookmark, setToggleBookmark] = useState(false);
   const [offersVisible, setOffersVisible] = useState(false);
+  const { safeNavigation } = useSafeNavigation();
+
   const [expandedOffer, setExpandedOffer] = useState(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const offers = [
@@ -332,7 +336,7 @@ export default function FirmDetailsTakeAway() {
 
   return (
     <View className="flex-1 bg-background">
-      <View className="h-64">
+  <View className="h-64 overflow-hidden ">
         <ImageGallery
           style={{ backgroundColor: "rgba(0, 0, 0, 0.63)" }}
           images={
@@ -349,17 +353,21 @@ export default function FirmDetailsTakeAway() {
           start={{ x: 0.5, y: 0.5 }}
           end={{ x: 0.5, y: 1 }}
         />
+
         <View className="absolute top-4 left-4 right-4 flex-row justify-between items-center z-10">
           <TouchableOpacity onPress={() => router.back()} className="rounded-full bg-black/40 p-2 items-center justify-center">
             <Ionicons name='chevron-back' size={28} color='white' />
           </TouchableOpacity>
         </View>
+
         <View
           className="absolute bottom-3 left-0 right-0 h-[60%] flex-row justify-between items-center"
           style={{ zIndex: 20, elevation: 12 }}
         >
           <LinearGradient
-            colors={["#18181800", "#18181866", "#181818CC"]}
+            colors={['rgba(0,0,0,0)',
+    'rgba(0,0,0,0.59)',
+    'rgba(0,0,0,0.6)',]}
             start={{ x: 0, y: 0 }}
             end={{ x: 0, y: 1 }}
             style={{
@@ -369,10 +377,11 @@ export default function FirmDetailsTakeAway() {
               zIndex: 20,
             }}
           >
-            <View className="w-[80%] p-1 mt-15">
+            <View className="w-[80%] px-6 mb-3 mt-14">
+
               <View>
                 <TouchableOpacity
-                  onPress={() => router.push({
+                  onPress={() => safeNavigation({
                     pathname: '/screens/RestaurantDetailsScreen',
                     params: { restaurant: JSON.stringify(firmDetails) }
                   })}
@@ -397,8 +406,8 @@ export default function FirmDetailsTakeAway() {
 
             <TouchableOpacity
               // Kept your margins, changed rounding, and added shadow for depth
-              className="rounded-lg shadow-md shadow-black/15 mt-28 mr-2.5 mb-3"
-              onPress={() => router.push({
+            className="absolute bottom-8 right-3 rounded-lg shadow-md shadow-black/15"
+              onPress={() => safeNavigation({
                 pathname: "/screens/Reviewsall",
                 params: {
                   firmId: firmId,
@@ -538,7 +547,7 @@ export default function FirmDetailsTakeAway() {
             zIndex: 9999,
             elevation: 20,
           }}
-          onPress={() => router.push({
+          onPress={() => safeNavigation({
             pathname: 'screens/TakeAwayCart',
             params: {
               offers: JSON.stringify(offers),

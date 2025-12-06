@@ -1,0 +1,82 @@
+erDiagram
+    USERS {
+        string id
+        string email
+        string name
+        string role
+    }
+
+    ORGANIZERS {
+        string id
+        string userId
+        string orgName
+        string stripeId
+    }
+
+    VENUES {
+        string id
+        string name
+        string address
+        float lat
+        float lng
+    }
+
+    EVENTS {
+        string id
+        string organizerId
+        string venueId
+        string title
+        datetime startAt
+        datetime endAt
+        json resaleRules
+    }
+
+    TICKETTYPES {
+        string id
+        string eventId
+        string name
+        int priceCents
+        string currency
+        int inventory
+    }
+
+    ORDERS {
+        string id
+        string userId
+        string status
+        int totalCents
+        string paymentIntentId
+    }
+
+    TICKETS {
+        string id
+        string orderId
+        string eventId
+        string userId
+        string qrSecret
+        string status
+    }
+
+    CHECKINS {
+        string id
+        string ticketId
+        string scannerId
+        datetime scannedAt
+    }
+
+    RESALELISTINGS {
+        string id
+        string ticketId
+        string sellerId
+        int priceCents
+    }
+
+    USERS ||--o{ ORDERS : places
+    USERS ||--o{ TICKETS : owns
+    ORGANIZERS ||--o{ EVENTS : creates
+    VENUES ||--o{ EVENTS : hosts
+    EVENTS ||--|{ TICKETTYPES : defines
+    EVENTS ||--o{ TICKETS : issues
+    ORDERS ||--o{ TICKETS : contains
+    TICKETS ||--o{ CHECKINS : validated_by
+    TICKETS ||--o{ RESALELISTINGS : can_list

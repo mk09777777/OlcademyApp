@@ -1298,8 +1298,12 @@ import { Ionicons, FontAwesome, MaterialCommunityIcons } from '@expo/vector-icon
 import { useAuth } from '../../context/AuthContext'; // Adjust path if needed
 import BackRouting from '@/components/BackRouting'; // Adjust path if needed
 import { router } from 'expo-router';
+import { useSafeNavigation } from "@/hooks/navigationPage";
+
 
 const ActivityPage = () => {
+  const { safeNavigation } = useSafeNavigation();
+
   const { user: authUser, profileData, api } = useAuth();
   const [activeTab, setActiveTab] = useState('Reviews');
   const [isLoading, setIsLoading] = useState(false);
@@ -1693,7 +1697,7 @@ const ActivityPage = () => {
             className="flex-1 flex-row items-center justify-center gap-1.5 p-2"
             onPress={() => {
               setSelectedComment(item);
-              router.push({
+              safeNavigation({
                 pathname: '/screens/commentscreen',
                 params: {
                   commentData: JSON.stringify(item),

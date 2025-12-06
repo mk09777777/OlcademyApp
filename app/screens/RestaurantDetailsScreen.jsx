@@ -575,8 +575,10 @@ const RestaurantDetailsScreen = () => {
         <Text className="text-lg font-semibold text-black">Restaurant Details</Text>
       </View>
 
-      <ScrollView contentContainerClassName="pb-20"> 
-        {/* Restaurant Image */}
+<ScrollView
+  contentContainerClassName="pb-20"
+  contentContainerStyle={{ paddingBottom: 140 }}
+>        {/* Restaurant Image */}
         {restaurant.image_urls?.length > 0 ? (
           <Image 
             source={{ uri: restaurant.image_urls[0] }} 

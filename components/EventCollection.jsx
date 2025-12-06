@@ -4,6 +4,7 @@ import { useGlobalSearchParams, useRouter } from 'expo-router';
 import { Text, ActivityIndicator } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { collections } from '@/Data/EventCollection';
+import { getEventsByCategory, events as sharedEvents } from '@/Data/EventData';
 import { useFirm } from '@/context/FirmContext';
 import EventCard from '@/components/EventCard';
 import SearchBar from '@/components/SearchBar';
@@ -19,22 +20,60 @@ export default function EventCollection() {
   const collection = collections.find(c => c.id === collectionId);
 
   useEffect(() => {
-    if (firms) {
-      const filtered = firms.filter(firm => {
-        const matchesSearch = firm.name.toLowerCase().includes(searchQuery.toLowerCase());
-        const hasEvents = firm.events?.length > 0;
-        return matchesSearch && hasEvents;
-      }).flatMap(firm => 
-        firm.events.map(event => ({
+    if (!collection) {
+      setFilteredEvents([]);
+      return;
+    }
+
+    const lowerSearch = searchQuery.trim().toLowerCase();
+
+    if (collection.type === 'events') {
+      const baseEvents = collection.categoryKey
+        ? getEventsByCategory(collection.categoryKey)
+        : sharedEvents;
+
+      const normalized = baseEvents
+        .filter((event) => {
+          if (!lowerSearch) {
+            return true;
+          }
+          const haystack = [event.title, event.city, event.venue]
+            .filter(Boolean)
+            .map((value) => value.toLowerCase());
+          return haystack.some((value) => value.includes(lowerSearch));
+        })
+        .map((event) => ({
           ...event,
-          firmId: firm.id,
-          firmName: firm.name,
-          firmImage: firm.image
-        }))
-      );
+          firmId: event.id,
+          firmName: event.venue ?? event.city,
+          firmImage: event.image,
+          date: event.date,
+          time: event.startTime,
+          price: event.pricing?.general,
+        }));
+
+      setFilteredEvents(normalized);
+      return;
+    }
+
+    if (firms) {
+      const filtered = firms
+        .filter((firm) => {
+          const matchesSearch = firm.name.toLowerCase().includes(lowerSearch);
+          const hasEvents = firm.events?.length > 0;
+          return matchesSearch && hasEvents;
+        })
+        .flatMap((firm) =>
+          firm.events.map((event) => ({
+            ...event,
+            firmId: firm.id,
+            firmName: firm.name,
+            firmImage: firm.image,
+          }))
+        );
       setFilteredEvents(filtered);
     }
-  }, [firms, searchQuery]);
+  }, [collection, firms, searchQuery]);
 
   if (!collection) {
     return (
@@ -53,7 +92,7 @@ export default function EventCollection() {
     );
   }
 
-  if (firmsLoading) {
+  if (collection.type !== 'events' && firmsLoading) {
     return (
       <View className="flex-1 justify-center items-center p-4">
         <ActivityIndicator size="large" />
@@ -69,19 +108,18 @@ export default function EventCollection() {
         pathname: '/screens/EventDetails',
         params: { 
           eventId: event.id,
-          firmId: event.firmId
         }
       })}
     />
   );
 
   return (
-    <View className="flex-1 bg-gray-50">
-      <BackRouting tittle= "Event Collection"/>
-      <View className="bg-white rounded-xl shadow-sm m-4 p-4">
-        <View>
-          <Text className="text-lg font-outfit-bold color-gray-900">{collection.title}</Text>
-          <Text className="text-sm color-gray-600 font-outfit mt-1">{collection.description}</Text>
+    <View style={styles.container}>
+      <BackRouting title="Event Collection" />
+      <View style={styles.collectionCard}>
+        <View style={styles.collectionContent}>
+          <Text style={styles.collectionTitle}>{collection.title}</Text>
+          <Text style={styles.collectionInfo}>{collection.description}</Text>
           {collection.date && (
             <Text className="text-sm color-gray-600 font-outfit mt-1">
               {collection.date} • {collection.location}

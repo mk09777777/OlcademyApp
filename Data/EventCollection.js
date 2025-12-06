@@ -2,7 +2,7 @@ export const collections = [
   {
     id: '1',
     type: 'tiffin',
-    title: 'Homestyle Tiffin',
+    categoryKey: 'workshop',
     description: 'Discover authentic homemade meals from local chefs',
     image: require('../assets/images/food.jpg'),
     dishes: 25,
@@ -42,6 +42,7 @@ export const collections = [
   {
     id: '5',
     type: 'events',
+    categoryKey: 'festival',
     title: 'Food Festival',
     description: 'Annual food celebration with multiple cuisines',
     image: require('../assets/images/food3.jpg'),
@@ -51,6 +52,7 @@ export const collections = [
   },
   {
     id: '6',
+    categoryKey: 'workshop',
     type: 'events',
     title: 'Chef\'s Table',
     description: 'Exclusive dining experience with top chefs',
@@ -82,6 +84,7 @@ export const collections = [
   {
     id: '9',
     type: 'events',
+    categoryKey: 'workshop',
     title: 'Cooking Workshop',
     description: 'Learn from professional chefs',
     image: require('../assets/images/food.jpg'),

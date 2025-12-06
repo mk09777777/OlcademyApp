@@ -22,7 +22,7 @@ import BackRouting from "@/components/BackRouting";
 
 export default function SelectLocation({ placeholder = "Enter area, landmark ...", query, setQuery }) {
   const { safeNavigation } = useSafeNavigation();
-  const { setLocation, recentlyAdds, setRecentlyAdds } = useLocationContext();
+  const { updateLocation, recentlyAdds, setRecentlyAdds } = useLocationContext();
 
   const [localQuery, setLocalQuery] = useState(query || '');
   const [loading, setLoading] = useState(false);
@@ -67,7 +67,7 @@ export default function SelectLocation({ placeholder = "Enter area, landmark ...
       houseNumber: '',
     };
 
-    setLocation(locationData);
+  await updateLocation(locationData);
 
     try {
       const existing = await AsyncStorage.getItem('recentlyAddList');
@@ -139,7 +139,7 @@ export default function SelectLocation({ placeholder = "Enter area, landmark ...
             display_name: `${location.name || ''} ${location.street || ''}, ${location.city || ''}, ${location.region || ''}, ${location.country || ''}`.trim(),
           };
           
-          setLocation(locationData);
+          await updateLocation(locationData);
           
           // Save to recent locations
           try {
@@ -170,7 +170,7 @@ export default function SelectLocation({ placeholder = "Enter area, landmark ...
           display_name: `Lat: ${coords.latitude.toFixed(6)}, Lon: ${coords.longitude.toFixed(6)}`,
         };
         
-        setLocation(locationData);
+        await updateLocation(locationData);
       }
       
       safeNavigation('/home');

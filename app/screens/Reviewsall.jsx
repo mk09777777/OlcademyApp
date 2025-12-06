@@ -1,22 +1,30 @@
-import { Fragment, useEffect, useState } from "react";
-import { 
-  FlatList, Text, TextInput, TouchableOpacity, View, Modal, Image, 
-  ActivityIndicator, Alert, RefreshControl, ScrollView 
+import { useEffect, useState } from "react";
+import {
+  FlatList,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+  Modal,
+  Image,
+  ActivityIndicator,
+  Alert,
+  RefreshControl,
 } from "react-native";
-import ZomatoStyles from "../../styles/zomatostyles";
-import Ionicons from '@expo/vector-icons/Ionicons';
-import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
-import AntDesign from '@expo/vector-icons/AntDesign';
-import MaterialIcons from '@expo/vector-icons/MaterialIcons';
-import Fontisto from '@expo/vector-icons/Fontisto';
-import FontAwesome from '@expo/vector-icons/FontAwesome';
+import Ionicons from "@expo/vector-icons/Ionicons";
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
+import AntDesign from "@expo/vector-icons/AntDesign";
+import MaterialIcons from "@expo/vector-icons/MaterialIcons";
+import Fontisto from "@expo/vector-icons/Fontisto";
+import FontAwesome from "@expo/vector-icons/FontAwesome";
 import RatingsCalculated from "../../components/calculated";
 import Preference from "../../components/preference";
-import Entypo from '@expo/vector-icons/Entypo';
+import Entypo from "@expo/vector-icons/Entypo";
 import { router, useLocalSearchParams } from "expo-router";
 import axios from "axios";
 import { useAuth } from "../../context/AuthContext";
-import { API_CONFIG } from '../../config/apiConfig';
+import { API_CONFIG } from "../../config/apiConfig";
+import { useSafeNavigation } from "@/hooks/navigationPage";
 
 function Reviewsall() {
   const [calculatedboxvisible, setcalculatedboxvisible] = useState(false);
@@ -27,13 +35,14 @@ function Reviewsall() {
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState(null);
   const [data, setData] = useState([]);
+  const { safeNavigation } = useSafeNavigation();
+
   const [filteredData, setFilteredData] = useState([]);
   const [sortedData, setSortedData] = useState([]);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [selectedComment, setSelectedComment] = useState(null);
-  
-  // New states for comment functionality
+
   const [commentList, setCommentList] = useState([]);
   const [comment, setComment] = useState("");
   const [comments, setComments] = useState("");
@@ -43,13 +52,13 @@ function Reviewsall() {
     isFollowing: false,
     isLiked: false,
     followers: 0,
-    likes: 0
+    likes: 0,
   });
 
   const [filtersActive, setFiltersActive] = useState({
     verified: false,
     withPhotos: false,
-    detailedReview: false
+    detailedReview: false,
   });
 
   const [sortActive, setSortActive] = useState({
@@ -59,11 +68,14 @@ function Reviewsall() {
 
   const params = useLocalSearchParams();
   const firmId = params.firmId || params.firm || params.id;
-  const reviewType= params.reviewType;
+  const reviewType = params.reviewType;
 
-  console.log('id',firmId)
   const { user, profileData, api } = useAuth();
-  const currentUserData = profileData?.email ? profileData : (user ? { username: user } : null);
+  const currentUserData = profileData?.email
+    ? profileData
+    : user
+    ? { username: user }
+    : null;
   const userId = profileData?._id || user?.id;
 
   useEffect(() => {
@@ -74,56 +86,70 @@ function Reviewsall() {
         let restaurantReviews = [];
         let tiffinReviews = [];
 
-        // Fetch restaurant reviews
         try {
           const restaurantResponse = await axios.get(
-
             `${API_CONFIG.BACKEND_URL}/firm/restaurants/get-reviews/${firmId}`,
             { params: { page: pageNum }, withCredentials: true }
           );
-          
-          if (restaurantResponse.data && Array.isArray(restaurantResponse.data.reviews)) {
+
+          if (
+            restaurantResponse.data &&
+            Array.isArray(restaurantResponse.data.reviews)
+          ) {
             restaurantReviews = restaurantResponse.data.reviews;
           }
         } catch (err) {
-          if (axios.isAxiosError(err) && err.response && err.response.status === 404) {
+          if (
+            axios.isAxiosError(err) &&
+            err.response &&
+            err.response.status === 404
+          ) {
             console.log("No restaurant reviews found");
           } else {
             console.error("Error fetching restaurant reviews:", err);
           }
         }
 
-        // Fetch tiffin reviews
         try {
           const tiffinResponse = await axios.get(
             `${API_CONFIG.BACKEND_URL}/api/tiffin-Reviews/${firmId}`,
             { params: { page: pageNum }, withCredentials: true }
           );
-          
-          if (tiffinResponse.data && Array.isArray(tiffinResponse.data.reviews)) {
+
+          if (
+            tiffinResponse.data &&
+            Array.isArray(tiffinResponse.data.reviews)
+          ) {
             tiffinReviews = tiffinResponse.data.reviews;
           }
         } catch (err) {
-          if (axios.isAxiosError(err) && err.response && err.response.status === 404) {
+          if (
+            axios.isAxiosError(err) &&
+            err.response &&
+            err.response.status === 404
+          ) {
             console.log("No tiffin reviews found");
           } else {
             console.error("Error fetching tiffin reviews:", err);
           }
         }
 
-        // Combine and transform the reviews
         const allReviews = [...restaurantReviews, ...tiffinReviews];
-        
+
         if (allReviews.length > 0) {
-          const transformedData = allReviews.map(review => ({
+          const transformedData = allReviews.map((review) => ({
             _id: review._id,
             user: {
-              username: review.author_name || review.authorName?.username || 
-                       (review.email ? review.email.split('@')[0] : "Anonymous"),
-              followers: review.followers || (review.followBy ? review.followBy.length : 0),
-              userId: review.authorId || review.userId || review.authorName?._id
+              username:
+                review.author_name ||
+                review.authorName?.username ||
+                (review.email ? review.email.split("@")[0] : "Anonymous"),
+              followers:
+                review.followers ||
+                (review.followBy ? review.followBy.length : 0),
+              userId: review.authorId || review.userId || review.authorName?._id,
             },
-            comment: review.comments||[],
+            comment: review.comments || [],
             reviewType: review.reviewType,
             rating: review.rating,
             createdAt: review.date || review.createdAt,
@@ -131,27 +157,31 @@ function Reviewsall() {
             images: review.images || [],
             detailedReview: (review.reviewText || review.comment)?.length > 100,
             likes: review.likes || (review.likedBy ? review.likedBy.length : 0),
-            commentsCount: review.comments?.length || review.usercomments?.length || 0,
+            commentsCount:
+              review.comments?.length || review.usercomments?.length || 0,
             likedBy: review.likedBy || [],
             usercomments: review.usercomments || [],
-            isLiked: review.likedBy?.includes(profileData?.email || user?.username) || false,
-            isFollowing: review.isFollowing || false
+            isLiked:
+              review.likedBy?.includes(
+                profileData?.email || user?.username
+              ) || false,
+            isFollowing: review.isFollowing || false,
           }));
 
           if (pageNum === 1 || isRefreshing) {
             setData(transformedData);
             setHasMore(false);
           } else {
-            setData(prev => [...prev, ...transformedData]);
+            setData((prev) => [...prev, ...transformedData]);
           }
         } else {
           if (pageNum === 1 || isRefreshing) {
             setData([]);
           }
         }
-      } catch (error) {
-        console.error("Error fetching reviews:", error);
-        setError(error.response?.data?.error || error.message);
+      } catch (err) {
+        console.error("Error fetching reviews:", err);
+        setError(err.response?.data?.error || err.message);
         Alert.alert("Error", "Failed to load reviews");
       } finally {
         setLoading(false);
@@ -172,12 +202,10 @@ function Reviewsall() {
     handleSorting();
   }, [sortActive, filteredData]);
 
-  // Fetch review status and comments when a review is selected for comments
   useEffect(() => {
     if (selectedComment) {
-      fetchReviewStatus(selectedComment._id, selectedComment.reviewType,);
-      // Set the comments for the selected review
-  setComments(selectedComment.comment)
+      fetchReviewStatus(selectedComment._id, selectedComment.reviewType);
+      setComments(selectedComment.comment);
       setCommentList(selectedComment.usercomments || []);
     }
   }, [selectedComment]);
@@ -185,35 +213,30 @@ function Reviewsall() {
   const fetchReviewStatus = async (reviewId, reviewType) => {
     try {
       if (!reviewId) return;
-      
-      // const endpoint = reviewType === 'tiffin' 
-      //   ? `/api/reviews/tiffin/${reviewId}/status` 
-      //   : `/api/reviews/${reviewId}/status`;
-      
+
       const response = await api.get(`/api/reviews/${reviewId}/status`, {
-          withCredentials: true,
-        });
+        withCredentials: true,
+      });
       const { isFollow, isLike, followers, likes } = response.data.data;
-      console.log('like',response.data)
       setReviewStatus({
         isFollowing: isFollow,
         isLiked: isLike,
         followers: followers,
-        likes: likes
+        likes: likes,
       });
-    } catch (error) {
-      console.error("Error fetching review status:", error);
+    } catch (err) {
+      console.error("Error fetching review status:", err);
       setReviewStatus({
         isFollowing: false,
         isLiked: false,
         followers: 0,
-        likes: 0
+        likes: 0,
       });
     }
   };
-  
+
   const applyFilters = () => {
-    const filtered = data.filter(item => {
+    const filtered = data.filter((item) => {
       if (filtersActive.verified && !item.verified) return false;
       if (filtersActive.withPhotos && item.images.length === 0) return false;
       if (filtersActive.detailedReview && !item.detailedReview) return false;
@@ -227,13 +250,15 @@ function Reviewsall() {
     if (sortActive.rating) {
       sortedArray.sort((a, b) => b.rating - a.rating);
     } else if (sortActive.date) {
-      sortedArray.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      sortedArray.sort(
+        (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      );
     }
     setSortedData(sortedArray);
   };
 
-  const handleActive = (filter) => {
-    setFiltersActive(prev => ({ ...prev, [filter]: !prev[filter] }));
+  const handleActive = (filterKey) => {
+    setFiltersActive((prev) => ({ ...prev, [filterKey]: !prev[filterKey] }));
   };
 
   const handlechildpref = (childdata) => {
@@ -249,71 +274,78 @@ function Reviewsall() {
 
   const handleLike = async (reviewId, reviewType) => {
     try {
-       const endpoint = reviewType === 'tiffin' 
-        ? `/api/reviews/tiffin/${reviewId}/like` 
-        : `/api/reviews/${reviewId}/like`;
-      const response = await api.post(endpoint, {}, { withCredentials: true });
-      
-      setData(prevData => 
-        prevData.map(item => 
-          item._id === reviewId 
-            ? { 
-                ...item, 
-                isLiked: !item.isLiked, 
-                likes: response.data.likes 
-              } 
+      const endpoint =
+        reviewType === "tiffin"
+          ? `/api/reviews/tiffin/${reviewId}/like`
+          : `/api/reviews/${reviewId}/like`;
+      const response = await api.post(
+        endpoint,
+        {},
+        { withCredentials: true }
+      );
+
+      setData((prevData) =>
+        prevData.map((item) =>
+          item._id === reviewId
+            ? {
+                ...item,
+                isLiked: !item.isLiked,
+                likes: response.data.likes,
+              }
             : item
         )
       );
-      
-      // Update review status if this is the selected comment
+
       if (selectedComment && selectedComment._id === reviewId) {
-        setReviewStatus(prev => ({
+        setReviewStatus((prev) => ({
           ...prev,
           isLiked: !prev.isLiked,
-          likes: response.data.likes
+          likes: response.data.likes,
         }));
       }
-
-    } catch (error) {
-      console.error("Error liking review:", error);
+    } catch (err) {
+      console.error("Error liking review:", err);
       Alert.alert("Error", "Failed to like review");
     }
   };
 
   const handleFollow = async (reviewId, reviewType) => {
     try {
-      const endpoint = reviewType === 'tiffin' 
-        ? `/api/reviews/tiffin/${reviewId}/follow` 
-        : `/api/reviews/${reviewId}/follow`;
-      
-      const response = await api.post(endpoint, {}, { withCredentials: true });
-      
-      setData(prevData => 
-        prevData.map(item => 
-          item._id === reviewId 
-            ? { 
-                ...item, 
-                isFollowing: !item.isFollowing, 
+      const endpoint =
+        reviewType === "tiffin"
+          ? `/api/reviews/tiffin/${reviewId}/follow`
+          : `/api/reviews/${reviewId}/follow`;
+
+      const response = await api.post(
+        endpoint,
+        {},
+        { withCredentials: true }
+      );
+
+      setData((prevData) =>
+        prevData.map((item) =>
+          item._id === reviewId
+            ? {
+                ...item,
+                isFollowing: !item.isFollowing,
                 user: {
                   ...item.user,
-                  followers: response.data.followers
-                }
-              } 
+                  followers: response.data.followers,
+                },
+              }
             : item
         )
       );
-      
-      // Update review status if this is the selected comment
+
       if (selectedComment && selectedComment._id === reviewId) {
-        setReviewStatus(prev => ({
+        setReviewStatus((prev) => ({
           ...prev,
           isFollowing: !prev.isFollowing,
-          followers: response.data.followers
+          followers: response.data.followers,
         }));
       }
-    } catch (error) {
-      console.error("Error following user:", error);
+    } catch (err) {
+      console.error("Error following user:", err);
       Alert.alert("Error", "Failed to follow user");
     }
   };
@@ -324,7 +356,7 @@ function Reviewsall() {
     if (isNaN(date.getTime())) return "Recently";
 
     const now = new Date();
-    const diffTime = Math.abs(now - date);
+    const diffTime = Math.abs(now.getTime() - date.getTime());
     const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
 
     if (diffDays === 0) {
@@ -340,23 +372,21 @@ function Reviewsall() {
     if (diffDays < 7) return `${diffDays} days ago`;
 
     const diffWeeks = Math.floor(diffDays / 7);
-    if (diffWeeks < 4) return `${diffWeeks} week${diffWeeks > 1 ? 's' : ''} ago`;
+    if (diffWeeks < 4) return `${diffWeeks} week${diffWeeks > 1 ? "s" : ""} ago`;
 
     const diffMonths = Math.floor(diffDays / 30);
-    return `${diffMonths} month${diffMonths > 1 ? 's' : ''} ago`;
+    return `${diffMonths} month${diffMonths > 1 ? "s" : ""} ago`;
   };
 
   const handleLoadMore = () => {
     if (hasMore && !loading) {
-      setPage(prev => prev + 1);
-      // You'll need to implement fetchReviews with pagination
+      setPage((prev) => prev + 1);
     }
   };
 
   const onRefresh = () => {
     setRefreshing(true);
     setPage(1);
-    // You'll need to implement fetchReviews with refresh
   };
 
   const togglevisible = () => setcalculatedboxvisible(!calculatedboxvisible);
@@ -374,7 +404,7 @@ function Reviewsall() {
 
   if (loading && page === 1) {
     return (
-      <View className="flex-1 justify-center items-center">
+      <View className="flex-1 items-center justify-center bg-white">
         <ActivityIndicator size="large" color="#0000ff" />
       </View>
     );
@@ -382,184 +412,295 @@ function Reviewsall() {
 
   if (error) {
     return (
-      <View className="flex-1 justify-center items-center p-5">
-        <Text className="text-lg font-outfit-bold color-red-600 text-center mb-4">{error}</Text>
-        <TouchableOpacity onPress={() => window.location.reload()} className="bg-primary px-6 py-3 rounded-lg">
-          <Text className="text-white font-outfit-bold">Retry</Text>
+      <View className="flex-1 items-center justify-center bg-white px-4">
+        <Text className="text-base text-red-500 text-center mb-4">
+          {error}
+        </Text>
+        <TouchableOpacity
+          onPress={() => {
+            if (typeof window !== "undefined") {
+              window.location?.reload?.();
+            }
+          }}
+          className="px-4 py-2 rounded-full bg-pink-500"
+        >
+          <Text className="text-white font-semibold text-sm">Retry</Text>
         </TouchableOpacity>
       </View>
     );
   }
 
+  const listData =
+    sortActive.rating || sortActive.date ? sortedData : filteredData;
+
   return (
-    <Fragment>
-      <View className="flex-1 bg-white">
-        <View className="flex-row items-center justify-between p-4 bg-white border-b border-gray-200">
-          <TouchableOpacity onPress={() => router.back()}>
-            <Ionicons name="chevron-back" size={32} color="black" />
-          </TouchableOpacity>
-          <Text className="text-lg font-outfit-bold color-gray-800">{params.restaurantName || "Reviews"}</Text>
-          <MaterialCommunityIcons name="share-outline" size={32} color="black" />
-        </View>
+    <View className="flex-1 bg-white">
+      {/* Header */}
+      <View className="px-4 pt-4 pb-2 border-b border-gray-200 bg-white flex-row items-center">
+        <TouchableOpacity onPress={() => router.back()}>
+          <Ionicons name="chevron-back" size={32} color="black" />
+        </TouchableOpacity>
+        <Text className="flex-1 text-center text-lg font-semibold text-black">
+          {params.restaurantName || "Reviews"}
+        </Text>
+        <MaterialCommunityIcons
+          name="share-outline"
+          size={28}
+          color="black"
+        />
+      </View>
 
-        <View className="flex-row items-center bg-gray-50 mx-4 my-2 px-3 py-2 rounded-lg">
-          <AntDesign name="search1" size={24} color="#E91E63" className="mr-2" />
-          <View className="flex-1">
-            <TextInput
-              className="flex-1 text-base font-outfit color-gray-800"
-              placeholder="Search in reviews"
-              placeholderTextColor={"#6b7280ef"}
-            />
-          </View>
-        </View>
+      {/* Search */}
+      <View className="mx-4 mt-3 flex-row items-center px-3 py-2 rounded-full bg-gray-100">
+        <AntDesign name="search1" size={20} color="#E91E63" />
+        <TextInput
+          className="flex-1 ml-2 text-sm text-gray-800"
+          placeholder="Search in reviews"
+          placeholderTextColor="#6b7280ef"
+        />
+      </View>
 
-        <View className="flex-row items-center px-4 py-2">
-          <FlatList
-            data={filters}
-            keyExtractor={(item, index) => index.toString()}
-            renderItem={({ item }) => (
+      {/* Filters & Sort */}
+      <View className="mt-3 px-4 flex-row items-center justify-between">
+        <FlatList
+          data={filters}
+          keyExtractor={(item, index) => index.toString()}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          renderItem={({ item }) => {
+            const isActive = filtersActive[item];
+            return (
               <View className="mr-2">
                 <TouchableOpacity onPress={() => handleActive(item)}>
-                  <View className={`flex-row items-center px-3 py-2 rounded-full border ${
-                    filtersActive[item] ? 'bg-primary border-primary' : 'bg-gray-100 border-gray-300'
-                  }`}>
-                    <Text className={`text-sm font-outfit ${filtersActive[item] ? 'text-white' : 'color-gray-800'}`}>
-                      <MaterialIcons name={item === "verified" ? "verified" : "photo"} size={16} color={filtersActive[item] ? "white" : "black"} />
-                      {"  "}{item === "verified" ? "Verified" : "With Photos"}
+                  <View
+                    className={`flex-row items-center px-3 py-1 rounded-full border ${
+                      isActive
+                        ? "border-pink-500 bg-pink-50"
+                        : "border-gray-300 bg-white"
+                    }`}
+                  >
+                    <MaterialIcons
+                      name={item === "verified" ? "verified" : "photo"}
+                      size={16}
+                      color="black"
+                    />
+                    <Text className="ml-1 text-xs text-gray-800">
+                      {item === "verified" ? "Verified" : "With Photos"}
                     </Text>
-                    {filtersActive[item] && <Entypo name="cross" size={20} color="white" className="ml-1" />}
+                    {isActive && (
+                      <View className="ml-1">
+                        <Entypo name="cross" size={16} color="black" />
+                      </View>
+                    )}
                   </View>
                 </TouchableOpacity>
               </View>
-            )}
-            horizontal={true}
+            );
+          }}
+        />
+
+        <TouchableOpacity
+          className="flex-row items-center px-3 py-1 rounded-full border border-gray-300 bg-gray-100 ml-2"
+          onPress={togglepref}
+        >
+          <Text className="text-xs text-gray-800">
+            {pref || "Relevance"}
+          </Text>
+          <MaterialIcons name="arrow-drop-down" size={20} color="black" />
+        </TouchableOpacity>
+
+        <Modal
+          animationType="slide"
+          transparent
+          visible={perfervisible}
+          onRequestClose={togglepref}
+        >
+          <Preference
+            togglepref={togglepref}
+            senddatatoparent={handlechildpref}
+            message={pref}
           />
-          
-          <TouchableOpacity className="flex-row items-center px-3 py-2 bg-gray-100 rounded-full" onPress={togglepref}>
-            <Text className="text-sm font-outfit color-gray-800">{pref || "Relevance"}</Text>
-            <MaterialIcons name="arrow-drop-down" size={22} color="black" className="ml-1" />
-          </TouchableOpacity>
-          <Modal animationType="slide" transparent={true} visible={perfervisible} onRequestClose={togglepref}>
-            <Preference togglepref={togglepref} senddatatoparent={handlechildpref} message={pref} />
-          </Modal>
-        </View>
+        </Modal>
       </View>
 
-      <FlatList
-        data={sortActive.rating || sortActive.date ? sortedData : filteredData}
-        keyExtractor={(item) => item._id}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-        }
-        ListEmptyComponent={
-          <View className="flex-1 justify-center items-center p-8">
-            <Text className="text-lg font-outfit-medium color-gray-600 text-center">No reviews found</Text>
-          </View>
-        }
-        renderItem={({ item }) => (
-          <View className="bg-white mb-4 mx-4 rounded-lg shadow-sm">
-            <View className="p-4">
-              <View className="flex-row justify-between items-start mb-3">
-                <View className="flex-row items-center flex-1">
-                  <FontAwesome name="user-circle-o" size={33} color="#b5b9dc" />
-                  <View className="ml-3 flex-1">
-                    <Text className="text-base font-outfit-semibold color-gray-800">{item.user?.username || "Anonymous"}</Text>
-                    <Text className="text-sm font-outfit color-gray-600">{item.user.followers} Followers • {getDaysAgo(item.createdAt)}</Text>
-                  </View>
-                  <TouchableOpacity
-                    onPress={() => handleFollow(item._id, item.reviewType)}
-                    className={`px-3 py-1 rounded-full ${item.isFollowing ? 'bg-primary' : 'bg-gray-100'}`}
-                  >
-                    {/* <Text className={`text-sm font-outfit ${item.isFollowing ? 'text-white' : 'color-gray-800'}`}>
-                      {item.isFollowing ? "Following" : "Follow"}
-                    </Text> */}
-                  </TouchableOpacity>
-                </View>
-                <View className="items-end">
-                  <View className="flex-row items-center bg-primary px-2 py-1 rounded">
-                    <Text className="text-white text-sm font-outfit-bold">{item.rating}</Text>
-                    <AntDesign name="star" size={11} color="white" className="ml-1" />
-                  </View>
-                  <View className="flex-row items-center mt-1">
-                    {item.verified && (
-                      <>
-                        <MaterialIcons name="verified" size={10} color="#6b7280ef" />
-                        <Text className="text-xs font-outfit color-gray-500 ml-1">Verified order</Text>
-                      </>
-                    )}
-                  </View>
-                </View>
-              </View>
-              <Text className="text-sm font-outfit color-gray-700 leading-5">{item.comment}</Text>
-            </View>
-            <View className="flex-row border-t border-gray-100">
-              <TouchableOpacity
-                onPress={() => handleLike(item._id, item.reviewType)}
-                className="flex-1 flex-row items-center justify-center py-3"
-              >
-                <AntDesign
-                  name={item.isLiked ? "like1" : "like2"}
-                  size={20}
-                  color={item.isLiked ? "#E91E63" : "black"}
-                />
-                <Text className={`text-sm font-outfit ml-2 ${item.isLiked ? 'color-pink-600' : 'color-gray-800'}`}>{item.likes || 0}</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => {
-                  setSelectedComment(item);
-                  router.push({
-                    pathname: '/screens/commentscreen',
-                    params: {
-                      commentData: JSON.stringify(item),
-                      review: item._id,
-                      firmId: firmId,
-                      restaurantName: params.restaurantName,
-                      reviewType: reviewType,
-                    }
-                  });
-                }}
-                className="flex-1 flex-row items-center justify-center py-3 border-l border-gray-100"
-              >
-                <MaterialCommunityIcons
-                  name="comment-outline"
-                  size={20}
-                  color="black"
-                />
-                <Text className="text-sm font-outfit color-gray-800 ml-2">Comment</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        )}
-        onEndReached={handleLoadMore}
-        onEndReachedThreshold={0.1}
-        ListFooterComponent={
-          loading && page > 1 ? (
-            <View className="py-4 items-center">
-              <ActivityIndicator size="small" color="#0000ff" />
-            </View>
-          ) : null
-        }
-      />
-      
-      <TouchableOpacity
-        className="absolute bottom-5 right-5 bg-primary px-4 py-3 rounded-full shadow-lg"
-        onPress={() => router.push({
-          pathname: "/screens/Userrating",
-          params: {
-            firmId: firmId,
-            restaurantName: params.restaurantName,
-            currentUser: currentUserData,
-            reviewType: reviewType,
+      {/* Main List */}
+      <View className="flex-1">
+        <FlatList
+          data={listData}
+          keyExtractor={(item) => item._id}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
           }
-        })}
+          ListEmptyComponent={
+            <View className="flex-1 items-center justify-center py-10">
+              <Text className="text-sm text-gray-500">No reviews found</Text>
+            </View>
+          }
+          renderItem={({ item }) => (
+            <View className="px-4 pt-3 pb-2 border-b border-gray-100 bg-white">
+              <View>
+                {/* Header row inside item */}
+                <View className="flex-row justify-between">
+                  <View className="flex-row items-center flex-1">
+                    <FontAwesome
+                      name="user-circle-o"
+                      size={33}
+                      color="#b5b9dc"
+                    />
+                    <View className="ml-2 flex-1">
+                      <Text className="text-sm font-semibold text-gray-900">
+                        {item.user?.username || "Anonymous"}
+                      </Text>
+                      <Text className="text-[11px] text-gray-500 mt-0.5">
+                        {item.user.followers} Followers •{" "}
+                        {getDaysAgo(item.createdAt)}
+                      </Text>
+                    </View>
+                    <TouchableOpacity
+                      onPress={() => handleFollow(item._id, item.reviewType)}
+                      className={`px-3 py-1 rounded-full border border-pink-500 ${
+                        item.isFollowing ? "bg-pink-500" : "bg-white"
+                      }`}
+                    >
+                      <Text
+                        className={`text-xs font-medium ${
+                          item.isFollowing
+                            ? "text-white"
+                            : "text-pink-500"
+                        }`}
+                      >
+                        {item.isFollowing ? "Following" : "Follow"}
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+
+                  <View className="items-end ml-2">
+                    <View className="flex-row items-center px-2 py-1 rounded bg-green-600">
+                      <Text className="text-xs font-semibold text-white">
+                        {item.rating}
+                      </Text>
+                      <View className="ml-1">
+                        <AntDesign name="star" size={11} color="white" />
+                      </View>
+                    </View>
+                    <View className="flex-row items-center mt-1">
+                      {item.verified && (
+                        <>
+                          <MaterialIcons
+                            name="verified"
+                            size={10}
+                            color="#6b7280ef"
+                          />
+                          <Text className="text-[10px] text-gray-500 ml-1">
+                            Verified order
+                          </Text>
+                        </>
+                      )}
+                    </View>
+                  </View>
+                </View>
+
+                {/* Comment text */}
+                <Text className="mt-2 text-sm text-gray-800">
+                  {item.comment}
+                </Text>
+
+                {/* Images (if you re-enable) */}
+                {/* {item.images && item.images.length > 0 && (
+                  <View className="mt-2">
+                    <Image
+                      source={{ uri: item.images[0] }}
+                      className="w-32 h-32 rounded-lg"
+                    />
+                  </View>
+                )} */}
+              </View>
+
+              {/* Actions row */}
+              <View className="flex-row mt-2">
+                <TouchableOpacity
+                  onPress={() => handleLike(item._id, item.reviewType)}
+                  className="flex-row items-center mr-4"
+                >
+                  <AntDesign
+                    name={item.isLiked ? "like1" : "like2"}
+                    size={20}
+                    color={item.isLiked ? "#E91E63" : "black"}
+                  />
+                  <Text
+                    className={`ml-1 text-xs ${
+                      item.isLiked ? "text-pink-500" : "text-gray-800"
+                    }`}
+                  >
+                    {item.likes || 0}
+                  </Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  onPress={() => {
+                    setSelectedComment(item);
+                    safeNavigation({
+                      pathname: "/screens/commentscreen",
+                      params: {
+                        commentData: JSON.stringify(item),
+                        review: item._id,
+                        firmId: firmId,
+                        restaurantName: params.restaurantName,
+                        reviewType: reviewType,
+                      },
+                    });
+                  }}
+                  className="flex-row items-center"
+                >
+                  <MaterialCommunityIcons
+                    name="comment-outline"
+                    size={20}
+                    color="black"
+                  />
+                  <Text className="ml-1 text-xs text-gray-800">
+                    Comment
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          )}
+          onEndReached={handleLoadMore}
+          onEndReachedThreshold={0.1}
+          ListFooterComponent={
+            loading && page > 1 ? (
+              <View className="py-4 items-center justify-center">
+                <ActivityIndicator size="small" color="#0000ff" />
+              </View>
+            ) : (
+              <View className="h-24" />
+            )
+          }
+        />
+      </View>
+
+      <TouchableOpacity
+        className="absolute bottom-6 left-4 right-4 rounded-full bg-primary shadow-lg"
+        onPress={() =>
+          safeNavigation({
+            pathname: "/screens/Userrating",
+            params: {
+              firmId: firmId,
+              restaurantName: params.restaurantName,
+              currentUser: currentUserData,
+              reviewType: reviewType,
+            },
+          })
+        }
         activeOpacity={0.9}
       >
-        <View className="flex-row items-center">
+        <View className="flex-row items-center justify-center py-3">
           <MaterialIcons name="rate-review" size={20} color="#FFF" />
-          <Text className="text-white font-outfit-semibold ml-2">Write a Review</Text>
+          <Text className="ml-2 text-sm font-semibold text-white">
+            Write a Review
+          </Text>
         </View>
       </TouchableOpacity>
-    </Fragment>
+    </View>
   );
 }
 

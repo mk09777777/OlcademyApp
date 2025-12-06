@@ -702,7 +702,16 @@ const FilterModal = ({
     ],
   };
 
-  const [localFilters, setLocalFilters] = useState(activeFilters);
+ const defaultFilters = {
+  sortBy: null,
+  category: null,
+  minRating: 0,
+  cuisine: null,
+  priceRange: [1, 100],
+  special: null,
+};
+
+const [localFilters, setLocalFilters] = useState(activeFilters || defaultFilters);
   const [cuisineSearch, setCuisineSearch] = useState("");
   const [openSection, setOpenSection] = useState("sortBy"); // Set initial open section
 

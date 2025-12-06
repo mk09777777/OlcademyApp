@@ -89,6 +89,7 @@ export default function RootLayout() {
                       <Stack.Screen name="screens/EventCollection" options={{ headerShown: false }} />
                       <Stack.Screen name="screens/LiveEventPage" options={{ headerShown: false }} />
                       <Stack.Screen name="screens/LiveEventHelp" options={{ headerShown: false }} />
+                      
 
                       {/* Review and Rating Screens */}
                       <Stack.Screen name="screens/ReviewDetails" options={{ headerShown: false }} />

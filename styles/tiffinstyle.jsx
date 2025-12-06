@@ -2,7 +2,7 @@ import { StyleSheet, Dimensions } from "react-native";
 const windowWidth = Dimensions.get('window').width
 const windowHeight = Dimensions.get('window').height
 export const COLORS = {
-  PRIMARY: '#FF4B3A',
+  PRIMARY: '#02757A',
   SECONDARY: '#f5f5f5',
   TEXT_PRIMARY: '#333',
   TEXT_SECONDARY: '#666',

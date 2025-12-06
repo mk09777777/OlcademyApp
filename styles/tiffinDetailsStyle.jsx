@@ -680,7 +680,7 @@ const styles = StyleSheet.create({
     left: 250,
     // paddingBottom:10,
     borderRadius: 10,
-    backgroundColor: '#FF4B3f',
+    backgroundColor: '#02757A',
     width: 100,
     paddingHorizontal: 20,
     paddingVertical: 4,

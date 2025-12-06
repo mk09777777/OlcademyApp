@@ -104,9 +104,9 @@ export default function TabLayout() {
         }}
       />
 
-      {/* LiveShows Tab */}
+      {/* Events Tab */}
       <Tabs.Screen 
-        name="LiveShows"
+        name="Events"
         options={{
           tabBarLabel: ({ focused }) => (
             <Text style={{ 
@@ -115,7 +115,7 @@ export default function TabLayout() {
               fontSize: fontSize,
               marginTop: -2,
             }}>
-              Live Shows
+              Events
             </Text>
           ),
           tabBarIcon: ({ focused }) => (

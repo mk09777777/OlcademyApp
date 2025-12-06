@@ -22,7 +22,7 @@ function replaceInFile(filePath) {
 // List of files that contain #e23845
 const filesToUpdate = [
   'app/home/Dining.jsx',
-  'app/home/LiveShows.jsx', 
+  'app/home/Events.jsx', 
   'app/home/TakeAway.jsx',
   'app/home/Tiffin.jsx',
   'app/screens/Collections.jsx',
