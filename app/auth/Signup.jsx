@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet } from "react-native";
+import { View, Text, TextInput, TouchableOpacity, ScrollView } from "react-native";
 import axios from "axios";
 import { useRouter } from "expo-router";
 import { Eye, EyeOff, Loader2, X as CloseIcon } from "lucide-react-native";
@@ -311,17 +311,16 @@ const Signup = () => {
   };
 
   return (
-    <ScrollView
-      style={styles.screen}
-      contentContainerStyle={styles.scrollContainer}
-    >
-      <View style={styles.card} className="w-full">
-        <View className="flex-row justify-between items-center mb-6">
-          <Text className="text-2xl font-bold text-textprimary">Sign Up</Text>
-          <TouchableOpacity onPress={() => router.back()} className="p-1">
-            <CloseIcon size={20} color="#000" />
-          </TouchableOpacity>
-        </View>
+    <View className="flex-1 bg-white">
+      <ScrollView className="flex-1">
+        <View className="flex-1 px-6 pb-8 pt-6">
+          <View className="w-full rounded-3xl bg-white">
+            <View className="flex-row items-center justify-between mb-6">
+              <Text className="text-2xl font-bold text-textprimary">Sign Up</Text>
+              <TouchableOpacity onPress={() => router.back()} className="p-1">
+                <CloseIcon size={20} color="#000" />
+              </TouchableOpacity>
+            </View>
 
         {error ? <Text className="text-red-500 mb-2.5 text-center">{error}</Text> : null}
 
@@ -419,20 +418,24 @@ const Signup = () => {
           Password must be at least 8 characters and include uppercase, lowercase, number, and symbol.
         </Text>
 
-        <View className="flex-row items-center mb-5">
-          <TouchableOpacity
-            className="mr-2.5"
-            onPress={handleCheckboxChange}
-            activeOpacity={0.7}
-          >
-            <View className={`w-5 h-5 rounded border border-primary justify-center items-center ${
-              formData.accept ? 'bg-primary' : 'bg-white'
-            }`}>
-              {formData.accept && <Ionicons name="checkmark" size={12} color="#fff" />}
+            <View className="flex-row items-center mb-5">
+              <TouchableOpacity
+                className="mr-2.5"
+                onPress={handleCheckboxChange}
+                activeOpacity={0.7}
+              >
+                <View
+                  className={`w-5 h-5 items-center justify-center rounded border border-primary ${
+                    formData.accept ? "bg-primary" : "bg-white"
+                  }`}
+                >
+                  {formData.accept && <Ionicons name="checkmark" size={12} color="#fff" />}
+                </View>
+              </TouchableOpacity>
+              <Text className="text-sm text-textsecondary">
+                I agree to the Terms and Privacy Policies
+              </Text>
             </View>
-          </TouchableOpacity>
-          <Text className="text-sm text-textsecondary">I agree to the Terms and Privacy Policies</Text>
-        </View>
 
         <TouchableOpacity
           className="bg-primary p-4 rounded-2xl items-center mb-5"
@@ -452,72 +455,43 @@ const Signup = () => {
           <View className="flex-1 h-px bg-border" />
         </View>
 
-        <View className="flex-row justify-center gap-4 mb-2.5">
-          <TouchableOpacity
-            className="border border-border rounded-full p-3 bg-white"
-            onPress={signupWithGoogle}
-            disabled={loading}
-            style={styles.oauthIconButton}
-            accessibilityLabel="Sign up with Google"
-          >
-            <FontAwesome name="google" size={22} color="#DB4437" />
-          </TouchableOpacity>
-          <TouchableOpacity
-            className="border border-border rounded-full p-3 bg-white"
-            onPress={signupWithTwitter}
-            disabled={loading}
-            style={styles.oauthIconButton}
-            accessibilityLabel="Sign up with Twitter"
-          >
-            <FontAwesome name="twitter" size={22} color="#1DA1F2" />
-          </TouchableOpacity>
-          <TouchableOpacity
-            className="border border-border rounded-full p-3 bg-white"
-            onPress={signupWithFacebook}
-            disabled={loading}
-            style={styles.oauthIconButton}
-            accessibilityLabel="Sign up with Facebook"
-          >
-            <FontAwesome name="facebook" size={22} color="#1877F2" />
-          </TouchableOpacity>
-        </View>
+            <View className="mb-2.5 flex-row justify-center gap-4">
+              <TouchableOpacity
+                className="h-14 w-14 items-center justify-center rounded-full border border-border bg-white"
+                onPress={signupWithGoogle}
+                disabled={loading}
+                accessibilityLabel="Sign up with Google"
+              >
+                <FontAwesome name="google" size={22} color="#DB4437" />
+              </TouchableOpacity>
+              <TouchableOpacity
+                className="h-14 w-14 items-center justify-center rounded-full border border-border bg-white"
+                onPress={signupWithTwitter}
+                disabled={loading}
+                accessibilityLabel="Sign up with Twitter"
+              >
+                <FontAwesome name="twitter" size={22} color="#1DA1F2" />
+              </TouchableOpacity>
+              <TouchableOpacity
+                className="h-14 w-14 items-center justify-center rounded-full border border-border bg-white"
+                onPress={signupWithFacebook}
+                disabled={loading}
+                accessibilityLabel="Sign up with Facebook"
+              >
+                <FontAwesome name="facebook" size={22} color="#1877F2" />
+              </TouchableOpacity>
+            </View>
 
-        <View className="flex-row justify-center mt-5">
-          <Text className="text-textprimary">Already have an account? </Text>
-          <TouchableOpacity onPress={openLoginModal} disabled={loading}>
-            <Text className="text-blue-600 font-bold">Log In</Text>
-          </TouchableOpacity>
+            <View className="mt-5 flex-row justify-center">
+              <Text className="text-textprimary">Already have an account? </Text>
+              <TouchableOpacity onPress={openLoginModal} disabled={loading}>
+                <Text className="font-bold text-blue-600">Log In</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
         </View>
-      </View>
-    </ScrollView>
+      </ScrollView>
+    </View>
   );
 };
-
-
-
-const styles = StyleSheet.create({
-  screen: {
-    backgroundColor: '#FFFFFF',
-  },
-  scrollContainer: {
-    flexGrow: 1,
-    padding: 24,
-    paddingBottom: 32,
-    justifyContent: 'flex-start',
-  },
-  card: {
-    backgroundColor: '#ffffff',
-    padding: 24,
-  },
-  oauthIconButton: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
-
-
-
 export default Signup;

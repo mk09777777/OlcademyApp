@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, TextInput, ScrollView, ActivityIndicator, Alert, StyleSheet } from 'react-native'
+import { View, Text, TouchableOpacity, TextInput, ScrollView, ActivityIndicator, Alert, StyleSheet, Linking, Platform } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import React, { useEffect, useState, useRef } from 'react'
 import { Ionicons, FontAwesome } from '@expo/vector-icons'
@@ -254,16 +254,27 @@ const handleLogin = async () => {
     }
   }
 
+  const launchOAuthFlow = (provider) => {
+    const targetUrl = `${Api_url}/api/${provider}?rememberMe=${rememberMe}`
+    if (Platform.OS === 'web' && typeof window !== 'undefined') {
+      window.location.href = targetUrl
+    } else {
+      Linking.openURL(targetUrl).catch(() =>
+        setError('Unable to open login page. Please try again.')
+      )
+    }
+  }
+
   const LoginWithGoogle = () => {
-    router.push(`${Api_url}/api/google?rememberMe=` + rememberMe);
+    launchOAuthFlow('google')
   }
 
   const LoginWithFacebook = () => {
-    router.push(`${Api_url}/api/facebook?rememberMe=` + rememberMe);
+    launchOAuthFlow('facebook')
   }
 
   const LoginWithTwitter = () => {
-    router.push(`${Api_url}/api/twitter?rememberMe=` + rememberMe);
+    launchOAuthFlow('twitter')
   }
 
   let currentView = 'login'

@@ -6,6 +6,12 @@ import { Ionicons } from '@expo/vector-icons'
 import { useRouter } from 'expo-router'
 import { useSafeNavigation } from '@/hooks/navigationPage'
 import AsyncStorage from '@react-native-async-storage/async-storage'
+
+const getFlagUrl = (countryCode) => {
+  const safeCode = countryCode?.toUpperCase?.() || 'US'
+  return `https://flagsapi.com/${safeCode}/flat/64.png`
+}
+
 export default function SelectCountryCode() {
   const router = useRouter()
   const { safeNavigation } = useSafeNavigation();
@@ -55,11 +61,10 @@ export default function SelectCountryCode() {
             className="flex-row items-center p-4 bg-white mb-2 rounded-lg border border-border"
             onPress={() => handleSelect(item)}
           >
-            <Image 
-              source={require('../assets/images/food.jpg')}
+            <Image
+              source={{ uri: getFlagUrl(item.code || item?.data?.code) }}
               className="w-8 h-8 rounded mr-3"
-            >
-            </Image>
+            />
             <Text className="flex-1 text-textprimary font-outfit text-base">
               {item.name}
             </Text>

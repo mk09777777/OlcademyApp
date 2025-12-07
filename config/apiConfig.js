@@ -7,7 +7,7 @@ const backendCandidates = [
   process.env.VITE_API_PATH
 ].filter(Boolean);
 
-const fallbackBackendUrl = 'https://project-z-583w.onrender.com';
+const fallbackBackendUrl = 'https://project-z-backend-apis.onrender.com';
 
 const googleKeyCandidates = [
   process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY,
