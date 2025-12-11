@@ -641,21 +641,10 @@ export default function TakeAway() {
         } else {
           setLoadingVegData(false);
         }
-      }psed = Date.now() - startTime;
-        const remaining = MIN_LOADING_TIME - elapsed;
-
-        if (remaining > 0) {
-          setTimeout(() => {
-            setLoadingVegData(false);
-          }, remaining);
-        } else {
-          setLoadingVegData(false);
-        }
       }
-    }
-    else {
+    } else {
       setLoadingVegData(false);
-      setVegData([])
+      setVegData([]);
     }
 
 
