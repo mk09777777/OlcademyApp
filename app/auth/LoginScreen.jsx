@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, TextInput, ScrollView, ActivityIndicator, Alert, StyleSheet, Linking, Platform } from 'react-native'
+import { View, Text, TouchableOpacity, TextInput, ScrollView, ActivityIndicator, Alert, StyleSheet, Platform } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import React, { useEffect, useState, useRef } from 'react'
 import { Ionicons, FontAwesome } from '@expo/vector-icons'
@@ -258,11 +258,16 @@ const handleLogin = async () => {
     const targetUrl = `${Api_url}/api/${provider}?rememberMe=${rememberMe}`
     if (Platform.OS === 'web' && typeof window !== 'undefined') {
       window.location.href = targetUrl
-    } else {
-      Linking.openURL(targetUrl).catch(() =>
-        setError('Unable to open login page. Please try again.')
-      )
+      return
     }
+
+    router.push({
+      pathname: '/auth/OAuthWebView',
+      params: {
+        provider,
+        rememberMe: rememberMe ? 'true' : 'false',
+      },
+    })
   }
 
   const LoginWithGoogle = () => {
@@ -418,7 +423,7 @@ const handleLogin = async () => {
 
               <View className="flex-row justify-center mt-2.5">
                 <Text className="text-sm text-textsecondary">
-                  Don&apos;t have an Account? 
+                  Don&apos;t have an Account?{' '}
                   <Text
                     className="text-sm text-primary font-bold"
                     onPress={() => router.push('/auth/Signup')}

@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, ScrollView } from "react-native";
+import { useState } from "react";
+import { View, Text, TextInput, TouchableOpacity, ScrollView, Platform } from "react-native";
 import axios from "axios";
 import { useRouter } from "expo-router";
 import { Eye, EyeOff, Loader2, X as CloseIcon } from "lucide-react-native";
@@ -12,7 +12,6 @@ const Signup = () => {
     username: "",
     email: "",
     phone: "",
-    countryDialCode: "+91",
     password: "",
     confirmPassword: "",
     accept: false,
@@ -21,12 +20,7 @@ const Signup = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [usernameStatus, setUsernameStatus] = useState({ available: null, message: "" });
-  const [isCheckingUsername, setIsCheckingUsername] = useState(false);
-  const usernameDebounceRef = useRef(null);
   const router = useRouter();
-  const [selectedCountry, setSelectedCountry] = useState(null);
-  const [passwordStatus, setPasswordStatus] = useState({ valid: null, message: "" });
   const [confirmStatus, setConfirmStatus] = useState({ match: null, message: "" });
 
   const clearError = () => {
@@ -40,35 +34,11 @@ const Signup = () => {
         [name]: value,
       };
 
-      const passwordTrimmed = (name === "password" ? value : updated.password).trim();
-      const confirmTrimmed = (name === "confirmPassword" ? value : updated.confirmPassword).trim();
-
-      if (name === "password") {
-        if (!value) {
-          setPasswordStatus({ valid: null, message: "" });
-        } else {
-          const issue = getPasswordError(passwordTrimmed);
-          if (issue) {
-            setPasswordStatus({ valid: false, message: issue });
-          } else {
-            setPasswordStatus({ valid: true, message: "Password looks strong." });
-          }
-        }
-
-        if (updated.confirmPassword) {
-          const matches = passwordTrimmed === confirmTrimmed;
-          setConfirmStatus({
-            match: matches,
-            message: matches ? "Passwords match." : "Passwords do not match.",
-          });
-        } else {
-          setConfirmStatus({ match: null, message: "" });
-        }
-      } else if (name === "confirmPassword") {
-        if (!value) {
+      if (name === "password" || name === "confirmPassword") {
+        if (!updated.confirmPassword) {
           setConfirmStatus({ match: null, message: "" });
         } else {
-          const matches = passwordTrimmed === confirmTrimmed;
+          const matches = updated.password === updated.confirmPassword;
           setConfirmStatus({
             match: matches,
             message: matches ? "Passwords match." : "Passwords do not match.",
@@ -89,92 +59,16 @@ const Signup = () => {
     clearError();
   };
 
-  useEffect(() => {
-    if (usernameDebounceRef.current) {
-      clearTimeout(usernameDebounceRef.current);
-    }
-
-    const trimmed = formData.username.trim();
-    if (!trimmed) {
-      setUsernameStatus({ available: null, message: "" });
-      return;
-    }
-
-    if (trimmed.length < 3) {
-      setUsernameStatus({ available: false, message: "Username must be at least 3 characters." });
-      return;
-    }
-
-    usernameDebounceRef.current = setTimeout(async () => {
-      setIsCheckingUsername(true);
-      try {
-        const response = await axios.get(`${API_CONFIG.BACKEND_URL}/api/check-username`, {
-          params: { username: trimmed },
-          timeout: 8000,
-        });
-
-        const available = response.data?.available !== false;
-        setUsernameStatus({
-          available,
-          message: response.data?.message || (available ? "Username is available." : "Username already taken."),
-        });
-      } catch (err) {
-        console.error("Username availability check failed:", err.response?.data || err.message);
-        setUsernameStatus({ available: null, message: "Unable to verify username right now." });
-      } finally {
-        setIsCheckingUsername(false);
-      }
-    }, 400);
-
-    return () => {
-      if (usernameDebounceRef.current) {
-        clearTimeout(usernameDebounceRef.current);
-      }
-    };
-  }, [formData.username]);
-
   const handlePhoneChange = (value) => {
-    const digits = value.replace(/\D/g, "");
-    const dial = (selectedCountry?.data?.dial_code || formData.countryDialCode || "+91").replace(/\D/g, "");
-    const localDigits = digits.startsWith(dial) ? digits.slice(dial.length) : digits;
-
     setFormData((prev) => ({
       ...prev,
-      phone: localDigits,
+      phone: value,
     }));
     clearError();
   };
 
-  const handleCountryChange = (country) => {
-    if (country?.data?.dial_code) {
-      setFormData((prev) => ({
-        ...prev,
-        countryDialCode: country.data.dial_code,
-      }));
-    }
-    setSelectedCountry(country);
+  const handleCountryChange = () => {
     clearError();
-  };
-
-  const validateEmail = (value) => /\S+@\S+\.\S+/.test(value);
-
-  const getPasswordError = (password) => {
-    if (password.length < 8) {
-      return "Password must be at least 8 characters long.";
-    }
-    if (!/[A-Z]/.test(password)) {
-      return "Password must include at least one uppercase letter.";
-    }
-    if (!/[a-z]/.test(password)) {
-      return "Password must include at least one lowercase letter.";
-    }
-    if (!/\d/.test(password)) {
-      return "Password must include at least one number.";
-    }
-    if (!/[\W_]/.test(password)) {
-      return "Password must include at least one special character.";
-    }
-    return null;
   };
 
   const handleSignup = async () => {
@@ -182,41 +76,8 @@ const Signup = () => {
 
     const trimmedUsername = formData.username.trim();
     const trimmedEmail = formData.email.trim().toLowerCase();
-  const passwordValue = formData.password.trim();
-  const confirmValue = formData.confirmPassword.trim();
-    const dialCode = formData.countryDialCode || selectedCountry?.data?.dial_code || "+91";
-    const normalizedDialCode = dialCode.startsWith("+") ? dialCode : `+${dialCode}`;
-    const localDigits = formData.phone.replace(/\D/g, "");
-    const fullPhone = localDigits ? `${normalizedDialCode}${localDigits}` : "";
-
-    if (!trimmedUsername || !trimmedEmail || !passwordValue || !confirmValue || !localDigits) {
-      setError("Username, email, phone, password, and confirmation are required.");
-      return;
-    }
-
-    if (trimmedUsername.length < 3) {
-      setError("Username must be at least 3 characters.");
-      return;
-    }
-
-    if (!validateEmail(trimmedEmail)) {
-      setError("Please enter a valid email address.");
-      return;
-    }
-
-    if (localDigits.length < 6) {
-      setError("Please enter a valid phone number.");
-      return;
-    }
-
-    const passwordIssue = getPasswordError(passwordValue);
-    if (passwordIssue) {
-      setPasswordStatus({ valid: false, message: passwordIssue });
-      setError(passwordIssue);
-      return;
-    } else {
-      setPasswordStatus({ valid: true, message: passwordValue ? "Password looks strong." : "" });
-    }
+    const passwordValue = formData.password;
+    const confirmValue = formData.confirmPassword;
 
     if (passwordValue !== confirmValue) {
       setConfirmStatus({ match: false, message: "Passwords do not match." });
@@ -224,16 +85,6 @@ const Signup = () => {
       return;
     } else {
       setConfirmStatus({ match: true, message: confirmValue ? "Passwords match." : "" });
-    }
-
-    if (usernameStatus.available === false) {
-      setError(usernameStatus.message || "Username is already taken.");
-      return;
-    }
-
-    if (isCheckingUsername) {
-      setError("Please wait while we check username availability.");
-      return;
     }
 
     if (!formData.accept) {
@@ -249,8 +100,6 @@ const Signup = () => {
           username: trimmedUsername,
           email: trimmedEmail,
           password: passwordValue,
-          phone: fullPhone,
-          countryDialCode: normalizedDialCode,
         },
         {
           withCredentials: true,
@@ -294,16 +143,32 @@ const Signup = () => {
       setLoading(false);
     }
   };
+  const launchOAuthFlow = (provider) => {
+    const targetUrl = `${API_CONFIG.BACKEND_URL}/api/${provider}?rememberMe=false`;
+    if (Platform.OS === "web" && typeof window !== "undefined") {
+      window.location.href = targetUrl;
+      return;
+    }
+
+    router.push({
+      pathname: "/auth/OAuthWebView",
+      params: {
+        provider,
+        rememberMe: "false",
+      },
+    });
+  };
+
   const signupWithGoogle = () => {
-    // Implement Google signup
+    launchOAuthFlow("google");
   };
 
   const signupWithFacebook = () => {
-    // Implement Facebook signup
+    launchOAuthFlow("facebook");
   };
 
   const signupWithTwitter = () => {
-    // Implement Twitter signup
+    launchOAuthFlow("twitter");
   };
 
   const openLoginModal = () => {
@@ -332,18 +197,6 @@ const Signup = () => {
           onChangeText={(text) => handleChange("username", text)}
           autoCapitalize="words"
         />
-
-        {formData.username ? (() => {
-          const statusMessage = isCheckingUsername ? 'Checking username availability…' : usernameStatus.message;
-          if (!statusMessage) return null;
-          return (
-            <Text
-              className={`text-xs mb-2 ${isCheckingUsername ? 'text-gray-500' : usernameStatus.available === false ? 'text-red-500' : usernameStatus.available ? 'text-green-600' : 'text-gray-500'}`}
-            >
-              {statusMessage}
-            </Text>
-          );
-        })() : null}
 
         <TextInput
           className="h-12 border border-border rounded-2xl px-4 mb-4 text-base bg-white text-textprimary"
@@ -379,14 +232,6 @@ const Signup = () => {
             {showPassword ? <EyeOff size={18} color="#4B5563" /> : <Eye size={18} color="#4B5563" />}
           </TouchableOpacity>
         </View>
-
-        {passwordStatus.message ? (
-          <Text
-            className={`text-xs mb-2 ${passwordStatus.valid === false ? 'text-red-500' : 'text-green-600'}`}
-          >
-            {passwordStatus.message}
-          </Text>
-        ) : null}
 
         <View className="flex-row items-center mb-4">
           <TextInput
