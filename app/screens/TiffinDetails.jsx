@@ -366,6 +366,18 @@ const TiffinDetails = () => {
   const renderMenuItem = useCallback(
     (item) => {
       if (!item?.id || !item?.name) return null;
+      
+      // Check if this item is in cart
+      const isInCart = cartItems.some(cartItem => 
+        cartItem.productId === item.id || 
+        cartItem.name === item.name
+      );
+      
+      const cartItem = cartItems.find(cartItem => 
+        cartItem.productId === item.id || 
+        cartItem.name === item.name
+      );
+      
       return (
         <View key={item.id} className="flex-row items-stretch bg-white border border-gray-300 rounded-xl mb-3 p-3 shadow-sm">
           <View className="mr-3">
@@ -374,6 +386,11 @@ const TiffinDetails = () => {
               {item.isVeg !== undefined && (
                 <View className="absolute top-1 left-1 bg-white rounded-full p-0.5">
                   <MaterialCommunityIcons name={item.isVeg ? 'circle' : 'triangle'} size={10} color={item.isVeg ? '#4CAF50' : '#FF4B3A'} />
+                </View>
+              )}
+              {isInCart && (
+                <View className="absolute top-1 right-1 bg-primary rounded-full p-1">
+                  <MaterialCommunityIcons name="check" size={12} color="white" />
                 </View>
               )}
             </View>
@@ -389,15 +406,22 @@ const TiffinDetails = () => {
             )}
             <View className="flex-row items-center justify-between mt-auto">
               <Text className="text-base font-bold text-red-500">₹{item.price || item.basePrice || 0}</Text>
-              <TouchableOpacity onPress={() => handleOpenModal(item)} className="bg-red-500 rounded-lg px-5 py-2" activeOpacity={0.7}>
-                <Text className="text-white text-sm font-bold">ADD</Text>
-              </TouchableOpacity>
+              {isInCart ? (
+                <View className="flex-row items-center bg-primary rounded-lg px-3 py-2">
+                  <MaterialCommunityIcons name="check-circle" size={16} color="white" />
+                  <Text className="text-white text-sm font-bold ml-1">ADDED</Text>
+                </View>
+              ) : (
+                <TouchableOpacity onPress={() => handleOpenModal(item)} className="bg-red-500 rounded-lg px-5 py-2" activeOpacity={0.7}>
+                  <Text className="text-white text-sm font-bold">ADD</Text>
+                </TouchableOpacity>
+              )}
             </View>
           </View>
         </View>
       );
     },
-    [menuState.cartItems, menuState.wishlistItems, handleOpenModal, toggleWishlist],
+    [cartItems, menuState.cartItems, menuState.wishlistItems, handleOpenModal, toggleWishlist],
   );
 
   const DeliveryCitiesList = ({ cities }) => {
@@ -596,7 +620,7 @@ const TiffinDetails = () => {
           className="absolute bottom-0 left-0 right-0 bg-primary p-4 m-4 rounded-lg"
           onPress={() =>
             safeNavigation({
-              pathname: '/home/Cart',
+              pathname: '/screens/TakeAwayCart',
               params: {
                 restaurantId: service.id,
                 restaurantName: service.title,

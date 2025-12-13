@@ -634,10 +634,10 @@ const TakeAwayCart = () => {
       <View className="flex-1">
         <Text className="text-textprimary font-outfit-bold text-base mb-1">{item.name}</Text>
         <Text className="text-textsecondary font-outfit text-sm mb-1">
-          Item Price:- ${(item.price || 0).toFixed(2)}
+          Item Price:- ${(item.basePrice || item.price || 0).toFixed(2)}
         </Text>
         <Text className="text-primary font-outfit-bold text-sm">
-          Total Item Price:- ${subtotal.toFixed(2)}
+          Total Item Price:-  ${(item.basePrice || item.price || 0).toFixed(2)}
         </Text>
       </View>
 
