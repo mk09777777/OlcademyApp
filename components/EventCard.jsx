@@ -2,6 +2,9 @@ import React from 'react';
 import { View, Image, TouchableOpacity } from 'react-native';
 import { Text } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { normalizeImageSource } from '@/utils/eventUtils';
+
+const placeholderImage = require('@/assets/images/placeholder.png');
 
 const formatCurrency = (value) => {
   if (typeof value !== 'number') {
@@ -11,17 +14,19 @@ const formatCurrency = (value) => {
 };
 
 export default function EventCard({ event, onPress }) {
-  const coverImage = event.image || event.bannerImage || event.firmImage;
+  const coverImage = normalizeImageSource(event.image || event.bannerImage || event.firmImage, placeholderImage);
   const primaryPrice = formatCurrency(event.pricing?.general ?? event.price);
   const attendeeLabel = event.attendees ? `${event.attendees} attending` : null;
-  const eventDateLabel = event.date ? `${event.date} • ${event.startTime || event.time || ''}`.trim() : null;
+  const dateLabel = event.dateLabel || event.date;
+  const timeLabel = event.startTime || event.time || event.startTimeLabel;
+  const eventDateLabel = dateLabel ? `${dateLabel}${timeLabel ? ` • ${timeLabel}` : ''}` : null;
   const locationLabel = event.location || event.venue || event.firmName;
 
   return (
     <TouchableOpacity onPress={onPress} disabled={!onPress}>
       <View style={styles.firmCard}>
         <Image
-          source={coverImage || require('@/assets/images/placeholder.png')}
+          source={coverImage}
           style={styles.firmImage}
         />
         <View className="p-4">

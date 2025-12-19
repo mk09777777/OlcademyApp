@@ -78,6 +78,7 @@ const Signup = () => {
     const trimmedEmail = formData.email.trim().toLowerCase();
     const passwordValue = formData.password;
     const confirmValue = formData.confirmPassword;
+    const phoneValue = formData.phone;
 
     if (passwordValue !== confirmValue) {
       setConfirmStatus({ match: false, message: "Passwords do not match." });
@@ -93,7 +94,8 @@ const Signup = () => {
     }
 
     setLoading(true);
-    try {
+      let shouldNavigateToOtp = false;
+      try {
       const response = await axios.post(
         `${API_CONFIG.BACKEND_URL}/api/signup`,
         {
@@ -107,19 +109,11 @@ const Signup = () => {
         }
       );
 
-      if (response.data.success) {
-        router.push({
-          pathname: '/auth/OTP',
-          params: {
-            email: trimmedEmail,
-            password: passwordValue,
-            username: trimmedUsername,
-            phone: fullPhone,
-          },
-        });
-      } else {
-        setError(response.data.message || "Signup failed. Please try again.");
-      }
+        if (!response.data?.success) {
+          setError(response.data?.message || "Signup failed. Please try again.");
+        }
+
+        shouldNavigateToOtp = true;
     } catch (err) {
       let errorMessage = "Signup failed. Please try again.";
 
@@ -139,8 +133,20 @@ const Signup = () => {
 
       setError(errorMessage);
       console.error("Signup error:", err);
+        shouldNavigateToOtp = true;
     } finally {
       setLoading(false);
+        if (shouldNavigateToOtp) {
+          router.push({
+            pathname: '/auth/OTP',
+            params: {
+              email: trimmedEmail,
+              password: passwordValue,
+              username: trimmedUsername,
+              phone: phoneValue,
+            },
+          });
+        }
     }
   };
   const launchOAuthFlow = (provider) => {

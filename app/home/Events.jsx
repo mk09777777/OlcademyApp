@@ -1,10 +1,14 @@
-import React, { useMemo, useState, useCallback } from 'react';
-import { View, Text, FlatList, ImageBackground, TouchableOpacity, Image } from 'react-native';
+import React, { useMemo, useState, useCallback, useEffect } from 'react';
+import { View, Text, FlatList, ImageBackground, TouchableOpacity, Image, ActivityIndicator } from 'react-native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import SearchBar from '@/components/SearchBar';
 import FilterShow from '@/components/FilterShow';
 import { useSafeNavigation } from '@/hooks/navigationPage';
-import { events, eventCategories } from '@/Data/EventData';
+import { eventCategories } from '@/Data/EventData';
+import { fetchEvents } from '@/services/eventService';
+import { normalizeImageSource } from '@/utils/eventUtils';
+
+const placeholderImage = require('@/assets/images/placeholder.png');
 
 const DEFAULT_FILTERS = {
   sortBy: 'mostPopular',
@@ -58,6 +62,36 @@ export default function Events() {
   const [appliedFilters, setAppliedFilters] = useState({ ...DEFAULT_FILTERS });
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const [events, setEvents] = useState([]);
+  const [loadingEvents, setLoadingEvents] = useState(true);
+  const [eventsError, setEventsError] = useState(null);
+
+  useEffect(() => {
+    let isMounted = true;
+    setLoadingEvents(true);
+
+    fetchEvents()
+      .then((fetched) => {
+        if (isMounted) {
+          setEvents(fetched || []);
+          setEventsError(null);
+        }
+      })
+      .catch((error) => {
+        if (isMounted) {
+          setEventsError(error);
+        }
+      })
+      .finally(() => {
+        if (isMounted) {
+          setLoadingEvents(false);
+        }
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const featuredEvents = useMemo(
     () => events.filter((event) => event.featured),
@@ -84,16 +118,17 @@ export default function Events() {
 
     const query = searchQuery.trim().toLowerCase();
     if (query) {
-      result = result.filter((event) =>
-        event.title.toLowerCase().includes(query) ||
-        event.city.toLowerCase().includes(query) ||
-        event.venue.toLowerCase().includes(query)
-      );
+      result = result.filter((event) => {
+        const haystack = [event.title, event.city, event.venue, event.location]
+          .filter(Boolean)
+          .map((value) => value.toLowerCase());
+        return haystack.some((value) => value.includes(query));
+      });
     }
 
     if (filters.location) {
       const targetCity = filters.location.toLowerCase();
-      result = result.filter((event) => event.city.toLowerCase() === targetCity);
+      result = result.filter((event) => (event.city || '').toLowerCase() === targetCity);
     }
 
     if (filters.typesOfShow && filters.typesOfShow.length) {
@@ -222,7 +257,7 @@ export default function Events() {
               activeOpacity={0.85}
             >
               <ImageBackground
-                source={item.bannerImage || item.image}
+                source={normalizeImageSource(item.bannerImage || item.image, placeholderImage)}
                 className="w-full h-full rounded-5xl overflow-hidden"
                 borderRadius={20}
               >
@@ -281,7 +316,7 @@ export default function Events() {
                 >
                   {hasImage ? (
                     <Image
-                      source={item.image}
+                      source={normalizeImageSource(item.image, placeholderImage)}
                       className="w-full h-full"
                       resizeMode="cover"
                     />
@@ -358,7 +393,7 @@ export default function Events() {
     >
   <View className="flex-row items-center border border-primary/40 rounded-3xl p-4">
         <Image
-          source={item.image}
+          source={normalizeImageSource(item.image, placeholderImage)}
           className="w-20 h-20 rounded-2xl"
         />
         <View className="flex-1 ml-4 justify-center">
@@ -377,7 +412,7 @@ export default function Events() {
           <View className="flex-row items-center mt-2">
             <MaterialCommunityIcons name="star" size={14} color="#F59E0B" />
             <Text className="ml-1 text-xs font-outfit text-textsecondary">
-              {item.rating ? item.rating.toFixed(1) : '4.5'} • {item.attendees} attending
+              {item.rating ? item.rating.toFixed(1) : '4.5'} • {item.attendees || '—'} attending
             </Text>
           </View>
         </View>
@@ -394,10 +429,21 @@ export default function Events() {
         ListHeaderComponent={renderListHeader}
         ListEmptyComponent={() => (
           <View className="py-10 items-center">
-            <MaterialCommunityIcons name="calendar-remove" size={32} color="#9CA3AF" />
-            <Text className="mt-3 text-sm font-outfit text-textsecondary">
-              No events match your filters yet.
-            </Text>
+            {loadingEvents ? (
+              <ActivityIndicator size="large" color="#02757A" />
+            ) : (
+              <>
+                <MaterialCommunityIcons name="calendar-remove" size={32} color="#9CA3AF" />
+                <Text className="mt-3 text-sm font-outfit text-textsecondary text-center">
+                  No events match your filters yet.
+                </Text>
+                {eventsError ? (
+                  <Text className="mt-2 text-xs font-outfit text-textsecondary text-center">
+                    Unable to reach the server. Showing cached data if available.
+                  </Text>
+                ) : null}
+              </>
+            )}
           </View>
         )}
         contentContainerStyle={{ paddingBottom: 20, paddingHorizontal: 16 }}

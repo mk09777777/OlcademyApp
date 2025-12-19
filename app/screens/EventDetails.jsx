@@ -1,40 +1,94 @@
-import { View, Text, ImageBackground, ScrollView, TouchableOpacity, Linking } from 'react-native'
+import { View, Text, ImageBackground, ScrollView, TouchableOpacity, Linking, ActivityIndicator } from 'react-native'
 import React, { useEffect, useState } from 'react'
-import { useGlobalSearchParams, useRouter } from 'expo-router'
+import { useGlobalSearchParams } from 'expo-router'
 import { FontAwesome5, Ionicons, MaterialCommunityIcons } from '@expo/vector-icons'
 import { LinearGradient } from 'expo-linear-gradient'
 import { useSafeNavigation } from '@/hooks/navigationPage'
-import { getEventById } from '@/Data/EventData';
+import { fetchEventById } from '@/services/eventService';
+import { normalizeImageSource, transformEventPayload } from '@/utils/eventUtils';
+
+const placeholderImage = require('@/assets/images/placeholder.png');
 export default function EventDetails() {
-  const router = useRouter()
   const { eventId, event } = useGlobalSearchParams()
   const [expanded, setExpanded] = useState(false)
   const [eventDetails, setEventDetails] = useState(null)
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(null);
   const { safeNavigation } = useSafeNavigation();
   useEffect(() => {
-    if (eventId) {
-      const foundEvent = getEventById(eventId);
-      setEventDetails(foundEvent ?? null);
-      return;
-    }
+    let isMounted = true;
 
-    if (event) {
-      try {
-        const parsed = JSON.parse(event);
-        setEventDetails(parsed);
-      } catch (parseError) {
-        console.warn('Unable to parse event payload:', parseError);
-        setEventDetails(null);
+    const assignEvent = (payload) => {
+      if (!isMounted) {
+        return;
       }
-    }
+      const normalized = transformEventPayload(payload);
+      setEventDetails(normalized ?? null);
+      setLoadError(normalized ? null : new Error('Event not found'));
+    };
+
+    const hydrate = async () => {
+      if (eventId) {
+        setLoading(true);
+        try {
+          const fetched = await fetchEventById(eventId);
+          assignEvent(fetched);
+        } catch (error) {
+          console.warn('Unable to load event', error);
+          if (isMounted) {
+            setEventDetails(null);
+            setLoadError(error);
+          }
+        } finally {
+          if (isMounted) {
+            setLoading(false);
+          }
+        }
+        return;
+      }
+
+      if (event) {
+        try {
+          const parsed = JSON.parse(event);
+          assignEvent(parsed);
+        } catch (parseError) {
+          console.warn('Unable to parse event payload:', parseError);
+          if (isMounted) {
+            setEventDetails(null);
+            setLoadError(parseError);
+          }
+        }
+      }
+
+      if (isMounted) {
+        setLoading(false);
+      }
+    };
+
+    hydrate();
+
+    return () => {
+      isMounted = false;
+    };
   }, [event, eventId]);
+
+  if (loading) {
+    return (
+      <View className="flex-1 items-center justify-center bg-white">
+        <ActivityIndicator size="large" color="#02757A" />
+        <Text className="mt-3 text-base font-outfit text-textsecondary">
+          Loading event details...
+        </Text>
+      </View>
+    );
+  }
 
   if (!eventDetails) {
     return (
       <View className="flex-1 items-center justify-center bg-white">
         <MaterialCommunityIcons name="calendar-clock" size={36} color="#9CA3AF" />
         <Text className="mt-3 text-base font-outfit text-textsecondary">
-          Loading event details...
+          {loadError ? 'We could not load this event. Please try again later.' : 'Event not found.'}
         </Text>
       </View>
     );
@@ -44,11 +98,13 @@ export default function EventDetails() {
   const layoutLabel = (eventDetails.layout || '').toLowerCase();
   const seatingLabel = layoutLabel.includes('outdoor') ? 'Festival seating' : 'Reserved seating';
   const ageGuidance = eventDetails.isKidsFriendly ? 'All ages' : '16 years & above';
+  const heroImage = normalizeImageSource(eventDetails.bannerImage || eventDetails.image, placeholderImage);
+  const dateLabel = eventDetails.dateLabel || eventDetails.date;
 
   return (
     <ScrollView className="flex-1 bg-background">
       <ImageBackground 
-        source={eventDetails.bannerImage || eventDetails.image}
+        source={heroImage}
         className="h-80 justify-end"
       >
         <LinearGradient
@@ -62,7 +118,7 @@ export default function EventDetails() {
             {eventDetails.title}
           </Text>
           <Text className="text-white text-base font-outfit">
-            {eventDetails.date} | {eventDetails.startTime} - {eventDetails.endTime}
+            {dateLabel} | {eventDetails.startTime} - {eventDetails.endTime}
           </Text>
         </View>
       </ImageBackground>

@@ -10,6 +10,9 @@ import {
 } from 'react-native';
 import { MaterialIcons, FontAwesome } from '@expo/vector-icons';
 import styles from '../styles/EventPage';
+import { normalizeImageSource } from '@/utils/eventUtils';
+
+const placeholderImage = require('@/assets/images/placeholder.png');
 
 const EventDetailsModal = ({ event, visible, onClose }) => {
   const [isRegistered, setIsRegistered] = useState(false);
@@ -46,6 +49,14 @@ const EventDetailsModal = ({ event, visible, onClose }) => {
       .toUpperCase();
   };
 
+  const heroImage = normalizeImageSource(event.bannerImage || event.image, placeholderImage);
+  const dateLabel = event.dateLabel || event.date;
+  const timeWindow = event.startTime && event.endTime
+    ? `${event.startTime} - ${event.endTime}`
+    : event.startTime || event.endTime;
+  const attendeesLabel = event.attendees ? `${event.attendees} people attending` : 'Attendance info coming soon';
+  const eventTypeLabel = String(event.type || event.category || 'event').replace(/_/g, ' ');
+
   return (
     <Modal
       animationType="slide"
@@ -64,7 +75,7 @@ const EventDetailsModal = ({ event, visible, onClose }) => {
         <ScrollView style={styles.scrollContainer}>
           {/* Banner Section */}
           <View style={styles.bannerContainer}>
-            <Image source={event.image} style={styles.bannerImage} />
+            <Image source={heroImage} style={styles.bannerImage} />
             <View style={styles.overlay}>
               <View style={styles.headerContent}>
                 {event.isLive && (
@@ -75,7 +86,8 @@ const EventDetailsModal = ({ event, visible, onClose }) => {
                 )}
                 <Text style={styles.modalEventTitle}>{event.title}</Text>
                 <Text style={styles.eventDate}>
-                  {event.date} • {event.startTime} - {event.endTime}
+                  {dateLabel}
+                  {timeWindow ? ` • ${timeWindow}` : ''}
                 </Text>
               </View>
             </View>
@@ -114,7 +126,7 @@ const EventDetailsModal = ({ event, visible, onClose }) => {
             <Text style={styles.sectionTitle}>Location</Text>
             <View style={styles.locationContainer}>
               <MaterialIcons name="location-on" size={24} color="#E91E63" />
-              <Text style={styles.locationText}>{event.location}</Text>
+              <Text style={styles.locationText}>{event.location || event.venue}</Text>
             </View>
             <TouchableOpacity style={styles.mapButton} onPress={handleOpenMap}>
               <Text style={styles.mapButtonText}>Open in Maps</Text>
@@ -136,7 +148,7 @@ const EventDetailsModal = ({ event, visible, onClose }) => {
           </View>
 
           {/* Performers Section */}
-          {event.performers && (
+          {event.performers && event.performers.length > 0 && (
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Performers</Text>
               {event.performers.map((performer) => (
@@ -159,7 +171,7 @@ const EventDetailsModal = ({ event, visible, onClose }) => {
           )}
 
           {/* Schedule Section */}
-          {event.schedule && (
+          {event.schedule && event.schedule.length > 0 && (
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Schedule</Text>
               {event.schedule.map((item, index) => (
@@ -192,7 +204,7 @@ const EventDetailsModal = ({ event, visible, onClose }) => {
                 style={styles.infoIcon} 
               />
               <Text style={styles.infoText}>
-                {event.attendees} people attending
+                {attendeesLabel}
               </Text>
             </View>
             <View style={styles.infoRow}>
@@ -203,7 +215,7 @@ const EventDetailsModal = ({ event, visible, onClose }) => {
                 style={styles.infoIcon} 
               />
               <Text style={styles.infoText}>
-                Event Type: {event.type.charAt(0).toUpperCase() + event.type.slice(1)}
+                Event Type: {eventTypeLabel.charAt(0).toUpperCase() + eventTypeLabel.slice(1)}
               </Text>
             </View>
           </View>
