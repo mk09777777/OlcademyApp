@@ -1371,12 +1371,12 @@ export default function TakeAway() {
   }
 
   const fetchRestaurants = async (params = {}, isLoadMore = false) => {
-    if (!location.lat || !location.lon || (isLoadMore && !hasMore)) return []
+    if (isLoadMore && !hasMore) return [];
 
-    setLoading(true)
-    setShowProgress(true)
-    setProgress(0)
-    setError(null)
+    setLoading(true);
+    setShowProgress(true);
+    setProgress(0);
+    setError(null);
 
     const interval = setInterval(() => {
       setProgress(prev => (prev >= 90 ? prev : prev + 10))
@@ -1389,7 +1389,7 @@ export default function TakeAway() {
         radius: 5,
         limit: 20,
         cursor: isLoadMore ? cursor : null,
-        features: 'Takeaway'
+        features: 'Booking'
       }
 
       if (selectedCuisines.length > 0) {
