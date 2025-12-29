@@ -742,7 +742,7 @@ const TakeAwayCart = () => {
 
   return (
     <SafeAreaView className="flex-1 bg-background">
-      <View className="flex-row items-center justify-center w-full mt-5">
+      <View className="flex-row items-center justify-center w-full">
         <TouchableOpacity onPress={() => router.back()} className="absolute left-4 bottom-4">
           <Entypo name="chevron-left" size={24} color="black" />
         </TouchableOpacity>

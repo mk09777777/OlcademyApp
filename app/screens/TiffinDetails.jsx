@@ -414,9 +414,9 @@ const TiffinDetails = () => {
             <View className="flex-row items-center justify-between mt-auto">
               <Text className="text-base font-bold text-red-500">₹{item.price || item.basePrice || 0}</Text>
               {isInCart ? (
-                <View className="flex-row items-center bg-primary rounded-lg px-3 py-2">
-                  <MaterialCommunityIcons name="check-circle" size={16} color="white" />
-                  <Text className="text-white text-sm font-bold ml-1">ADDED</Text>
+                <View className="flex-row items-center bg-light rounded-lg px-3 py-2">
+                  <MaterialCommunityIcons name="check-circle" size={16} color="#02757A" />
+                  <Text className="text-primary text-sm font-bold ml-1">ADDED</Text>
                 </View>
               ) : (
                 <TouchableOpacity onPress={() => handleOpenModal(item)} className="bg-red-500 rounded-lg px-5 py-2" activeOpacity={0.7}>
@@ -568,7 +568,7 @@ const TiffinDetails = () => {
 
         <View className="px-5 py-4">
 
-          {/* 🔥 UPDATED ADDRESS + DISTANCE CARD */}
+          {/* UPDATED ADDRESS + DISTANCE CARD */}
           <View className="bg-white rounded-2xl p-5 mb-5 shadow-lg">
             <Text className="text-sm font-semibold text-gray-700 mb-3">
               Available In
@@ -621,7 +621,7 @@ const TiffinDetails = () => {
             </View>
           )}
 
-          {/* 🔥 TERMS & CONDITIONS — COLLAPSIBLE */}
+          {/*  TERMS & CONDITIONS — COLLAPSIBLE */}
           <View className="bg-white rounded-2xl mb-4 shadow-lg overflow-hidden">
             <TouchableOpacity
               onPress={() => setIsTermsExpanded(!isTermsExpanded)}

@@ -210,7 +210,20 @@ export default function TakeAway() {
   };
 
   const fetchRestaurants = async (params = {}, isLoadMore = false) => {
-    if (!location.lat || !location.lon || (isLoadMore && !hasMore)) return [];
+    // Use userLocation as fallback if location is not properly set
+    const lat = location.lat || userLocation.latitude;
+    const lon = location.lon || userLocation.longitude;
+
+    // if (!lat || !lon || (isLoadMore && !hasMore)) {
+    //   console.log('Missing location data:', { lat, lon, location, userLocation });
+    //   setError('Location not available. Please enable location services.');
+    //   return [];
+    
+    console.log('Location check:', { lat, lon, location, userLocation });
+    
+    if (isLoadMore && !hasMore) {
+      return [];
+    }
 
     setLoading(true);
     setShowProgress(true);
@@ -223,13 +236,15 @@ export default function TakeAway() {
 
     try {
       const baseParams = {
-        lat: userLocation.latitude,
-        lon: userLocation.longitude,
+        lat: lat,
+        lon: lon,
         radius: 5,
         limit: 20,
         cursor: isLoadMore ? cursor : null,
         features: 'Takeaway'
       };
+      
+      console.log('Fetching restaurants with params:', baseParams);
 
       if (selectedCuisines.length > 0) {
         baseParams.cuisines = selectedCuisines.join(',');
@@ -265,9 +280,13 @@ export default function TakeAway() {
       }
 
       const finalParams = { ...baseParams, ...params };
+      console.log('Final API params:', finalParams);
+      console.log('API URL:', `${Api_url}/firm/getnearbyrest?feature=Takeaway`);
+      
       const response = await axios.get(`${Api_url}/firm/getnearbyrest?feature=Takeaway`, {
         params: finalParams,
-        withCredentials: true
+        withCredentials: true,
+        timeout: 15000 // 15 second timeout
       });
 
       if (response.data.success) {
@@ -299,6 +318,21 @@ export default function TakeAway() {
       }
     } catch (error) {
       console.error('Error fetching firms:', error);
+      console.error('Error details:', error.response?.data || error.message);
+      
+      let errorMessage = 'Failed to load restaurants';
+      if (error.code === 'ECONNABORTED') {
+        errorMessage = 'Request timed out. Please check your internet connection.';
+      } else if (error.response?.status === 404) {
+        errorMessage = 'No restaurants found in your area';
+      } else if (error.response?.status >= 500) {
+        errorMessage = 'Server error. Please try again later.';
+      } else if (!error.response) {
+        errorMessage = 'Network error. Please check your internet connection.';
+      }
+      
+      setError(errorMessage);
+      
       if (!isLoadMore) {
         setNotFound(true);
         removeNotFound();
@@ -328,14 +362,19 @@ export default function TakeAway() {
   const fetchInitialData = async () => {
     setIsInitialLoading(true);
     try {
-      const locationResponse = await axios.get(`${Api_url}/api/location`);
+      console.log('Fetching initial location data...');
+      const locationResponse = await axios.get(`${Api_url}/api/location`, {
+        timeout: 10000
+      });
+      console.log('Location response:', locationResponse.data);
+      
       const { city, state, country, lat, lon } = locationResponse.data;
       setLocation({
         city: city || 'KIIT University',
         state: state ? `${city}, ${state}` : 'Patia, Bhubaneshwar',
         country,
-        lat,
-        lon
+        lat: lat || userLocation.latitude,
+        lon: lon || userLocation.longitude
       });
 
       const firmsData = await fetchRestaurants();
@@ -349,15 +388,24 @@ export default function TakeAway() {
       await sortPopularData();
     } catch (error) {
       console.error('Error in initial data fetch:', error);
-      setError('Failed to detect location.');
+      console.error('Location fetch error details:', error.response?.data || error.message);
+      
+      // Use fallback location with userLocation coordinates
       setLocation({
         city: 'KIIT University',
         state: 'Patia, Bhubaneshwar',
         country: '',
-        lat: '',
-        lon: ''
+        lat: userLocation.latitude,
+        lon: userLocation.longitude
       });
-      await fetchRestaurants();
+      
+      // Try to fetch restaurants with fallback location
+      try {
+        await fetchRestaurants();
+      } catch (fetchError) {
+        console.error('Failed to fetch restaurants with fallback location:', fetchError);
+        setError('Unable to load restaurants. Please check your internet connection and try again.');
+      }
       setRandomItems([]);
     } finally {
       setIsInitialLoading(false);
@@ -783,6 +831,21 @@ export default function TakeAway() {
               </View>
             </Modal>
           </View>
+
+          {error && (
+            <View className="p-4 bg-red-50 border border-red-200 rounded-lg mx-4 mb-4">
+              <Text className="text-red-600 text-sm font-outfit-medium text-center">{error}</Text>
+              <TouchableOpacity 
+                className="mt-2 bg-red-600 py-2 px-4 rounded-lg"
+                onPress={() => {
+                  setError(null);
+                  fetchInitialData();
+                }}
+              >
+                <Text className="text-white text-sm font-outfit-medium text-center">Retry</Text>
+              </TouchableOpacity>
+            </View>
+          )}
 
           {showProgress && (
             <View className="h-1 bg-gray-200 rounded-full overflow-hidden">
