@@ -32,6 +32,14 @@ yarn-error.*
 # local env files
 .env*.local
 
+# local env files (never commit)
+.env
+.env.*
+!.env.example
+
+# logs (never commit)
+*.log
+
 # typescript
 *.tsbuildinfo
 package-lock.json

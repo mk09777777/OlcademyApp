@@ -4,6 +4,7 @@ import axios from 'axios';
 // import { NativeEventEmitter } from 'react-native';
 import { API_CONFIG } from '../config/apiConfig';
 import EventEmitter from 'eventemitter3';
+import { log, error as logError } from '../utils/logger';
 const cartEventEmitter = new EventEmitter();
 
 const CartContext = createContext();
@@ -37,23 +38,23 @@ const CartProvider = ({ children }) => {
     });
 
     instance.interceptors.request.use(config => {
-      console.log('Request:', config.method?.toUpperCase(), config.url, config.data);
+      log('Request:', config.method?.toUpperCase(), config.url);
       return config;
     }, error => {
-      console.error('Request Error:', error);
+      logError('Request Error:', error);
       return Promise.reject(error);
     });
 
     instance.interceptors.response.use(response => {
-      console.log('Response:', response.data);
+      log('Response:', response.status, response.config?.url);
       return response;
     }, error => {
       if (error.response) {
-        console.error('Response Error:', error.response.status, error.response.data);
+        logError('Response Error:', error.response.status);
       } else if (error.request) {
-        console.error('No Response Received:', error.request);
+        logError('No Response Received');
       } else {
-        console.error('Request Setup Error:', error.message);
+        logError('Request Setup Error:', error.message);
       }
       return Promise.reject(error);
     });
@@ -92,7 +93,7 @@ const CartProvider = ({ children }) => {
           };
           return acc;
         }, {}) || {};
-console.log('caet',response.data)
+  log('Cart response received');
         setCart(cartItems);
         setCarts(response.data);
         setCartCount(response.data.items?.reduce((sum, item) => sum + item.quantity, 0) || 0);
@@ -119,7 +120,7 @@ console.log('caet',response.data)
         }
       }
     } catch (error) {
-      console.error("Error fetching cart:", error);
+      logError("Error fetching cart:", error);
       setError(error);
     } finally {
       setLoading(false);
@@ -134,7 +135,7 @@ console.log('caet',response.data)
         setCartCount(response.data.count);
       }
     } catch (error) {
-      console.error("Error calculating cart count:", error);
+      logError("Error calculating cart count:", error);
       setError(error);
     }
   }, [api]);

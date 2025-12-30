@@ -6,7 +6,9 @@ import { Alert } from 'react-native';
 // import { calculateDistance } from '../utils/helpers';
 // import { usePreferences } from '../context/PreferencesContext';
 // import { useFavorites } from '../context/FavoritesContext';
-import { API_SORT, API_ERRORS } from '../config/api';
+import { API_BASE_URL, API_ERRORS } from '../config/api';
+
+const API_BASE = String(API_BASE_URL ?? '').replace(/\/+$/, '');
 
 const useTiffinHome = () => {
   // Search and Filters
@@ -60,14 +62,22 @@ const useTiffinHome = () => {
       setIsLoading(true);
       setError(null);
       // Load tiffins from API
-      const response = await fetch('http://localhost:8000/api/firms');
+      const response = await fetch(`${API_BASE}/api/firms`, {
+        method: 'GET',
+        credentials: 'include',
+        headers: { Accept: 'application/json' },
+      });
       if (!response.ok) {
         throw new Error('Failed to fetch tiffins');
       }
       const tiffins = await response.json();
 
       // Load user preferences
-      const preferencesResponse = await fetch('http://localhost:8000/api/user/preferences');
+      const preferencesResponse = await fetch(`${API_BASE}/api/user/preferences`, {
+        method: 'GET',
+        credentials: 'include',
+        headers: { Accept: 'application/json' },
+      });
       if (preferencesResponse.ok) {
         const preferences = await preferencesResponse.json();
         setLocalDietaryPreferencesOptions(preferences.dietaryPreferences || []);
@@ -76,7 +86,11 @@ const useTiffinHome = () => {
       }
 
       // Load favorites
-      const favoritesResponse = await fetch('http://localhost:8000/api/user/favorites');
+      const favoritesResponse = await fetch(`${API_BASE}/api/user/favorites`, {
+        method: 'GET',
+        credentials: 'include',
+        headers: { Accept: 'application/json' },
+      });
       if (favoritesResponse.ok) {
         const favorites = await favoritesResponse.json();
         setFavoriteServices(favorites);
@@ -121,7 +135,11 @@ const useTiffinHome = () => {
     setSearchQuery(query);
     if (query.length > 0) {
       try {
-        const results = await fetch(`http://localhost:8000/api/tiffins?search=${query}`);
+        const results = await fetch(`${API_BASE}/api/tiffins?search=${encodeURIComponent(query)}`, {
+          method: 'GET',
+          credentials: 'include',
+          headers: { Accept: 'application/json' },
+        });
         if (!results.ok) {
           throw new Error('Failed to fetch search results');
         }
@@ -157,8 +175,10 @@ const useTiffinHome = () => {
 
   const toggleFavorite = useCallback(async (id) => {
     try {
-      const response = await fetch(`http://localhost:8000/api/user/favorites/${id}`, {
-        method: 'POST'
+      const response = await fetch(`${API_BASE}/api/user/favorites/${encodeURIComponent(String(id))}`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: { Accept: 'application/json' },
       });
       if (!response.ok) {
         throw new Error('Failed to toggle favorite');
@@ -200,11 +220,13 @@ const useTiffinHome = () => {
 
   const saveUserPreferences = useCallback(async (preferences) => {
     try {
-      const response = await fetch('http://localhost:8000/api/user/preferences', {
+      const response = await fetch(`${API_BASE}/api/user/preferences`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify(preferences)
       });
       if (!response.ok) {
