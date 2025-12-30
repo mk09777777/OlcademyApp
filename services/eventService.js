@@ -1,4 +1,4 @@
-import { api } from '@/config/httpClient';
+import { api, normalizeApiError } from '@/config/httpClient';
 import { API_ENDPOINTS } from '@/config/api';
 import { transformEventPayload, transformEvents } from '@/utils/eventUtils';
 import { events as fallbackEvents } from '@/Data/EventData';
@@ -53,7 +53,8 @@ const pickCollection = (payload) => {
 };
 
 const withFallbackEvents = (error) => {
-  console.warn('[eventService] Falling back to static events', error?.message);
+  const normalizedError = normalizeApiError(error);
+  console.warn('[eventService] Falling back to static events', normalizedError);
   const normalized = transformEvents(fallbackEvents);
   cacheEvents(normalized);
   return normalized;
@@ -94,7 +95,8 @@ export const fetchEventById = async (id) => {
 
     return normalized;
   } catch (error) {
-    console.warn(`[eventService] Unable to fetch event ${id}`, error?.message);
+    const normalizedError = normalizeApiError(error);
+    console.warn(`[eventService] Unable to fetch event ${id}`, normalizedError);
     const fallback = fallbackEvents.find((event) => String(event.id) === cacheKey);
     const normalizedFallback = fallback ? transformEventPayload(fallback) : null;
 
