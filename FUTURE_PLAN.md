@@ -7,9 +7,9 @@ This roadmap tracks the production-readiness remediation work for OlcademyApp, e
 - ✅ Phase 1: Router filesystem gaps (complete)
 - ✅ Phase 2: Production-host correctness + notifications delete fix (complete)
 - ✅ Phase 3: Remaining hardcoded host cleanup (complete)
-- ⏳ Phase 4: Runtime stability & lint/build blockers (next)
-- ⏳ Phase 5: Observability, performance, and log hygiene (pending)
-- ⏳ Phase 6: Release hardening and pre-prod checklist (pending)
+- ✅ Phase 4: Runtime stability & lint/build blockers (complete)
+- ✅ Phase 5: Observability, performance, and log hygiene (complete)
+- ✅ Phase 6: Release hardening and pre-prod checklist (complete)
 
 ## Phase 4 — Runtime Stability & Lint/Build Blockers
 Goal: remove production crashers and unblock `expo lint` / bundling errors with minimal diffs.
