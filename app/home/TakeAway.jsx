@@ -49,6 +49,58 @@ export default function TakeAway() {
   const [randomData, setRandomData] = useState([])
   const { safeNavigation } = useSafeNavigation();
 
+  const isMountedRef = useRef(false);
+  const pendingTimeoutsRef = useRef(new Set());
+  const restaurantsControllerRef = useRef(null);
+  const restaurantsRequestIdRef = useRef(0);
+  const loadMoreControllerRef = useRef(null);
+  const loadMoreRequestIdRef = useRef(0);
+  const searchControllerRef = useRef(null);
+  const searchRequestIdRef = useRef(0);
+  const vegControllerRef = useRef(null);
+  const vegRequestIdRef = useRef(0);
+  const initialLoadControllerRef = useRef(null);
+
+  const safeTimeout = useCallback((fn, ms) => {
+    const id = setTimeout(() => {
+      pendingTimeoutsRef.current.delete(id);
+      fn();
+    }, ms);
+    pendingTimeoutsRef.current.add(id);
+    return id;
+  }, []);
+
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+
+      pendingTimeoutsRef.current.forEach((id) => clearTimeout(id));
+      pendingTimeoutsRef.current.clear();
+
+      if (restaurantsControllerRef.current) {
+        restaurantsControllerRef.current.abort();
+        restaurantsControllerRef.current = null;
+      }
+      if (loadMoreControllerRef.current) {
+        loadMoreControllerRef.current.abort();
+        loadMoreControllerRef.current = null;
+      }
+      if (searchControllerRef.current) {
+        searchControllerRef.current.abort();
+        searchControllerRef.current = null;
+      }
+      if (vegControllerRef.current) {
+        vegControllerRef.current.abort();
+        vegControllerRef.current = null;
+      }
+      if (initialLoadControllerRef.current) {
+        initialLoadControllerRef.current.abort();
+        initialLoadControllerRef.current = null;
+      }
+    };
+  }, [safeTimeout]);
+
   const [favoriteServices, setFavoriteServices] = useState([]);
   const [recentlyViewData, setRecentlyViewdData] = useState([])
   const [popularData, setPopularData] = useState([])
@@ -225,12 +277,25 @@ export default function TakeAway() {
       return [];
     }
 
-    setLoading(true);
-    setShowProgress(true);
-    setProgress(0);
-    setError(null);
+    const requestId = isLoadMore ? ++loadMoreRequestIdRef.current : ++restaurantsRequestIdRef.current;
+    const controller = new AbortController();
+    if (isLoadMore) {
+      if (loadMoreControllerRef.current) loadMoreControllerRef.current.abort();
+      loadMoreControllerRef.current = controller;
+    } else {
+      if (restaurantsControllerRef.current) restaurantsControllerRef.current.abort();
+      restaurantsControllerRef.current = controller;
+    }
+
+    if (isMountedRef.current) {
+      setLoading(true);
+      setShowProgress(true);
+      setProgress(0);
+      setError(null);
+    }
 
     const interval = setInterval(() => {
+      if (!isMountedRef.current) return;
       setProgress(prev => (prev >= 90 ? prev : prev + 10));
     }, 100);
 
@@ -286,11 +351,19 @@ export default function TakeAway() {
       const response = await axios.get(`${Api_url}/firm/getnearbyrest?feature=Takeaway`, {
         params: finalParams,
         withCredentials: true,
+        signal: controller.signal,
         timeout: 15000 // 15 second timeout
       });
 
       if (response.data.success) {
         const newData = response.data.data || [];
+        if (!isMountedRef.current) return [];
+        if (isLoadMore) {
+          if (requestId !== loadMoreRequestIdRef.current) return [];
+        } else {
+          if (requestId !== restaurantsRequestIdRef.current) return [];
+        }
+
         setRandomData(newData);
 
         const restaurantsWithDistance = newData.map(restaurant => {
@@ -311,12 +384,18 @@ export default function TakeAway() {
       } else {
         console.error('API error:', response.data.message);
         if (!isLoadMore) {
-          setNotFound(true);
-          removeNotFound();
+          if (isMountedRef.current) {
+            setNotFound(true);
+            removeNotFound();
+          }
         }
         return [];
       }
     } catch (error) {
+      if (error?.name === 'CanceledError' || error?.name === 'AbortError' || error?.code === 'ERR_CANCELED') {
+        return [];
+      }
+
       console.error('Error fetching firms:', error);
       console.error('Error details:', error.response?.data || error.message);
       
@@ -331,51 +410,80 @@ export default function TakeAway() {
         errorMessage = 'Network error. Please check your internet connection.';
       }
       
-      setError(errorMessage);
+      if (isMountedRef.current) {
+        setError(errorMessage);
+      }
       
       if (!isLoadMore) {
-        setNotFound(true);
-        removeNotFound();
+        if (isMountedRef.current) {
+          setNotFound(true);
+          removeNotFound();
+        }
       }
       if (isLoadMore) {
-        setIsLoadingMore(false);
+        if (isMountedRef.current) {
+          setIsLoadingMore(false);
+        }
       }
       return [];
     } finally {
       clearInterval(interval);
-      setProgress(100);
-      setTimeout(() => {
-        setLoading(false);
-        setShowProgress(false);
-        setRefreshing(false);
-      }, 300);
+      if (isMountedRef.current) {
+        setProgress(100);
+        safeTimeout(() => {
+          if (!isMountedRef.current) return;
+
+          // Only let the latest request flip loading flags.
+          if (isLoadMore) {
+            if (requestId !== loadMoreRequestIdRef.current) return;
+          } else {
+            if (requestId !== restaurantsRequestIdRef.current) return;
+          }
+
+          setLoading(false);
+          setShowProgress(false);
+          setRefreshing(false);
+        }, 300);
+      }
     }
   };
 
   const removeNotFound = async () => {
-    setTimeout(async () => {
+    safeTimeout(async () => {
+      if (!isMountedRef.current) return;
       setNotFound(false);
       await fetchRestaurants({}, false, false);
     }, 1500);
   };
 
   const fetchInitialData = async () => {
-    setIsInitialLoading(true);
+    if (initialLoadControllerRef.current) {
+      initialLoadControllerRef.current.abort();
+    }
+    const controller = new AbortController();
+    initialLoadControllerRef.current = controller;
+
+    if (isMountedRef.current) {
+      setIsInitialLoading(true);
+    }
     try {
       console.log('Fetching initial location data...');
       const locationResponse = await axios.get(`${Api_url}/api/location`, {
-        timeout: 10000
+        timeout: 10000,
+        signal: controller.signal,
       });
       console.log('Location response:', locationResponse.data);
       
       const { city, state, country, lat, lon } = locationResponse.data;
-      setLocation({
-        city: city || 'KIIT University',
-        state: state ? `${city}, ${state}` : 'Patia, Bhubaneshwar',
-        country,
-        lat: lat || userLocation.latitude,
-        lon: lon || userLocation.longitude
-      });
+      if (isMountedRef.current) {
+        setLocation({
+          city: city || 'KIIT University',
+          state: state ? `${city}, ${state}` : 'Patia, Bhubaneshwar',
+          country,
+          lat: lat || userLocation.latitude,
+          lon: lon || userLocation.longitude
+        });
+      }
 
       const firmsData = await fetchRestaurants();
       if (firmsData && firmsData.length > 0) {
@@ -387,28 +495,39 @@ export default function TakeAway() {
       await FetchRecentlyViewData();
       await sortPopularData();
     } catch (error) {
+      if (error?.name === 'CanceledError' || error?.name === 'AbortError' || error?.code === 'ERR_CANCELED') {
+        return;
+      }
       console.error('Error in initial data fetch:', error);
       console.error('Location fetch error details:', error.response?.data || error.message);
       
       // Use fallback location with userLocation coordinates
-      setLocation({
-        city: 'KIIT University',
-        state: 'Patia, Bhubaneshwar',
-        country: '',
-        lat: userLocation.latitude,
-        lon: userLocation.longitude
-      });
+      if (isMountedRef.current) {
+        setLocation({
+          city: 'KIIT University',
+          state: 'Patia, Bhubaneshwar',
+          country: '',
+          lat: userLocation.latitude,
+          lon: userLocation.longitude
+        });
+      }
       
       // Try to fetch restaurants with fallback location
       try {
         await fetchRestaurants();
       } catch (fetchError) {
         console.error('Failed to fetch restaurants with fallback location:', fetchError);
-        setError('Unable to load restaurants. Please check your internet connection and try again.');
+        if (isMountedRef.current) {
+          setError('Unable to load restaurants. Please check your internet connection and try again.');
+        }
       }
-      setRandomItems([]);
+      if (isMountedRef.current) {
+        setRandomItems([]);
+      }
     } finally {
-      setIsInitialLoading(false);
+      if (isMountedRef.current) {
+        setIsInitialLoading(false);
+      }
     }
   };
 
@@ -463,16 +582,28 @@ export default function TakeAway() {
   useEffect(() => {
     const searchRestaurants = async () => {
       if (query.trim() === '') {
+        if (searchControllerRef.current) {
+          searchControllerRef.current.abort();
+          searchControllerRef.current = null;
+        }
         setSearchResults([]);
         setIsSearching(false);
         return;
       }
 
       setIsSearching(true);
+      const requestId = ++searchRequestIdRef.current;
+
+      if (searchControllerRef.current) {
+        searchControllerRef.current.abort();
+      }
+      const controller = new AbortController();
+      searchControllerRef.current = controller;
       try {
         const response = await axios.get(`${Api_url}/search`, {
           params: { query },
-          withCredentials: true
+          withCredentials: true,
+          signal: controller.signal,
         });
 
         // Handle both direct search results and recommended restaurants
@@ -520,17 +651,27 @@ export default function TakeAway() {
           a.findIndex(t => (t._id === v._id)) === i
         );
 
+        if (!isMountedRef.current || requestId !== searchRequestIdRef.current) return;
         setSearchResults(uniqueResults);
       } catch (error) {
+        if (error?.name === 'CanceledError' || error?.name === 'AbortError' || error?.code === 'ERR_CANCELED') return;
         console.error('Error searching restaurants:', error);
+        if (!isMountedRef.current || requestId !== searchRequestIdRef.current) return;
         setSearchResults([]);
       } finally {
+        if (!isMountedRef.current || requestId !== searchRequestIdRef.current) return;
         setIsSearching(false);
       }
     };
 
     const debounceTimer = setTimeout(searchRestaurants, 500);
-    return () => clearTimeout(debounceTimer);
+    return () => {
+      clearTimeout(debounceTimer);
+      if (searchControllerRef.current) {
+        searchControllerRef.current.abort();
+        searchControllerRef.current = null;
+      }
+    };
   }, [query]);
 
   useEffect(() => {
@@ -647,15 +788,26 @@ export default function TakeAway() {
 
   const sortVegData = useCallback(async () => {
     if (isVegOnly) {
-      setLoadingVegData(true);
+      const requestId = ++vegRequestIdRef.current;
+      if (vegControllerRef.current) {
+        vegControllerRef.current.abort();
+      }
+      const controller = new AbortController();
+      vegControllerRef.current = controller;
+
+      if (isMountedRef.current) {
+        setLoadingVegData(true);
+      }
       const MIN_LOADING_TIME = 1000; // 3 seconds
       const startTime = Date.now();
 
       try {
         const response = await axios.get(`${Api_url}/firm/getnearbyrest?cuisines=Vegetarian`, {
-          withCredentials: true
+          withCredentials: true,
+          signal: controller.signal,
         });
 
+        if (!isMountedRef.current || requestId !== vegRequestIdRef.current) return;
         setVegData(response.data.data);
 
         // Calculate elapsed time
@@ -664,34 +816,49 @@ export default function TakeAway() {
 
         if (remaining > 0) {
           // Wait remaining time before hiding loading
-          setTimeout(() => {
+          safeTimeout(() => {
+            if (!isMountedRef.current || requestId !== vegRequestIdRef.current) return;
             setLoadingVegData(false);
           }, remaining);
         } else {
-          setLoadingVegData(false);
+          if (isMountedRef.current && requestId === vegRequestIdRef.current) {
+            setLoadingVegData(false);
+          }
         }
       } catch (error) {
+        if (error?.name === 'CanceledError' || error?.name === 'AbortError' || error?.code === 'ERR_CANCELED') {
+          return;
+        }
         console.error('Error fetching vegetarian data:', error);
 
         const elapsed = Date.now() - startTime;
         const remaining = MIN_LOADING_TIME - elapsed;
 
         if (remaining > 0) {
-          setTimeout(() => {
+          safeTimeout(() => {
+            if (!isMountedRef.current || requestId !== vegRequestIdRef.current) return;
             setLoadingVegData(false);
           }, remaining);
         } else {
-          setLoadingVegData(false);
+          if (isMountedRef.current && requestId === vegRequestIdRef.current) {
+            setLoadingVegData(false);
+          }
         }
       }
     }
     else {
-      setLoadingVegData(false);
-      setVegData([])
+      if (vegControllerRef.current) {
+        vegControllerRef.current.abort();
+        vegControllerRef.current = null;
+      }
+      if (isMountedRef.current) {
+        setLoadingVegData(false);
+        setVegData([])
+      }
     }
 
 
-  }, [isVegOnly]);
+  }, [isVegOnly, safeTimeout]);
 
   const HandleUploadVegMode = async () => {
     try {

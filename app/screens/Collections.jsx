@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState, useCallback } from 'react';
+import React, { useEffect, useMemo, useState, useCallback, useRef } from 'react';
 import {
   View,
   Text,
@@ -55,6 +55,27 @@ export default function Collections() {
   const [offerFilter, setOfferFilter] = useState(false);
   const navigation = useNavigation();
   const { safeNavigation } = useSafeNavigation();
+
+  const isMountedRef = useRef(false);
+  const collectionRequestRef = useRef(null);
+  const collectionRequestIdRef = useRef(0);
+  const searchRequestRef = useRef(null);
+  const searchRequestIdRef = useRef(0);
+
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+      if (collectionRequestRef.current) {
+        collectionRequestRef.current.abort();
+        collectionRequestRef.current = null;
+      }
+      if (searchRequestRef.current) {
+        searchRequestRef.current.abort();
+        searchRequestRef.current = null;
+      }
+    };
+  }, []);
 
   const [filter, setFilter] = useState({
     sort: "",
@@ -172,10 +193,21 @@ export default function Collections() {
   };
   // Fetch collection data
   const fetchCollectionData = async () => {
+    const requestId = ++collectionRequestIdRef.current;
+    if (collectionRequestRef.current) {
+      collectionRequestRef.current.abort();
+    }
+    const controller = new AbortController();
+    collectionRequestRef.current = controller;
+
     try {
       setIsLoading(true);
-      const response = await axios.get(`${Api_url}/collections/by-slug/${encodeURIComponent(collectionName)}`);
+      const response = await axios.get(
+        `${Api_url}/collections/by-slug/${encodeURIComponent(collectionName)}`,
+        { signal: controller.signal }
+      );
       if (response.data) {
+        if (!isMountedRef.current || requestId !== collectionRequestIdRef.current) return;
         setCollectionData(response.data);
         const collectionFirms = response.data.restaurants.map(restaurant => ({
           _id: restaurant._id,
@@ -193,8 +225,10 @@ export default function Collections() {
         setFirms(collectionFirms);
       }
     } catch (error) {
+      if (error?.name === 'CanceledError' || error?.name === 'AbortError' || error?.code === 'ERR_CANCELED') return;
       console.error('Error fetching collection data:', error);
     } finally {
+      if (!isMountedRef.current || requestId !== collectionRequestIdRef.current) return;
       setIsLoading(false);
     }
   };
@@ -209,19 +243,39 @@ export default function Collections() {
   // Initial load
   useEffect(() => {
     fetchCollectionData();
+    return () => {
+      if (collectionRequestRef.current) {
+        collectionRequestRef.current.abort();
+        collectionRequestRef.current = null;
+      }
+    };
   }, [collectionName]);
 
   useEffect(() => {
     const searchRestaurants = async () => {
       if (!query.trim()) {
+        if (searchRequestRef.current) {
+          searchRequestRef.current.abort();
+          searchRequestRef.current = null;
+        }
         setSearchResults([]);
         setIsSearching(false);
         return;
       }
       setIsSearching(true);
 
+      const requestId = ++searchRequestIdRef.current;
+      if (searchRequestRef.current) {
+        searchRequestRef.current.abort();
+      }
+      const controller = new AbortController();
+      searchRequestRef.current = controller;
+
       try {
-        const response = await axios.get(`${Api_url}/search`, { params: { query } });
+        const response = await axios.get(`${Api_url}/search`, {
+          params: { query },
+          signal: controller.signal,
+        });
         const results = response.data?.restaurants || [];
 
         const formattedResults = results.map((restaurant) => ({
@@ -236,11 +290,15 @@ export default function Collections() {
           },
         }));
 
+        if (!isMountedRef.current || requestId !== searchRequestIdRef.current) return;
         setSearchResults(formattedResults);
       } catch (error) {
+        if (error?.name === 'CanceledError' || error?.name === 'AbortError' || error?.code === 'ERR_CANCELED') return;
         console.error('Error searching restaurants:', error);
+        if (!isMountedRef.current || requestId !== searchRequestIdRef.current) return;
         setSearchResults([]);
       } finally {
+        if (!isMountedRef.current || requestId !== searchRequestIdRef.current) return;
         setIsSearching(false);
       }
     };
