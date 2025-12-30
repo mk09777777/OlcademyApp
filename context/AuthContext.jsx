@@ -4,6 +4,7 @@ import { router } from 'expo-router';
 import { API_CONFIG } from '../config/apiConfig';
 import axios from 'axios';
 import { log, warn, error as logError } from '../utils/logger';
+import { shouldLogoutOnAuthFailure } from '../utils/authBootstrapDecision';
 const api = axios.create({
 
   baseURL: API_CONFIG.BACKEND_URL,
@@ -48,7 +49,7 @@ export const AuthProvider = ({ children }) => {
             }
           } catch (apiError) {
             const status = apiError?.response?.status;
-            if (status === 401 || status === 403) {
+            if (shouldLogoutOnAuthFailure(status)) {
               log('API auth rejected, clearing auth:', apiError.message);
               await AsyncStorage.removeItem('userData');
               setIsAuthenticated(false);
