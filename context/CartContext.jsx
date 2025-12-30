@@ -284,21 +284,35 @@ const CartProvider = ({ children }) => {
   useEffect(() => {
     fetchCart();
   }, [fetchCart]);
+
   const clearCart = useCallback(() => {
-    setCart({
+    // Keep `cart` as the same productId-keyed map shape used everywhere else.
+    setCart({});
+    setCartCount(0);
+
+    // Reset derived fee/tax state so totals are consistent immediately after clear.
+    setTaxDetails([]);
+    setGstAmount([]);
+    setDeliveryFee(0);
+    setPlatformFee(0);
+
+    // Keep `carts` shape safe for consumers that read totals from the raw payload.
+    setCarts({
       items: [],
-      subtotal: 0,
       deliveryFee: 0,
-      platformFee: 0,
-      gstCharges: 0,
-      totalPrice: 0,
-    })
-    try {
-      api.get('/cart/clear');
-    } catch (error) {
-      console.error("Error clearing cart on backend:", error);
-    }
-  }, []);
+      overallPlatformFee: 0,
+      overallOtherTaxes: 0,
+      overallOtherCharges: 0,
+      allOtherChargesDetails: [],
+      taxDetails: [],
+    });
+
+    setRestaurantInfo({ id: '', name: '', address: '', image: '' });
+
+    api.get('/cart/clear').catch((err) => {
+      console.error("Error clearing cart on backend:", err);
+    });
+  }, [api]);
 
   const contextValue = useMemo(() => ({
     cart,
