@@ -297,7 +297,7 @@ module.exports = [
     category: 'Notifications',
     name: 'Delete Notification Entry',
     method: 'DELETE',
-    url: (ctx) => `/api/deleteNotificatonsInfo/${ctx.env.TEST_NOTIFICATION_ID}`,
+    url: (ctx) => `/api/deleteNotificationsInfo/${ctx.env.TEST_NOTIFICATION_ID}`,
     skipIf: requireEnv('TEST_NOTIFICATION_ID', 'Set TEST_NOTIFICATION_ID to delete a notification.'),
     okStatuses: [200, 204, 400, 401, 403, 404]
   },

@@ -90,6 +90,26 @@ export default function NotificationPage() {
   const navigation = useNavigation();
   const { safeNavigation } = useSafeNavigation();
 
+  const baseUrl = String(API_CONFIG.BACKEND_URL).replace(/\/+$/, '');
+
+  const deleteNotification = async (id) => {
+    const safeId = encodeURIComponent(String(id));
+
+    try {
+      await axios.delete(`${baseUrl}/api/deleteNotificationsInfo/${safeId}`, {
+        withCredentials: true,
+      });
+      return;
+    } catch (error) {
+      const status = error?.response?.status;
+      if (status !== 404) throw error;
+    }
+
+    await axios.delete(`${baseUrl}/api/deleteNotificatonsInfo/${safeId}`, {
+      withCredentials: true,
+    });
+  };
+
   useEffect(() => {
     navigation.setOptions({ headerTitle: "Notifications" });
   }, [navigation]);
@@ -117,9 +137,7 @@ export default function NotificationPage() {
 
   const handleDeleteNotifications = async (id) => {
     try {
-      await axios.delete(`${API_CONFIG.BACKEND_URL}/api/deleteNotificatonsInfo/${id}`, {
-        withCredentials: true,
-      });
+      await deleteNotification(id);
       setNotifications((prev) => prev.filter((item) => item._id !== id));
       console.log("Notification deleted successfully", id);
     } catch (error) {
@@ -130,9 +148,7 @@ export default function NotificationPage() {
   const clearAllNotifications = async () => {
     try {
       const deletePromises = notifications.map((item) =>
-        axios.delete(`${API_CONFIG.BACKEND_URL}/api/deleteNotificatonsInfo/${item._id}`, {
-          withCredentials: true,
-        })
+        deleteNotification(item._id)
       );
       await Promise.all(deletePromises);
       setNotifications([]);
