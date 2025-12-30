@@ -5,6 +5,7 @@ import * as Notifications from 'expo-notifications';
 import Constants from 'expo-constants';
 import { useFocusEffect } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { log, error as logError } from '../utils/logger';
 
 // Check if running in development build or Expo Go
 const isExpoGo = Constants.appOwnership === 'expo';
@@ -14,7 +15,7 @@ export default function NotificationModal({ toggle }) {
   const checkAndRequestPermission = async () => {
     try {
       if (isExpoGo) {
-        console.log('📱 Running in Expo Go - notifications limited');
+        log('📱 Running in Expo Go - notifications limited');
         await AsyncStorage.setItem('notification_permission', 'limited');
         toggle();
         return;
@@ -23,23 +24,23 @@ export default function NotificationModal({ toggle }) {
       const { status: existingStatus } = await Notifications.getPermissionsAsync();
 
       if (existingStatus === 'granted') {
-        console.log('✅ Notification permission already granted.');
+        log('✅ Notification permission already granted.');
         await AsyncStorage.setItem('notification_permission', 'granted');
         toggle(); 
       } else {
-        console.log('🔔 Requesting notification permission...');
+        log('🔔 Requesting notification permission...');
         const { status: requestedStatus } = await Notifications.requestPermissionsAsync();
 
         if (requestedStatus === 'granted') {
-          console.log('✅ Notification permission granted!');
+          log('✅ Notification permission granted!');
           await AsyncStorage.setItem('notification_permission', 'granted');
           toggle(); 
         } else {
-          console.log('❌ Notification permission denied.');
+          log('❌ Notification permission denied.');
         }
       }
     } catch (error) {
-      console.error('❌ Error handling notification permission:', error);
+      logError('❌ Error handling notification permission:', error);
     }
   };
 
@@ -50,7 +51,7 @@ export default function NotificationModal({ toggle }) {
   
       toggle();
     } catch (error) {
-      console.error('Error dismissing notification modal:', error);
+      logError('Error dismissing notification modal:', error);
     }
   };
 
