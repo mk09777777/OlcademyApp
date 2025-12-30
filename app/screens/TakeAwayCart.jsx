@@ -634,10 +634,10 @@ const TakeAwayCart = () => {
       <View className="flex-1">
         <Text className="text-textprimary font-outfit-bold text-base mb-1">{item.name}</Text>
         <Text className="text-textsecondary font-outfit text-sm mb-1">
-          Item Price:- ${(item.price || 0).toFixed(2)}
+          Item Price:- ${(item.basePrice || item.price || 0).toFixed(2)}
         </Text>
         <Text className="text-primary font-outfit-bold text-sm">
-          Total Item Price:- ${subtotal.toFixed(2)}
+          Total Item Price:-  ${(item.basePrice || item.price || 0).toFixed(2)}
         </Text>
       </View>
 
@@ -742,7 +742,7 @@ const TakeAwayCart = () => {
 
   return (
     <SafeAreaView className="flex-1 bg-background">
-      <View className="flex-row items-center justify-center w-full mt-5">
+      <View className="flex-row items-center justify-center w-full">
         <TouchableOpacity onPress={() => router.back()} className="absolute left-4 bottom-4">
           <Entypo name="chevron-left" size={24} color="black" />
         </TouchableOpacity>

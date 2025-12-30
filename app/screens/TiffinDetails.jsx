@@ -54,6 +54,7 @@ const TiffinDetails = () => {
 
   const [localCharges, setLocalCharges] = useState([]);
   const [localOffers, setLocalOffers] = useState([]);
+  const [isTermsExpanded, setIsTermsExpanded] = useState(false);
   const [menuState, setMenuState] = useState({
     cartItems: {},
     selectedCategory: 'All',
@@ -366,14 +367,37 @@ const TiffinDetails = () => {
   const renderMenuItem = useCallback(
     (item) => {
       if (!item?.id || !item?.name) return null;
+      
+      // Check if this item is in cart
+      const isInCart = cartItems.some(cartItem => 
+        cartItem.productId === item.id || 
+        cartItem.name === item.name
+      );
+      
+      const cartItem = cartItems.find(cartItem => 
+        cartItem.productId === item.id || 
+        cartItem.name === item.name
+      );
+      
       return (
         <View key={item.id} className="flex-row items-stretch bg-white border border-gray-300 rounded-xl mb-3 p-3 shadow-sm">
           <View className="mr-3">
             <View className="relative w-20 h-20 rounded-xl overflow-hidden border border-gray-300">
-              <Image source={item.image} resizeMode="cover" defaultSource={require('../../assets/images/food1.jpg')} className="w-full h-full" />
+              <Image 
+                source={item.image?.uri ? item.image : require('../../assets/images/food1.jpg')} 
+                resizeMode="cover" 
+                defaultSource={require('../../assets/images/food1.jpg')} 
+                className="w-full h-full"
+                onError={() => console.log('Image failed to load for item:', item.name)}
+              />
               {item.isVeg !== undefined && (
                 <View className="absolute top-1 left-1 bg-white rounded-full p-0.5">
                   <MaterialCommunityIcons name={item.isVeg ? 'circle' : 'triangle'} size={10} color={item.isVeg ? '#4CAF50' : '#FF4B3A'} />
+                </View>
+              )}
+              {isInCart && (
+                <View className="absolute top-1 right-1 bg-primary rounded-full p-1">
+                  <MaterialCommunityIcons name="check" size={12} color="white" />
                 </View>
               )}
             </View>
@@ -389,15 +413,22 @@ const TiffinDetails = () => {
             )}
             <View className="flex-row items-center justify-between mt-auto">
               <Text className="text-base font-bold text-red-500">₹{item.price || item.basePrice || 0}</Text>
-              <TouchableOpacity onPress={() => handleOpenModal(item)} className="bg-red-500 rounded-lg px-5 py-2" activeOpacity={0.7}>
-                <Text className="text-white text-sm font-bold">ADD</Text>
-              </TouchableOpacity>
+              {isInCart ? (
+                <View className="flex-row items-center bg-light rounded-lg px-3 py-2">
+                  <MaterialCommunityIcons name="check-circle" size={16} color="#02757A" />
+                  <Text className="text-primary text-sm font-bold ml-1">ADDED</Text>
+                </View>
+              ) : (
+                <TouchableOpacity onPress={() => handleOpenModal(item)} className="bg-red-500 rounded-lg px-5 py-2" activeOpacity={0.7}>
+                  <Text className="text-white text-sm font-bold">ADD</Text>
+                </TouchableOpacity>
+              )}
             </View>
           </View>
         </View>
       );
     },
-    [menuState.cartItems, menuState.wishlistItems, handleOpenModal, toggleWishlist],
+    [cartItems, menuState.cartItems, menuState.wishlistItems, handleOpenModal, toggleWishlist],
   );
 
   const DeliveryCitiesList = ({ cities }) => {
@@ -492,15 +523,17 @@ const TiffinDetails = () => {
               }
               className="flex-1 mr-3"
             >
-              <View className="mb-2">
-                <Text className="text-white text-base font-bold" numberOfLines={3}>
-                  {service.title}
-                </Text>
-              </View>
+              <View className="bg-black/40 rounded-xl p-3">
+                <View className="mb-2">
+                  <Text className="text-white text-base font-bold" numberOfLines={3}>
+                    {service.title}
+                  </Text>
+                </View>
 
-              <View className="flex-row items-center">
-                <MaterialCommunityIcons name="phone" size={20} color="#078518" />
-                <Text className="ml-2 text-white text-sm">Contact: {service.phoneNumber}</Text>
+                <View className="flex-row items-center">
+                  <MaterialCommunityIcons name="phone" size={20} color="#078518" />
+                  <Text className="ml-2 text-white text-sm">Contact: {service.phoneNumber}</Text>
+                </View>
               </View>
             </TouchableOpacity>
 
@@ -534,21 +567,44 @@ const TiffinDetails = () => {
         </View>
 
         <View className="px-5 py-4">
-          <View className="bg-white rounded-xl p-4 mb-4 shadow-md">
-            <View className="border-t border-gray-200 pt-2.5">
-              <View className="flex-row items-center mb-2">
-                <DeliveryCitiesList cities={service.deliveryCities} />
+
+          {/* UPDATED ADDRESS + DISTANCE CARD */}
+          <View className="bg-white rounded-2xl p-5 mb-5 shadow-lg">
+            <Text className="text-sm font-semibold text-gray-700 mb-3">
+              Available In
+            </Text>
+
+            <DeliveryCitiesList cities={service.deliveryCities} />
+
+            <View className="h-px bg-gray-200 my-4" />
+
+            <View className="flex-row items-center mb-3">
+              <View className="w-9 h-9 rounded-full bg-red-50 items-center justify-center">
+                <MaterialCommunityIcons
+                  name="map-marker-distance"
+                  size={20}
+                  color="#FF002E"
+                />
               </View>
-              <View className="flex-row items-center mb-2">
-                <MaterialCommunityIcons name="map-marker-distance" size={24} color="#666" />
-                <Text className="ml-2 text-gray-800 text-sm p-1">Distance: {service.distance}</Text>
+              <Text className="ml-3 text-sm font-medium text-gray-800">
+                {service.distance} away
+              </Text>
+            </View>
+
+            <View className="flex-row items-start">
+              <View className="w-9 h-9 rounded-full bg-blue-50 items-center justify-center mt-1">
+                <MaterialCommunityIcons
+                  name="home-map-marker"
+                  size={20}
+                  color="#2563EB"
+                />
               </View>
-              <View className="flex-row items-center mb-2">
-                <MaterialCommunityIcons name="home" size={24} color="#666" />
-                <Text className="ml-2 text-gray-800 text-sm p-1" numberOfLines={2}>
-                  Address: {service.address}
-                </Text>
-              </View>
+              <Text
+                className="ml-3 text-sm text-gray-700 leading-5 flex-1"
+                numberOfLines={3}
+              >
+                {service.address}
+              </Text>
             </View>
           </View>
 
@@ -565,10 +621,38 @@ const TiffinDetails = () => {
             </View>
           )}
 
+          {/*  TERMS & CONDITIONS — COLLAPSIBLE */}
+          <View className="bg-white rounded-2xl mb-4 shadow-lg overflow-hidden">
+            <TouchableOpacity
+              onPress={() => setIsTermsExpanded(!isTermsExpanded)}
+              className="flex-row items-center justify-between py-4 px-5"
+              activeOpacity={0.7}
+            >
+              <Text className="text-lg font-bold text-gray-800">
+                Terms & Conditions
+              </Text>
+              <MaterialCommunityIcons
+                name={isTermsExpanded ? "chevron-up" : "chevron-down"}
+                size={24}
+                color="#374151"
+              />
+            </TouchableOpacity>
+            {isTermsExpanded && (
+              <View className="px-5 pb-5 bg-gray-50">
+                <Text className="text-sm text-gray-700 leading-6">
+                  {service.termsAndConditions}
+                </Text>
+              </View>
+            )}
+          </View>
+
+          {/* 🔴 TIFFIN MEALS — UNCHANGED */}
           <View>
             <View className="flex-row items-center my-4">
               <View className="flex-1 h-px bg-gray-300" />
-              <Text className="text-gray-600 font-semibold mx-4 text-sm">Tiffin Meals</Text>
+              <Text className="text-gray-600 font-semibold mx-4 text-sm">
+                Tiffin Meals
+              </Text>
               <View className="flex-1 h-px bg-gray-300" />
             </View>
 
@@ -577,16 +661,17 @@ const TiffinDetails = () => {
                 menuState.filteredMenu.map(renderMenuItem)
               ) : (
                 <View className="justify-center items-center py-8">
-                  <MaterialCommunityIcons name="food-off" size={48} color="#666" />
-                  <Text className="mt-2.5 text-gray-600">No items found in this category</Text>
+                  <MaterialCommunityIcons
+                    name="food-off"
+                    size={48}
+                    color="#666"
+                  />
+                  <Text className="mt-2.5 text-gray-600">
+                    No items found in this category
+                  </Text>
                 </View>
               )}
             </View>
-          </View>
-
-          <View className="py-5 bg-gray-50 mt-4 mb-2.5 rounded-xl px-4">
-            <Text className="text-lg font-bold mb-3 text-gray-800">Terms & Conditions</Text>
-            <Text className="text-sm text-gray-700 mb-3.5 leading-6">{service.termsAndConditions}</Text>
           </View>
         </View>
       </ScrollView>
@@ -596,7 +681,7 @@ const TiffinDetails = () => {
           className="absolute bottom-0 left-0 right-0 bg-primary p-4 m-4 rounded-lg"
           onPress={() =>
             safeNavigation({
-              pathname: '/home/Cart',
+              pathname: '/screens/TakeAwayCart',
               params: {
                 restaurantId: service.id,
                 restaurantName: service.title,
@@ -615,3 +700,5 @@ const TiffinDetails = () => {
 };
 
 export default TiffinDetails;
+
+

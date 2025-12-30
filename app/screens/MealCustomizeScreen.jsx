@@ -392,6 +392,7 @@ const MealCustomizeScreen = () => {
           quantity: state.quantity,
           img: img || require('@/assets/images/food_placeholder.jpg'),
           price: total,
+          basePrice: state.selectedPlan.price,
           foodType: mealItem.foodType || 'Vegetarian',
           itemType: "tiffin",
           productModelType: "Tiffin",

@@ -8,6 +8,7 @@ export default function AuthLayout() {
         <Stack.Screen name='Signup' options={{headerShown: false}}/>
         <Stack.Screen name='OTP' options={{headerShown: false}}/>
         <Stack.Screen name='SearchCountryCode' options={{headerShown: false}}/>
+        <Stack.Screen name='OAuthWebView' options={{headerShown: false}}/>
 
     </Stack>
   )

@@ -49,7 +49,7 @@ export default function PhoneNumberEntry({ value = '', onChangePhone, onCountryC
     setPhoneNumber(sanitized)
 
     if (onChangePhone) {
-      onChangePhone(sanitized ? `${dialCode}${sanitized}` : '')
+      onChangePhone(sanitized)
     }
   }
 
