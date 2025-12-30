@@ -14,7 +14,8 @@ This roadmap tracks the production-readiness remediation work for OlcademyApp, e
 - ✅ Phase 8: Minimal Jest regression harness (complete)
 - ✅ Phase 9: PII-safe error reporting (complete)
 - ✅ Phase 10: Async cancellation + stale-response guards (complete)
-- ⏳ Phase 11: Remaining async hotspots + rapid-navigation safety (in progress)
+- ✅ Phase 11: Remaining async hotspots + rapid-navigation safety (complete)
+- ⏳ Phase 12: Maintainability and ownership (in progress)
 
 ## Phase 7 — Post-launch Correctness Hotfixes
 Goal: address high-impact correctness issues found after release without changing UX.
@@ -69,6 +70,18 @@ Scope (keep tight):
 Validation:
 - Rapid typing + navigating away does not set state after unmount.
 - Rapid pull-to-refresh + pagination does not overwrite newer results.
+- `npm test` passes.
+
+## Phase 12 — Maintainability and Ownership
+Goal: reduce contributor error rate by clarifying folder responsibilities and explicitly labeling ambiguous/unused code paths.
+
+Scope (documentation/annotation only):
+- Document folder responsibilities and preferred import locations.
+- Document known duplicate component families (e.g., `components/` vs `Card/`).
+- Mark verifiably-unused or ambiguous providers/hooks as deprecated (no removals).
+
+Validation:
+- No runtime behavior changes.
 - `npm test` passes.
 
 ## Phase 4 — Runtime Stability & Lint/Build Blockers

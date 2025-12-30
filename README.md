@@ -48,3 +48,18 @@ Join our community of developers creating universal apps.
 
 - [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
 - [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+
+## Project architecture (OlcademyApp)
+
+This repo uses Expo Router (`app/`) for file-based navigation.
+
+High-level ownership guidelines:
+- Screens/routes: `app/`
+- Shared UI: `components/`
+- Legacy/overlapping card components: `Card/` (avoid adding new duplicates)
+- Global state: `context/`
+- Reusable hooks: `hooks/`
+- API/domain data access: `services/`
+- Pure helpers (unit-test friendly): `utils/`
+
+Maintainability notes and known duplicate component areas are documented in `docs/MAINTAINABILITY_AND_OWNERSHIP.md`.
