@@ -10,6 +10,66 @@ This roadmap tracks the production-readiness remediation work for OlcademyApp, e
 - ✅ Phase 4: Runtime stability & lint/build blockers (complete)
 - ✅ Phase 5: Observability, performance, and log hygiene (complete)
 - ✅ Phase 6: Release hardening and pre-prod checklist (complete)
+- ✅ Phase 7: Post-launch correctness hotfixes (complete)
+- ✅ Phase 8: Minimal Jest regression harness (complete)
+- ✅ Phase 9: PII-safe error reporting (complete)
+- ✅ Phase 10: Async cancellation + stale-response guards (complete)
+- ⏳ Phase 11: Remaining async hotspots + rapid-navigation safety (in progress)
+
+## Phase 7 — Post-launch Correctness Hotfixes
+Goal: address high-impact correctness issues found after release without changing UX.
+
+Scope (keep tight):
+- Fix request signatures and missing imports causing runtime crashes.
+- Prevent destructive auth state changes on transient network failures.
+- Normalize API error behavior across runtime environments to avoid silent failures.
+
+Validation:
+- Targeted flows still work (favorites, collections, cart, auth bootstrap).
+- No new red-screens introduced.
+
+## Phase 8 — Minimal Jest Regression Harness
+Goal: add a small safety net for pure logic without UI snapshot testing.
+
+Scope:
+- Introduce `jest-expo` config and a non-watch `test` script.
+- Add unit tests only for deterministic pure helpers.
+
+Validation:
+- `npm test` passes in CI/local.
+
+## Phase 9 — PII-safe Error Reporting
+Goal: improve observability while avoiding PII and noisy logs.
+
+Scope:
+- Centralize error normalization/redaction.
+- Wire UI boundary errors to structured reporting.
+
+Validation:
+- No request/response bodies or credentials are logged.
+
+## Phase 10 — Async Cancellation + Stale-response Guards
+Goal: prevent setState-after-unmount and out-of-order response overwrites during rapid navigation.
+
+Scope:
+- Use `AbortController`, request-id gating, and mounted guards for in-flight requests.
+- Ensure debounced timers and pending work are cleaned up on unmount.
+
+Validation:
+- Rapid navigation and poor network conditions do not trigger warnings or stale UI.
+
+## Phase 11 — Remaining Async Hotspots + Rapid-navigation Safety
+Goal: apply the same cancellation/order-safety patterns to the remaining highest-risk screens.
+
+Scope (keep tight):
+- Identify hotspots that use timers/debounces + async requests and can race (e.g., search, pagination, initial load).
+- Add abort + request-id gating + mounted guards.
+- Ensure cleanup on unmount and on navigation-triggering actions.
+
+Validation:
+- Rapid typing + navigating away does not set state after unmount.
+- Rapid pull-to-refresh + pagination does not overwrite newer results.
+- `npm test` passes.
 
 ## Phase 4 — Runtime Stability & Lint/Build Blockers
 Goal: remove production crashers and unblock `expo lint` / bundling errors with minimal diffs.
