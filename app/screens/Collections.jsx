@@ -21,6 +21,7 @@ import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { useSafeNavigation } from '@/hooks/navigationPage';
 import DiningCard from '@/components/DaningCard';
 import { API_CONFIG } from '../../config/apiConfig';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const windowHeight = Dimensions.get('window').height;
 const windowWidth = Dimensions.get('window').width;
@@ -99,7 +100,7 @@ export default function Collections() {
     const url = `${Api_url}/firm/fav/${firmId}`;
     console.log("Fetching URL:", url);
 
-    const response = await axios.post(url, { withCredentials: true });
+    const response = await axios.post(url, {}, { withCredentials: true });
     alert("updated successfull");
     console.log("Response:", response.data);
   };
@@ -118,7 +119,7 @@ export default function Collections() {
   const removeFavorite = async (firmId) => {
     try {
       const url = `${Api_url}/firm/favRemove/${firmId}`;
-      const response = await axios.post(url, { withCredentials: true });
+      const response = await axios.post(url, {}, { withCredentials: true });
       console.log("Response:", response.data);
       alert(response.data.message);
     } catch (error) {

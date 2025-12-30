@@ -131,7 +131,7 @@ export default function TakeAway() {
     const url = `${Api_url}/firm/fav/${firmId}`;
     console.log("Fetching URL:", url);
 
-    const response = await axios.post(url, { withCredentials: true });
+    const response = await axios.post(url, {}, { withCredentials: true });
     alert("updated successfull");
     console.log("Response:", response.data);
   };
@@ -150,7 +150,7 @@ export default function TakeAway() {
   const removeFavorite = async (firmId) => {
     try {
       const url = `${Api_url}/firm/favRemove/${firmId}`;
-      const response = await axios.post(url, { withCredentials: true });
+      const response = await axios.post(url, {}, { withCredentials: true });
       console.log("Response:", response.data);
       alert(response.data.message);
     } catch (error) {
