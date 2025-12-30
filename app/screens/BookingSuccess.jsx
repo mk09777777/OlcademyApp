@@ -1,24 +1,40 @@
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect, useState } from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { MotiView, MotiText } from "moti";
 import { MaterialIcons } from "@expo/vector-icons";
-import { getEventById } from "@/Data/EventData";
+import { fetchEventById } from "@/services/eventService";
 
 export default function BookingSuccess() {
   const router = useRouter();
   const params = useLocalSearchParams();
   const { eventName, attendees, autoRedirect, eventId, buyerEmail } = params;
+  const [resolvedEventName, setResolvedEventName] = useState(eventName || "the event");
 
-  const resolvedEventName = useMemo(() => {
-    if (eventName) {
-      return eventName;
+  useEffect(() => {
+    let isMounted = true;
+    if (eventName || !eventId) {
+      return () => {
+        isMounted = false;
+      };
     }
-    if (eventId) {
-      const found = getEventById(eventId);
-      return found?.title ?? "the event";
-    }
-    return "the event";
+
+    fetchEventById(eventId)
+      .then((event) => {
+        if (isMounted && event?.title) {
+          setResolvedEventName(event.title);
+        }
+      })
+      .catch(() => {})
+      .finally(() => {
+        if (isMounted && !eventName) {
+          setResolvedEventName((prev) => prev || "the event");
+        }
+      });
+
+    return () => {
+      isMounted = false;
+    };
   }, [eventId, eventName]);
 
   const attendeeLabel = attendees ?? "1";

@@ -1,8 +1,11 @@
-import { View, Text, ScrollView, ImageBackground, TouchableOpacity, TextInput, Alert, KeyboardAvoidingView, Platform, TouchableWithoutFeedback, Keyboard } from 'react-native';
+import { View, Text, ScrollView, ImageBackground, TouchableOpacity, TextInput, Alert, KeyboardAvoidingView, Platform, TouchableWithoutFeedback, Keyboard, ActivityIndicator } from 'react-native';
 import React, { useEffect, useMemo, useState } from 'react';
 import { useGlobalSearchParams } from 'expo-router';
 import { useSafeNavigation } from '@/hooks/navigationPage';
-import { getEventById } from '@/Data/EventData';
+import { fetchEventById } from '@/services/eventService';
+import { normalizeImageSource, transformEventPayload } from '@/utils/eventUtils';
+
+const placeholderImage = require('@/assets/images/placeholder.png');
 
 export default function EventBooking() {
   const { eventId, event } = useGlobalSearchParams();
@@ -13,22 +16,64 @@ export default function EventBooking() {
   const [buyerEmail, setBuyerEmail] = useState('');
   const [keyboardOffset, setKeyboardOffset] = useState(0);
   const { safeNavigation } = useSafeNavigation();
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(null);
 
   useEffect(() => {
-    if (eventId) {
-      const found = getEventById(eventId);
-      setEventDetails(found ?? null);
-      return;
-    }
+    let isMounted = true;
 
-    if (event) {
-      try {
-        setEventDetails(JSON.parse(event));
-      } catch (parseError) {
-        console.warn('Unable to parse event payload:', parseError);
-        setEventDetails(null);
+    const assignEvent = (payload) => {
+      if (!isMounted) {
+        return;
       }
-    }
+      const normalized = transformEventPayload(payload);
+      setEventDetails(normalized ?? null);
+      setLoadError(normalized ? null : new Error('Event not found'));
+    };
+
+    const hydrate = async () => {
+      if (eventId) {
+        setLoading(true);
+        try {
+          const fetched = await fetchEventById(eventId);
+          assignEvent(fetched);
+        } catch (error) {
+          console.warn('Unable to load event details', error);
+          if (isMounted) {
+            setLoadError(error);
+            setEventDetails(null);
+          }
+        } finally {
+          if (isMounted) {
+            setLoading(false);
+          }
+        }
+        return;
+      }
+
+      if (event) {
+        try {
+          const parsed = JSON.parse(event);
+          assignEvent(parsed);
+        } catch (parseError) {
+          console.warn('Unable to parse event payload:', parseError);
+          if (isMounted) {
+            setEventDetails(null);
+            setLoadError(parseError);
+          }
+        }
+      }
+
+      if (isMounted) {
+        setLoading(false);
+      }
+    };
+
+    hydrate();
+
+    return () => {
+      isMounted = false;
+    };
   }, [event, eventId]);
 
   useEffect(() => {
@@ -57,8 +102,9 @@ export default function EventBooking() {
   const ticketPrice = selectedSection === 'VIP' ? pricing.vip : pricing.general;
   const totalPrice = ticketCount * ticketPrice;
   const formattedTotal = totalPrice.toLocaleString('en-IN');
-  const scheduleLabel = eventDetails
-    ? `${eventDetails.date}${eventDetails.startTime ? ` | ${eventDetails.startTime}${eventDetails.endTime ? ` - ${eventDetails.endTime}` : ''}` : ''}`
+  const baseDateLabel = eventDetails?.dateLabel || eventDetails?.date;
+  const scheduleLabel = baseDateLabel
+    ? `${baseDateLabel}${eventDetails.startTime ? ` | ${eventDetails.startTime}${eventDetails.endTime ? ` - ${eventDetails.endTime}` : ''}` : ''}`
     : '';
 
   const handleBooking = () => {
@@ -83,10 +129,27 @@ export default function EventBooking() {
     });
   };
 
+  if (loading) {
+    return (
+      <View className="flex-1 justify-center items-center">
+        <ActivityIndicator size="large" color="#02757A" />
+        <Text className="mt-3 text-base font-outfit text-textsecondary">Loading event details...</Text>
+      </View>
+    );
+  }
+
   if (!eventDetails) {
     return (
       <View className="flex-1 justify-center items-center">
-        <Text>Loading event details...</Text>
+        <Text className="text-base font-outfit text-textsecondary mb-4">
+          {loadError ? 'We could not load this event. Please try again later.' : 'Event not found.'}
+        </Text>
+        <TouchableOpacity
+          className="bg-primary px-6 py-3 rounded-xl"
+          onPress={() => safeNavigation('/home/Events')}
+        >
+          <Text className="text-white font-outfit-bold">Back to Events</Text>
+        </TouchableOpacity>
       </View>
     );
   }
@@ -108,7 +171,7 @@ export default function EventBooking() {
         >
           {/* Header Image */}
           <ImageBackground
-            source={eventDetails.bannerImage || eventDetails.image}
+            source={normalizeImageSource(eventDetails.bannerImage || eventDetails.image, placeholderImage)}
             className="h-60 justify-end rounded-3xl overflow-hidden"
             imageStyle={{ borderRadius: 24 }}
           >

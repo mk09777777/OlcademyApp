@@ -8,10 +8,12 @@ import {
   ScrollView,
   TouchableWithoutFeedback,
   Keyboard,
+  ActivityIndicator,
 } from "react-native";
 import { useGlobalSearchParams } from "expo-router";
 import { useSafeNavigation } from "@/hooks/navigationPage";
-import { getEventById } from "@/Data/EventData";
+import { fetchEventById } from "@/services/eventService";
+import { transformEventPayload } from "@/utils/eventUtils";
 
 export default function EventBookingSummary() {
   const {
@@ -25,6 +27,9 @@ export default function EventBookingSummary() {
   } = useGlobalSearchParams();
   const { safeNavigation } = useSafeNavigation();
   const [keyboardOffset, setKeyboardOffset] = React.useState(0);
+  const [eventDetails, setEventDetails] = React.useState(null);
+  const [loadingEvent, setLoadingEvent] = React.useState(true);
+  const [loadError, setLoadError] = React.useState(null);
 
   React.useEffect(() => {
     const handleShow = (event) => {
@@ -44,28 +49,79 @@ export default function EventBookingSummary() {
     };
   }, []);
 
-  const parsedEvent = React.useMemo(() => {
-    if (eventId) {
-      return getEventById(eventId) ?? null;
-    }
+  React.useEffect(() => {
+    let isMounted = true;
 
-    if (event) {
-      try {
-        return JSON.parse(event);
-      } catch (parseError) {
-        console.warn('Unable to parse event payload:', parseError);
-        return null;
+    const assignEvent = (payload) => {
+      if (!isMounted) {
+        return;
       }
-    }
+      const normalized = transformEventPayload(payload);
+      setEventDetails(normalized ?? null);
+      setLoadError(normalized ? null : new Error('Event not found'));
+    };
 
-    return null;
+    const hydrate = async () => {
+      if (eventId) {
+        setLoadingEvent(true);
+        try {
+          const fetched = await fetchEventById(eventId);
+          assignEvent(fetched);
+        } catch (error) {
+          console.warn('Unable to load event summary', error);
+          if (isMounted) {
+            setEventDetails(null);
+            setLoadError(error);
+          }
+        } finally {
+          if (isMounted) {
+            setLoadingEvent(false);
+          }
+        }
+        return;
+      }
+
+      if (event) {
+        try {
+          const parsed = JSON.parse(event);
+          assignEvent(parsed);
+        } catch (parseError) {
+          console.warn('Unable to parse event payload:', parseError);
+          if (isMounted) {
+            setEventDetails(null);
+            setLoadError(parseError);
+          }
+        }
+      }
+
+      if (isMounted) {
+        setLoadingEvent(false);
+      }
+    };
+
+    hydrate();
+
+    return () => {
+      isMounted = false;
+    };
   }, [event, eventId]);
 
-  if (!parsedEvent) {
+  if (loadingEvent) {
+    return (
+      <View className="flex-1 items-center justify-center bg-white p-6">
+        <ActivityIndicator size="large" color="#02757A" />
+        <Text className="text-base font-outfit text-textsecondary mt-3">
+          Loading booking details...
+        </Text>
+      </View>
+    );
+  }
+
+  if (!eventDetails) {
     return (
       <View className="flex-1 items-center justify-center bg-white p-6">
         <Text className="text-base font-outfit text-textsecondary text-center">
-          We could not load the booking details for this event.
+          {loadError ? 'We could not load the booking details for this event.' : 'Event not found.'}
         </Text>
         <TouchableOpacity
           className="mt-6 bg-primary px-6 py-3 rounded-xl"
@@ -79,7 +135,7 @@ export default function EventBookingSummary() {
 
   const attendeeCount = Math.max(parseInt(attendees, 10) || 1, 1);
   const sectionKey = section === 'VIP' ? 'vip' : 'general';
-  const ticketPrice = parsedEvent.pricing?.[sectionKey] ?? 799;
+  const ticketPrice = eventDetails.pricing?.[sectionKey] ?? 799;
   const parsedTotal = Number(total);
   const totalCost = Number.isFinite(parsedTotal) && parsedTotal > 0
     ? parsedTotal
@@ -110,16 +166,16 @@ export default function EventBookingSummary() {
 
             <View className="bg-gray-100 rounded-2xl p-5 mb-6">
               <Text className="text-lg font-outfit-bold text-textprimary">
-                {parsedEvent.title}
+                {eventDetails.title}
               </Text>
               <Text className="text-sm text-textsecondary mt-1">
-                {parsedEvent.date} • {parsedEvent.startTime}
+                {(eventDetails.dateLabel || eventDetails.date) ?? ''} • {eventDetails.startTime}
               </Text>
               <Text className="text-sm text-textsecondary mt-1">
-                Category: {parsedEvent.category?.toUpperCase()}
+                Category: {eventDetails.category?.toUpperCase()}
               </Text>
               <Text className="text-sm text-textsecondary mt-1">
-                Location: {parsedEvent.location}
+                Location: {eventDetails.location || eventDetails.venue}
               </Text>
             </View>
 
@@ -164,8 +220,8 @@ export default function EventBookingSummary() {
               onPress={() => safeNavigation({
                 pathname: '/screens/BookingSuccess',
                 params: {
-                  eventId: parsedEvent.id,
-                  eventName: parsedEvent.title,
+                  eventId: eventDetails.id,
+                  eventName: eventDetails.title,
                   attendees: String(attendeeCount),
                   buyerEmail,
                   autoRedirect: 'true',

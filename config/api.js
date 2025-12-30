@@ -23,6 +23,16 @@ export const API_ENDPOINTS = {
   },
 
   // ============================================
+  // EVENTS ENDPOINTS
+  // ============================================
+  EVENTS: {
+    LIST: '/api/events',
+    DETAIL: (id) => `/api/events/${id}`,
+    FEATURED: '/api/events/featured',
+    SEARCH: '/api/events/search'
+  },
+
+  // ============================================
   // TIFFIN SERVICE ENDPOINTS
   // ============================================
   TIFFIN: {

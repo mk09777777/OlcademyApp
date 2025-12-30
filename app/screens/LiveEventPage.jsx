@@ -4,8 +4,9 @@ import { useGlobalSearchParams } from 'expo-router';
 import MainTabs from '../../components/MainEvent';
 import EventCard from '../../Card/EventCard';
 import EventDetailsModal from '../../Model/EventModal';
-import { events as sharedEvents, eventCategories } from '../../Data/EventData';
+import { eventCategories } from '@/Data/EventData';
 import BackRouting from '@/components/BackRouting';
+import { fetchEvents } from '@/services/eventService';
 const EventsTabView = () => {
   /* Original CSS Reference:
    * container: { flex: 1, backgroundColor: '#F8F8F8' }
@@ -45,24 +46,29 @@ const EventsTabView = () => {
     : null;
 
   useEffect(() => {
-    const fetchEvents = async () => {
-      try {
-        console.log("Fetching events...");
+    let isMounted = true;
+    setLoading(true);
 
-        // Simulating an API call with a delay
-        setTimeout(() => {
-          console.log('Loaded events:', sharedEvents);
-          setEvents(sharedEvents || []);
+    fetchEvents()
+      .then((fetched) => {
+        if (isMounted) {
+          setEvents(fetched || []);
+        }
+      })
+      .catch(() => {
+        if (isMounted) {
+          setEvents([]);
+        }
+      })
+      .finally(() => {
+        if (isMounted) {
           setLoading(false);
-        }, 1010);
-      } catch (error) {
-        console.error("Error fetching events:", error);
-        setEvents([]); // Fallback to an empty array on error
-        setLoading(false);
-      }
-    };
+        }
+      });
 
-    fetchEvents();
+    return () => {
+      isMounted = false;
+    };
   }, []);
   const now = new Date();
   const filterEvents = () => {
