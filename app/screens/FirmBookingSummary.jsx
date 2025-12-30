@@ -53,8 +53,7 @@ export default function FirmBookingSummary() {
           ordersPush: false,
           ordersWhatsapp: false,
       });
-  //http://localhost:3000/api/bookings?id=685c0b9d76ea9cadb4dbfd65
-  //  http://192.168.0.107:3000/api/saveOrders
+  // Dev note: do not hardcode hosts here; always use API_CONFIG + API_ENDPOINTS.
   const handleRequestData = (data, item) => {
     setReqestData({ data, item });
     if (data || item) {

@@ -16,5 +16,5 @@ const googleKeyCandidates = [
 
 export const API_CONFIG = {
   BACKEND_URL: backendCandidates[0] ?? fallbackBackendUrl,
-  GOOGLE_MAPS_API_KEY: googleKeyCandidates[0] ?? 'AIzaSyCk0OnijLJs_FxIuGR1aIp-AHLRtp2BzUE'
+  GOOGLE_MAPS_API_KEY: googleKeyCandidates[0] ?? ''
 };

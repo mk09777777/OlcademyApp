@@ -136,7 +136,8 @@ export const API_ENDPOINTS = {
     GET_INFO: '/api/getNotificationsInfo',
     POST_INFO: '/api/postNotificationsInfo',
     PUT: '/api/putnotifications',
-    DELETE: (id) => `/api/deleteNotificatonsInfo/${id}`
+    DELETE: (id) => `/api/deleteNotificationsInfo/${id}`,
+    DELETE_LEGACY: (id) => `/api/deleteNotificatonsInfo/${id}`
   },
 
   // ============================================
