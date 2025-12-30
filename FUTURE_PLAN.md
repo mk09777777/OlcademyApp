@@ -15,7 +15,8 @@ This roadmap tracks the production-readiness remediation work for OlcademyApp, e
 - ✅ Phase 9: PII-safe error reporting (complete)
 - ✅ Phase 10: Async cancellation + stale-response guards (complete)
 - ✅ Phase 11: Remaining async hotspots + rapid-navigation safety (complete)
-- ⏳ Phase 12: Maintainability and ownership (in progress)
+- ✅ Phase 12: Maintainability and ownership (complete)
+- ⏳ Phase 13: Secrets and config hygiene (in progress)
 
 ## Phase 7 — Post-launch Correctness Hotfixes
 Goal: address high-impact correctness issues found after release without changing UX.
@@ -82,6 +83,19 @@ Scope (documentation/annotation only):
 
 Validation:
 - No runtime behavior changes.
+- `npm test` passes.
+
+## Phase 13 — Secrets and Config Hygiene
+Goal: eliminate committed secrets/credentials and make environment configuration explicit and repeatable.
+
+Scope (keep tight):
+- Remove hard-coded credentials from scripts/docs.
+- Ensure `.env.example` documents required variables (no real secrets).
+- Ensure common local artifacts/virtualenvs are ignored.
+- Expand preflight scanning to catch secrets in scripts.
+
+Validation:
+- No runtime feature changes.
 - `npm test` passes.
 
 ## Phase 4 — Runtime Stability & Lint/Build Blockers

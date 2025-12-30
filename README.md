@@ -4,6 +4,12 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
 
 ## Get started
 
+0. Configure environment
+
+   - Copy `.env.example` to `.env`
+   - Set `API_BASE_URL`
+   - Set `EXPO_PUBLIC_GOOGLE_MAPS_API_KEY` (needed for map-related screens)
+
 1. Install dependencies
 
    ```bash
