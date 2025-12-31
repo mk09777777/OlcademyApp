@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import {
   View,
   Text,
@@ -28,9 +28,34 @@ export default function SelectLocation({ placeholder = "Enter area, landmark ...
   const [loading, setLoading] = useState(false);
   const [region, setRegion] = useState();
   const [suggestions, setSuggestions] = useState([]);
-  const [debounceTimer, setDebounceTimer] = useState(null);
+  const debounceTimerRef = useRef(null);
+  const isMountedRef = useRef(false);
+  const suggestionsRequestRef = useRef(null);
+  const suggestionsRequestIdRef = useRef(0);
+
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+        debounceTimerRef.current = null;
+      }
+      if (suggestionsRequestRef.current) {
+        suggestionsRequestRef.current.abort();
+        suggestionsRequestRef.current = null;
+      }
+    };
+  }, []);
 
   const fetchSuggestions = async (text) => {
+    const requestId = ++suggestionsRequestIdRef.current;
+    if (suggestionsRequestRef.current) {
+      suggestionsRequestRef.current.abort();
+    }
+    const controller = new AbortController();
+    suggestionsRequestRef.current = controller;
+
     try {
       const res = await axios.get(
         `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(text)}&format=json&addressdetails=1`,
@@ -38,15 +63,28 @@ export default function SelectLocation({ placeholder = "Enter area, landmark ...
           headers: {
             'User-Agent': 'tiffinuser/1.0.0 (mayurvicky01234@gmail.com)',
           },
+          signal: controller.signal,
         }
       );
+      if (!isMountedRef.current || requestId !== suggestionsRequestIdRef.current) return;
       setSuggestions(res.data);
     } catch (err) {
+      // Ignore aborts; they are expected during fast typing/navigation.
+      if (err?.name === 'CanceledError' || err?.name === 'AbortError' || err?.code === 'ERR_CANCELED') return;
       console.error('Error fetching suggestions', err);
     }
   };
 
   const handleSuggestionSelect = async (item) => {
+    if (suggestionsRequestRef.current) {
+      suggestionsRequestRef.current.abort();
+      suggestionsRequestRef.current = null;
+    }
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+      debounceTimerRef.current = null;
+    }
+
     const address = item.address || {};
     const { city, town, village, suburb, county, state, country } = address;
     const selectedCity = item.city || city || town || village || suburb || county || 'Unknown';
@@ -135,10 +173,20 @@ export default function SelectLocation({ placeholder = "Enter area, landmark ...
             value={localQuery}
             onChangeText={(text) => {
               setLocalQuery(text);
-              if (debounceTimer) clearTimeout(debounceTimer);
-              setDebounceTimer(setTimeout(() => {
-                text.length > 2 ? fetchSuggestions(text) : setSuggestions([]);
-              }, 500));
+              if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
+              debounceTimerRef.current = setTimeout(() => {
+                if (!isMountedRef.current) return;
+                if (text.length > 2) {
+                  fetchSuggestions(text);
+                } else {
+                  // Cancel in-flight requests and clear results.
+                  if (suggestionsRequestRef.current) {
+                    suggestionsRequestRef.current.abort();
+                    suggestionsRequestRef.current = null;
+                  }
+                  setSuggestions([]);
+                }
+              }, 500);
             }}
             className="bg-white"
             theme={{

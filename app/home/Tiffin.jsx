@@ -55,6 +55,52 @@ export default function Tiffin() {
   const { safeNavigation } = useSafeNavigation();
   const showcaseRef = useRef(null);
 
+  const isMountedRef = useRef(false);
+  const pendingTimeoutsRef = useRef(new Set());
+  const tiffinRequestRef = useRef(null);
+  const tiffinRequestIdRef = useRef(0);
+  const searchRequestRef = useRef(null);
+  const searchRequestIdRef = useRef(0);
+  const vegRequestRef = useRef(null);
+  const vegRequestIdRef = useRef(0);
+  const locationRequestRef = useRef(null);
+
+  const safeTimeout = useCallback((fn, ms) => {
+    const id = setTimeout(() => {
+      pendingTimeoutsRef.current.delete(id);
+      fn();
+    }, ms);
+    pendingTimeoutsRef.current.add(id);
+    return id;
+  }, []);
+
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+
+      pendingTimeoutsRef.current.forEach((id) => clearTimeout(id));
+      pendingTimeoutsRef.current.clear();
+
+      if (tiffinRequestRef.current) {
+        tiffinRequestRef.current.abort();
+        tiffinRequestRef.current = null;
+      }
+      if (searchRequestRef.current) {
+        searchRequestRef.current.abort();
+        searchRequestRef.current = null;
+      }
+      if (vegRequestRef.current) {
+        vegRequestRef.current.abort();
+        vegRequestRef.current = null;
+      }
+      if (locationRequestRef.current) {
+        locationRequestRef.current.abort();
+        locationRequestRef.current = null;
+      }
+    };
+  }, [safeTimeout]);
+
   // Core state management
   const [localTiffinData, setLocalTiffinData] = useState([]);
   const [cursor, setCursor] = useState(null);
@@ -130,25 +176,38 @@ export default function Tiffin() {
 
   // Fetch location
   const fetchLocation = async () => {
+    if (locationRequestRef.current) {
+      locationRequestRef.current.abort();
+    }
+    const controller = new AbortController();
+    locationRequestRef.current = controller;
+
     try {
-      const locationResponse = await axios.get(`${Api_url}/api/location`);
+      const locationResponse = await axios.get(`${Api_url}/api/location`, { signal: controller.signal });
       const { city, state, country, lat, lon } = locationResponse.data;
-      setLocation({
-        city: city || 'Unknown City',
-        state: state || '',
-        country: country || '',
-        lat: lat || null,
-        lon: lon || null
-      });
+      if (isMountedRef.current) {
+        setLocation({
+          city: city || 'Unknown City',
+          state: state || '',
+          country: country || '',
+          lat: lat || null,
+          lon: lon || null
+        });
+      }
     } catch (error) {
+      if (error?.name === 'CanceledError' || error?.name === 'AbortError' || error?.code === 'ERR_CANCELED') {
+        return;
+      }
       console.error('Error fetching location:', error);
-      setLocation({
-        city: 'Unknown City',
-        state: '',
-        country: '',
-        lat: null,
-        lon: null
-      });
+      if (isMountedRef.current) {
+        setLocation({
+          city: 'Unknown City',
+          state: '',
+          country: '',
+          lat: null,
+          lon: null
+        });
+      }
     }
   };
 
@@ -169,10 +228,14 @@ export default function Tiffin() {
           address: item.tiffinInfo?.address || '',
         })) || [];
 
-      setRecentlyViewdData(firmItems);
+      if (isMountedRef.current) {
+        setRecentlyViewdData(firmItems);
+      }
     } catch (error) {
       console.error('Error fetching recently viewed data:', error);
-      setRecentlyViewdData([]);
+      if (isMountedRef.current) {
+        setRecentlyViewdData([]);
+      }
     }
   }, []);
 
@@ -181,19 +244,31 @@ export default function Tiffin() {
     const sorted = localTiffinData.filter(
       (item) => item.Rating >= 4
     );
-    setPopularData(sorted);
+    if (isMountedRef.current) {
+      setPopularData(sorted);
+    }
   }, [localTiffinData]);
 
   // Main fetch function with pagination
   const fetchTiffinData = async (params = {}, isLoadMore = false) => {
     if (isLoadMore && !hasMore) return [];
 
-    setLoading(true);
-    setShowProgress(true);
-    setProgress(0);
-    setError(null);
+    const requestId = ++tiffinRequestIdRef.current;
+    if (tiffinRequestRef.current) {
+      tiffinRequestRef.current.abort();
+    }
+    const controller = new AbortController();
+    tiffinRequestRef.current = controller;
+
+    if (isMountedRef.current) {
+      setLoading(true);
+      setShowProgress(true);
+      setProgress(0);
+      setError(null);
+    }
 
     const interval = setInterval(() => {
+      if (!isMountedRef.current) return;
       setProgress(prev => (prev >= 90 ? prev : prev + 10));
     }, 100);
 
@@ -228,7 +303,8 @@ export default function Tiffin() {
 
       const response = await axios.get(url, {
         params: finalParams,
-        withCredentials: true
+        withCredentials: true,
+        signal: controller.signal,
       });
 
       if (!response.data || (!Array.isArray(response.data) && !Array.isArray(response.data.tiffins))) {
@@ -265,6 +341,8 @@ export default function Tiffin() {
         };
       }).filter(Boolean);
 
+      if (!isMountedRef.current || requestId !== tiffinRequestIdRef.current) return [];
+
       if (isLoadMore) {
         setIsLoadingMore(false);
         setLocalTiffinData(prev => [...prev, ...transformedData]);
@@ -281,28 +359,39 @@ export default function Tiffin() {
 
       return transformedData;
     } catch (error) {
+      if (error?.name === 'CanceledError' || error?.name === 'AbortError' || error?.code === 'ERR_CANCELED') {
+        return [];
+      }
       console.error('Error fetching tiffin data:', error);
       if (!isLoadMore) {
-        setNotFound(true);
-        removeNotFound();
+        if (isMountedRef.current) {
+          setNotFound(true);
+          removeNotFound();
+        }
       }
       if (isLoadMore) {
-        setIsLoadingMore(false);
+        if (isMountedRef.current) {
+          setIsLoadingMore(false);
+        }
       }
       return [];
     } finally {
       clearInterval(interval);
-      setProgress(100);
-      setTimeout(() => {
-        setLoading(false);
-        setShowProgress(false);
-        setRefreshing(false);
-      }, 300);
+      if (isMountedRef.current) {
+        setProgress(100);
+        safeTimeout(() => {
+          if (!isMountedRef.current || requestId !== tiffinRequestIdRef.current) return;
+          setLoading(false);
+          setShowProgress(false);
+          setRefreshing(false);
+        }, 300);
+      }
     }
   };
 
   const removeNotFound = async () => {
-    setTimeout(async () => {
+    safeTimeout(async () => {
+      if (!isMountedRef.current) return;
       setNotFound(false);
       await fetchTiffinData({}, false);
     }, 1500);
@@ -332,7 +421,9 @@ export default function Tiffin() {
       return aPrice - bPrice;
     });
 
-    setRecommendedTiffins(recommendations);
+    if (isMountedRef.current) {
+      setRecommendedTiffins(recommendations);
+    }
   }, [location.city]);
 
   // Fetch liked tiffins
@@ -352,7 +443,9 @@ export default function Tiffin() {
         } else if (response.data && typeof response.data === 'object') {
           favorites = Object.values(response.data).find(Array.isArray) || [];
         }
-        setFavoriteServices(favorites.map(t => t._id || t.id || t));
+        if (isMountedRef.current) {
+          setFavoriteServices(favorites.map(t => t._id || t.id || t));
+        }
       } catch (error) {
         console.error('Error fetching favorites:', error);
       }
@@ -387,15 +480,26 @@ export default function Tiffin() {
   useEffect(() => {
     const searchTiffins = async () => {
       if (query.trim() === '') {
+        if (searchRequestRef.current) {
+          searchRequestRef.current.abort();
+          searchRequestRef.current = null;
+        }
         setSearchResults([]);
         setIsSearching(false);
         return;
       }
 
       setIsSearching(true);
+      const requestId = ++searchRequestIdRef.current;
+      if (searchRequestRef.current) {
+        searchRequestRef.current.abort();
+      }
+      const controller = new AbortController();
+      searchRequestRef.current = controller;
       try {
         const response = await axios.get(`${Api_url}/search`, {
-          params: { query }
+          params: { query },
+          signal: controller.signal,
         });
 
         const results = response.data?.tiffins || [];
@@ -415,17 +519,27 @@ export default function Tiffin() {
           };
         }).filter(Boolean);
 
+        if (!isMountedRef.current || requestId !== searchRequestIdRef.current) return;
         setSearchResults(formattedResults);
       } catch (error) {
+        if (error?.name === 'CanceledError' || error?.name === 'AbortError' || error?.code === 'ERR_CANCELED') return;
         console.error('Error searching tiffins:', error);
+        if (!isMountedRef.current || requestId !== searchRequestIdRef.current) return;
         setSearchResults([]);
       } finally {
+        if (!isMountedRef.current || requestId !== searchRequestIdRef.current) return;
         setIsSearching(false);
       }
     };
 
     const debounceTimer = setTimeout(searchTiffins, 500);
-    return () => clearTimeout(debounceTimer);
+    return () => {
+      clearTimeout(debounceTimer);
+      if (searchRequestRef.current) {
+        searchRequestRef.current.abort();
+        searchRequestRef.current = null;
+      }
+    };
   }, [query]);
 
   // Quick filter handler
@@ -460,7 +574,9 @@ export default function Tiffin() {
   // Apply filters effect
   useEffect(() => {
     const applyFilters = async () => {
+      const requestId = ++tiffinRequestIdRef.current;
       const firmsData = await fetchTiffinData();
+      if (!isMountedRef.current || requestId !== tiffinRequestIdRef.current) return;
       setLocalTiffinData(firmsData);
     };
     const debounceTimer = setTimeout(applyFilters, 300);
@@ -480,36 +596,65 @@ export default function Tiffin() {
   // Veg mode handling
   const sortVegData = useCallback(async () => {
     if (isVegOnly) {
-      setLoadingVegData(true);
+      const requestId = ++vegRequestIdRef.current;
+      if (vegRequestRef.current) {
+        vegRequestRef.current.abort();
+      }
+      const controller = new AbortController();
+      vegRequestRef.current = controller;
+
+      if (isMountedRef.current) {
+        setLoadingVegData(true);
+      }
       const MIN_LOADING_TIME = 1000;
       const startTime = Date.now();
 
       try {
         const response = await axios.get(`${Api_url}/api/tiffin/tiffins/filter?category=veg`, {
-          withCredentials: true
+          withCredentials: true,
+          signal: controller.signal,
         });
 
         const elapsed = Date.now() - startTime;
         const remaining = MIN_LOADING_TIME - elapsed;
         if (remaining > 0) {
-          setTimeout(() => setLoadingVegData(false), remaining);
+          safeTimeout(() => {
+            if (!isMountedRef.current || requestId !== vegRequestIdRef.current) return;
+            setLoadingVegData(false);
+          }, remaining);
         } else {
-          setLoadingVegData(false);
+          if (isMountedRef.current && requestId === vegRequestIdRef.current) {
+            setLoadingVegData(false);
+          }
         }
       } catch (error) {
+        if (error?.name === 'CanceledError' || error?.name === 'AbortError' || error?.code === 'ERR_CANCELED') {
+          return;
+        }
         console.error('Error fetching vegetarian data:', error);
         const elapsed = Date.now() - startTime;
         const remaining = MIN_LOADING_TIME - elapsed;
         if (remaining > 0) {
-          setTimeout(() => setLoadingVegData(false), remaining);
+          safeTimeout(() => {
+            if (!isMountedRef.current || requestId !== vegRequestIdRef.current) return;
+            setLoadingVegData(false);
+          }, remaining);
         } else {
-          setLoadingVegData(false);
+          if (isMountedRef.current && requestId === vegRequestIdRef.current) {
+            setLoadingVegData(false);
+          }
         }
       }
     } else {
-      setLoadingVegData(false);
+      if (vegRequestRef.current) {
+        vegRequestRef.current.abort();
+        vegRequestRef.current = null;
+      }
+      if (isMountedRef.current) {
+        setLoadingVegData(false);
+      }
     }
-  }, [isVegOnly]);
+  }, [isVegOnly, safeTimeout]);
 
   const HandleUploadVegMode = async () => {
     try {
@@ -528,7 +673,9 @@ export default function Tiffin() {
       const response = await axios.get(`${Api_url}/api/getVegMode`, {
         withCredentials: true
       });
-      setIsVegOnly(response.data.vegMode);
+      if (isMountedRef.current) {
+        setIsVegOnly(response.data.vegMode);
+      }
     } catch (error) {
       console.error("Error fetching vegMode", error);
     }
