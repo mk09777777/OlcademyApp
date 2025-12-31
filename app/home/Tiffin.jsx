@@ -29,7 +29,7 @@ import FilterModal from '@/components/FilterModal';
 import BannerCarousel from '@/components/Banner';
 import MiniRecommendedCard from '@/components/MiniRecommendedCard';
 
-const Api_url = 'https://backend-0wyj.onrender.com';
+const Api_url = process.env.API_BASE_URL || 'https://project-z-backend-apis.onrender.com';
 
 // Sort options
 const sortOptions = [
@@ -213,6 +213,11 @@ export default function Tiffin() {
 
   // Fetch recently viewed data
   const FetchRecentlyViewData = useCallback(async () => {
+    if (!isAuthenticated || !user?.id) {
+      setRecentlyViewdData([]);
+      return;
+    }
+    
     try {
       const response = await axios.get(`${Api_url}/firm/getrecently-viewed`, {
         withCredentials: true
@@ -237,7 +242,7 @@ export default function Tiffin() {
         setRecentlyViewdData([]);
       }
     }
-  }, []);
+  }, [isAuthenticated, user?.id]);
 
   // Fetch popular/recommended tiffins
   const sortPopularData = useCallback(() => {
@@ -740,6 +745,12 @@ export default function Tiffin() {
     fetchInitialData();
     fetchLikedTiffins();
   }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      FetchRecentlyViewData();
+    }, [FetchRecentlyViewData])
+  );
 
   useEffect(() => {
     sortPopularData();

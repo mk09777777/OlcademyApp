@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import * as Location from 'expo-location';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AppState } from 'react-native';
@@ -33,6 +33,7 @@ export const LocationProvider = ({ children }) => {
     source: 'cached',
     accuracy: null,
   });
+  const initRef = useRef(false);
 
   const updateLocation = useCallback(async (newLocation, source = 'manual') => {
     const metadata = {
@@ -51,6 +52,7 @@ export const LocationProvider = ({ children }) => {
       if (__DEV__) {
         console.log('[Location] Updated:', source, '- Age: 0 mins');
       }
+
     } catch (error) {
       console.error('Error saving location to storage:', error);
     }
@@ -194,7 +196,7 @@ export const LocationProvider = ({ children }) => {
           console.log('[Location] GPS timeout or failed, trying fallbacks...');
         }
 
-        // Fallback 1: Try network-based location (lower accuracy, faster)
+        // Fallback 1: Try network-based location
         try {
           const networkPosition = await Promise.race([
             Location.getCurrentPositionAsync({ 
@@ -221,7 +223,6 @@ export const LocationProvider = ({ children }) => {
             }
             return lastKnown.coords;
           }
-          
           throw raceError;
         }
       }
@@ -237,7 +238,6 @@ export const LocationProvider = ({ children }) => {
     }
     
     try {
-      // Check if refresh is needed
       if (!forceRefresh) {
         const { shouldRefresh, reason } = shouldRefreshLocation();
         if (!shouldRefresh) {
@@ -254,16 +254,14 @@ export const LocationProvider = ({ children }) => {
           console.log('[Location] GPS failed - using cached');
         }
         
-        // Retry logic
         if (retryCount < MAX_RETRIES) {
-          const delay = Math.pow(2, retryCount) * 1000; // 1s, 2s
+          const delay = Math.pow(2, retryCount) * 1000;
           if (__DEV__) {
             console.log(`[Location] Retrying in ${delay}ms...`);
           }
           await new Promise(resolve => setTimeout(resolve, delay));
           return refreshLocation(forceRefresh, retryCount + 1);
         }
-        
         return location;
       }
 
@@ -271,7 +269,7 @@ export const LocationProvider = ({ children }) => {
         console.log('[Location] GPS coords received:', coords.latitude, coords.longitude);
       }
 
-      // Distance gating: only update if moved >= 75m
+      // Distance gating
       if (location.lat && location.lon && !forceRefresh) {
         const distance = calculateDistance(
           parseFloat(location.lat),
@@ -284,7 +282,6 @@ export const LocationProvider = ({ children }) => {
           if (__DEV__) {
             console.log(`[Location] Distance: ${distance.toFixed(0)}m - SKIP update`);
           }
-          // Update timestamp but keep location
           setLocationMetadata(prev => ({ ...prev, timestamp: Date.now() }));
           return location;
         }
@@ -300,7 +297,6 @@ export const LocationProvider = ({ children }) => {
     } catch (error) {
       console.error('Error refreshing location:', error);
       
-      // Retry on error
       if (retryCount < MAX_RETRIES) {
         const delay = Math.pow(2, retryCount) * 1000;
         if (__DEV__) {
@@ -309,31 +305,25 @@ export const LocationProvider = ({ children }) => {
         await new Promise(resolve => setTimeout(resolve, delay));
         return refreshLocation(forceRefresh, retryCount + 1);
       }
-      
       return location;
     }
   }, [location, shouldRefreshLocation, getDeviceLocation, calculateDistance, resolveCoordinatesToLocation, updateLocation]);
 
   useEffect(() => {
+    if (initRef.current) return;
+    initRef.current = true;
+
     const initializeLocation = async () => {
       try {
-        setIsLoading(true);
-
-        let parsedRecent = [];
-        try {
-          const storedRecent = await AsyncStorage.getItem('recentlyAddList');
-          if (storedRecent) {
-            const recentList = JSON.parse(storedRecent);
-            if (Array.isArray(recentList)) {
-              parsedRecent = recentList;
-              setRecentlyAdds(recentList);
+        AsyncStorage.getItem('recentlyAddList')
+          .then(storedRecent => {
+            if (storedRecent) {
+              const recentList = JSON.parse(storedRecent);
+              if (Array.isArray(recentList)) setRecentlyAdds(recentList);
             }
-          }
-        } catch (recentError) {
-          console.error('Error loading recent locations:', recentError);
-        }
+          })
+          .catch(err => console.error('Error loading recent locations:', err));
         
-        // Try to load saved location from storage first (cached-first approach)
         const savedLocation = await AsyncStorage.getItem('currentLocation');
         const savedMetadata = await AsyncStorage.getItem('locationMetadata');
         
@@ -347,27 +337,25 @@ export const LocationProvider = ({ children }) => {
           
           setLocation(parsedLocation);
           setLocationMetadata(parsedMetadata);
+          setIsLoading(false);
           
           if (__DEV__) {
             const age = (Date.now() - parsedMetadata.timestamp) / 60000;
-            console.log(`[Location] Loaded from cache (${age.toFixed(1)} mins old)`);
+            console.log(`[Location] ✓ Instant load from cache (${age.toFixed(1)} mins old)`);
           }
+          
+          setTimeout(() => refreshLocation(false), 500);
           return;
         }
 
-        if (parsedRecent.length > 0) {
-          await updateLocation(parsedRecent[0]);
-          return;
-        }
-
+        if (__DEV__) console.log('[Location] No cache - fetching GPS...');
         const coords = await getDeviceLocation('balanced');
         if (coords) {
           const locationData = await resolveCoordinatesToLocation(coords.latitude, coords.longitude);
           await updateLocation({ ...locationData, accuracy: coords.accuracy }, 'gps');
-          return;
+        } else {
+          setLocation(EMPTY_LOCATION);
         }
-
-        setLocation(EMPTY_LOCATION);
       } catch (error) {
         console.error('Error initializing location:', error);
         setLocation(EMPTY_LOCATION);
@@ -377,16 +365,14 @@ export const LocationProvider = ({ children }) => {
     };
 
     initializeLocation();
-  }, [getDeviceLocation, resolveCoordinatesToLocation, updateLocation]);
+  }, []);
 
-  // App foreground listener for background refresh
   useEffect(() => {
     const handleAppStateChange = (nextAppState) => {
       if (nextAppState === 'active') {
         const age = locationMetadata.timestamp ? (Date.now() - locationMetadata.timestamp) / 60000 : Infinity;
         const isManual = locationMetadata.source === 'manual';
         
-        // Only refresh if: not manual, age between 5-30 mins
         if (!isManual && age >= FRESHNESS_SKIP && age <= FRESHNESS_BACKGROUND) {
           if (__DEV__) {
             console.log(`[Location] App foregrounded - Age: ${age.toFixed(1)} mins - triggering background refresh`);
