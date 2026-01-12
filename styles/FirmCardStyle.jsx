@@ -28,7 +28,7 @@ export const styles = StyleSheet.create({
   priceText: {
   fontSize: 12,
   marginTop: 2,
-  fontWeight:"bold"
+ 
 },
   bookmarkButton: {
     position: 'absolute',
@@ -55,6 +55,7 @@ export const styles = StyleSheet.create({
   offerText: {
     color: '#FFFFFF',
     fontSize: 12,
+    fontFamily: 'outfit',
     fontWeight: '600',
   },
   textCard: {
@@ -66,6 +67,7 @@ export const styles = StyleSheet.create({
   },
   firmName: {
     fontSize: 16,
+   fontFamily: "outfit-medium",
     fontWeight: '600',
     color: '#1A1A1A',
     marginBottom: 4,
@@ -73,12 +75,14 @@ export const styles = StyleSheet.create({
   },
   area: {
     fontSize: 14,
+    fontFamily: "outfit-medium",
     color: '#666666',
     marginBottom: 4,
     maxWidth: '65%', 
   },
   cuisineText: {
     fontSize: 12,
+    fontFamily: "outfit",
     color: '#808080',
     maxWidth: '65%', 
   },
@@ -99,6 +103,7 @@ export const styles = StyleSheet.create({
   reviewText: {
     color: '#FFFFFF',
     fontSize: 14,
+    fontFamily: "outfit-medium",
     fontWeight: '600',
   },
   promotedBanner: {
@@ -114,6 +119,7 @@ export const styles = StyleSheet.create({
 promotedText: {
   color: 'white',
   fontSize: 12,
+  fontFamily: "outfit",
   fontWeight: 'bold',
 },
 discountContainer: {
@@ -133,6 +139,7 @@ offBanner: {
 offText: {
   color: 'white',
   fontSize: 12,
+  fontFamily: "outfit",
   fontWeight: 'bold',
 },
 proExtraBanner: {
@@ -144,6 +151,7 @@ proExtraBanner: {
 proExtraText: {
   color: 'white',
   fontSize: 12,
+  fontFamily: "outfit",
   fontWeight: 'bold',
 },
 timeContainer: {
@@ -159,6 +167,7 @@ timeContainer: {
 timeText: {
   color: 'white',
   fontSize: 12,
+  fontFamily: "outfit",
   fontWeight: 'bold',
 },
 });

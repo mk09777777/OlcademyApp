@@ -1,7 +1,6 @@
 import { StyleSheet } from "react-native";
 const styles = StyleSheet.create({
     container: {
-      backgroundColor: '#FFFFFF',
     },
     menuContainer: {
       marginTop: 8,
@@ -11,7 +10,6 @@ const styles = StyleSheet.create({
       alignItems: 'center',
       justifyContent: 'space-between',
       padding: 16,
-      backgroundColor: '#FFFFFF',
       borderBottomWidth: 1,
       borderBottomColor: '#F0F0F0',
     },

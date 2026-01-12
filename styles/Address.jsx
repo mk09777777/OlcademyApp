@@ -2,14 +2,14 @@ import { StyleSheet } from "react-native";
 const styles = StyleSheet.create({
     container: {
       flex: 1,
-      backgroundColor: '#f8f8f8',
+      backgroundColor: '#ffffff',
       padding: 16,
     },
     addAddressButton: {
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'space-between',
-      backgroundColor: '#fff',
+      backgroundColor: '#ffffff',
       padding: 16,
       borderRadius: 12,
       marginBottom: 16,
@@ -26,6 +26,7 @@ const styles = StyleSheet.create({
       flex: 1,
       fontSize: 16,
       fontWeight: '500',
+      fontFamily: 'outfit',
       color: '#FF424F',
       marginLeft: 12,
     },
@@ -35,6 +36,7 @@ const styles = StyleSheet.create({
     savedTitle: {
       fontSize: 14,
       fontWeight: '500',
+      fontFamily: 'outfit',
       color: '#666',
       marginBottom: 16,
     },
@@ -66,21 +68,25 @@ const styles = StyleSheet.create({
     },
     addressType: {
       fontSize: 16,
+      fontFamily: 'outfit',
       fontWeight: '500',
       color: '#333',
     },
     distance: {
       fontSize: 14,
+      fontFamily: 'outfit',
       color: '#666',
     },
     addressText: {
       fontSize: 14,
+      fontFamily: 'outfit',
       color: '#333',
       lineHeight: 20,
       marginBottom: 8,
     },
     phoneNumber: {
       fontSize: 14,
+      fontFamily: 'outfit',
       color: '#666',
       marginBottom: 12,
     },

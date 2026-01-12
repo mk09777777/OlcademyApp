@@ -2,7 +2,6 @@ import { View, Text } from 'react-native'
 import React from 'react'
 import { LinearGradient } from 'expo-linear-gradient'
 import { useGlobalSearchParams } from 'expo-router'
-import { styles } from '@/styles/OffersCardStyles'
 
 export default function OffersCard({ offerTitle, offerValidity }) {
   return (
@@ -14,10 +13,10 @@ export default function OffersCard({ offerTitle, offerValidity }) {
       ]}
       start={{ x: 1, y: 0 }}
       end={{ x: 0, y: 1 }}
-      style={styles.card}
+      className="w-64 p-4 mx-2 rounded-lg"
     >
-      <Text style={styles.offerTitle}>{offerTitle}</Text>
-      <Text style={styles.offerValidity}>{offerValidity}</Text>
+      <Text className="text-white font-outfit-bold text-base mb-2">{offerTitle}</Text>
+      <Text className="text-white font-outfit text-sm">{offerValidity}</Text>
     </LinearGradient>
   )
 }

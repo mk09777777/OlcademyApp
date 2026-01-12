@@ -1,4 +1,5 @@
 import { StyleSheet } from "react-native";
+import Colors from '../components/constants/Colors';
 const styles = StyleSheet.create({
     container: {
       backgroundColor: Colors.white,
@@ -7,19 +8,20 @@ const styles = StyleSheet.create({
     header: {
       padding: 15,
       borderLeftWidth: 3,
-      borderLeftColor: Colors.primary,
+      borderLeftColor: '#02757A',
     },
     headerTitle: {
       fontSize: 18,
+      fontFamily: "outfit-bold",
       fontWeight: '600',
-      color: Colors.text,
+      color: '#333333',
     },
     section: {
       flexDirection: 'row',
       alignItems: 'center',
       padding: 15,
       borderBottomWidth: 1,
-      borderBottomColor: Colors.border,
+      borderBottomColor: '#F0F0F0',
     },
     iconContainer: {
       width: 40,
@@ -35,7 +37,7 @@ const styles = StyleSheet.create({
     },
     sectionTitle: {
       fontSize: 16,
-      color: Colors.text,
+      color: '#333333',
     },
     chevron: {
       marginLeft: 'auto',

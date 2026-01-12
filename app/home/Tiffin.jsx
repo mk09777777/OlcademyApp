@@ -1,8 +1,7 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import {
   View,
   Text,
-  SafeAreaView,
   ScrollView,
   TouchableOpacity,
   StatusBar,
@@ -15,11 +14,11 @@ import {
   Pressable,
   Alert
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
 import { useRouter, useFocusEffect } from 'expo-router';
 import TiffinCard from '../../components/TiffinCard';
 import SearchBar from '../../components/SearchBar';
-import styles from '../../styles/tiffinstyle';
 import LocationHeader from '@/components/HomeHeader';
 import axios from 'axios';
 import MinTiffinCard from '../../components/minCardTiffin';
@@ -28,41 +27,22 @@ import { useSafeNavigation } from '@/hooks/navigationPage';
 import { useAuth } from '@/context/AuthContext';
 import FilterModal from '@/components/FilterModal';
 import BannerCarousel from '@/components/Banner';
+import MiniRecommendedCard from '@/components/MiniRecommendedCard';
 
-const Api_url = 'https://backend-0wyj.onrender.com';
+const Api_url = process.env.API_BASE_URL || 'https://project-z-backend-apis.onrender.com';
 
-// Filter options
-const FILTER_OPTIONS = {
-  SORT_BY: [
-    { label: 'Rating: High to Low', value: 'rating-desc' },
-    { label: 'Rating: Low to High', value: 'rating-asc' },
-    { label: 'Price: High to Low', value: 'costHighToLow' },
-    { label: 'Price: Low to High', value: 'costLowToHigh' },
-  ],
-  CATEGORY: [
-    { label: 'Vegetarian', value: 'veg' },
-    { label: 'Non-Vegetarian', value: 'non-veg' },
-  ],
-  // RATING: [
-  //   { label: '4.0+', value: '4.0' },
-  //   { label: '4.5+', value: '4.5' },
-  //   { label: '5.0', value: '5.0' },
-  // ],
-  // PRICE_RANGE: [
-  //   { label: 'Under ₹100', value: '100' },
-  //   { label: '₹100-₹200', value: '200' },
-  //   { label: '₹200-₹300', value: '300' },
-  //   { label: '₹300+', value: '300+' },
-  // ],
-  DELIVERY_CITIES: [],
-  SPECIAL_FILTERS: [
-    { label: 'Open Now', value: 'openNow' },
-    { label: 'Top Rated', value: 'topRated' },
-  ]
-};
+// Sort options
+const sortOptions = [
+  { id: 1, label: 'Default', value: 'default' },
+  { id: 2, label: 'Rating: High to Low', value: 'rating-desc' },
+  { id: 3, label: 'Rating: Low to High', value: 'rating-asc' },
+  { id: 4, label: 'Price: Low to High', value: 'costLowToHigh' },
+  { id: 5, label: 'Price: High to Low', value: 'costHighToLow' },
+];
 
 // Quick filters
-const QUICK_FILTERS = [
+const quickFilters = [
+  { name: 'Filters', icon: 'filter' },
   { name: 'Rating 4.0+', icon: 'star' },
   { name: 'Pure Veg', icon: 'leaf' },
   { name: 'Top Rated', icon: 'thumb-up' },
@@ -72,28 +52,86 @@ const QUICK_FILTERS = [
 export default function Tiffin() {
   const { user, isAuthenticated } = useAuth();
   const router = useRouter();
-  const [isLoading, setIsLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState('');
-  // const [selectedFilters, setSelectedFilters] = useState([]);
-  const [refreshing, setRefreshing] = useState(false);
-  const [isVegOnly, setIsVegOnly] = useState(false);
-  const [loadingVegData, setLoadingVegData] = useState(false);
-  const [isModalVisible, setIsModalVisible] = useState(false);
-  const [favoriteServices, setFavoriteServices] = useState([]);
-  const [favoriteLoading, setFavoriteLoading] = useState({});
+  const { safeNavigation } = useSafeNavigation();
+  const showcaseRef = useRef(null);
+
+  const isMountedRef = useRef(false);
+  const pendingTimeoutsRef = useRef(new Set());
+  const tiffinRequestRef = useRef(null);
+  const tiffinRequestIdRef = useRef(0);
+  const searchRequestRef = useRef(null);
+  const searchRequestIdRef = useRef(0);
+  const vegRequestRef = useRef(null);
+  const vegRequestIdRef = useRef(0);
+  const locationRequestRef = useRef(null);
+
+  const safeTimeout = useCallback((fn, ms) => {
+    const id = setTimeout(() => {
+      pendingTimeoutsRef.current.delete(id);
+      fn();
+    }, ms);
+    pendingTimeoutsRef.current.add(id);
+    return id;
+  }, []);
+
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+
+      pendingTimeoutsRef.current.forEach((id) => clearTimeout(id));
+      pendingTimeoutsRef.current.clear();
+
+      if (tiffinRequestRef.current) {
+        tiffinRequestRef.current.abort();
+        tiffinRequestRef.current = null;
+      }
+      if (searchRequestRef.current) {
+        searchRequestRef.current.abort();
+        searchRequestRef.current = null;
+      }
+      if (vegRequestRef.current) {
+        vegRequestRef.current.abort();
+        vegRequestRef.current = null;
+      }
+      if (locationRequestRef.current) {
+        locationRequestRef.current.abort();
+        locationRequestRef.current = null;
+      }
+    };
+  }, [safeTimeout]);
+
+  // Core state management
   const [localTiffinData, setLocalTiffinData] = useState([]);
-  const [recentlyViewData, setRecentlyViewdData] = useState([])
+  const [cursor, setCursor] = useState(null);
+  const [hasMore, setHasMore] = useState(true);
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+  const [error, setError] = useState(null);
+  const [notFound, setNotFound] = useState(false);
+
+  // Progress indicator states
+  const [showProgress, setShowProgress] = useState(false);
+  const [progress, setProgress] = useState(0);
+
+  // Search states
   const [query, setQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
-  const { safeNavigation } = useSafeNavigation();
-  const [location, setLocation] = useState({
-    city: 'Loading...',
-    state: '',
-    country: '',
-    lat: "43.6534627",
-    lon: "-79.4276471",
-  });
+  const [searchQuery, setSearchQuery] = useState('');
+
+  // Filter states
+  const [selectedSortOption, setSelectedSortOption] = useState(null);
+  const [selectedCuisines, setSelectedCuisines] = useState([]);
+  const [selectedDietary, setSelectedDietary] = useState([]);
+  const [minRatingFilter, setMinRatingFilter] = useState(null);
+  const [maxRatingFilter, setMaxRatingFilter] = useState(null);
+  const [priceRangeFilter, setPriceRangeFilter] = useState([]);
+  const [openNowFilter, setOpenNowFilter] = useState(false);
+  const [offersFilter, setOffersFilter] = useState(false);
+  const [activeQuickFilters, setActiveQuickFilters] = useState([]);
   const [showFilters, setShowFilters] = useState(false);
   const [activeFilters, setActiveFilters] = useState({
     sortBy: null,
@@ -103,154 +141,176 @@ export default function Tiffin() {
     deliveryCity: null,
     special: null,
   });
-  const [activeQuickFilters, setActiveQuickFilters] = useState([]);
-  const [minRatingFilter, setMinRatingFilter] = useState(null);
-  const [selectedDietary, setSelectedDietary] = useState([]);
-  const [offersFilter, setOffersFilter] = useState(false);
-  const [openNowFilter, setOpenNowFilter] = useState(false);
-  const [recommendedTiffins, setRecommendedTiffins] = useState([]);
 
+  // Veg mode states
+  const [isVegOnly, setIsVegOnly] = useState(false);
+  const [loadingVegData, setLoadingVegData] = useState(false);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+
+  // Favorites and recently viewed
+  const [favoriteServices, setFavoriteServices] = useState([]);
+  const [favoriteLoading, setFavoriteLoading] = useState({});
+  const [recentlyViewData, setRecentlyViewdData] = useState([]);
+  const [recommendedTiffins, setRecommendedTiffins] = useState([]);
+  const [popularData, setPopularData] = useState([]);
+
+  // Location state
+  const [location, setLocation] = useState({
+    city: 'Loading...',
+    state: '',
+    country: '',
+    lat: "43.6534627",
+    lon: "-79.4276471",
+  });
+
+  // Section Title Component
   const SectionTitleWithLines = ({ title }) => {
     return (
-      <View style={styles.titleContainer}>
-        <View style={styles.line} />
-        <Text style={styles.sectionTitleText}>{title}</Text>
-        <View style={styles.line} />
+      <View className="flex-row items-center mt-4 mb-4">
+        <View className="flex-1 h-px bg-primary" />
+        <Text className="font-outfit text-xs text-textprimary mx-2">{title}</Text>
+        <View className="flex-1 h-px bg-primary" />
       </View>
     );
   };
 
-  const toggleFavorite = useCallback(async (tiffinId) => {
-    if (!isAuthenticated || !user?.id) {
-      Alert.alert('Login Required', 'Please login to save favorites');
-      return;
+  // Fetch location
+  const fetchLocation = async () => {
+    if (locationRequestRef.current) {
+      locationRequestRef.current.abort();
     }
-
-    setFavoriteLoading(prev => ({ ...prev, [tiffinId]: true }));
+    const controller = new AbortController();
+    locationRequestRef.current = controller;
 
     try {
-      const response = await axios.post(
-        `${Api_url}/api/tiffins/${tiffinId}/like`,
-        {},
-        { headers: { "Content-Type": "application/json" }, withCredentials: true }
-      );
-      console.log('data', JSON.stringify(response.data))
-    } catch (error) {
-      console.error('Error toggling favorite:', error);
-      Alert.alert('Error', 'Failed to update favorite status');
-    } finally {
-      setFavoriteLoading(prev => ({ ...prev, [tiffinId]: false }));
-    }
-  }, [isAuthenticated, user?.id], fetchLikedTiffins);
-
-  const fetchLikedTiffins = useCallback(async (tiffinId) => {
-    if (isAuthenticated && user?.id) {
-      try {
-        const response = await axios.get(`${Api_url}/api/tiffins/liked`, {
-          headers: { "Content-Type": "application/json" },
-          withCredentials: true
+      const locationResponse = await axios.get(`${Api_url}/api/location`, { signal: controller.signal });
+      const { city, state, country, lat, lon } = locationResponse.data;
+      if (isMountedRef.current) {
+        setLocation({
+          city: city || 'Unknown City',
+          state: state || '',
+          country: country || '',
+          lat: lat || null,
+          lon: lon || null
         });
+      }
+    } catch (error) {
+      if (error?.name === 'CanceledError' || error?.name === 'AbortError' || error?.code === 'ERR_CANCELED') {
+        return;
+      }
+      console.error('Error fetching location:', error);
+      if (isMountedRef.current) {
+        setLocation({
+          city: 'Unknown City',
+          state: '',
+          country: '',
+          lat: null,
+          lon: null
+        });
+      }
+    }
+  };
 
-        let favorites = [];
-        if (response.data && Array.isArray(response.data.favorites)) {
-          favorites = response.data.favorites;
-        }
-        else if (Array.isArray(response.data)) {
-          favorites = response.data;
-        }
-        else if (response.data && typeof response.data === 'object') {
-          // Try to extract array from the object
-          favorites = Object.values(response.data).find(Array.isArray) || [];
-        }
-        setFavoriteServices(favorites.map(t => t._id || t.id || t));
-      } catch (error) {
-        console.error('Error fetching favorites:', error);
+  // Fetch recently viewed data
+  const FetchRecentlyViewData = useCallback(async () => {
+    if (!isAuthenticated || !user?.id) {
+      setRecentlyViewdData([]);
+      return;
+    }
+    
+    try {
+      const response = await axios.get(`${Api_url}/firm/getrecently-viewed`, {
+        withCredentials: true
+      });
+
+      const firmItems = response.data.recentlyViewed
+        ?.filter(item => item.itemType === "Tiffin")
+        ?.map(item => ({
+          id: item.itemId,
+          Title: item.tiffinInfo?.name || 'Unknown Tiffin',
+          Rating: item.tiffinInfo?.ratings || 0,
+          Images: item.tiffinInfo?.image_urls || [],
+          address: item.tiffinInfo?.address || '',
+        })) || [];
+
+      if (isMountedRef.current) {
+        setRecentlyViewdData(firmItems);
+      }
+    } catch (error) {
+      console.error('Error fetching recently viewed data:', error);
+      if (isMountedRef.current) {
+        setRecentlyViewdData([]);
       }
     }
   }, [isAuthenticated, user?.id]);
 
-  // Call this when component mounts and when user toggles favorites
-  useEffect(() => {
-    fetchLikedTiffins();
-  }, [fetchLikedTiffins]);
-
-  const fetchLocation = async () => {
-    try {
-      const locationResponse = await axios.get(`${Api_url}/api/location`);
-      const { city, state, country, lat, lon } = locationResponse.data;
-      setLocation({
-        city: city || 'Unknown City',
-        state: state || '',
-        country: country || '',
-        lat: lat || null,
-        lon: lon || null
-      });
-    } catch (error) {
-      console.error('Error fetching location:', error);
-      setLocation({
-        city: 'Unknown City',
-        state: '',
-        country: '',
-        lat: null,
-        lon: null
-      });
+  // Fetch popular/recommended tiffins
+  const sortPopularData = useCallback(() => {
+    const sorted = localTiffinData.filter(
+      (item) => item.Rating >= 4
+    );
+    if (isMountedRef.current) {
+      setPopularData(sorted);
     }
-  };
-const FetchRecentlyViewData = useCallback(async () => {
-  try {
-    const response = await axios.get(`${Api_url}/firm/getrecently-viewed`, {
-      withCredentials: true
-    });
+  }, [localTiffinData]);
 
-    // Improved data transformation
-    const firmItems = response.data.recentlyViewed
-      ?.filter(item => item.itemType === "Tiffin")
-      ?.map(item => ({
-        id: item.itemId,
-        Title: item.tiffinInfo?.name || 'Unknown Tiffin',
-        Rating: item.tiffinInfo?.ratings || 0,
-        Images: item.tiffinInfo?.image_urls || [],
-        address: item.tiffinInfo?.address || '',
-        // mincost: 0,
-        // isVeg: item.tiffinInfo?.name?.toLowerCase().includes('veg') || false,
-        // Delivery_Cities: [], 
-        // "Meal_Types": [] 
-      })) || [];
+  // Main fetch function with pagination
+  const fetchTiffinData = async (params = {}, isLoadMore = false) => {
+    if (isLoadMore && !hasMore) return [];
 
-    console.log('Recently viewed data:', firmItems);
-    setRecentlyViewdData(firmItems);
-  } catch (error) {
-    console.error('Error fetching recently viewed data:', error);
-    setRecentlyViewdData([]);
-  }
-}, []);
-  const fetchTiffinData = async (filters = {}) => {
+    const requestId = ++tiffinRequestIdRef.current;
+    if (tiffinRequestRef.current) {
+      tiffinRequestRef.current.abort();
+    }
+    const controller = new AbortController();
+    tiffinRequestRef.current = controller;
+
+    if (isMountedRef.current) {
+      setLoading(true);
+      setShowProgress(true);
+      setProgress(0);
+      setError(null);
+    }
+
+    const interval = setInterval(() => {
+      if (!isMountedRef.current) return;
+      setProgress(prev => (prev >= 90 ? prev : prev + 10));
+    }, 100);
+
     try {
-      setIsLoading(true);
-      let url = `${Api_url}/api/tiffin/tiffins/filter`;
-      const params = new URLSearchParams();
+      const baseParams = {
+        limit: 20,
+        cursor: isLoadMore ? cursor : null,
+      };
 
-      // Apply filters if any
-      if (filters.sortBy) {
-        const [sortField, sortOrder] = filters.sortBy.split('-');
-        params.append('sortBy', sortField);
-        params.append('order', sortOrder);
+      // Apply filters
+      if (selectedSortOption) {
+        const [sortField, sortOrder] = selectedSortOption.value.split('-');
+        baseParams.sortBy = sortField;
+        baseParams.order = sortOrder;
       }
-      if (filters.rating) params.append('minRating', filters.rating);
-      if (filters.price) params.append('price', filters.price);
-      if (filters.category) params.append('category', filters.category);
-      if (filters.deliveryCity) params.append('deliveryCity', filters.deliveryCity);
-      if (filters.special === 'openNow') {
+      if (minRatingFilter) baseParams.minRating = minRatingFilter;
+      if (maxRatingFilter) baseParams.maxRating = maxRatingFilter;
+      if (priceRangeFilter.length > 0) baseParams.priceRange = priceRangeFilter.join(',');
+      if (openNowFilter) baseParams.openNow = true;
+      if (offersFilter) baseParams.offers = true;
+      if (isVegOnly) baseParams.category = 'veg';
+      else if (selectedDietary.length > 0) baseParams.Dietary = selectedDietary.join(',');
+
+      const finalParams = { ...baseParams, ...params };
+
+      let url = `${Api_url}/api/tiffin/tiffins/filter`;
+      if (activeFilters.special === 'openNow') {
         url = `${Api_url}/api/tiffin/tiffins/open-now`;
-      } else if (filters.special === 'topRated') {
+      } else if (activeFilters.special === 'topRated') {
         url = `${Api_url}/api/tiffin/tiffins/high-rated`;
       }
 
-      if (params.toString() && !['open-now', 'high-rated'].includes(filters.special)) {
-        url += `?${params.toString()}`;
-      }
-
-      const response = await axios.get(url);
+      const response = await axios.get(url, {
+        params: finalParams,
+        withCredentials: true,
+        signal: controller.signal,
+      });
 
       if (!response.data || (!Array.isArray(response.data) && !Array.isArray(response.data.tiffins))) {
         throw new Error('Invalid data format from API');
@@ -286,28 +346,68 @@ const FetchRecentlyViewData = useCallback(async () => {
         };
       }).filter(Boolean);
 
-      const allCities = transformedData.flatMap(tiffin => tiffin.Delivery_Cities || []);
-      const uniqueCities = [...new Set(allCities)].filter(city => city.trim() !== '');
-      FILTER_OPTIONS.DELIVERY_CITIES = uniqueCities.map(city => ({
-        label: city,
-        value: city.toLowerCase().replace(/\s+/g, '-')
-      }));
+      if (!isMountedRef.current || requestId !== tiffinRequestIdRef.current) return [];
 
-      setLocalTiffinData(transformedData);
+      if (isLoadMore) {
+        setIsLoadingMore(false);
+        setLocalTiffinData(prev => [...prev, ...transformedData]);
+      } else {
+        setLocalTiffinData(transformedData);
+      }
+
+      setCursor(response.data.nextCursor);
+      setHasMore(response.data.nextCursor !== null && transformedData.length === 20);
+      setNotFound(false);
+
+      // Update recommended tiffins
       updateRecommendedTiffins(transformedData);
+
+      return transformedData;
     } catch (error) {
+      if (error?.name === 'CanceledError' || error?.name === 'AbortError' || error?.code === 'ERR_CANCELED') {
+        return [];
+      }
       console.error('Error fetching tiffin data:', error);
-      setLocalTiffinData([]);
+      if (!isLoadMore) {
+        if (isMountedRef.current) {
+          setNotFound(true);
+          removeNotFound();
+        }
+      }
+      if (isLoadMore) {
+        if (isMountedRef.current) {
+          setIsLoadingMore(false);
+        }
+      }
+      return [];
     } finally {
-      setIsLoading(false);
+      clearInterval(interval);
+      if (isMountedRef.current) {
+        setProgress(100);
+        safeTimeout(() => {
+          if (!isMountedRef.current || requestId !== tiffinRequestIdRef.current) return;
+          setLoading(false);
+          setShowProgress(false);
+          setRefreshing(false);
+        }, 300);
+      }
     }
   };
+
+  const removeNotFound = async () => {
+    safeTimeout(async () => {
+      if (!isMountedRef.current) return;
+      setNotFound(false);
+      await fetchTiffinData({}, false);
+    }, 1500);
+  };
+
+  // Update recommended tiffins
   const updateRecommendedTiffins = useCallback((data) => {
     if (!data || !data.length) return;
 
     let recommendations = [...data];
 
-    // Filter by delivery city first (if location is available)
     if (location.city && location.city !== 'Loading...' && location.city !== 'Unknown City') {
       recommendations = recommendations.filter(tiffin =>
         tiffin.Delivery_Cities?.some(city =>
@@ -315,10 +415,8 @@ const FetchRecentlyViewData = useCallback(async () => {
         ))
     }
 
-    // Filter to only include tiffins with rating >= 4
     recommendations = recommendations.filter(tiffin => tiffin.Rating >= 4);
 
-    // Then sort by rating and price
     recommendations.sort((a, b) => {
       if (b.Rating !== a.Rating) {
         return b.Rating - a.Rating;
@@ -328,10 +426,134 @@ const FetchRecentlyViewData = useCallback(async () => {
       return aPrice - bPrice;
     });
 
-    setRecommendedTiffins(recommendations);
+    if (isMountedRef.current) {
+      setRecommendedTiffins(recommendations);
+    }
   }, [location.city]);
 
-  const handleQuickFilter = (filterName) => {
+  // Fetch liked tiffins
+  const fetchLikedTiffins = useCallback(async () => {
+    if (isAuthenticated && user?.id) {
+      try { 
+        const response = await axios.get(`${Api_url}/api/tiffins/liked`, {
+          headers: { "Content-Type": "application/json" },
+          withCredentials: true
+        });
+
+        let favorites = [];
+        if (response.data && Array.isArray(response.data.favorites)) {
+          favorites = response.data.favorites;
+        } else if (Array.isArray(response.data)) {
+          favorites = response.data;
+        } else if (response.data && typeof response.data === 'object') {
+          favorites = Object.values(response.data).find(Array.isArray) || [];
+        }
+        if (isMountedRef.current) {
+          setFavoriteServices(favorites.map(t => t._id || t.id || t));
+        }
+      } catch (error) {
+        console.error('Error fetching favorites:', error);
+      }
+    }
+  }, [isAuthenticated, user?.id]);
+
+  // Toggle favorite
+  const toggleFavorite = useCallback(async (tiffinId) => {
+    if (!isAuthenticated || !user?.id) {
+      Alert.alert('Login Required', 'Please login to save favorites');
+      return;
+    }
+
+    setFavoriteLoading(prev => ({ ...prev, [tiffinId]: true }));
+
+    try {
+      const response = await axios.post(
+        `${Api_url}/api/tiffins/${tiffinId}/like`,
+        {},
+        { headers: { "Content-Type": "application/json" }, withCredentials: true }
+      );
+      await fetchLikedTiffins();
+    } catch (error) {
+      console.error('Error toggling favorite:', error);
+      Alert.alert('Error', 'Failed to update favorite status');
+    } finally {
+      setFavoriteLoading(prev => ({ ...prev, [tiffinId]: false }));
+    }
+  }, [isAuthenticated, user?.id, fetchLikedTiffins]);
+
+  // Search functionality
+  useEffect(() => {
+    const searchTiffins = async () => {
+      if (query.trim() === '') {
+        if (searchRequestRef.current) {
+          searchRequestRef.current.abort();
+          searchRequestRef.current = null;
+        }
+        setSearchResults([]);
+        setIsSearching(false);
+        return;
+      }
+
+      setIsSearching(true);
+      const requestId = ++searchRequestIdRef.current;
+      if (searchRequestRef.current) {
+        searchRequestRef.current.abort();
+      }
+      const controller = new AbortController();
+      searchRequestRef.current = controller;
+      try {
+        const response = await axios.get(`${Api_url}/search`, {
+          params: { query },
+          signal: controller.signal,
+        });
+
+        const results = response.data?.tiffins || [];
+        const formattedResults = results.map(tiffin => {
+          if (!tiffin) return null;
+
+          return {
+            id: tiffin.id,
+            Title: tiffin.tiffin_name || 'Unknown Kitchen',
+            Rating: tiffin.rating || 0,
+            Images: tiffin.image_url ? [tiffin.image_url] : [],
+            Prices: {},
+            "Meal_Types": [],
+            "Delivery_Cities": [],
+            category: tiffin.category || [],
+            isVeg: tiffin.category?.includes('veg') || false
+          };
+        }).filter(Boolean);
+
+        if (!isMountedRef.current || requestId !== searchRequestIdRef.current) return;
+        setSearchResults(formattedResults);
+      } catch (error) {
+        if (error?.name === 'CanceledError' || error?.name === 'AbortError' || error?.code === 'ERR_CANCELED') return;
+        console.error('Error searching tiffins:', error);
+        if (!isMountedRef.current || requestId !== searchRequestIdRef.current) return;
+        setSearchResults([]);
+      } finally {
+        if (!isMountedRef.current || requestId !== searchRequestIdRef.current) return;
+        setIsSearching(false);
+      }
+    };
+
+    const debounceTimer = setTimeout(searchTiffins, 500);
+    return () => {
+      clearTimeout(debounceTimer);
+      if (searchRequestRef.current) {
+        searchRequestRef.current.abort();
+        searchRequestRef.current = null;
+      }
+    };
+  }, [query]);
+
+  // Quick filter handler
+  const handleQuickFilterPress = (filterName) => {
+    if (filterName === 'Filters') {
+      setShowFilters(true);
+      return;
+    }
+
     setActiveQuickFilters(prev => {
       const newFilters = prev.includes(filterName)
         ? prev.filter(f => f !== filterName)
@@ -354,364 +576,91 @@ const FetchRecentlyViewData = useCallback(async () => {
     });
   };
 
-  const applyFilters = async () => {
-    try {
-      setIsLoading(true);
-      await fetchTiffinData(activeFilters);
-    } catch (error) {
-      console.error('Error applying filters:', error);
-      Alert.alert('Error', 'Failed to apply filters. Please try again.');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const clearFilters = () => {
-    setActiveFilters({
-      sortBy: null,
-      category: null,
-      rating: null,
-      price: null,
-      deliveryCity: null,
-      special: null,
-    });
-    setActiveQuickFilters([]);
-    setMinRatingFilter(null);
-    setSelectedDietary([]);
-    setOffersFilter(false);
-    setOpenNowFilter(false);
-    fetchTiffinData();
-  };
-
-  const onRefresh = useCallback(async () => {
-    setRefreshing(true);
-    try {
-      await Promise.all([fetchTiffinData(activeFilters), fetchLocation()]);
-    } catch (error) {
-      console.error('Error during refresh:', error);
-      Alert.alert('Error', 'Failed to refresh data. Please try again.');
-    } finally {
-      setRefreshing(false);
-    }
-  }, [activeFilters]);
-
+  // Apply filters effect
   useEffect(() => {
-    const fetchInitialData = async () => {
-      await Promise.all([fetchTiffinData(), fetchLocation()]);
+    const applyFilters = async () => {
+      const requestId = ++tiffinRequestIdRef.current;
+      const firmsData = await fetchTiffinData();
+      if (!isMountedRef.current || requestId !== tiffinRequestIdRef.current) return;
+      setLocalTiffinData(firmsData);
     };
-    fetchInitialData();
-    FetchRecentlyViewData();
-  }, []);
-
-  useEffect(() => {
-    if (Object.values(activeFilters).some(filter => filter !== null) ||
-      activeQuickFilters.length > 0) {
-      applyFilters();
-    }
-  }, [activeFilters, activeQuickFilters]);
-
-  const handleSearch = useCallback((query) => {
-    setSearchQuery(query);
-  }, []);
-
-  useEffect(() => {
-    const searchTiffins = async () => {
-      if (query.trim() === '') {
-        setSearchResults([]);
-        setIsSearching(false);
-        return;
-      }
-
-      setIsSearching(true);
-      try {
-        const response = await axios.get(`${Api_url}/search`, {
-          params: { query }
-        });
-
-        const results = response.data?.tiffins || [];
-        const formattedResults = results.map(tiffin => {
-          if (!tiffin) return null;
-
-          return {
-            id: tiffin.id,
-            Title: tiffin.tiffin_name || 'Unknown Kitchen',
-            Rating: tiffin.rating || 0,
-            Images: tiffin.image_url ? [tiffin.image_url] : [],
-            Prices: {},
-            "Meal_Types": [],
-            "Delivery_Cities": [],
-            category: tiffin.category || [],
-            isVeg: tiffin.category?.includes('veg') || false
-          };
-        }).filter(Boolean);
-
-        setSearchResults(formattedResults);
-      } catch (error) {
-        console.error('Error searching tiffins:', error);
-        setSearchResults([]);
-      } finally {
-        setIsSearching(false);
-      }
-    };
-
-    const debounceTimer = setTimeout(searchTiffins, 500);
+    const debounceTimer = setTimeout(applyFilters, 300);
     return () => clearTimeout(debounceTimer);
-  }, [query]);
+  }, [
+    selectedSortOption,
+    selectedCuisines,
+    selectedDietary,
+    minRatingFilter,
+    maxRatingFilter,
+    priceRangeFilter,
+    openNowFilter,
+    offersFilter,
+    isVegOnly
+  ]);
 
-  const getDisplayData = () => {
-    if (query.trim() && searchResults.length > 0) {
-      return searchResults;
-    }
-    return localTiffinData;
-  };
-
-  const filteredTiffinData = getDisplayData().filter(item => {
-    if (!item || !item.id) return false;
-
-    const matchesSearch = searchQuery
-      ? item.Title.toLowerCase().includes(searchQuery.toLowerCase())
-      : true;
-
-    const matchesVegOnly = isVegOnly ? item.isVeg === true : true;
-    return matchesSearch && matchesVegOnly;
-  });
-
-  const getItemKey = (item, index) => {
-    return item?.id ? `${item.id}` : `item-${index}`;
-  };
-  const renderTiffinItem = useCallback(({ item, index, isVertical = false }) => {
-    if (!item) return null;
-
-    const isFavorite = favoriteServices.includes(item.id)
-    const isLoading = favoriteLoading[item.id];
-    if (isVertical) {
-      return (
-        <TiffinCard
-          key={getItemKey(item, index)}
-          firm={{
-            id: item.id,
-            image: item.Images?.[0] || require('../../assets/images/food1.jpg'),
-            title: item.Title || 'Unknown',
-            rating: item.Rating || 0,
-            priceRange: item.mincost || 'N/A',
-            mealTypes: item["Meal_Types"] || [],
-            deliveryCities: item.Delivery_Cities || [],
-          }}
-          onPress={() => {
-            safeNavigation({
-              pathname: '/screens/TiffinDetails',
-              params: { tiffinId: item.id }
-            });
-          }}
-          onFavoriteToggle={() => toggleFavorite(item.id, item.Title)}
-          isFavorite={isFavorite}
-          isLoading={isLoading}
-        />
-      );
-    } else {
-      return (
-        <MinTiffinCard
-          key={getItemKey(item, index)}
-          tiffinId={item.id}
-          firm={{
-            tiffinId: item.id,
-            image: item.Images?.[0] || require('../../assets/images/food1.jpg'),
-            title: item.Title || 'Unknown',
-            rating: item.Rating || 0,
-            // priceRange: Object.values(item.Prices || {})[0] || 'N/A',
-            // mealTypes: item["Meal_Types"] || item["Meal Types"] || [],
-            // deliveryCities: item.Delivery_Cities || [],
-            // isVeg: item.isVeg || false
-          }}
-          onPress={() => {
-            if (!item.id) {
-              console.error('No ID found for item:', item);
-              return;
-            }
-            safeNavigation({
-              pathname: '/screens/TiffinDetails',
-              params: {
-                tiffinId: item.id
-              }
-            });
-          }}
-          onFavoriteToggle={() => toggleFavorite(item.id, item.Title)}
-          isFavorite={isFavorite}
-          isLoading={isLoading}
-        />
-      );
-    }
-  }, [favoriteServices, favoriteLoading, safeNavigation, toggleFavorite]);
-  const renderSection = ({ title, subtitle, data, viewAllRoute, emptyMessage, isVertical, customSubtitleComponent }) => {
-    if (!data || data.length === 0) {
-      return (
-        <View style={styles.sectionContainer}>
-          <Text style={styles.emptyMessage}>{emptyMessage}</Text>
-        </View>
-      );
-    }
-
-    return (
-      <View style={styles.sectionContainer}>
-        <SectionTitleWithLines title={title} />
-        <View style={styles.sectionHeader}>
-          {viewAllRoute && (
-            <TouchableOpacity onPress={() => safeNavigation({
-              pathname: viewAllRoute,
-              params: {
-                title,
-                filters: JSON.stringify(activeFilters),
-                searchQuery
-              }
-            })}>
-              {/* <Text style={styles.viewAllText}>View All</Text> */}
-            </TouchableOpacity>
-          )}
-        </View>
-
-        <FlatList
-          data={data}
-          renderItem={(props) => renderTiffinItem({ ...props, isVertical })}
-          keyExtractor={(item, index) => getItemKey(item, index)}
-          horizontal={!isVertical}
-          showsHorizontalScrollIndicator={!isVertical}
-          scrollEnabled={true}
-          contentContainerStyle={isVertical ? styles.verticalListContainer : styles.horizontalListContainer}
-        />
-      </View>
-    );
-  };
-
-  const renderMainContent = () => {
-    if (isSearching) {
-      return (
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#e23845" />
-        </View>
-      );
-    }
-
-    if (query.trim() && searchResults.length === 0 && !isSearching) {
-      return (
-        <View style={styles.emptyContainer}>
-          <Text style={styles.emptyText}>No results found for "{query}"</Text>
-          <TouchableOpacity
-            style={styles.retryButton}
-            onPress={() => setQuery('')}
-          >
-            <Text style={styles.retryButtonText}>Clear Search</Text>
-          </TouchableOpacity>
-        </View>
-      );
-    }
-
-    return query.trim() ? (
-      renderSection({
-        data: filteredTiffinData,
-        emptyMessage: 'No matching services found',
-        isVertical: true,
-      })
-    ) : (
-      <>
-        <View><BannerCarousel page="Tiffin-services" /></View>
-        <Whatsonyou />
-        {recentlyViewData.length > 0 && renderSection({
-          title: 'RECENTLY VIEWED',
-          data: recentlyViewData,
-          emptyMessage: 'No recently viewed tiffins',
-          isVertical: false
-        })}
-        {renderSection({
-          title: 'RECOMMENDED FOR YOU',
-          data: recommendedTiffins.length ? recommendedTiffins : updateRecommendedTiffins,
-          emptyMessage: 'No recommendations available',
-          isVertical: false
-        })}
-
-
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          style={styles.quickFiltersContainer}
-          contentContainerStyle={styles.quickFiltersContent}
-        >
-          <Pressable
-            style={styles.filterButton}
-            onPress={() => setShowFilters(true)}
-          >
-            <MaterialCommunityIcons name="filter" size={20} color="#e23845" />
-            <Text style={styles.filterButtonText}>Filters</Text>
-          </Pressable>
-
-          {QUICK_FILTERS.map((filter) => (
-            <TouchableOpacity
-              key={filter.name}
-              style={[
-                styles.filterButton,
-                activeQuickFilters.includes(filter.name) && styles.activeQuickFilter
-              ]}
-              onPress={() => handleQuickFilter(filter.name)}
-            >
-              <MaterialCommunityIcons
-                name={filter.icon}
-                size={16}
-                color={activeQuickFilters.includes(filter.name) ? '#e23845' : '#666'}
-              />
-              <Text style={[
-                styles.quickFilterText,
-                activeQuickFilters.includes(filter.name) && styles.activeQuickFilterText
-              ]}>
-                {filter.name}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
-
-        {renderSection({
-          title: 'ALL TIFFIN SERVICES',
-          data: filteredTiffinData,
-          emptyMessage: query.trim() ? 'No matching services found' : 'No services available',
-          isVertical: true,
-        })}
-      </>
-    );
-  };
-
-  // Veg Mode: fetch veg tiffins
+  // Veg mode handling
   const sortVegData = useCallback(async () => {
     if (isVegOnly) {
-      setLoadingVegData(true);
+      const requestId = ++vegRequestIdRef.current;
+      if (vegRequestRef.current) {
+        vegRequestRef.current.abort();
+      }
+      const controller = new AbortController();
+      vegRequestRef.current = controller;
+
+      if (isMountedRef.current) {
+        setLoadingVegData(true);
+      }
       const MIN_LOADING_TIME = 1000;
       const startTime = Date.now();
 
       try {
         const response = await axios.get(`${Api_url}/api/tiffin/tiffins/filter?category=veg`, {
-          withCredentials: true
+          withCredentials: true,
+          signal: controller.signal,
         });
 
         const elapsed = Date.now() - startTime;
         const remaining = MIN_LOADING_TIME - elapsed;
         if (remaining > 0) {
-          setTimeout(() => setLoadingVegData(false), remaining);
+          safeTimeout(() => {
+            if (!isMountedRef.current || requestId !== vegRequestIdRef.current) return;
+            setLoadingVegData(false);
+          }, remaining);
         } else {
-          setLoadingVegData(false);
+          if (isMountedRef.current && requestId === vegRequestIdRef.current) {
+            setLoadingVegData(false);
+          }
         }
       } catch (error) {
+        if (error?.name === 'CanceledError' || error?.name === 'AbortError' || error?.code === 'ERR_CANCELED') {
+          return;
+        }
         console.error('Error fetching vegetarian data:', error);
         const elapsed = Date.now() - startTime;
         const remaining = MIN_LOADING_TIME - elapsed;
         if (remaining > 0) {
-          setTimeout(() => setLoadingVegData(false), remaining);
+          safeTimeout(() => {
+            if (!isMountedRef.current || requestId !== vegRequestIdRef.current) return;
+            setLoadingVegData(false);
+          }, remaining);
         } else {
-          setLoadingVegData(false);
+          if (isMountedRef.current && requestId === vegRequestIdRef.current) {
+            setLoadingVegData(false);
+          }
         }
       }
     } else {
-      setLoadingVegData(false);
+      if (vegRequestRef.current) {
+        vegRequestRef.current.abort();
+        vegRequestRef.current = null;
+      }
+      if (isMountedRef.current) {
+        setLoadingVegData(false);
+      }
     }
-  }, [isVegOnly]);
+  }, [isVegOnly, safeTimeout]);
 
-  // Upload veg mode to server
   const HandleUploadVegMode = async () => {
     try {
       await fetch(`${Api_url}/api/updateVegMode`, {
@@ -724,13 +673,14 @@ const FetchRecentlyViewData = useCallback(async () => {
     }
   };
 
-  // Get veg mode from server
   const handleGetVegMode = async () => {
     try {
       const response = await axios.get(`${Api_url}/api/getVegMode`, {
         withCredentials: true
       });
-      setIsVegOnly(response.data.vegMode);
+      if (isMountedRef.current) {
+        setIsVegOnly(response.data.vegMode);
+      }
     } catch (error) {
       console.error("Error fetching vegMode", error);
     }
@@ -751,121 +701,470 @@ const FetchRecentlyViewData = useCallback(async () => {
   const handleKeepUsing = () => {
     setIsModalVisible(false);
     setIsVegOnly(true);
+    setSelectedDietary(['vegetarian']);
   };
 
-  if (isLoading) {
+  // Initial data fetch
+  const fetchInitialData = async () => {
+    setIsInitialLoading(true);
+    try {
+      await fetchLocation();
+      const firmsData = await fetchTiffinData();
+      if (firmsData && firmsData.length > 0) {
+        setLocalTiffinData(firmsData);
+      }
+      await FetchRecentlyViewData();
+      sortPopularData();
+    } catch (error) {
+      console.error('Error in initial data fetch:', error);
+      setError('Failed to load tiffin services.');
+    } finally {
+      setIsInitialLoading(false);
+    }
+  };
+
+  // Refresh handler
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    setCursor(null);
+    setHasMore(true);
+    fetchInitialData();
+  }, []);
+
+  // Load more handler
+  const handleLoadMore = () => {
+    if (hasMore && !isLoadingMore && !isSearching && query.trim() === '') {
+      setIsLoadingMore(true);
+      fetchTiffinData({}, true);
+      FetchRecentlyViewData();
+      sortPopularData();
+    }
+  };
+
+  useEffect(() => {
+    fetchInitialData();
+    fetchLikedTiffins();
+  }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      FetchRecentlyViewData();
+    }, [FetchRecentlyViewData])
+  );
+
+  useEffect(() => {
+    sortPopularData();
+  }, [localTiffinData]);
+
+  // Filtered data
+  const filteredTiffinData = useMemo(() => {
+    if (query.trim() !== '') {
+      return searchResults;
+    }
+    return localTiffinData.filter(item => {
+      if (!item || !item.id) return false;
+      const matchesSearch = searchQuery
+        ? item.Title.toLowerCase().includes(searchQuery.toLowerCase())
+        : true;
+      const matchesVegOnly = isVegOnly ? item.isVeg === true : true;
+      return matchesSearch && matchesVegOnly;
+    });
+  }, [localTiffinData, query, searchResults, searchQuery, isVegOnly]);
+
+  // Get item key
+  const getItemKey = (item, index) => {
+    return item?.id ? `${item.id}` : `item-${index}`;
+  };
+
+  // Render tiffin item
+  const renderTiffinItem = useCallback(({ item, index, isVertical = false }) => {
+    if (!item) return null;
+
+    const isFavorite = favoriteServices.includes(item.id);
+    const isLoading = favoriteLoading[item.id];
+
+    if (isVertical) {
+      return (
+        <TiffinCard
+          key={getItemKey(item, index)}
+          firm={{
+            id: item.id,
+            image: item.Images?.[0] || require('../../assets/images/food1.jpg'),
+            title: item.Title || 'Unknown',
+            rating: item.Rating || 0,
+            priceRange: item.mincost || 'N/A',
+            mealTypes: item["Meal_Types"] || [],
+            deliveryCities: item.Delivery_Cities || [],
+          }}
+          onPress={() => {
+            safeNavigation({
+              pathname: '/screens/TiffinDetails',
+              params: { tiffinId: item.id }
+            });
+          }}
+          onFavoriteToggle={() => toggleFavorite(item.id)}
+          isFavorite={isFavorite}
+          isLoading={isLoading}
+        />
+      );
+    } else {
+      return (
+        <MinTiffinCard
+          key={getItemKey(item, index)}
+          tiffinId={item.id}
+          firm={{
+            tiffinId: item.id,
+            image: item.Images?.[0] || require('../../assets/images/food1.jpg'),
+            title: item.Title || 'Unknown',
+            rating: item.Rating || 0,
+          }}
+          onPress={() => {
+            if (!item.id) {
+              console.error('No ID found for item:', item);
+              return;
+            }
+            safeNavigation({
+              pathname: '/screens/TiffinDetails',
+              params: { tiffinId: item.id }
+            });
+          }}
+          onFavoriteToggle={() => toggleFavorite(item.id)}
+          isFavorite={isFavorite}
+          isLoading={isLoading}
+        />
+      );
+    }
+  }, [favoriteServices, favoriteLoading, safeNavigation, toggleFavorite]);
+
+  // Render main content
+  if (isInitialLoading) {
     return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#e23845" />
+      <View className="flex-1 justify-center items-center bg-white">
+        <ActivityIndicator size="large" color="#02757A" />
       </View>
     );
   }
 
-  // if (!isLoading && localTiffinData.length === 0 && !query.trim()) {
-  //   return (
-  //     <View style={styles.emptyContainer}>
-  //       <Text style={styles.emptyText}>No tiffin services available</Text>
-  //       <TouchableOpacity
-  //         style={styles.retryButton}
-  //         onPress={fetchTiffinData}
-  //       >
-  //         <Text style={styles.retryButtonText}>Retry</Text>
-  //       </TouchableOpacity>
-  //     </View>
-  //   );
-  // }
-
   return (
-    <SafeAreaView style={styles.container}>
-      {/* Header Section */}
-      <View style={styles.headerSection}>
-        <View style={styles.topContainer}>
-          <View style={styles.locationContainer}>
-            <LocationHeader />
-          </View>
-          <View style={{ display: "flex", flexDirection: "row", marginRight: 10, marginTop: 10, }}>
-            <TouchableOpacity
-              style={styles.profileButton}
-              onPress={() => router.push('/screens/NoficationsPage')}
-            >
-              <Ionicons name='notifications-circle-sharp' size={38} style={{ color: '#e23845', marginRight: 10 }} />
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.profileButton}
-              onPress={() => router.push('/screens/User')}
-            >
-              <Ionicons name='person-circle' size={40} style={{ color: '#e23845' }} />
-            </TouchableOpacity>
-          </View>
-        </View>
-        <View style={styles.searchAndVegContainer}>
-          <SearchBar
-            query={query}
-            setQuery={setQuery}
-            onSearch={handleSearch}
-          />
-          <View style={styles.vegFilterContainer}>
-            <Text style={styles.vegFilterText}>Veg Mode</Text>
-            <Switch
-              trackColor={{ false: "#767577", true: "#8BC34A" }}
-              thumbColor="#f4f3f4"
-              ios_backgroundColor="#3e3e3e"
-              onValueChange={(newValue) => {
-                setIsVegOnly(newValue);
-                if (!newValue) {
-                  setIsModalVisible(true);
-                }
-              }}
-              style={{ marginTop: 0 }}
-              value={isVegOnly}
-            />
-          </View>
-          <Modal
-            visible={isModalVisible}
-            transparent
-            animationType="fade"
-            onRequestClose={() => setIsModalVisible(false)}
-          >
-            <View style={styles.modalBackground}>
-              <View style={styles.modalV}>
-                <View style={styles.imageView}>
-                  <Image
-                    style={styles.imageE}
-                    source={require('../../assets/images/error1.png')}
-                  />
-                </View>
-                <Text style={{ color: "black", fontWeight: "bold", fontSize: 20, marginTop: 5 }}>Switch off Veg Mode?</Text>
-                <Text style={{ color: "black", fontWeight: "400", marginTop1: 10, fontSize: 15, marginTop: 10 }}>You'll see all restaurants, including those</Text>
-                <Text >serving non-veg dishes</Text>
-                <TouchableOpacity onPress={() => setIsModalVisible(false)}>
-                  <Text style={{ color: "red", fontSize: 15, fontWeight: "500", marginTop: 20 }}>Switch off</Text>
-                </TouchableOpacity>
-                <TouchableOpacity onPress={handleKeepUsing} style={styles.KeepUsingButton}>
-                  <Text style={{ color: "black", fontSize: 15, fontWeight: "500" }}>keep using it</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-          </Modal>
+    <View className="flex-1 bg-white p-4">
+      {/* Header */}
+      <View className="flex-row justify-between items-center mr-1 ml-0.5">
+        <LocationHeader />
+        <View className="flex-row pr-4 items-center">
+          <TouchableOpacity onPress={() => safeNavigation('/screens/NoficationsPage')}>
+            <Ionicons name='notifications-circle-outline' color='#02757A' size={42} style={{ marginRight: 10 }} />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => safeNavigation('/screens/User')}>
+            <Ionicons name='person-circle-outline' size={42} color='#02757A' />
+          </TouchableOpacity>
         </View>
       </View>
 
-      {/* {renderFilterModal()} */}
+      {/* Search and Veg Mode */}
+      <View className="flex-row items-center justify-between mr-1.5 ml-1.5">
+        <SearchBar
+          query={query}
+          setQuery={setQuery}
+          onSearch={setSearchQuery}
+        />
+        <View className="flex-col items-center justify-start ml-2.5">
+          <Text className="text-base font-outfit-medium text-textsecondary text-center">Veg</Text>
+          <Text className="text-sm font-outfit-bold text-textsecondary text-center">Mode</Text>
+          <Switch
+            trackColor={{ false: "#767577", true: "#8BC34A" }}
+            thumbColor="#f4f3f4"
+            ios_backgroundColor="#3e3e3e"
+            onValueChange={(newValue) => {
+              setIsVegOnly(newValue);
+              setSelectedDietary(newValue ? ['vegetarian'] : []);
+              if (!newValue) {
+                setIsModalVisible(true);
+              }
+            }}
+            style={{ marginTop: -5 }}
+            value={isVegOnly}
+          />
+        </View>
+
+        {/* Veg Mode Loading Modal */}
+        <Modal
+          visible={loadingVegData}
+          transparent={false}
+          onRequestClose={() => setLoadingVegData(false)}
+        >
+          <View className="bg-white items-center justify-center flex-1">
+            <Image
+              source={require("../../assets/images/natural.png")}
+              className="w-24 h-24"
+            />
+            <Text className="text-base text-textprimary font-semibold mt-4">
+              Explore veg tiffins from all services
+            </Text>
+          </View>
+        </Modal>
+
+        {/* Veg Mode Switch Off Modal */}
+        <Modal
+          visible={isModalVisible}
+          transparent
+          animationType="fade"
+          onRequestClose={() => setIsModalVisible(false)}
+        >
+          <View className="bg-black/50 flex-1 justify-center">
+            <View className="bg-white rounded-2.5 flex-col mx-5 p-2.5 items-center">
+              <View className="mt-2.5 justify-center items-center">
+                <Image
+                  className="h-24 w-24"
+                  source={require('../../assets/images/error1.png')}
+                />
+              </View>
+              <Text className="text-textprimary font-bold text-xl mt-1">Switch off Veg Mode?</Text>
+              <Text className="text-textprimary font-normal text-base mt-2.5">
+                You'll see all tiffin services, including those
+              </Text>
+              <Text className="text-textprimary">serving non-veg dishes</Text>
+
+              <TouchableOpacity onPress={() => setIsModalVisible(false)}>
+                <Text className="text-red-500 text-base font-medium mt-5">Switch off</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity 
+                onPress={handleKeepUsing} 
+                className="p-2.5 mx-2.5 bg-white rounded-lg mt-2.5 justify-center items-center"
+              >
+                <Text className="text-textprimary text-base font-medium">keep using it</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
+      </View>
+
+      {/* Progress Bar */}
+      {showProgress && (
+        <View className="h-1 bg-gray-200 rounded-full overflow-hidden">
+          <View 
+            className="h-full bg-primary rounded-full" 
+            style={{ width: `${progress}%` }} 
+          />
+        </View>
+      )}
+
+      {/* Not Found Message */}
+      {notFound && (
+        <View className="p-4 items-center">
+          <Text className="text-textsecondary text-base">
+            No tiffin services found with these filters
+          </Text>
+        </View>
+      )}
+
+      {/* Main FlatList */}
+      <FlatList
+        data={filteredTiffinData}
+        ref={showcaseRef}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={['#02757A']}
+            tintColor={'#02757A'}
+          />
+        }
+        ListHeaderComponent={
+          query.trim() === '' ? (
+            <View>
+              {/* Banner */}
+              <View className="mr-1.5 ml-1.5">
+                <BannerCarousel page="Tiffin-services" />
+              </View>
+
+              {/* What's on your mind */}
+              <View className="mr-1.5 ml-1.5">
+                <Whatsonyou />
+              </View>
+
+              {/* Recently Viewed */}
+              <View className="flex">
+                <SectionTitleWithLines title="RECENTLY VIEWED" />
+
+                {recentlyViewData.length > 0 ? (
+                  <FlatList
+                    showsHorizontalScrollIndicator={false}
+                    data={recentlyViewData}
+                    horizontal
+                    keyExtractor={(item, index) => item.id + '-' + index}
+                    renderItem={({ item, index }) => (
+                      <MiniRecommendedCard
+                        key={item.id}
+                        name={item.Title}
+                        address={item.address}
+                        image={item.Images}
+                        rating={item.Rating}
+                        onPress={() => {
+                          safeNavigation({
+                            pathname: '/screens/TiffinDetails',
+                            params: { tiffinId: item.id }
+                          });
+                        }}
+                        onFavoriteToggle={() => {
+                          setFavoriteServices(prevState =>
+                            prevState.includes(item.id)
+                              ? prevState.filter(id => id !== item.id)
+                              : [...prevState, item.id]
+                          );
+                        }}
+                        isFavorite={favoriteServices.includes(item.id)}
+                      />
+                    )}
+                  />
+                ) : (
+                  <View className="items-center justify-center py-6">
+                    <Image
+                      source={require('@/assets/images/nodata.png')}
+                      className="w-36 h-36"
+                      resizeMode="contain"
+                    />
+                    <Text className="mt-3 text-sm font-outfit text-textsecondary text-center px-6">
+                      Browse tiffin services to start building your recently viewed list.
+                    </Text>
+                  </View>
+                )}
+              </View>
+
+              {/* Recommended for you */}
+              <View className="flex mt-1">
+                <SectionTitleWithLines title="RECOMMENDED FOR YOU" />
+                
+                {recommendedTiffins.length > 0 ? (
+                  <FlatList
+                    showsHorizontalScrollIndicator={false}
+                    data={recommendedTiffins}
+                    horizontal
+                    renderItem={({ item, index }) => (
+                      <MiniRecommendedCard
+                        key={getItemKey(item, index)}
+                        tiffinId={item.id}
+                        name={item.Title}
+                        address={item.address}
+                        image={item.Images}
+                        rating={item.Rating}
+                        onPress={() => {
+                          if (!item.id) {
+                            console.error('No ID found for item:', item);
+                            return;
+                          }
+                          safeNavigation({
+                            pathname: '/screens/TiffinDetails',
+                            params: { tiffinId: item.id }
+                          });
+                        }}
+                        onFavoriteToggle={() => {
+                          if (!item.id) return;
+                          setFavoriteServices(prevState =>
+                            prevState.includes(item.id)
+                              ? prevState.filter(id => id !== item.id)
+                              : [...prevState, item.id]
+                          );
+                        }}
+                        isFavorite={item.id ? favoriteServices.includes(item.id) : false}
+                      />
+                    )}
+                    keyExtractor={(item, index) => item.id ? `${item.id}` : `rec-item-${index}`}
+                  />
+                ) : (
+                  <View className="items-center justify-center py-6">
+                    <Image
+                      source={require('@/assets/images/nodata.png')}
+                      className="w-36 h-36"
+                      resizeMode="contain"
+                    />
+                    <Text className="mt-3 text-sm font-outfit text-textsecondary text-center px-6">
+                      We're curating personalized recommendations for you. Check back soon!
+                    </Text>
+                  </View>
+                )}
+              </View>
+
+              {/* All Tiffin Services */}
+              <SectionTitleWithLines title="ALL TIFFIN SERVICES" />
+
+              {/* Quick Filters */}
+              <View className="mb-4">
+                <FlatList
+                  data={quickFilters}
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  decelerationRate={1}
+                  keyExtractor={(item) => item.name}
+                  renderItem={({ item }) => {
+                    const isSelected = activeQuickFilters.includes(item.name);
+                    return (
+                      <TouchableOpacity
+                        className={`flex-row items-center px-3 py-2 mr-2 rounded-full border border-primary ${
+                          isSelected ? 'bg-primary' : ''
+                        }`}
+                        onPress={() => handleQuickFilterPress(item.name)}
+                        activeOpacity={0.7}
+                      >
+                        <MaterialCommunityIcons
+                          name={item.icon}
+                          size={16}
+                          color={isSelected ? "white" : "#02757A"}
+                          style={{ marginRight: 4 }}
+                        />
+                        <Text
+                          className={`text-sm font-outfit-medium ${
+                            isSelected ? 'text-white' : 'text-textprimary'
+                          }`}
+                        >
+                          {item.name}
+                        </Text>
+                      </TouchableOpacity>
+                    );
+                  }}
+                />
+              </View>
+            </View>
+          ) : null
+        }
+        renderItem={({ item }) => {
+          if (!item || !item.id) {
+            console.warn('Invalid tiffin item:', item);
+            return null;
+          }
+
+          return renderTiffinItem({ item, isVertical: true });
+        }}
+        keyExtractor={(item) => item.id}
+        onEndReached={handleLoadMore}
+        onEndReachedThreshold={0.5}
+        ListFooterComponent={
+          isLoadingMore ? (
+            <View className="flex-1 justify-center mt-10 items-center">
+              <ActivityIndicator size="large" color="#02757A" />
+            </View>
+          ) : null
+        }
+      />
+
+      {/* Filter Modal */}
       <FilterModal
         isOpen={showFilters}
         setIsOpen={setShowFilters}
         activeFilters={activeFilters}
         setActiveFilters={setActiveFilters}
-        onApplyFilters={applyFilters}
+        onApplyFilters={async () => {
+          try {
+            setLoading(true);
+            await fetchTiffinData(activeFilters);
+          } catch (error) {
+            console.error('Error applying filters:', error);
+            Alert.alert('Error', 'Failed to apply filters. Please try again.');
+          } finally {
+            setLoading(false);
+          }
+        }}
       />
-      <FlatList
-        data={[1]}
-        renderItem={() => renderMainContent()}
-        keyExtractor={() => 'main-content'}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-        }
-        contentContainerStyle={{ paddingBottom: 20 }}
-      />
-    </SafeAreaView>
+    </View>
   );
 }

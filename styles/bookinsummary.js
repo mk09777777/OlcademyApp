@@ -21,7 +21,8 @@ headerContainer:{
 headingText:{
     color:"white",
     fontSize:14,
-    fontWeight:"500"
+    fontWeight:"500",
+    fontFamily: 'outfit',
 },
 BillingDetailContainer:{
     marginLeft:10,
@@ -69,17 +70,20 @@ summary4Container:{
 TextAdd11:{
     color:"black",
     fontSize:16,
+    fontFamily: 'outfit',
     fontWeight:"600",
 },
 TextAdd21:{
     color:"#78787c",
     fontSize:15,
+    fontFamily: 'outfit',
     fontWeight:"600",
     marginTop:10
 },
 Text1:{
     color:"black",
     fontSize:15,
+    fontFamily: 'outfit',
     fontWeight:"500",
     marginLeft:10
 },
@@ -92,11 +96,13 @@ TextAddContainer:{
 TextAdd1:{
     color:"black",
     fontSize:15,
+    fontFamily: 'outfit',
     fontWeight:"500",
 },
 TextAdd2:{
     color:"#78787c",
     fontSize:14,
+    fontFamily: 'outfit',
     fontWeight:"400",
     marginBottom:10,
 },
@@ -125,12 +131,14 @@ addrequestStartActive:{
 },
 requestText:{
     fontSize:14,
+    fontFamily: 'outfit',
     fontWeight:"600",
     color:"black",
     marginLeft:10
 },
 requestText2:{
     fontSize:15,
+    fontFamily: 'outfit',
     fontWeight:"600",
     color:"#777b84",
     marginLeft:10,
@@ -157,6 +165,7 @@ line: {
   SeperateText:{
     color:"#535660",
     fontSize:18,
+    fontFamily: 'medium',
     fontWeight:"500"
   },
   TermsContainer:{
@@ -173,6 +182,7 @@ TermsText:{
     color:"black",
     marginLeft:10,
     fontSize:14,
+    fontFamily: 'outfit',
     fontWeight:"400"
 },
 DetailsContainer:{
@@ -189,6 +199,7 @@ DetailsContainer:{
 },
 EditText:{
     fontSize:16,
+    fontFamily: 'outfit-medium',
     fontWeight:"400",
     color:"#4a8a68"
 
@@ -196,6 +207,7 @@ EditText:{
 EditText2:{
     color:"#78787c",
     fontSize:14,
+    fontFamily: 'outfit',
     fontWeight:"400",
 
 },
@@ -230,34 +242,40 @@ PayButton:{
 payText1:{
     color:"black",
     fontSize:16,
+    fontFamily: 'outfit-medium',
     fontWeight:"500"
 },
 payText2:{
     color:"#78787c",
     fontSize:14,
+    fontFamily: 'outfit',
     fontWeight:"400",
     marginTop:2
 },
 payText3:{
     color:"white",
     fontSize:16,
+    fontFamily: 'outfit-medium',
     fontWeight:"500"
 },
 payText32:{
     color:"white",
     fontSize:14,
+    fontFamily: 'outfit',
     fontWeight:"400",
     marginTop:3
 },
 payText4:{
     color:"white",
     fontSize:13,
+    fontFamily: 'outfit',
     fontWeight:"400",
     marginTop:3
 },
 payText4:{
     color:"white",
     fontSize:16,
+    fontFamily: 'outfit-medium ',
     fontWeight:"600",
 }
 

@@ -13,11 +13,13 @@ export const styles = StyleSheet.create({
   },
   headerText: {
     fontSize: 20,
+    fontFamily: "outfit-bold",
     fontWeight: 'bold',
     marginLeft: 20,
   },
   otpMessage: {
     fontSize: 16,
+    fontFamily: "outfit-medium",
     textAlign: 'center',
     marginBottom: 30,
     color: '#666',
@@ -34,6 +36,7 @@ export const styles = StyleSheet.create({
   },
   pinCodeText: {
     fontSize: 20,
+    fontFamily: "outfit-bold",
   },
   focusStick: {
     backgroundColor: '#e23845',
@@ -56,6 +59,7 @@ export const styles = StyleSheet.create({
   buttonText: {
     color: '#fff',
     fontSize: 16,
+    fontFamily: "outfit-medium",
     fontWeight: 'bold',
   },
   resendOtpContainer: {
@@ -63,11 +67,13 @@ export const styles = StyleSheet.create({
   },
   timer: {
     fontSize: 14,
+    fontFamily: "outfit-medium",
     color: '#666',
     marginBottom: 5,
   },
   footerTxt: {
     fontSize: 14,
+    fontFamily: "outfit-medium",
     color: '#666',
   },
   resendTxt: {

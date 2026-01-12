@@ -1,52 +1,56 @@
 import React from 'react';
 import { View, TouchableOpacity, Text, Image } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
-import styles from '../styles/EventPage';
+import { normalizeImageSource } from '@/utils/eventUtils';
+
+const placeholderImage = require('@/assets/images/placeholder.png');
 
 const EventCard = ({ event, onPress }) => {
+  const coverImage = normalizeImageSource(event.image || event.bannerImage, placeholderImage);
+  const dateLabel = event.dateLabel || event.date;
+  const timeLabel = event.startTime && event.endTime
+    ? `${event.startTime} - ${event.endTime}`
+    : event.startTime || event.endTime;
+
   return (
-    <TouchableOpacity style={styles.eventCard} onPress={onPress}>
-      {/* Ensure event.image is a valid URI or use a default fallback */}
+    <TouchableOpacity className="bg-white rounded-3xl mb-4 shadow-md overflow-hidden" onPress={onPress}>
       <Image 
-        source={event.image} 
-        style={styles.eventImage} 
+        source={coverImage} 
+        className="w-full h-48"
       />
       
-      <View style={styles.eventContent}>
-        <Text style={styles.eventTitle}>{event.title || "Untitled Event"}</Text>
+      <View className="p-4">
+        <Text className="text-lg font-outfit-bold text-textprimary mb-3">{event.title || "Untitled Event"}</Text>
 
-        <View style={styles.eventInfo}>
+        <View className="flex-row items-center mb-2">
           <MaterialIcons name="calendar-today" size={16} color="#666" />
-          <Text style={styles.eventInfoText}>
-            {event.date ? new Date(event.date).toDateString() : "Date not available"}
+          <Text className="ml-2 text-sm text-textsecondary">
+            {dateLabel || 'Date not available'}
           </Text>
         </View>
 
-        <View style={styles.eventInfo}>
+        <View className="flex-row items-center mb-2">
           <MaterialIcons name="access-time" size={16} color="#666" />
-          <Text style={styles.eventInfoText}>
-            {event.startTime && event.endTime 
-              ? `${event.startTime} - ${event.endTime}` 
-              : "Time not set"}
+          <Text className="ml-2 text-sm text-textsecondary">
+            {timeLabel || 'Time not set'}
           </Text>
         </View>
 
-        <View style={styles.eventInfo}>
+        <View className="flex-row items-center mb-4">
           <MaterialIcons name="location-on" size={16} color="#666" />
-          <Text style={styles.eventInfoText}>{event.location || "Location not specified"}</Text>
+          <Text className="ml-2 text-sm text-textsecondary">{event.location || "Location not specified"}</Text>
         </View>
 
-        <View style={styles.eventFooter}>
-          <View style={styles.attendeeInfo}>
+        <View className="flex-row justify-between items-center">
+          <View className="flex-row items-center">
             <MaterialIcons name="people" size={16} color="#666" />
-            <Text style={styles.attendeeCount}>
+            <Text className="ml-1 text-sm text-textsecondary">
               {event.attendees ? `${event.attendees} attending` : "No attendees yet"}
             </Text>
           </View>
 
-          {/* Ensure "View Details" button triggers `onPress` */}
-          <TouchableOpacity style={styles.viewButton} onPress={onPress}>
-            <Text style={styles.viewButtonText}>View Details</Text>
+          <TouchableOpacity className="bg-primary px-4 py-2 rounded-2xl" onPress={onPress}>
+            <Text className="text-white font-outfit-bold text-sm">View Details</Text>
           </TouchableOpacity>
         </View>
       </View>

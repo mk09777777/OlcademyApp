@@ -121,6 +121,8 @@ const styles = StyleSheet.create({
   },
   menuItemTitle: {
     fontSize: 16,
+fontFamily: "outfit-medium",
+    fontFamily: "outfit-medium",
     fontWeight: 'bold',
     color: '#333',
     flexShrink: 1,
@@ -128,6 +130,7 @@ const styles = StyleSheet.create({
   },
   menuItemDescription: {
     fontSize: 13,
+    fontFamily: "outfit-medium",
     color: '#666',
     marginBottom: 8,
     lineHeight: 18,
@@ -139,17 +142,20 @@ const styles = StyleSheet.create({
   },
   ratingText: {
     fontSize: 12,
+    fontFamily: "outfit",
     color: '#666',
     marginLeft: 4,
   },
   menuItemPrice: {
     fontSize: 16,
+fontFamily: "outfit-medium",
     fontWeight: 'bold',
     color: '#FF4B3A',
     marginBottom: 8,
   },
   customizableText: {
     fontSize: 12,
+    fontFamily: "outfit",
     color: '#4CAF50',
     fontWeight: 'bold',
   },
@@ -168,7 +174,7 @@ const styles = StyleSheet.create({
     left:10,
     // paddingBottom:10,
     borderRadius: 10,
-    backgroundColor: '#FF4B3f',
+    backgroundColor: '#02757A',
     width:130,
     paddingHorizontal: 50,
     paddingVertical:4,
@@ -196,18 +202,21 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontWeight: 'bold',
     fontSize: 14,
+fontFamily: "outfit-medium",
   },
   addButtonLabelc: {
     paddingBottom:10,
     // color: '#fff',
     fontWeight: 'bold',
     fontSize: 12,
+    fontFamily: "outfit",
   },
   quantityText: {
     // bottom:10,
     color: '#000000',
     marginRight: 8,
     fontSize: 18,
+    fontFamily: "outfit-bold",
   },
   vegIndicator: {
     marginRight: 6,
@@ -280,7 +289,7 @@ bottomCheckoutBar: {
 checkoutButton: {
   flex: 1,
   borderRadius: 8,
-  backgroundColor: '#FF4B3A',
+  backgroundColor: '#02757A',
   paddingVertical: 12,
   marginLeft: 8,
 },
@@ -288,6 +297,7 @@ checkoutButtonText: {
   color: '#fff',
   fontWeight: 'bold',
   fontSize: 16,
+fontFamily: "outfit-medium",
   textAlign: 'center',
 },
 quantityControls: {
@@ -316,15 +326,18 @@ customizeButton: {
 customizeButtonLabel: {
   color: '#FF4B3A',
   fontSize: 14,
+fontFamily: "outfit-medium",
 },
 checkoutTotal: {
   fontSize: 16,
+fontFamily: "outfit-medium",
   fontWeight: 'bold',
   color: '#333',
   marginRight: 8,
 },
 checkoutQuantity: {
   fontSize: 14,
+fontFamily: "outfit-medium",
   color: '#666',
 },
 customizeContainer: {
@@ -337,6 +350,7 @@ customizeContainer: {
 },
 customizeDescription: {
   fontSize: 14,
+fontFamily: "outfit-medium",
   color: '#666',
   marginBottom: 16,
   lineHeight: 20,

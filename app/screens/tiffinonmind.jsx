@@ -2,11 +2,11 @@ import React, { Fragment, useEffect, useState } from 'react';
 import { FlatList, Text, View, ActivityIndicator } from 'react-native';
 import { useRoute } from '@react-navigation/native';
 import axios from 'axios';
-import { styles } from '@/styles/TakeAwayStyles';
 import { useNavigation } from 'expo-router';
 import { useSafeNavigation } from '@/hooks/navigationPage';
 import BackRouting from "@/components/BackRouting";
 import TiffinCard from '@/components/TiffinCard';
+import { API_CONFIG } from '../../config/apiConfig';
 
 export default function OnMindScreens() {
     const route = useRoute();
@@ -27,7 +27,10 @@ export default function OnMindScreens() {
     const fetchFirms = async () => {
         setIsLoading(true);
         try {
-            const response = await axios.get(`http://10.34.125.16:3000/api/tiffin/tiffins/filter?kitchenName=${name}`);
+            const response = await axios.get(`${API_CONFIG.BACKEND_URL}/api/tiffin/tiffins/filter`, {
+                params: { kitchenName: name },
+                withCredentials: true,
+            });
 
             if (!response.data || (!Array.isArray(response.data) && !Array.isArray(response.data.tiffins))) {
                 throw new Error('Invalid data format from API');
@@ -84,7 +87,7 @@ export default function OnMindScreens() {
 
     if (isLoading) {
         return (
-            <View style={[styles.container, styles.center]}>
+            <View className="flex-1 justify-center items-center bg-white">
                 <ActivityIndicator size="large" color="#e23845" />
             </View>
         );
@@ -92,23 +95,23 @@ export default function OnMindScreens() {
 
     if (error) {
         return (
-            <View style={[styles.container, styles.center]}>
-                <Text style={styles.errorText}>{error}</Text>
+            <View className="flex-1 justify-center items-center bg-white">
+                <Text className="text-red-500 text-base font-outfit text-center px-4">{error}</Text>
             </View>
         );
     }
 
     return (
         <Fragment>
-            <View style={styles.container}>
+            <View className="flex-1 bg-white">
                 <BackRouting tittle={name} />
 
                 <FlatList
                     data={allData}
                     keyExtractor={(item, index) => item?.id ? item.id.toString() : index.toString()}
                     ListEmptyComponent={
-                        <View style={styles.emptyContainer}>
-                            <Text style={styles.emptyText}>No restaurants found</Text>
+                        <View className="flex-1 justify-center items-center py-10">
+                            <Text className="text-gray-500 text-base font-outfit">No restaurants found</Text>
                         </View>
                     }
                     renderItem={({ item }) => (

@@ -17,6 +17,7 @@ const styles = StyleSheet.create({
   },
   messageText: {
     fontSize: 15,
+    fontFamily: 'outfit-medium ',
     color: '#000',
   },
   timeText: {
@@ -36,6 +37,7 @@ const styles = StyleSheet.create({
   optionText: {
     color: '#007bff',
     fontSize: 15,
+    fontFamily: 'outfit-medium ',
     fontWeight: '500',
   },
 });

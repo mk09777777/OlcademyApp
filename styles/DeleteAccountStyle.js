@@ -18,6 +18,7 @@ const DeleteAccountStyles = StyleSheet.create({
         marginLeft: 10,
         marginTop: 10,
         fontSize: 17,
+        fontFamily: 'outfit-medium ',
         fontWeight: "bold",
         color:"#000000"
     },
@@ -25,6 +26,7 @@ const DeleteAccountStyles = StyleSheet.create({
         marginLeft: 10,
         marginTop: 5,
         fontSize: 13,
+        fontFamily: 'outfit ',
         color:"#000000",
         fontWeight:"500",
         marginBottom:25
@@ -41,6 +43,7 @@ const DeleteAccountStyles = StyleSheet.create({
     },
     ChoiceText:{
         fontSize:14,
+        fontFamily: 'outfit-medium ',
         color:"#000000",
         fontWeight:"500",
         marginBottom:6,
@@ -74,6 +77,7 @@ const DeleteAccountStyles = StyleSheet.create({
       },
       savechangesText:{
         fontSize:16,
+        fontFamily: 'outfit-medium ',
         fontWeight:"500",
         color:"#aeb2be"
       },
@@ -93,6 +97,7 @@ const DeleteAccountStyles = StyleSheet.create({
       },
       savechangesTextAtive:{
         fontSize:16,
+        fontFamily: 'outfit-medium ',
         fontWeight:"500",
         color:"white"
       }

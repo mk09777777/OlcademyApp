@@ -1,9 +1,10 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, Image, StyleSheet, Modal, ScrollView } from 'react-native';
-import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { View, Text, TouchableOpacity, Image, Modal, ScrollView } from 'react-native';
+// import { StyleSheet } from 'react-native';
+import { Ionicons, MaterialCommunityIcons, Entypo } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useAuth } from '@/context/AuthContext';
-import  {styles } from '../styles/TiffinOrderCardstyle';
+
 const TiffinOrderCard = ({ 
   item, 
   formatDate, 
@@ -22,7 +23,7 @@ const TiffinOrderCard = ({
    const firmId = firstItem.sourceEntityId?._id;
    console.log(firmId)
   const tiffinImage = firstItem.img || "https://placehold.co/150x150/e0f2f7/00796b?text=Tiffin";
-    const { user, profileData, api } = useAuth();
+  const { user, profileData, api } = useAuth();
   const currentUserData = profileData?.email ? profileData : (user ? { username: user } : null);
   const handleFavoritePress = () => {
     if (onToggleFavorite) {
@@ -33,23 +34,23 @@ const TiffinOrderCard = ({
   return (
     <View>
       <TouchableOpacity
-        style={styles.orderCard}
+        className="bg-white rounded-lg p-4 mb-4 shadow-sm border border-border"
          onPress={() => onPress(item)} 
         activeOpacity={0.8}
       >
-        <View style={styles.restaurantHeader}>
-          <View style={styles.restaurantInfo}>
+        <View className="flex-row justify-between items-center mb-3">
+          <View className="flex-row items-center flex-1">
             <Image
               source={{ uri: tiffinImage }}
-              style={styles.restaurantImage}
+              className="w-16 h-16 rounded-lg mr-3"
               onError={() => console.log("Image load error")}
               resizeMode="cover"
             />
-            <View style={styles.restaurantDetails}>
-              <Text style={styles.restaurantName} numberOfLines={2} ellipsizeMode="tail">
+            <View className="flex-1">
+              <Text className="text-textprimary font-outfit-bold text-lg" numberOfLines={2} ellipsizeMode="tail">
                 {tiffinName}
               </Text>
-              <Text style={styles.priceText}>${item.totalPrice?.toFixed(2)}</Text>
+             
             </View>
           </View>
           <TouchableOpacity onPress={handleFavoritePress}>
@@ -61,27 +62,27 @@ const TiffinOrderCard = ({
           </TouchableOpacity>
         </View>
 
-        <View style={styles.cardContent}>
-          <View style={styles.orderItems}>
+        <View>
+          <View className="mb-3">
             {item.items?.map((orderItem, idx) => {
               const mealType = orderItem.mealType?.name || "Tiffin Meal";
               const quantity = orderItem.quantity || 1;
               const isVegetarian = orderItem.foodType?.toLowerCase().includes('veg');
 
               return (
-                <View key={`${idx}`} style={styles.orderItemt}>
+                <View key={`${idx}`} className="flex-row items-center mb-2">
                   {isVegetarian ? (
-                    <View style={styles.vegIcon}>
-                      <View style={styles.vegIconInner} />
+                    <View className="w-4 h-4 border-2 border-green-500 rounded mr-2 items-center justify-center">
+                      <View className="w-2 h-2 bg-green-500 rounded" />
                     </View>
                   ) : (
-                    <View style={[styles.vegIcon, styles.nonVegIcon]}>
-                      <View style={[styles.vegIconInner, styles.nonVegIconInner]} />
+                    <View className="w-4 h-4 border-2 border-red-500 rounded mr-2 items-center justify-center">
+                      <View className="w-2 h-2 bg-red-500 rounded" />
                     </View>
                   )}
 
                   <Text
-                    style={styles.itemText}
+                    className="text-textprimary font-outfit text-sm flex-1"
                     numberOfLines={1}
                     ellipsizeMode="tail"
                   >
@@ -92,32 +93,31 @@ const TiffinOrderCard = ({
             })}
           </View>
 
-          <View style={styles.cardFooter}>
+          <View className="flex-row justify-between items-center">
             <View>
-              <Text style={styles.orderDate}>
+              <Text className="text-textsecondary font-outfit text-sm">
                 {formatDate(item?.orderTime)} at {formatTime(item?.orderTime)}
               </Text>
               <View>
                 <Text
-                  style={[
-                    styles.orderStatus,
-                    { color: getStatusColor(item.status) },
-                  ]}
+                  className="font-outfit-bold text-sm"
+                  style={{ color: getStatusColor(item.status) }}
                 >
                   {item.status || 'Status unknown'}
                 </Text>
               </View>
             </View>
-            <TouchableOpacity
-              style={styles.viewDetailsButton}
-             onPress={() => onPress(item)} 
+        <TouchableOpacity
+              className="flex-row items-center"
+              onPress={() => onPress(item)}
               hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
             >
-              <Text style={styles.viewDetailsButtonText}>View Details</Text>
+              <Text className="text-primary font-outfit-bold text-lg mr-2">${item.totalPrice?.toFixed(2)}</Text>
+              <Entypo name="chevron-right" size={22} color="#aaa" />
             </TouchableOpacity>
           </View>
-              <TouchableOpacity
-                    style={styles.viewDetailButton}
+              {/* <TouchableOpacity
+                    style={styles.viewDetailsButton}
                       onPress={() => router.push({
                               pathname: "/screens/Userrating",
                               params: {
@@ -128,8 +128,8 @@ const TiffinOrderCard = ({
                               }
                             })}
                   >
-                    <Text style={styles.viewDetails}>Review</Text>
-                  </TouchableOpacity>
+                    <Text style={styles.viewDetail}>Review</Text>
+                  </TouchableOpacity> */}
         </View>
       </TouchableOpacity>
 
@@ -141,95 +141,95 @@ const TiffinOrderCard = ({
           transparent={true}
           onRequestClose={closeOrderDetails}
         >
-          <View style={styles.modalOverlay}>
-            <View style={styles.modalContainer}>
-              <ScrollView style={styles.modalContent}>
+          <View className="flex-1 bg-black/50 justify-center">
+            <View className="bg-white rounded-t-3xl max-h-4/5 m-4">
+              <ScrollView className="p-4">
                 {/* Modal Header */}
-                <View style={styles.modalHeader}>
-                     <TouchableOpacity onPress={closeOrderDetails} style={styles.closeButton}>
+                <View className="flex-row justify-between items-center mb-4 pb-4 border-b border-border">
+                     <TouchableOpacity onPress={closeOrderDetails} className="p-2">
                     <Ionicons name="close" size={26} color="#666" />
                   </TouchableOpacity>
-                  <Text style={styles.modalTitle}>Order Details</Text>
+                  <Text className="text-textprimary font-outfit-bold text-xl">Order Details</Text>
                
                 </View>
-                <View style={styles.paymentRow}>
-                  <Text style={[styles.paymentLabel, styles.discountText]}>OrderId:-</Text>
-                  <Text style={[styles.paymentValue, styles.discountText]}>{selectedOrder?._id}</Text>
+                <View className="flex-row justify-between items-center py-2">
+                  <Text className="text-sm text-gray-600">OrderId:-</Text>
+                  <Text className="text-sm text-gray-600">{selectedOrder?._id}</Text>
                 </View>
                 
                 {/* Order Summary Section */}
-                <View style={styles.section}>
-                  <Text style={styles.sectionTitle}>Order Summary</Text>
-                  <View style={styles.infoRow}>
+                <View className="mb-6">
+                  <Text className="text-lg font-bold mb-3">Order Summary</Text>
+                  <View className="flex-row items-center mb-2">
                     <Ionicons name="restaurant-outline" size={22} color="#0b50c6ff" />
-                    <Text style={styles.infoText}>
+                    <Text className="ml-2 text-gray-700 flex-1">
                       {selectedOrder.items?.[0]?.sourceEntityId?.kitchenName || "Unknown Tiffin Service"}
                     </Text>
                   </View>
-                  <View style={styles.infoRow}>
+                  <View className="flex-row items-center mb-2">
                     <Ionicons name="calendar-outline" size={22} color="#0b50c6ff" />
-                    <Text style={styles.infoText}>
+                    <Text className="ml-2 text-gray-700 flex-1">
                       {formatDate(selectedOrder.orderTime)} at {formatTime(selectedOrder.orderTime)}
                     </Text>
                   </View>
                   {selectedOrder.phone && (
-                    <View style={styles.infoRow}>
+                    <View className="flex-row items-center mb-2">
                       <Ionicons name="call" size={22} color="#2f8c07ff" />
-                      <Text style={styles.infoText}>{selectedOrder.phone.number || 'N/A'}</Text>
+                      <Text className="ml-2 text-gray-700 flex-1">{selectedOrder.phone.number || 'N/A'}</Text>
                     </View>
                   )}
-                  <View style={styles.infoRow}>
+                  <View className="flex-row items-center mb-2">
                     <Ionicons name="location-outline" size={22} color="#0b50c6ff" />
-                    <Text style={styles.infoText}>{selectedOrder.address || "N/A"}</Text>
+                    <Text className="ml-2 text-gray-700 flex-1">{selectedOrder.address || "N/A"}</Text>
                   </View>
                   {selectedOrder.specialInstructions && (
-                    <View style={styles.specialInstructionsContainer}>
-                      <View style={styles.instructionHeader}>
-                        <MaterialCommunityIcons name="information-outline" size={20} color="gray" style={styles.icon} />
-                        <Text style={styles.instructionTitle}>Special Instructions:</Text>
+                    <View className="mt-3 p-3 bg-gray-50 rounded-lg">
+                      <View className="flex-row items-center mb-2">
+                        <MaterialCommunityIcons name="information-outline" size={20} color="gray" className="mr-2" />
+                        <Text className="font-semibold text-gray-800">Special Instructions:</Text>
                       </View>
-                      <Text style={styles.instructionText}>{selectedOrder.specialInstructions}</Text>
+                      <Text className="text-gray-600">{selectedOrder.specialInstructions}</Text>
                     </View>
                   )}
                 </View>
 
                 {/* Order Items Section */}
-                <View style={styles.section}>
-                  <Text style={styles.sectionTitle}>Order Items</Text>
+                <View className="mb-6">
+                  <Text className="text-lg font-bold mb-3">Order Items</Text>
                   {selectedOrder.items.map((item, index) => (
-                    <View key={index} style={styles.orderItem}>
-                      <View style={styles.itemHeader}>
+                    <View key={index} className="mb-4 p-3 bg-gray-50 rounded-lg">
+                      <View className="mb-2">
                         {item.foodType && (
-                          <Text style={styles.itemName} numberOfLines={1} ellipsizeMode="tail">
+                          <Text className="font-semibold text-base" numberOfLines={1} ellipsizeMode="tail">
                             {item.foodType}
                           </Text>
                         )}
                       </View>
 
-                      <View style={styles.itemDetails}>
-                        <View style={styles.detailRow}>
-                          <Text style={styles.detailLabel}>Qty:</Text>
-                          <Text style={styles.detailValue}>{item.quantity}</Text>
+                      <View className="">
+                        <View className="flex-row justify-between mb-1">
+                          <Text className="text-sm text-gray-600">Qty:</Text>
+                          <Text className="text-sm font-medium">{item.quantity}</Text>
                         </View>
 
                         {item.mealType?.name && (
-                          <View style={styles.detailRow}>
-                            <Text style={styles.detailLabel}>Meal:</Text>
-                            <Text style={styles.detailValue}>{item.mealType.name}</Text>
+                          <View className="flex-row justify-between mb-1">
+                            <Text className="text-sm text-gray-600">Meal:</Text>
+                            <Text className="text-sm font-medium">{item.mealType.name}</Text>
                           </View>
                         )}
 
                         {item.selectedPlan?.name && (
-                          <View style={styles.detailRow}>
-                            <Text style={styles.detailLabel}>Plan:</Text>
-                            <Text style={styles.detailValue}>{item.selectedPlan.name}</Text>
+                          <View className="flex-row justify-between mb-1">
+                            <Text className="text-sm text-gray-600">Plan:</Text>
+                            <Text className="text-sm font-medium">{item.selectedPlan.name}</Text>
                           </View>
                         )}
 
                         {item.description && (
-                          <View style={styles.detailRow}>
-                            <Text style={styles.detailLabel}>Description:</Text>
-                            <Text style={[styles.detailValue, styles.descriptionText]} numberOfLines={2} ellipsizeMode="tail">
+                          <View className="flex-row justify-between mb-1">
+                            <Text className="text-sm text-gray-600">Description:</Text>
+                            <Text className="text-sm font-medium flex-1 ml-2" numberOfLines={2} ellipsizeMode="tail">
                               {item.description}
                             </Text>
                           </View>
@@ -237,9 +237,9 @@ const TiffinOrderCard = ({
                       </View>
 
                       {selectedOrder.deliverTime && (
-                         <View style={styles.detailRow}>
-                          <Text style={styles.detailLabel}>DeliverTime:</Text>
-                        <Text style={[styles.detailValue, styles.descriptionText]}>{selectedOrder.deliverTime}</Text>
+                         <View className="flex-row justify-between mb-1">
+                          <Text className="text-sm text-gray-600">DeliverTime:</Text>
+                        <Text className="text-sm font-medium">{selectedOrder.deliverTime}</Text>
                         </View>
                       )}
                     </View>
@@ -247,16 +247,16 @@ const TiffinOrderCard = ({
                 </View>
 
                 {selectedOrder.items?.[0]?.startDate && (
-                  <View style={styles.progressSection}>
-                    <Text style={styles.sectionTitle}>Subscription Progress</Text>
-                    <View style={styles.progressBarBackground}>
-                      <View style={[styles.progressBarFill, { width: `${calculateProgress(selectedOrder).progress}%` }]} />
+                  <View className="mb-6">
+                    <Text className="text-lg font-bold mb-3">Subscription Progress</Text>
+                    <View className="h-2 bg-gray-200 rounded-full mb-2">
+                      <View className="h-full bg-blue-500 rounded-full" style={{ width: `${calculateProgress(selectedOrder).progress}%` }} />
                     </View>
-                    <View style={styles.progressInfo}>
-                      <Text style={styles.progressText}>
+                    <View className="flex-row justify-between">
+                      <Text className="text-sm text-gray-600">
                         {calculateProgress(selectedOrder).deliveredDays} days delivered
                       </Text>
-                      <Text style={styles.progressPercent}>
+                      <Text className="text-sm font-semibold">
                         {calculateProgress(selectedOrder).progress.toFixed(0)}% complete
                       </Text>
                     </View>
@@ -264,82 +264,82 @@ const TiffinOrderCard = ({
                 )}
 
                 {/* Payment Summary Section */}
-                <View style={styles.section}>
-                  <Text style={styles.paymentTitle}>Payment Summary:</Text>
+                <View className="mb-6">
+                  <Text className="text-lg font-bold mb-3">Payment Summary:</Text>
 
-                  <View style={styles.paymentDetails}>
-                    <View style={styles.paymentRow}>
-                      <Text style={styles.paymentLabel}>Subtotal:</Text>
-                      <Text style={styles.paymentValue}>${selectedOrder.subtotal?.toFixed(2)}</Text>
+                  <View className="">
+                    <View className="flex-row justify-between py-2">
+                      <Text className="text-sm text-gray-600">Subtotal:</Text>
+                      <Text className="text-sm font-medium">${selectedOrder.subtotal?.toFixed(2)}</Text>
                     </View>
 
                     {selectedOrder.deliveryFee > 0 && (
-                      <View style={styles.paymentRow}>
-                        <Text style={styles.paymentLabel}>Delivery Fee:</Text>
-                        <Text style={styles.paymentValue}>${selectedOrder.deliveryFee?.toFixed(2)}</Text>
+                      <View className="flex-row justify-between py-2">
+                        <Text className="text-sm text-gray-600">Delivery Fee:</Text>
+                        <Text className="text-sm font-medium">${selectedOrder.deliveryFee?.toFixed(2)}</Text>
                       </View>
                     )}
 
                     {selectedOrder.gstCharges > 0 && (
-                      <View style={styles.paymentRow}>
-                        <Text style={styles.paymentLabel}>GST Charges:</Text>
-                        <Text style={styles.paymentValue}>${selectedOrder.gstCharges?.toFixed(2)}</Text>
+                      <View className="flex-row justify-between py-2">
+                        <Text className="text-sm text-gray-600">GST Charges:</Text>
+                        <Text className="text-sm font-medium">${selectedOrder.gstCharges?.toFixed(2)}</Text>
                       </View>
                     )}
 
                     {selectedOrder.platformFee > 0 && (
-                      <View style={styles.paymentRow}>
-                        <Text style={styles.paymentLabel}>Platform Fee:</Text>
-                        <Text style={styles.paymentValue}>${selectedOrder.platformFee?.toFixed(2)}</Text>
+                      <View className="flex-row justify-between py-2">
+                        <Text className="text-sm text-gray-600">Platform Fee:</Text>
+                        <Text className="text-sm font-medium">${selectedOrder.platformFee?.toFixed(2)}</Text>
                       </View>
                     )}
 
                     {Array.isArray(selectedOrder?.totalOtherCharges) && selectedOrder.totalOtherCharges.length > 0 && (
                       <View>
                         {selectedOrder.totalOtherCharges.map((charge, idx) => (
-                          <View key={idx} style={styles.paymentRow}>
-                            <Text style={styles.paymentLabel}>{charge.name || 'Additional Charge'}:</Text>
-                            <Text style={styles.paymentValue}>${charge.amount?.toFixed(2)}</Text>
+                          <View key={idx} className="flex-row justify-between py-2">
+                            <Text className="text-sm text-gray-600">{charge.name || 'Additional Charge'}:</Text>
+                            <Text className="text-sm font-medium">${charge.amount?.toFixed(2)}</Text>
                           </View>
                         ))}
                       </View>
                     )}
 
-                    <View style={styles.paymentRow}>
-                      <Text style={[styles.paymentLabel, styles.discountText]}>Discount:</Text>
-                      <Text style={[styles.paymentValue, styles.discountText]}>- ${selectedOrder.discount?.toFixed(2)}</Text>
+                    <View className="flex-row justify-between py-2">
+                      <Text className="text-sm text-green-600">Discount:</Text>
+                      <Text className="text-sm font-medium text-green-600">- ${selectedOrder.discount?.toFixed(2)}</Text>
                     </View>
 
-                    <View style={styles.totalPaymentRow}>
-                      <Text style={styles.totalPaymentLabel}>Total Paid:</Text>
-                      <Text style={styles.totalPaymentValue}>${selectedOrder.totalPrice?.toFixed(2)}</Text>
+                    <View className="flex-row justify-between py-3 border-t border-gray-200 mt-2">
+                      <Text className="text-base font-bold">Total Paid:</Text>
+                      <Text className="text-base font-bold text-blue-600">${selectedOrder.totalPrice?.toFixed(2)}</Text>
                     </View>
                   </View>
                 </View>
 
                 {selectedOrder.subStatus?.length > 0 && (
-                  <View style={styles.section}>
-                    <Text style={styles.sectionTitle}>Order Timeline</Text>
-                    <View style={styles.timeline}>
+                  <View className="mb-6">
+                    <Text className="text-lg font-bold mb-3">Order Timeline</Text>
+                    <View className="">
                       {selectedOrder.subStatus
                         .sort((a, b) => new Date(a.date) - new Date(b.date))
                         .map((status, index) => (
-                          <View key={index} style={styles.timelineItem}>
-                            <View style={styles.timelineDot}>
+                          <View key={index} className="flex-row items-start mb-3">
+                            <View className="w-6 h-6 rounded-full bg-gray-200 items-center justify-center mr-3 mt-1">
                               {status.statue === "delivered" ? (
                                 <Ionicons name="checkmark" size={12} color="#08a742" />
                               ) : (
                                 <Ionicons name="time" size={12} color="#FFA500" />
                               )}
                             </View>
-                            <View style={styles.timelineContent}>
-                              <Text style={styles.timelineStatus}>
+                            <View className="flex-1">
+                              <Text className="font-semibold text-gray-800 capitalize">
                                 {status.statue}
                                 {index === selectedOrder.subStatus.length - 1 && (
-                                  <Text style={styles.latestBadge}> Latest</Text>
+                                  <Text className="text-blue-600 font-bold"> Latest</Text>
                                 )}
                               </Text>
-                              <Text style={styles.timelineDate}>
+                              <Text className="text-sm text-gray-500">
                                 {formatDate(status.date)} at {formatTime(status.date)}
                               </Text>
                             </View>
@@ -351,16 +351,16 @@ const TiffinOrderCard = ({
 
                 {/* Cancellation Reason (if order is cancelled) */}
                 {selectedOrder.status === 'user_cancel' && selectedOrder.cancellationReason && (
-                  <View style={styles.section}>
-                    <Text style={styles.sectionTitle}>Cancellation Details</Text>
-                    <View style={styles.infoRow}>
+                  <View className="mb-6">
+                    <Text className="text-lg font-bold mb-3">Cancellation Details</Text>
+                    <View className="flex-row items-center mb-2">
                       <Ionicons name="alert-circle-outline" size={20} color="#666" />
-                      <Text style={styles.infoText}>Reason: {selectedOrder.cancellationReason}</Text>
+                      <Text className="ml-2 text-gray-700 flex-1">Reason: {selectedOrder.cancellationReason}</Text>
                     </View>
                     {selectedOrder.cancelledAt && (
-                      <View style={styles.infoRow}>
+                      <View className="flex-row items-center mb-2">
                         <Ionicons name="time-outline" size={20} color="#666" />
-                        <Text style={styles.infoText}>
+                        <Text className="ml-2 text-gray-700 flex-1">
                           Cancelled on: {formatDate(selectedOrder.cancelledAt)} at {formatTime(selectedOrder.cancelledAt)}
                         </Text>
                       </View>
@@ -374,12 +374,12 @@ const TiffinOrderCard = ({
                   selectedOrder.status !== 'ready' &&
                   selectedOrder.status !== 'rejected' &&
                   selectedOrder.status !== 'user_cancel' && (
-                    <View style={styles.cancelButtonContainer}>
+                    <View className="mt-6">
                       <TouchableOpacity
-                        style={styles.cancelButton}
+                        className="bg-red-500 py-3 px-6 rounded-lg items-center"
                         onPress={openCancelModal}
                       >
-                        <Text style={styles.cancelButtonText}>Cancel Order</Text>
+                        <Text className="text-white font-semibold">Cancel Order</Text>
                       </TouchableOpacity>
                     </View>
                   )}

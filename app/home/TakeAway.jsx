@@ -1,7 +1,6 @@
 import { View, Text, FlatList, Image, TouchableOpacity, Modal, ImageBackground, ActivityIndicator, ScrollView, RefreshControl, Switch } from 'react-native'
 import React, { useEffect, useMemo, useState, useRef, useCallback } from 'react'
 import BouncyCheckbox from "react-native-bouncy-checkbox";
-import { styles } from '@/styles/TakeAwayStyles'
 import { useRouter, } from 'expo-router'
 import axios from 'axios'
 import { Ionicons, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons'
@@ -9,11 +8,14 @@ import SearchBar from '@/components/SearchBar'
 import FirmCard from '@/components/FirmCard'
 import MiniRecommendedCard from '@/components/MiniRecommendedCard';
 import RadioButtonRN from 'radio-buttons-react-native'
+import { useSafeNavigation } from "@/hooks/navigationPage";
+
 // import { useBookmarkManager } from '../../hooks/BookMarkmanger';
 
 import Filterbox from '@/components/Filterbox';
 import LocationHeader from '@/components/HomeHeader';
 import { API_CONFIG } from '../../config/apiConfig';
+import styles from '../../styles/tiffinstyle';
 const Api_url = API_CONFIG.BACKEND_URL;
 export default function TakeAway() {
   // const { bookmarks, toggleBookmark, isBookmarked } = useBookmarkManager();
@@ -25,7 +27,7 @@ export default function TakeAway() {
   const [selectedDietary, setSelectedDietary] = useState([])
   const [selectedFeatures, setSelectedFeatures] = useState([])
   const [minRatingFilter, setMinRatingFilter] = useState(null)
-   const [maxRatingFilter, setMaxRatingFilter] = useState(null)
+  const [maxRatingFilter, setMaxRatingFilter] = useState(null)
   const [priceRangeFilter, setPriceRangeFilter] = useState([])
   const [openNowFilter, setOpenNowFilter] = useState(false)
   const [offersFilter, setOffersFilter] = useState(false)
@@ -45,6 +47,60 @@ export default function TakeAway() {
   const showcaseRef = useRef(null);
   const [profileData, setProfileData] = useState("");
   const [randomData, setRandomData] = useState([])
+  const { safeNavigation } = useSafeNavigation();
+
+  const isMountedRef = useRef(false);
+  const pendingTimeoutsRef = useRef(new Set());
+  const restaurantsControllerRef = useRef(null);
+  const restaurantsRequestIdRef = useRef(0);
+  const loadMoreControllerRef = useRef(null);
+  const loadMoreRequestIdRef = useRef(0);
+  const searchControllerRef = useRef(null);
+  const searchRequestIdRef = useRef(0);
+  const vegControllerRef = useRef(null);
+  const vegRequestIdRef = useRef(0);
+  const initialLoadControllerRef = useRef(null);
+
+  const safeTimeout = useCallback((fn, ms) => {
+    const id = setTimeout(() => {
+      pendingTimeoutsRef.current.delete(id);
+      fn();
+    }, ms);
+    pendingTimeoutsRef.current.add(id);
+    return id;
+  }, []);
+
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+
+      pendingTimeoutsRef.current.forEach((id) => clearTimeout(id));
+      pendingTimeoutsRef.current.clear();
+
+      if (restaurantsControllerRef.current) {
+        restaurantsControllerRef.current.abort();
+        restaurantsControllerRef.current = null;
+      }
+      if (loadMoreControllerRef.current) {
+        loadMoreControllerRef.current.abort();
+        loadMoreControllerRef.current = null;
+      }
+      if (searchControllerRef.current) {
+        searchControllerRef.current.abort();
+        searchControllerRef.current = null;
+      }
+      if (vegControllerRef.current) {
+        vegControllerRef.current.abort();
+        vegControllerRef.current = null;
+      }
+      if (initialLoadControllerRef.current) {
+        initialLoadControllerRef.current.abort();
+        initialLoadControllerRef.current = null;
+      }
+    };
+  }, [safeTimeout]);
+
   const [favoriteServices, setFavoriteServices] = useState([]);
   const [recentlyViewData, setRecentlyViewdData] = useState([])
   const [popularData, setPopularData] = useState([])
@@ -67,10 +123,10 @@ export default function TakeAway() {
   });
   const sortOptions = useMemo(() => ([
     { id: 1, label: 'Price Low to High', value: 'default' },
-     { id: 2, label: 'Rating', value: 'HighToLow' },
+    { id: 2, label: 'Rating', value: 'HighToLow' },
     { id: 3, label: 'Price Low to High', value: 'lowToHigh' },
-     { id: 4, label: 'Price High to Low', value: 'highToLow' },
-   
+    { id: 4, label: 'Price High to Low', value: 'highToLow' },
+
     { id: 5, label: 'Distance', value: 'deliveryTime' }
   ]), []);
   const quickFilters = [
@@ -111,13 +167,13 @@ export default function TakeAway() {
     offers: false,
   });
 
-const sortMapping = {
-  popularity: "default",
-  ratingHighToLow: "HighToLow",
-  costLowToHigh: "lowToHigh",
-  costHighToLow: "highToLow",
-  deliveryTime: "deliveryTime",
-};
+  const sortMapping = {
+    popularity: "default",
+    ratingHighToLow: "HighToLow",
+    costLowToHigh: "lowToHigh",
+    costHighToLow: "highToLow",
+    deliveryTime: "deliveryTime",
+  };
   const handleFav = async (firmId) => {
     const saved = await AsyncStorage.getItem("userProfileData");
     if (saved) {
@@ -127,7 +183,7 @@ const sortMapping = {
     const url = `${Api_url}/firm/fav/${firmId}`;
     console.log("Fetching URL:", url);
 
-    const response = await axios.post(url, { withCredentials: true });
+    const response = await axios.post(url, {}, { withCredentials: true });
     alert("updated successfull");
     console.log("Response:", response.data);
   };
@@ -146,7 +202,7 @@ const sortMapping = {
   const removeFavorite = async (firmId) => {
     try {
       const url = `${Api_url}/firm/favRemove/${firmId}`;
-      const response = await axios.post(url, { withCredentials: true });
+      const response = await axios.post(url, {}, { withCredentials: true });
       console.log("Response:", response.data);
       alert(response.data.message);
     } catch (error) {
@@ -206,26 +262,54 @@ const sortMapping = {
   };
 
   const fetchRestaurants = async (params = {}, isLoadMore = false) => {
-    if (!location.lat || !location.lon || (isLoadMore && !hasMore)) return [];
+    // Use userLocation as fallback if location is not properly set
+    const lat = location.lat || userLocation.latitude;
+    const lon = location.lon || userLocation.longitude;
 
-    setLoading(true);
-    setShowProgress(true);
-    setProgress(0);
-    setError(null);
+    // if (!lat || !lon || (isLoadMore && !hasMore)) {
+    //   console.log('Missing location data:', { lat, lon, location, userLocation });
+    //   setError('Location not available. Please enable location services.');
+    //   return [];
+    
+    console.log('Location check:', { lat, lon, location, userLocation });
+    
+    if (isLoadMore && !hasMore) {
+      return [];
+    }
+
+    const requestId = isLoadMore ? ++loadMoreRequestIdRef.current : ++restaurantsRequestIdRef.current;
+    const controller = new AbortController();
+    if (isLoadMore) {
+      if (loadMoreControllerRef.current) loadMoreControllerRef.current.abort();
+      loadMoreControllerRef.current = controller;
+    } else {
+      if (restaurantsControllerRef.current) restaurantsControllerRef.current.abort();
+      restaurantsControllerRef.current = controller;
+    }
+
+    if (isMountedRef.current) {
+      setLoading(true);
+      setShowProgress(true);
+      setProgress(0);
+      setError(null);
+    }
 
     const interval = setInterval(() => {
+      if (!isMountedRef.current) return;
       setProgress(prev => (prev >= 90 ? prev : prev + 10));
     }, 100);
 
     try {
       const baseParams = {
-        lat: userLocation.latitude,
-        lon: userLocation.longitude,
+        lat: lat,
+        lon: lon,
         radius: 5,
         limit: 20,
         cursor: isLoadMore ? cursor : null,
         features: 'Takeaway'
       };
+      
+      console.log('Fetching restaurants with params:', baseParams);
 
       if (selectedCuisines.length > 0) {
         baseParams.cuisines = selectedCuisines.join(',');
@@ -261,15 +345,27 @@ const sortMapping = {
       }
 
       const finalParams = { ...baseParams, ...params };
-      const response = await axios.get(`${Api_url}/firm/getnearbyrest?feature=Takeaway`, { 
+      console.log('Final API params:', finalParams);
+      console.log('API URL:', `${Api_url}/firm/getnearbyrest?feature=Takeaway`);
+      
+      const response = await axios.get(`${Api_url}/firm/getnearbyrest?feature=Takeaway`, {
         params: finalParams,
-        withCredentials: true 
+        withCredentials: true,
+        signal: controller.signal,
+        timeout: 15000 // 15 second timeout
       });
 
       if (response.data.success) {
         const newData = response.data.data || [];
+        if (!isMountedRef.current) return [];
+        if (isLoadMore) {
+          if (requestId !== loadMoreRequestIdRef.current) return [];
+        } else {
+          if (requestId !== restaurantsRequestIdRef.current) return [];
+        }
+
         setRandomData(newData);
-        
+
         const restaurantsWithDistance = newData.map(restaurant => {
           return { ...restaurant };
         });
@@ -288,51 +384,106 @@ const sortMapping = {
       } else {
         console.error('API error:', response.data.message);
         if (!isLoadMore) {
-          setNotFound(true);
-          removeNotFound();
+          if (isMountedRef.current) {
+            setNotFound(true);
+            removeNotFound();
+          }
         }
         return [];
       }
     } catch (error) {
+      if (error?.name === 'CanceledError' || error?.name === 'AbortError' || error?.code === 'ERR_CANCELED') {
+        return [];
+      }
+
       console.error('Error fetching firms:', error);
+      console.error('Error details:', error.response?.data || error.message);
+      
+      let errorMessage = 'Failed to load restaurants';
+      if (error.code === 'ECONNABORTED') {
+        errorMessage = 'Request timed out. Please check your internet connection.';
+      } else if (error.response?.status === 404) {
+        errorMessage = 'No restaurants found in your area';
+      } else if (error.response?.status >= 500) {
+        errorMessage = 'Server error. Please try again later.';
+      } else if (!error.response) {
+        errorMessage = 'Network error. Please check your internet connection.';
+      }
+      
+      if (isMountedRef.current) {
+        setError(errorMessage);
+      }
+      
       if (!isLoadMore) {
-        setNotFound(true);
-        removeNotFound();
+        if (isMountedRef.current) {
+          setNotFound(true);
+          removeNotFound();
+        }
       }
       if (isLoadMore) {
-        setIsLoadingMore(false);
+        if (isMountedRef.current) {
+          setIsLoadingMore(false);
+        }
       }
       return [];
     } finally {
       clearInterval(interval);
-      setProgress(100);
-      setTimeout(() => {
-        setLoading(false);
-        setShowProgress(false);
-        setRefreshing(false);
-      }, 300);
+      if (isMountedRef.current) {
+        setProgress(100);
+        safeTimeout(() => {
+          if (!isMountedRef.current) return;
+
+          // Only let the latest request flip loading flags.
+          if (isLoadMore) {
+            if (requestId !== loadMoreRequestIdRef.current) return;
+          } else {
+            if (requestId !== restaurantsRequestIdRef.current) return;
+          }
+
+          setLoading(false);
+          setShowProgress(false);
+          setRefreshing(false);
+        }, 300);
+      }
     }
   };
 
   const removeNotFound = async () => {
-    setTimeout(async () => {
+    safeTimeout(async () => {
+      if (!isMountedRef.current) return;
       setNotFound(false);
       await fetchRestaurants({}, false, false);
     }, 1500);
   };
 
   const fetchInitialData = async () => {
-    setIsInitialLoading(true);
+    if (initialLoadControllerRef.current) {
+      initialLoadControllerRef.current.abort();
+    }
+    const controller = new AbortController();
+    initialLoadControllerRef.current = controller;
+
+    if (isMountedRef.current) {
+      setIsInitialLoading(true);
+    }
     try {
-      const locationResponse = await axios.get(`${Api_url}/api/location`);
-      const { city, state, country, lat, lon } = locationResponse.data;
-      setLocation({
-        city: city || 'KIIT University',
-        state: state ? `${city}, ${state}` : 'Patia, Bhubaneshwar',
-        country,
-        lat,
-        lon
+      console.log('Fetching initial location data...');
+      const locationResponse = await axios.get(`${Api_url}/api/location`, {
+        timeout: 10000,
+        signal: controller.signal,
       });
+      console.log('Location response:', locationResponse.data);
+      
+      const { city, state, country, lat, lon } = locationResponse.data;
+      if (isMountedRef.current) {
+        setLocation({
+          city: city || 'KIIT University',
+          state: state ? `${city}, ${state}` : 'Patia, Bhubaneshwar',
+          country,
+          lat: lat || userLocation.latitude,
+          lon: lon || userLocation.longitude
+        });
+      }
 
       const firmsData = await fetchRestaurants();
       if (firmsData && firmsData.length > 0) {
@@ -344,19 +495,39 @@ const sortMapping = {
       await FetchRecentlyViewData();
       await sortPopularData();
     } catch (error) {
+      if (error?.name === 'CanceledError' || error?.name === 'AbortError' || error?.code === 'ERR_CANCELED') {
+        return;
+      }
       console.error('Error in initial data fetch:', error);
-      setError('Failed to detect location.');
-      setLocation({
-        city: 'KIIT University',
-        state: 'Patia, Bhubaneshwar',
-        country: '',
-        lat: '',
-        lon: ''
-      });
-      await fetchRestaurants();
-      setRandomItems([]);
+      console.error('Location fetch error details:', error.response?.data || error.message);
+      
+      // Use fallback location with userLocation coordinates
+      if (isMountedRef.current) {
+        setLocation({
+          city: 'KIIT University',
+          state: 'Patia, Bhubaneshwar',
+          country: '',
+          lat: userLocation.latitude,
+          lon: userLocation.longitude
+        });
+      }
+      
+      // Try to fetch restaurants with fallback location
+      try {
+        await fetchRestaurants();
+      } catch (fetchError) {
+        console.error('Failed to fetch restaurants with fallback location:', fetchError);
+        if (isMountedRef.current) {
+          setError('Unable to load restaurants. Please check your internet connection and try again.');
+        }
+      }
+      if (isMountedRef.current) {
+        setRandomItems([]);
+      }
     } finally {
-      setIsInitialLoading(false);
+      if (isMountedRef.current) {
+        setIsInitialLoading(false);
+      }
     }
   };
 
@@ -376,9 +547,24 @@ const sortMapping = {
       const response = await axios.get(`${Api_url}/firm/getrecently-viewed`, {
         withCredentials: true
       });
-      setRecentlyViewdData(response.data.recentlyViewed || []);
+
+      // Filter to only get Firm items and map to expected structure
+      const firmItems = response.data.recentlyViewed
+        ?.filter(item => item.itemType === "Firm")
+        ?.map(item => ({
+          _id: item.itemId,
+          restaurantInfo: {
+            name: item.firmInfo?.name,
+            address: item.firmInfo?.address,
+            ratings: item.firmInfo?.ratings,
+            image_urls: item.firmInfo?.image_urls
+          }
+        })) || [];
+
+      setRecentlyViewdData(firmItems);
     } catch (error) {
-      // console.error('Error fetching recently viewed data:', error);
+      console.error('Error fetching recently viewed data:', error);
+      setRecentlyViewdData([]);
     }
   }, []);
 
@@ -396,21 +582,33 @@ const sortMapping = {
   useEffect(() => {
     const searchRestaurants = async () => {
       if (query.trim() === '') {
+        if (searchControllerRef.current) {
+          searchControllerRef.current.abort();
+          searchControllerRef.current = null;
+        }
         setSearchResults([]);
         setIsSearching(false);
         return;
       }
 
       setIsSearching(true);
+      const requestId = ++searchRequestIdRef.current;
+
+      if (searchControllerRef.current) {
+        searchControllerRef.current.abort();
+      }
+      const controller = new AbortController();
+      searchControllerRef.current = controller;
       try {
         const response = await axios.get(`${Api_url}/search`, {
           params: { query },
-          withCredentials: true
+          withCredentials: true,
+          signal: controller.signal,
         });
-        
+
         // Handle both direct search results and recommended restaurants
         let results = [];
-        
+
         if (response.data?.restaurants) {
           results = response.data.restaurants.map(restaurant => ({
             _id: restaurant.id,
@@ -426,7 +624,7 @@ const sortMapping = {
             image_urls: restaurant.image_url
           }));
         }
-        
+
         if (response.data?.recommendedRestaurants) {
           const recommended = response.data.recommendedRestaurants.map(restaurant => ({
             _id: restaurant.id,
@@ -444,48 +642,58 @@ const sortMapping = {
             image_urls: restaurant.image_url,
             distance: restaurant.distance || 0
           }));
-          
+
           results = [...results, ...recommended];
         }
 
         // Remove duplicates
-        const uniqueResults = results.filter((v, i, a) => 
+        const uniqueResults = results.filter((v, i, a) =>
           a.findIndex(t => (t._id === v._id)) === i
         );
 
+        if (!isMountedRef.current || requestId !== searchRequestIdRef.current) return;
         setSearchResults(uniqueResults);
       } catch (error) {
+        if (error?.name === 'CanceledError' || error?.name === 'AbortError' || error?.code === 'ERR_CANCELED') return;
         console.error('Error searching restaurants:', error);
+        if (!isMountedRef.current || requestId !== searchRequestIdRef.current) return;
         setSearchResults([]);
       } finally {
+        if (!isMountedRef.current || requestId !== searchRequestIdRef.current) return;
         setIsSearching(false);
       }
     };
 
     const debounceTimer = setTimeout(searchRestaurants, 500);
-    return () => clearTimeout(debounceTimer);
+    return () => {
+      clearTimeout(debounceTimer);
+      if (searchControllerRef.current) {
+        searchControllerRef.current.abort();
+        searchControllerRef.current = null;
+      }
+    };
   }, [query]);
 
-useEffect(() => {
-  const applyFilters = async () => {
-    const firmsData = await fetchRestaurants();
-    setFirms(firmsData);
-  };
-  const debounceTimer = setTimeout(applyFilters, 300);
-  return () => clearTimeout(debounceTimer);
-}, [
-  selectedSortOption,
-  selectedCuisines,
-  selectedDietary,
-  selectedFeatures,
-  minRatingFilter,
-  maxRatingFilter,
-  priceRangeFilter,
-  openNowFilter,
-  offersFilter,
-  alcoholFilter,
-  isVegOnly
-]);
+  useEffect(() => {
+    const applyFilters = async () => {
+      const firmsData = await fetchRestaurants();
+      setFirms(firmsData);
+    };
+    const debounceTimer = setTimeout(applyFilters, 300);
+    return () => clearTimeout(debounceTimer);
+  }, [
+    selectedSortOption,
+    selectedCuisines,
+    selectedDietary,
+    selectedFeatures,
+    minRatingFilter,
+    maxRatingFilter,
+    priceRangeFilter,
+    openNowFilter,
+    offersFilter,
+    alcoholFilter,
+    isVegOnly
+  ]);
 
   const handleQuickFilterPress = (filterName) => {
     if (filterName === 'Filters') {
@@ -522,27 +730,27 @@ useEffect(() => {
     }));
   };
 
-const handleApplyFilterboxFilters = (filters) => {
-  // Find the matching sort option
-  const selectedOption = sortOptions.find(opt => 
-    opt.value === filters.sortBy || 
-    opt.label.toLowerCase().includes(filters.sortBy?.toLowerCase())
-  );
-  
-  setSelectedSortOption(selectedOption || null);
-  setSelectedCuisines(filters.cuisines ? filters.cuisines.split(',') : []);
-  setMinRatingFilter(filters.minRating || null);
-  setMaxRatingFilter(filters.maxRating || null);
-  setPriceRangeFilter(filters.priceRange ? [filters.priceRange] : []);
-  setOpenNowFilter(filters.openNow || false);
-  setOffersFilter(filters.offers || false);
-  setAlcoholFilter(filters.Alcohol || null);
-  setSelectedFeatures(filters.feature ? filters.feature.split(',') : []);
-  setIsVegOnly(filters.Dietary?.includes('vegetarian') || false);
-  setFiltersVisible(false);
-};
+  const handleApplyFilterboxFilters = (filters) => {
+    // Find the matching sort option
+    const selectedOption = sortOptions.find(opt =>
+      opt.value === filters.sortBy ||
+      opt.label.toLowerCase().includes(filters.sortBy?.toLowerCase())
+    );
 
- const filteredFirms = useMemo(() => {
+    setSelectedSortOption(selectedOption || null);
+    setSelectedCuisines(filters.cuisines ? filters.cuisines.split(',') : []);
+    setMinRatingFilter(filters.minRating || null);
+    setMaxRatingFilter(filters.maxRating || null);
+    setPriceRangeFilter(filters.priceRange ? [filters.priceRange] : []);
+    setOpenNowFilter(filters.openNow || false);
+    setOffersFilter(filters.offers || false);
+    setAlcoholFilter(filters.Alcohol || null);
+    setSelectedFeatures(filters.feature ? filters.feature.split(',') : []);
+    setIsVegOnly(filters.Dietary?.includes('vegetarian') || false);
+    setFiltersVisible(false);
+  };
+
+  const filteredFirms = useMemo(() => {
     if (query.trim() !== '') {
       return searchResults;
     }
@@ -580,15 +788,26 @@ const handleApplyFilterboxFilters = (filters) => {
 
   const sortVegData = useCallback(async () => {
     if (isVegOnly) {
-      setLoadingVegData(true);
+      const requestId = ++vegRequestIdRef.current;
+      if (vegControllerRef.current) {
+        vegControllerRef.current.abort();
+      }
+      const controller = new AbortController();
+      vegControllerRef.current = controller;
+
+      if (isMountedRef.current) {
+        setLoadingVegData(true);
+      }
       const MIN_LOADING_TIME = 1000; // 3 seconds
       const startTime = Date.now();
 
       try {
         const response = await axios.get(`${Api_url}/firm/getnearbyrest?cuisines=Vegetarian`, {
-          withCredentials: true
+          withCredentials: true,
+          signal: controller.signal,
         });
 
+        if (!isMountedRef.current || requestId !== vegRequestIdRef.current) return;
         setVegData(response.data.data);
 
         // Calculate elapsed time
@@ -597,34 +816,49 @@ const handleApplyFilterboxFilters = (filters) => {
 
         if (remaining > 0) {
           // Wait remaining time before hiding loading
-          setTimeout(() => {
+          safeTimeout(() => {
+            if (!isMountedRef.current || requestId !== vegRequestIdRef.current) return;
             setLoadingVegData(false);
           }, remaining);
         } else {
-          setLoadingVegData(false);
+          if (isMountedRef.current && requestId === vegRequestIdRef.current) {
+            setLoadingVegData(false);
+          }
         }
       } catch (error) {
+        if (error?.name === 'CanceledError' || error?.name === 'AbortError' || error?.code === 'ERR_CANCELED') {
+          return;
+        }
         console.error('Error fetching vegetarian data:', error);
 
         const elapsed = Date.now() - startTime;
         const remaining = MIN_LOADING_TIME - elapsed;
 
         if (remaining > 0) {
-          setTimeout(() => {
+          safeTimeout(() => {
+            if (!isMountedRef.current || requestId !== vegRequestIdRef.current) return;
             setLoadingVegData(false);
           }, remaining);
         } else {
-          setLoadingVegData(false);
+          if (isMountedRef.current && requestId === vegRequestIdRef.current) {
+            setLoadingVegData(false);
+          }
         }
       }
     }
     else {
-      setLoadingVegData(false);
-      setVegData([])
+      if (vegControllerRef.current) {
+        vegControllerRef.current.abort();
+        vegControllerRef.current = null;
+      }
+      if (isMountedRef.current) {
+        setLoadingVegData(false);
+        setVegData([])
+      }
     }
 
 
-  }, [isVegOnly]);
+  }, [isVegOnly, safeTimeout]);
 
   const HandleUploadVegMode = async () => {
     try {
@@ -643,7 +877,7 @@ const handleApplyFilterboxFilters = (filters) => {
   };
   const handleGetVegMode = async () => {
     try {
-      const response=await axios.get(`${Api_url}/api/getVegMode`, {
+      const response = await axios.get(`${Api_url}/api/getVegMode`, {
         withCredentials: true
       });
 
@@ -675,53 +909,38 @@ const handleApplyFilterboxFilters = (filters) => {
 
 
   return (
-    <View style={styles.container}>
+    <View className="flex-1 bg-white p-4">
       {isInitialLoading ? (
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#e23845" />
+        <View className="flex-1 justify-center items-center">
+          <ActivityIndicator size="large" color="#02757A" />
         </View>
       ) : (
         <>
-          <View style={styles.topContainer}>
-            {/* <View style={styles.locationContainer}>
-              <Ionicons name='location' size={24} style={{ paddingTop: 6, paddingRight: 7, color: '#e23845' }} />
-              <View>
-                <Text style={styles.locationName}>
-                  {location.city}
-                </Text>
-                <Text style={styles.locationAddress}>
-                  {location.state}
-                </Text>
-              </View>
-            </View> */}
-         <LocationHeader />
-            <View style={{ display: "flex", flexDirection: "row", marginRight: 10 }}>
-              <TouchableOpacity
-                style={styles.profileButton}
-                onPress={() => router.push('/screens/NoficationsPage')}
+          <View className="flex-row justify-between items-center mr-1 ml-0.5">
+            <LocationHeader />
+            <View className="flex-row pr-4">
+              <TouchableOpacity className="ml-20"
+                onPress={() => safeNavigation('/screens/NoficationsPage')}
               >
-                <Ionicons name='notifications-circle-sharp' size={38} style={{ color: '#e23845', marginRight: 10 }} />
+                <Ionicons name='notifications-circle-outline' color='#02757A' size={42} style={{ marginRight: 10 }} />
               </TouchableOpacity>
               <TouchableOpacity
-                style={styles.profileButton}
-                onPress={() => router.push('/screens/User')}
+                onPress={() => safeNavigation('/screens/User')}
               >
-                <Ionicons name='person-circle' size={40} style={{ color: '#e23845' }} />
+                <Ionicons name='person-circle-outline' size={42} color='#02757A' />
               </TouchableOpacity>
             </View>
           </View>
 
-          <View style={styles.searchAndVegContainer}>
-            <View>
-              <SearchBar
-              query={query}
+          <View className="flex-row items-center justify-between mr-1.5 ml-1.5">
+            <SearchBar
+              query={query} 
               setQuery={setQuery}
               onSearch={handleSearch}
             />
-            </View>
-            <View style={styles.vegFilterContainer}>
-              <Text style={styles.vegFilterText}>Veg</Text>
-              <Text style={styles.vegFilterText2}>Mode</Text>
+            <View className="flex-col items-center justify-start ml-2.5">
+              <Text className="text-base font-outfit-medium text-textsecondary text-center">Veg</Text>
+              <Text className="text-sm font-outfit-bold text-textsecondary text-center">Mode</Text>
               <Switch
                 trackColor={{ false: "#767577", true: "#8BC34A" }}
                 thumbColor="#f4f3f4"
@@ -733,7 +952,7 @@ const handleApplyFilterboxFilters = (filters) => {
                     setIsModalVisible(true);
                   }
                 }}
-                style={{ marginTop: 0 }}
+                style={{ marginTop: -5 }}
                 value={isVegOnly}
               />
 
@@ -742,12 +961,12 @@ const handleApplyFilterboxFilters = (filters) => {
               visible={loadingVegData}
               onRequestClose={() => setLoadingVegData(false)}
             >
-              <View style={styles.VegBack}>
+              <View className="bg-white items-center justify-center flex-1">
                 <Image
                   source={require("../../assets/images/natural.png")}
-                  style={styles.VegImg}
+                  className="w-24 h-24"
                 />
-                <Text style={styles.VegText} >Explore veg dishes from all restaurants</Text>
+                <Text className="text-base text-textprimary font-semibold mt-4">Explore veg dishes from all restaurants</Text>
               </View>
             </Modal>
             <Modal
@@ -756,40 +975,54 @@ const handleApplyFilterboxFilters = (filters) => {
               animationType="fade"
               onRequestClose={() => setIsModalVisible(false)}
             >
-              <View style={styles.modalBackground}>
-                <View style={styles.modalV}>
-                  <View style={styles.imageView}>
+              <View className="bg-black/50 flex-1 justify-center">
+                <View className="bg-white rounded-2.5 flex-col mx-5 p-2.5 items-center">
+                  <View className="mt-2.5 justify-center items-center">
                     <Image
-                      style={styles.imageE}
+                      className="h-24 w-24"
                       source={require('../../assets/images/error1.png')}
                     />
-
                   </View>
-                  <Text style={{ color: "black", fontWeight: "bold", fontSize: 20, marginTop: 5 }}>Switch off Veg Mode?</Text>
-                  <Text style={{ color: "black", fontWeight: "400", marginTop1: 10, fontSize: 15, marginTop: 10 }}>You'll see all restaurants, including those</Text>
-                  <Text >serving non-veg dishes</Text>
+                  <Text className="text-textprimary font-bold text-xl mt-1">Switch off Veg Mode?</Text>
+                  <Text className="text-textprimary font-normal text-base mt-2.5">You'll see all restaurants, including those</Text>
+                  <Text className="text-textprimary">serving non-veg dishes</Text>
 
                   <TouchableOpacity onPress={() => setIsModalVisible(false)}>
-                    <Text style={{ color: "red", fontSize: 15, fontWeight: "500", marginTop: 20 }}>Switch off</Text>
+                    <Text className="text-red-500 text-base font-medium mt-5">Switch off</Text>
                   </TouchableOpacity>
 
-                  <TouchableOpacity onPress={() => handleKeepUsing()} style={styles.KeepUsingButton}>
-                    <Text style={{ color: "black", fontSize: 15, fontWeight: "500" }}>keep using it</Text>
+                  <TouchableOpacity onPress={() => handleKeepUsing()} className="p-2.5 mx-2.5 bg-white rounded-lg mt-2.5 justify-center items-center">
+                    <Text className="text-textprimary text-base font-medium">keep using it</Text>
                   </TouchableOpacity>
                 </View>
               </View>
             </Modal>
           </View>
 
+          {error && (
+            <View className="p-4 bg-red-50 border border-red-200 rounded-lg mx-4 mb-4">
+              <Text className="text-red-600 text-sm font-outfit-medium text-center">{error}</Text>
+              <TouchableOpacity 
+                className="mt-2 bg-red-600 py-2 px-4 rounded-lg"
+                onPress={() => {
+                  setError(null);
+                  fetchInitialData();
+                }}
+              >
+                <Text className="text-white text-sm font-outfit-medium text-center">Retry</Text>
+              </TouchableOpacity>
+            </View>
+          )}
+
           {showProgress && (
-            <View style={styles.progressBarContainer}>
-              <View style={[styles.progressBar, { width: `${progress}%` }]} />
+            <View className="h-1 bg-gray-200 rounded-full overflow-hidden">
+              <View className="h-full bg-primary rounded-full" style={{ width: `${progress}%` }} />
             </View>
           )}
 
           {notFound && (
-            <View style={styles.notFoundContainer}>
-              <Text style={styles.notFoundText}>No restaurants found with these filters</Text>
+            <View className="p-4 items-center">
+              <Text className="text-textsecondary text-base">No restaurants found with these filters</Text>
             </View>
           )}
 
@@ -800,8 +1033,8 @@ const handleApplyFilterboxFilters = (filters) => {
               <RefreshControl
                 refreshing={refreshing}
                 onRefresh={onRefresh}
-                colors={['#e23845']}
-                tintColor={'#e23845'}
+                colors={['#02757A']}
+                tintColor={'#02757A'}
               />
             }
             ListEmptyComponent={
@@ -820,12 +1053,12 @@ const handleApplyFilterboxFilters = (filters) => {
             ListHeaderComponent={
               query.trim() === '' ? (
                 <View>
-                  <View style={styles.separatorRow}>
-                    <View style={styles.line} />
-                    <Text style={styles.separatorText}>
+                  <View className="flex-row items-center mt-4 mb-4">
+                    <View className="flex-1 h-px bg-primary" />
+                    <Text className="font-outfit text-xs text-textprimary mx-2">
                       WHAT'S ON YOUR MIND
                     </Text>
-                    <View style={styles.line} />
+                    <View className="flex-1 h-px bg-primary" />
                   </View>
                   {whatsOnYourMind?.length > 0 && (
                     <ScrollView
@@ -836,73 +1069,86 @@ const handleApplyFilterboxFilters = (filters) => {
                       <FlatList
                         data={whatsOnYourMind}
                         renderItem={({ item }) => (
-                          <TouchableOpacity style={styles.mindCard} onPress={() => router.push({
+                          <TouchableOpacity className="items-center p-2 m-1 ml-1.5 mr-1.5" onPress={() => safeNavigation({
                             pathname: '/screens/OnMindScreens',
                             params: { name: item?.title }
                           })}>
-                            <Image source={item?.image} style={styles.mindImage} />
-                            <Text style={styles.mindTitle}>{item?.title}</Text>
+                            <Image source={item?.image} className="w-16 h-16 rounded-full" />
+                            <Text className="text-xs font-outfit text-textprimary mt-1 text-center">{item?.title}</Text>
                           </TouchableOpacity>
                         )}
                         keyExtractor={(item) => item?.id?.toString()}
                         numColumns={Math.ceil(whatsOnYourMind?.length / 2)}
                         showsHorizontalScrollIndicator={false}
-                        contentContainerStyle={styles.mindScrollContainer}
-                        ItemSeparatorComponent={() => <View style={styles.mindSeparator} />}
+                        contentContainerStyle={{ paddingHorizontal: 10 }}
+                        ItemSeparatorComponent={() => <View className="w-2" />}
                       />
                     </ScrollView>
                   )}
-                  <View style={{ display: "flex", marginBottom: 15 }}>
-                    <View style={styles.separatorRow}>
-                    <View style={styles.line} />
-                    <Text style={styles.separatorText}>
-                      RECENTLY VIEWED
-                    </Text>
-                    <View style={styles.line} />
-                  </View>
+                  <View className="flex">
+                    <View className="flex-row items-center mt-4 mb-7">
+                      <View className="flex-1 h-px bg-primary" />
+                      <Text className="font-outfit text-xs text-textprimary mx-2">
+                        RECENTLY VIEWED
+                      </Text>
+                      <View className="flex-1 h-px bg-primary" />
+                    </View>
 
-                    <FlatList
-                      showsHorizontalScrollIndicator={false}
-                      data={recentlyViewData}
-                      horizontal
-                      keyExtractor={(item, index) => item._id + '-' + index}
-                      renderItem={({ item, index }) => (
-                        <MiniRecommendedCard
-                          key={item._id}
-                          name={item.restaurantInfo?.name}
-                          address={item.restaurantInfo?.address}
-                          image={item.restaurantInfo?.image_urls}
-                          rating={item.restaurantInfo?.ratings?.overall}
-                          onPress={() => {
-                            router.push({
-                              pathname: '/screens/FirmDetailsTakeAway',
-                              params: { firmId: item._id }
-                            });
-                          }}
-                          onFavoriteToggle={() => {
-                            setFavoriteServices(prevState =>
-                              prevState.includes(item._id)
-                                ? prevState.filter(id => id !== item._id)
-                                : [...prevState, item._id]
-                            );
-                          }}
-                          isFavorite={favoriteServices.includes(item._id)}
+                    {recentlyViewData.length > 0 ? (
+                      <FlatList
+                        showsHorizontalScrollIndicator={false}
+                        data={recentlyViewData}
+                        horizontal
+                        keyExtractor={(item, index) => item._id + '-' + index}
+                        renderItem={({ item, index }) => (
+                          <MiniRecommendedCard
+                            key={item._id}
+                            name={item.restaurantInfo?.name}
+                            address={item.restaurantInfo?.address}
+                            image={item.restaurantInfo?.image_urls}
+                            rating={item.restaurantInfo?.ratings?.overall}
+                            onPress={() => {
+                              safeNavigation({
+                                pathname: '/screens/FirmDetailsTakeAway',
+                                params: { firmId: item._id }
+                              });
+                            }}
+                            onFavoriteToggle={() => {
+                              setFavoriteServices(prevState =>
+                                prevState.includes(item._id)
+                                  ? prevState.filter(id => id !== item._id)
+                                  : [...prevState, item._id]
+                              );
+                            }}
+                            isFavorite={favoriteServices.includes(item._id)}
+                          />
+                        )}
+                      />
+                    ) : (
+                      <View className="items-center justify-center py-6">
+                        <Image
+                          source={require('@/assets/images/nodata.png')}
+                          className="w-36 h-36"
+                          resizeMode="contain"
                         />
-                      )}
-                    />
+                        <Text className="mt-3 text-sm font-outfit text-textsecondary text-center px-6">
+                          Surf the restaurants to start building your recently viewed list.
+                        </Text>
+                      </View>
+                    )}
 
 
                   </View>
 
 
-                  <View style={{ display: "flex", marginTop: 5, marginBottom: 20 }}>
-                   <View style={styles.separatorRow}>
-                    <View style={styles.line} />
-                    <Text style={styles.separatorText}>
-                      POPULAR 
-                    </Text>
-                    <View style={styles.line} />
-                  </View>
+                  <View className="flex mt-1">
+                    <View className="flex-row items-center mt-2.5 mb-7">
+                      <View className="flex-1 h-px bg-primary" />
+                      <Text className="font-outfit text-xs text-textprimary mx-2">
+                        POPULAR
+                      </Text>
+                      <View className="flex-1 h-px bg-primary" />
+                    </View>
                     <FlatList
                       showsHorizontalScrollIndicator={false}
                       data={popularData}
@@ -921,7 +1167,7 @@ const handleApplyFilterboxFilters = (filters) => {
                                 console.error('No ID found for item:', item);
                                 return;
                               }
-                              router.push({
+                              safeNavigation({
                                 pathname: '/screens/FirmDetailsTakeAway',
                                 params: {
                                   firmId: item._id
@@ -943,27 +1189,26 @@ const handleApplyFilterboxFilters = (filters) => {
                       keyExtractor={(item, index) => item._id ? `${item._id}` : `rec-item-${index}`}
                     />
                   </View>
-                  <View style={styles.separatorRow}>
-                    <View style={styles.line} />
-                    <Text style={styles.separatorText}>
+                  <View className="flex-row items-center mt-4 mb-4">
+                    <View className="flex-1 h-px bg-primary" />
+                    <Text className="font-outfit text-xs text-textprimary mx-2">
                       ALL RESTAURANTS
                     </Text>
-                    <View style={styles.line} />
+                    <View className="flex-1 h-px bg-primary" />
                   </View>
-                  <View style={styles.filterContainer}>
+                  <View className="mb-4">
                     <FlatList
                       data={quickFilters}
                       horizontal
                       showsHorizontalScrollIndicator={false}
+                      decelerationRate={1}
                       keyExtractor={(item) => item.name}
                       renderItem={({ item }) => {
                         const isSelected = activeQuickFilters.includes(item.name);
                         return (
                           <TouchableOpacity
-                            style={[
-                              styles.filterButton,
-                              isSelected && styles.selectedFilterButton
-                            ]}
+                            className={`flex-row items-center px-3 py-2 mr-2 rounded-full border border-primary ${isSelected ? 'bg-primary' : ''
+                              }`}
                             onPress={() => handleQuickFilterPress(item.name)}
                             activeOpacity={0.7}
                           >
@@ -971,18 +1216,19 @@ const handleApplyFilterboxFilters = (filters) => {
                               <MaterialCommunityIcons
                                 name={item.icon}
                                 size={16}
-                                color={isSelected ? "white" : "#e23845"}
+                                color={isSelected ? "white" : "#02757A"}
                                 style={{ marginRight: 4 }}
                               />
                             ) : (
                               <MaterialIcons
                                 name={item.icon}
                                 size={16}
-                                color={isSelected ? "white" : "#e23845"}
+                                color={isSelected ? "white" : "#02757A"}
                                 style={{ marginRight: 4 }}
                               />
                             )}
-                            <Text style={isSelected ? styles.selectedFilterText : styles.filterText}>
+                            <Text className={`text-sm font-outfit-medium ${isSelected ? 'text-white' : 'text-textprimary'
+                              }`}>
                               {item.name}
                             </Text>
                           </TouchableOpacity>
@@ -1018,7 +1264,7 @@ const handleApplyFilterboxFilters = (filters) => {
                   proExtraB={item.proExtraB || false}
                   off={item.off || "No offer"}
                   proExtra={item.proExtra || "N/A"}
-                  onPress={() => router.push({
+                  onPress={() => safeNavigation({
                     pathname: "screens/FirmDetailsTakeAway",
                     params: { firmId: item._id }
                   })}
@@ -1035,8 +1281,8 @@ const handleApplyFilterboxFilters = (filters) => {
             onEndReachedThreshold={0.5}
             ListFooterComponent={
               isLoadingMore ? (
-                <View style={styles.loadingContainer}>
-                  <ActivityIndicator size="large" color="#e23845" />
+                <View className="flex-1 justify-center mt-10 items-center">
+                  <ActivityIndicator size="large" color="#02757A" />
                 </View>
               ) : null
             }
@@ -1047,23 +1293,23 @@ const handleApplyFilterboxFilters = (filters) => {
             animationType="slide"
             onRequestClose={() => setSortVisible(false)}
           >
-            <View style={styles.modalOverlay}>
-              <View style={styles.modalContent}>
-                <Text style={styles.modalTitle}>Sort Options</Text>
+            <View className="flex-1 bg-black/50 justify-end">
+              <View className="bg-white rounded-t-4xl p-6">
+                <Text className="text-xl font-outfit-bold text-textprimary mb-4">Sort Options</Text>
                 <RadioButtonRN
                   data={sortOptions}
                   selectedBtn={applySort}
                   initial={selectedSortOption ? sortOptions.findIndex(opt => opt.value === selectedSortOption.value) + 1 : null}
                   box={false}
-                  textStyle={styles.radioText}
+                  textStyle={{ fontSize: 16, color: '#333' }}
                   circleSize={16}
                   activeColor='#e23845'
                 />
                 <TouchableOpacity
-                  style={styles.proceedButton}
+                  className="bg-primary p-4 rounded-2.5 items-center mt-4"
                   onPress={() => setSortVisible(false)}
                 >
-                  <Text style={styles.proceedButtonText}>Apply</Text>
+                  <Text className="text-white font-outfit-bold text-base">Apply</Text>
                 </TouchableOpacity>
               </View>
             </View>

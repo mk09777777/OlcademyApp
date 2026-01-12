@@ -6,8 +6,8 @@ const windowHeight = Dimensions.get('window').height
 export const styles = StyleSheet.create({
   container: {
 		flex: 1,
-		backgroundColor: 'white',
-    // paddingBottom: 20
+		backgroundColor: '#f8f7f7ff',
+    paddingBottom: 20
 	},
   imageContainer: {
     width: '100%',
@@ -21,17 +21,27 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   upperPannel: {
-    bottom:170,
-    flexDirection: 'row',
+   position: 'absolute',
+    top:  10,
+    left: 0,
+    right: 0,
+    zIndex: 10,
     paddingHorizontal: 10,
-    justifyContent: 'space-between',
-    // marginBottom: 15
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
-  bttomPannel:{
-    bottom:20,
-    flexDirection: 'row',
-    paddingHorizontal: 10,
-    justifyContent: 'space-between',
+  bottomPannel: {
+    position: "absolute",
+    bottom: 10,
+    left: 0,
+    right: 0,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  mainPannel: {
+    // Add main panel styles if needed
   },
   rightPannel : {
     flexDirection: 'row',
@@ -44,24 +54,24 @@ export const styles = StyleSheet.create({
     borderRadius: 8,
     justifyContent: 'space-between',
   },
-  imageContainer: {
-  justifyContent: "center",
-  alignItems: "center",
-},
-image: {
-  width: 167.09,                       
-  height: 171.67,                      
-  borderTopLeftRadius: 11.44,          
-  borderBottomLeftRadius: 11.44,       
-  borderTopRightRadius: 0,             
-  borderBottomRightRadius: 0,         
-  resizeMode: "cover",                 
-},
+  itemImageContainer: {
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  image: {
+    width: 167.09,                       
+    height: 171.67,                      
+    borderTopLeftRadius: 11.44,          
+    borderBottomLeftRadius: 11.44,       
+    borderTopRightRadius: 0,             
+    borderBottomRightRadius: 0,         
+    resizeMode: "cover",                 
+  },
 
   reviewBox: {
     borderRadius: 10,
-    borderWidth: 1,
-    borderColor: '#ccc'
+    marginTop:110,
+    marginRight:10,
   },
   gradientOverlay: {
     position: 'absolute',
@@ -69,13 +79,15 @@ image: {
     width: '100%',
   },
   reviewBoxTopContainer: {
-    backgroundColor: 'green',
-    padding: 10,
+    backgroundColor: '#048520',
+    padding: 8,
     borderTopLeftRadius: 10,
     borderTopRightRadius: 10
   },
   reviewBoxUpperContainer: {
     flexDirection: 'row',
+    alignItems:'center',
+    justifyContent:'center',
   },
   reviewBoxBottomContainer: {
     backgroundColor: 'white',
@@ -85,54 +97,82 @@ image: {
   reviewText: {
     fontFamily: 'outfit',
     color: 'white',
-    fontSize: 18,
+    fontSize: 15,
     marginRight: 7,
   },
   reviewCount: {
     fontFamily: 'outfit',
-    fontSize: 14,
-    textAlign: 'center'
+    fontSize: 12,
+    textAlign: 'center',
+    marginTop:4,
+    color:"#333333"
+  },
+  reviewCount2: {
+    fontFamily: 'outfit',
+    fontSize: 12,
+    textAlign: 'center',
+    color:"#333333"
   },
   restaurantName: {
     fontFamily: 'outfit-bold',
-    fontSize: 24,
+    fontSize: 30,
+    color: 'white',
   },
   restaurantAddress: {
     width:250,
     fontFamily: 'outfit',
     fontSize: 16,
-    fontWeight: 'bold',
-    color: 'gray'
+    color: '#eee',
+    marginTop: 4,
+    textShadowColor: 'rgba(0, 0, 0, 0.63)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 2,
+  },
+  cuisines: {
+    width:250,
+    fontFamily: 'outfit',
+    color: 'white',
+    fontSize: 18
+  },
+  price: {
+    fontFamily: 'outfit',
+    fontSize: 16,
+    color: 'white',
   },
   title: {
      width:200,
     fontSize: 16,
+    fontFamily: "outfit-medium",
     fontWeight: 'bold'
   },
   price: {
     fontSize: 14,
+    fontFamily: "outfit-medium",
     fontWeight: 'light-bold'
   },
   description: {
     width:200,
     fontSize: 14,
+    fontFamily: "outfit-medium",
     color: '#666'
   },
   separatorRow: {
 		flexDirection: 'row',
 		alignItems: 'center',
+		marginTop: 25,
     marginBottom: 10,
     paddingHorizontal: 10,
 	},
   line: {
     flex: 1,
-    height: 1,
-    backgroundColor: '#ccc',
+    height: 0.4,
+    backgroundColor: '#E03A48',
   },
 	separatorText: {
 		fontFamily: 'outfit',
 		fontSize: 14,
 		color: '#ccc',
+    fontFamily: "outfit-medium",
     marginHorizontal: 7
 	},
   buttonBar: {
@@ -152,6 +192,7 @@ image: {
   buttonText: {
     fontFamily: 'outfit-medium',
     fontSize: 18,
+    fontFamily: "outfit-bold",
     color: 'white',
   },
   cartControls: {
@@ -167,10 +208,12 @@ image: {
   },
   cartButtonText: {
     fontSize: 16,
+    fontFamily: "outfit-medium",
     fontWeight: 'bold',
   },
   itemCount: {
     fontSize: 16,
+    fontFamily: "outfit-medium",
     fontWeight: 'bold',
   },
     addButton: {
@@ -192,6 +235,7 @@ addButtonText: {
   color: '#e23845',                 // red text
   fontWeight: 'bold',
   fontSize: 16,
+  fontFamily: "outfit-medium",
 },
 
   proceedToCartButton: {
@@ -204,6 +248,7 @@ addButtonText: {
   controlButton: {
     fontFamily: 'outfit-bold',
     fontSize: 24,
+    fontFamily: "outfit-bold",
     color: '#e23845',
     paddingHorizontal: 10,
   },
@@ -211,6 +256,7 @@ addButtonText: {
     fontFamily: 'outfit-bold',
     color: 'white',
     fontSize: 16,
+    fontFamily: "outfit-medium",
     textAlign: 'center',
   },
   quantityControls: {
@@ -237,10 +283,12 @@ addButtonText: {
   },
   offersHeader: {
     fontSize: 18,
+    fontFamily: "outfit-bold",
     fontWeight: 'bold',
   },
   dropdownIcon: {
     fontSize: 14,
+    fontFamily: "outfit-medium",
     color: '#666',
   },
   offersTrack: {
@@ -278,15 +326,18 @@ addButtonText: {
   },
   offerBadgeText: {
     fontSize: 10,
+    fontFamily: "outfit",
     fontWeight: 'bold',
   },
   offerTitle: {
     fontSize: 14,
+    fontFamily: "outfit-medium",
     fontWeight: '600',
     marginBottom: 5,
   },
   offerDiscount: {
     fontSize: 16,
+    fontFamily: "outfit-medium",
     fontWeight: 'bold',
     color: '#2a7f19',
     marginBottom: 5,
@@ -297,10 +348,12 @@ addButtonText: {
   },
   offerCodeText: {
     fontSize: 12,
+    fontFamily: "outfit",
     color: '#666',
   },
   offerCode: {
     fontSize: 12,
+    fontFamily: "outfit",
     fontWeight: 'bold',
     marginLeft: 5,
     color: '#2a7f19',
@@ -322,6 +375,7 @@ addButtonText: {
   },
   filterText: {
     fontSize: 14,
+    fontFamily: "outfit-medium",
     fontFamily: 'outfit-medium',
   },
   
@@ -459,6 +513,88 @@ addButtonText: {
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 10,
+  },
+  offerModalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.3)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  offerModalContainer: {
+    width: "90%",
+    backgroundColor: "#FFF",
+    borderRadius: 12,
+    padding: 16,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  offerHeader: {
+    fontSize: 18,
+    fontFamily: "outfit-bold",
+    marginBottom: 8,
+    textAlign: "center",
+    color: "#333",
+  },
+  offerSubHeader: {
+    fontSize: 16,
+    fontFamily: "outfit-medium",
+    color: "#555",
+    marginBottom: 8,
+  },
+  offerExpandedContent: {
+    marginTop: 10,
+  },
+  offerDetailItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 5,
+  },
+  offerDetailText: {
+    fontSize: 14,
+    color: '#333',
+    marginLeft: 8,
+  },
+  offerCloseButton: {
+    marginTop: 10,
+    padding: 8,
+    backgroundColor: '#e23845',
+    borderRadius: 10
+  },
+  offerCloseButtonText: {
+    fontFamily: 'outfit-medium',
+    textAlign: 'center',
+    fontSize: 16,
+    color: 'white'
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  errorText: {
+    fontSize: 16,
+    color: 'red',
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  retryButton: {
+    backgroundColor: '#e23845',
+    padding: 10,
+    borderRadius: 5,
+  },
+  retryButtonText: {
+    color: 'white',
+    fontSize: 16,
+    fontFamily: 'outfit-medium',
   },
   
 })

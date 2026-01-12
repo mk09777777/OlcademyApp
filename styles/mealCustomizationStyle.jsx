@@ -24,6 +24,8 @@ const styles = StyleSheet.create({
   },
   modalTitle: {
     fontSize: 20,
+fontFamily: "outfit-bold",
+    fontFamily: "outfit-medium",
     fontWeight: '700',
     color: '#333',
     flex: 1,
@@ -67,12 +69,15 @@ const styles = StyleSheet.create({
   // },
   // mealName: {
   //   fontSize: 20,
+fontFamily: "outfit-bold",
   //   fontWeight: '700',
   //   color: '#333',
   //   marginBottom: 8,
   // },
   planDurationText: {
     fontSize: 14,
+
+    fontFamily: "outfit-medium",
     color: '#666',
     fontWeight: '500',
   },
@@ -85,6 +90,8 @@ const styles = StyleSheet.create({
   },
   formLabel: {
     fontSize: 16,
+fontFamily: "outfit-medium",
+    fontFamily: "outfit-medium",
     fontWeight: '600',
     color: '#444',
     marginBottom: 12,
@@ -100,6 +107,8 @@ const styles = StyleSheet.create({
   },
   discountBadge: {
     fontSize: 14,
+fontFamily: "outfit-bold",
+    fontFamily: "outfit-medium",
     color: '#4CAF50',
     marginTop: 8,
     textAlign: 'right',
@@ -121,6 +130,8 @@ const styles = StyleSheet.create({
   },
   selectedRangeText: {
     fontSize: 14,
+fontFamily: "outfit-bold",
+    fontFamily: "outfit-medium",
     color: '#4CAF50',
     textAlign: 'center',
     marginBottom: 12,
@@ -165,6 +176,8 @@ const styles = StyleSheet.create({
   calendarButtonText: {
     fontWeight: '600',
     fontSize: 16,
+fontFamily: "outfit-medium",
+    fontFamily: "outfit-medium",
   },
   datePreviewContainer: {
     flexDirection: 'row',
@@ -178,6 +191,8 @@ const styles = StyleSheet.create({
   },
   datePreviewText: {
     fontSize: 16,
+fontFamily: "outfit-medium",
+    fontFamily: "outfit-medium",
     color: '#333',
   },
 
@@ -197,6 +212,8 @@ const styles = StyleSheet.create({
   },
   quantityText: {
     fontSize: 16,
+fontFamily: "outfit-medium",
+    fontFamily: "outfit-medium",
     fontWeight: '600',
     color: '#333',
     paddingHorizontal: 20,
@@ -218,6 +235,7 @@ const styles = StyleSheet.create({
   },
   priceLabel: {
     fontSize: 15,
+    fontFamily: "outfit-medium",
     color: '#666',
   },
   priceValue: {
@@ -228,6 +246,7 @@ const styles = StyleSheet.create({
   discountText: {
     marginTop: 5,
     fontSize: 15,
+    fontFamily: "outfit-medium",
     color: '#4CAF50',
     textAlign: 'center',
   },
@@ -235,6 +254,8 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#4CAF50',
     fontSize: 18,
+fontFamily: "outfit-bold",
+    fontFamily: "outfit-medium",
     marginTop: 8,
   },
 
@@ -256,6 +277,7 @@ const styles = StyleSheet.create({
   },
   selectedAddonText: {
     fontSize: 13,
+    fontFamily: "outfit",
     color: '#2E7D32',
     fontWeight: '500',
   },
@@ -282,6 +304,8 @@ const styles = StyleSheet.create({
   timeSlotText: {
     color: '#333',
     fontSize: 14,
+fontFamily: "outfit-bold",
+    fontFamily: "outfit-medium",
     fontWeight: '500',
   },
   timeSlotTextSelected: {
@@ -314,6 +338,8 @@ const styles = StyleSheet.create({
   },
   addonLabel: {
     fontSize: 14,
+fontFamily: "outfit-bold",
+    fontFamily: "outfit-medium",
     color: '#333',
     fontWeight: '500',
   },
@@ -349,6 +375,8 @@ const styles = StyleSheet.create({
     color: '#666',
     fontWeight: '600',
     fontSize: 16,
+fontFamily: "outfit-medium",
+    fontFamily: "outfit-medium",
   },
   submitButton: {
     backgroundColor: '#4CAF50',
@@ -363,6 +391,8 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontWeight: '600',
     fontSize: 16,
+fontFamily: "outfit-medium",
+    fontFamily: "outfit-medium",
   },
   submitButtonDisabled: {
     backgroundColor: '#cccccc',
@@ -395,22 +425,26 @@ const styles = StyleSheet.create({
   },
   mealName: {
     fontSize: 18,
+fontFamily: "outfit-bold",
     fontWeight: 'bold',
     marginBottom: 4,
     color: '#333',
   },
   mealPrice: {
     fontSize: 16,
+fontFamily: "outfit-medium",
     fontWeight: '600',
     marginBottom: 8,
     color: '#2ecc71',
   },
   planDurationText: {
     fontSize: 14,
+fontFamily: "outfit-bold",
     color: '#7f8c8d',
   },
   mealDescription: {
     fontSize: 14,
+fontFamily: "outfit-bold",
     color: '#666',
     lineHeight: 20,
   },

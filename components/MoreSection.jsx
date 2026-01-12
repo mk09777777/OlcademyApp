@@ -1,53 +1,83 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { MaterialIcons } from '@expo/vector-icons';
+import { View, Text, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import Modal from 'react-native-modal';
 import Colors from '../components/constants/Colors';
-import styles from '../styles/MoreSection';
-import { router } from 'expo-router';
 import { useSafeNavigation } from '@/hooks/navigationPage';
+import { useAuth } from '@/context/AuthContext';
+
 const MoreSection = () => {
   const [isModalVisible, setModalVisible] = useState(false);
- const { safeNavigation } = useSafeNavigation();
+  const [isProcessing, setIsProcessing] = useState(false);
+  const { safeNavigation } = useSafeNavigation();
+  const { logout } = useAuth();
+
+  const handleLogout = async () => {
+    if (isProcessing) return;
+    setIsProcessing(true);
+    try {
+      await logout();
+    } catch (error) {
+      console.error('Logout from MoreSection failed:', error);
+      Alert.alert('Logout Error', 'Unable to complete logout. Please try again.');
+    } finally {
+      setIsProcessing(false);
+      setModalVisible(false);
+    }
+  };
+
   const MoreItem = ({ icon, title, chevron, onPress }) => (
-    <TouchableOpacity onPress={onPress} style={styles.section}>
-      <View style={styles.iconContainer}>
-        <MaterialIcons name={icon} size={24} color={Colors.textLight} />
+    <TouchableOpacity onPress={onPress} className="flex-row items-center p-4 border-b border-gray-200">
+      <View className="w-10 h-10 rounded-full bg-gray-100 justify-center items-center mr-3">
+        <MaterialCommunityIcons name={icon} size={24} color={Colors.textLight} />
       </View>
-      <View style={styles.sectionContent}>
-        <Text style={styles.sectionTitle}>{title}</Text>
+      <View className="flex-1">
+        <Text className="text-base font-outfit color-gray-800">{title}</Text>
       </View>
-      {chevron && <MaterialIcons name="chevron-right" size={24} color={Colors.textLight} style={styles.chevron} />}
+      {chevron && (
+        <MaterialCommunityIcons
+          name="chevron-right"
+          size={24}
+          color={Colors.textLight}
+        />
+      )}
     </TouchableOpacity>
   );
 
-
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>More</Text>
+    <View className="bg-white mt-2.5">
+      <View className="p-4 border-l-4 border-primary">
+        <Text className="text-lg font-outfit-semibold color-gray-800">More</Text>
       </View>
 
-     
-      <MoreItem icon="info" title="About" chevron onPress={() => safeNavigation('screens/About')} />
-      <MoreItem icon="edit" title="Send feedback" chevron onPress={() => safeNavigation('screens/SendFeedback')} />
-      <MoreItem icon="settings" title="Settings" chevron onPress={() => safeNavigation('/screens/Settings')} />
-      <MoreItem icon="chat" title="Frequently asked questions" chevron onPress={() => safeNavigation('screens/FQA')} />
+      <MoreItem icon="information-outline" title="About" chevron onPress={() => safeNavigation('screens/About')} />
+      <MoreItem icon="pencil-outline" title="Send feedback" chevron onPress={() => safeNavigation('screens/SendFeedback')} />
+      <MoreItem icon="cog-outline" title="Settings" chevron onPress={() => safeNavigation('/screens/Settings')} />
+      <MoreItem icon="chat-outline" title="Frequently asked questions" chevron onPress={() => safeNavigation('screens/FQA')} />
       <MoreItem icon="logout" title="Logout" chevron onPress={() => setModalVisible(true)} />
+
       {/* Custom Modal */}
       <Modal
         isVisible={isModalVisible}
         onBackdropPress={() => setModalVisible(false)}
-        style={modalStyles.modal}
+        className="justify-end m-0"
       >
-        <View style={modalStyles.modalContent}>
-          <Text style={modalStyles.title}>Log out from?</Text>
+        <View className="bg-white rounded-t-5 p-5 pb-10">
+          <Text className="text-lg font-outfit-bold mb-5 text-center">Ready to log out?</Text>
 
-          <TouchableOpacity onPress={() => router.replace("/screens/Logout")} style={modalStyles.optionButton}>
-            <Text style={modalStyles.optionText}>Current Device</Text>
+          <TouchableOpacity
+            onPress={handleLogout}
+            className="py-4 border-b border-gray-200 items-center"
+            disabled={isProcessing}
+          >
+            {isProcessing ? (
+              <ActivityIndicator color="#d32f2f" />
+            ) : (
+              <Text className="text-center text-red-600 text-base font-outfit">Log Out</Text>
+            )}
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => setModalVisible(false)} style={modalStyles.cancelButton}>
-            <Text style={modalStyles.cancelText}>Cancel</Text>
+          <TouchableOpacity onPress={() => setModalVisible(false)} className="py-4">
+            <Text className="text-center text-gray-600 text-base font-outfit">Cancel</Text>
           </TouchableOpacity>
         </View>
       </Modal>
@@ -57,40 +87,3 @@ const MoreSection = () => {
 
 export default MoreSection;
 
-const modalStyles = StyleSheet.create({
-  modal: {
-    justifyContent: 'flex-end',
-    margin: 0,
-  },
-  modalContent: {
-    backgroundColor: 'white',
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    padding: 20,
-    paddingBottom: 40,
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 20,
-    textAlign: 'center',
-  },
-  optionButton: {
-    paddingVertical: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
-  },
-  optionText: {
-    textAlign: 'center',
-    color: '#d32f2f', // red like in the screenshot
-    fontSize: 16,
-  },
-  cancelButton: {
-    paddingVertical: 15,
-  },
-  cancelText: {
-    textAlign: 'center',
-    color: '#6e6e6e',
-    fontSize: 16,
-  },
-});

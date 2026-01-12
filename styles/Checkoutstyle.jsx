@@ -8,6 +8,7 @@ export default StyleSheet.create({
   },
   title: {
     fontSize: 24,
+    fontFamily: 'outfit-bold ',
     fontWeight: 'bold',
     marginVertical: 20,
     textAlign: 'center',
@@ -29,6 +30,7 @@ export default StyleSheet.create({
   },
   emptyCartText: {
     fontSize: 18,
+    fontFamily: 'outfit-medium ',
     color: '#666',
   },
   itemContainer: {
@@ -58,16 +60,19 @@ export default StyleSheet.create({
   },
   itemText: {
     fontSize: 16,
+    fontFamily: 'outfit-medium ',
     fontWeight: '500',
     color: '#333',
   },
   itemPrice: {
     fontSize: 14,
+    fontFamily: 'outfit-medium ',
     color: '#666',
     marginTop: 4,
   },
   customizedText: {
     fontSize: 12,
+    fontFamily: 'outfit',
     color: '#4CAF50',
     marginTop: 4,
   },
@@ -86,6 +91,7 @@ export default StyleSheet.create({
   },
   controlButtonText: {
     fontSize: 18,
+    fontFamily: 'outfit-medium ',
     color: '#333',
   },
   disabledControl: {
@@ -93,6 +99,7 @@ export default StyleSheet.create({
   },
   quantityText: {
     fontSize: 16,
+    fontFamily: 'outfit-medium ',
     fontWeight: '500',
     marginHorizontal: 10,
     color: '#333',
@@ -118,10 +125,12 @@ export default StyleSheet.create({
   },
   billLabel: {
     fontSize: 14,
+    fontFamily: 'outfit',
     color: '#666',
   },
   billValue: {
     fontSize: 14,
+    fontFamily: 'outfit ',
     color: '#333',
   },
   discountValue: {
@@ -135,11 +144,13 @@ export default StyleSheet.create({
   },
   totalLabel: {
     fontSize: 16,
+    fontFamily: 'outfit-medium ',
     fontWeight: 'bold',
     color: '#333',
   },
   totalValue: {
     fontSize: 16,
+    fontFamily: 'outfit-medium ',
     fontWeight: 'bold',
     color: '#333',
   },
@@ -156,6 +167,7 @@ export default StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 16,
+    fontFamily: 'outfit-medium ',
     fontWeight: 'bold',
     marginBottom: 12,
     color: '#333',
@@ -168,6 +180,7 @@ export default StyleSheet.create({
     minHeight: 100,
     textAlignVertical: 'top',
     fontSize: 14,
+    fontFamily: 'outfit ',
     color: '#333',
   },
   paymentSection: {
@@ -188,11 +201,13 @@ export default StyleSheet.create({
   },
   paymentText: {
     fontSize: 16,
+    fontFamily: 'outfit-medium ',
     marginLeft: 10,
     color: '#333',
   },
   buttonContainer: {
     padding: 16,
+    fontFamily: 'outfit-medium ',
     backgroundColor: '#fff',
     borderTopWidth: 1,
     borderTopColor: '#eee',
@@ -208,11 +223,13 @@ export default StyleSheet.create({
   checkoutButtonText: {
     color: '#fff',
     fontSize: 16,
+    fontFamily: 'outfit-medium ',
     fontWeight: 'bold',
   },
   checkoutButtonPrice: {
     color: '#fff',
     fontSize: 16,
+    fontFamily: 'outfit-medium ',
     fontWeight: 'bold',
   },
   disabledButton: {

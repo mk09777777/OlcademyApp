@@ -5,6 +5,7 @@ import * as Notifications from 'expo-notifications';
 import Constants from 'expo-constants';
 import axios from 'axios';
 import { API_CONFIG } from '../../config/apiConfig';
+import { API_ENDPOINTS } from '../../config/api';
 
 // Check if running in development build or Expo Go
 const isExpoGo = Constants.appOwnership === 'expo';
@@ -144,7 +145,8 @@ const BookingDetailsScreen = ({
       Alert.alert("Booking is accepted, you can't cancel it");
     } else {
       try {
-        await axios.put(`${API_CONFIG.BACKEND_URL}/api/bookings/cancel/${id}`, {
+        const url = `${API_CONFIG.BACKEND_URL}${API_ENDPOINTS.DiningBooking.CANCEL(id)}`;
+        await axios.put(url, {
           withCredentials: true,
         });
         if (ordersPush) {
@@ -166,58 +168,58 @@ const BookingDetailsScreen = ({
 
   return (
     <ScrollView 
-      style={styles.container}
-      contentContainerStyle={styles.contentContainer}
+      className="flex-1 bg-black/50"
+      contentContainerStyle={{ flex: 1, justifyContent: 'center' }}
     >
-      {/* <Image source={Booking.image} style={styles.coverImage} /> */}
+      {/* <Image source={Booking.image} className="w-full h-55" style={{ resizeMode: 'cover' }} /> */}
 
-      <View style={styles.card}>
+      <View className="bg-white m-4 rounded-2xl p-4 shadow-lg">
         <TouchableOpacity 
-                      style={{justifyContent:"flex-start"}}
-                      onPress={onClose}
-                    >
-                      <Text style={{fontSize:22,fontWeight:"bold",color:"black",marginBottom:10}}>×</Text>
-                    </TouchableOpacity>
-        <View style={styles.header}>
-          <View style={{ flex: 1 }}>
-            <Text style={styles.restaurantName}>{Booking.restaurant}</Text>
-            <Text style={styles.location}>{Booking.location}</Text>
+          className="justify-start"
+          onPress={onClose}
+        >
+          <Text className="text-2xl font-bold text-black mb-2.5">×</Text>
+        </TouchableOpacity>
+        <View className="flex-row items-start mb-4">
+          <View className="flex-1">
+            <Text className="text-2xl font-bold text-gray-800">{Booking.restaurant}</Text>
+            <Text className="text-sm text-gray-500 mt-1">{Booking.location}</Text>
           </View>
           {Booking.status === 'accepted' ? (
-            <View style={styles.statusBadge}>
-              <Text style={styles.statusText}>{Booking.status}</Text>
+            <View className="bg-green-50 px-2.5 py-1 rounded-3xl self-start">
+              <Text className="text-green-700 font-bold text-xs">{Booking.status}</Text>
             </View>
           ) : (
-            <View style={styles.statusBadgeP}>
-              <Text style={styles.statusTextP}>{Booking.status}</Text>
+            <View className="bg-red-50 px-2.5 py-1 rounded-3xl self-start">
+              <Text className="text-red-700 font-bold text-xs">{Booking.status}</Text>
             </View>
           )}
         </View>
 
-        <View style={styles.detailsSection}>
-          <Text style={styles.sectionTitle}>Reservation Details</Text>
+        <View className="mt-2 border-t border-gray-200 pt-4">
+          <Text className="text-base font-bold text-gray-700 mb-3">Reservation Details</Text>
 
-          <View style={styles.detailRow}>
-            <Ionicons name="calendar-outline" size={20} color="#ff4d4d" style={styles.icon} />
-            <Text style={styles.detailLabel}>Date:</Text>
-            <Text style={styles.detailValue}>{Booking.date}</Text>
+          <View className="flex-row items-center mb-2.5">
+            <Ionicons name="calendar-outline" size={20} color="#ff4d4d" className="mr-2" />
+            <Text className="text-base text-gray-600 w-17.5">Date:</Text>
+            <Text className="text-base font-medium text-black">{Booking.date}</Text>
           </View>
 
-          <View style={styles.detailRow}>
-            <Ionicons name="time-outline" size={20} color="#ff4d4d" style={styles.icon} />
-            <Text style={styles.detailLabel}>Time:</Text>
-            <Text style={styles.detailValue}>{Booking.time}</Text>
+          <View className="flex-row items-center mb-2.5">
+            <Ionicons name="time-outline" size={20} color="#ff4d4d" className="mr-2" />
+            <Text className="text-base text-gray-600 w-17.5">Time:</Text>
+            <Text className="text-base font-medium text-black">{Booking.time}</Text>
           </View>
 
-          <View style={styles.detailRow}>
-            <Ionicons name="people-outline" size={20} color="#ff4d4d" style={styles.icon} />
-            <Text style={styles.detailLabel}>Guests:</Text>
-            <Text style={styles.detailValue}>{Booking.guests}</Text>
+          <View className="flex-row items-center mb-2.5">
+            <Ionicons name="people-outline" size={20} color="#ff4d4d" className="mr-2" />
+            <Text className="text-base text-gray-600 w-17.5">Guests:</Text>
+            <Text className="text-base font-medium text-black">{Booking.guests}</Text>
           </View>
         </View>
         {Booking.status === 'pending' && (
-          <TouchableOpacity style={styles.cancelButton} onPress={cancelBooking}>
-            <Text style={styles.cancelButtonText}>Cancel Booking</Text>
+          <TouchableOpacity className="mt-6 bg-red-600 py-3 rounded-lg items-center" onPress={cancelBooking}>
+            <Text className="text-white text-base font-bold">Cancel Booking</Text>
           </TouchableOpacity>
         )}
 
@@ -226,112 +228,28 @@ const BookingDetailsScreen = ({
   );
 };
 
+/* Original CSS Reference:
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#00000084',
-  },
-  contentContainer: {
-    flex: 1,
-    justifyContent: 'center',
-  },
-  coverImage: {
-    width: '100%',
-    height: 220,
-    resizeMode: 'cover',
-  },
-  card: {
-    backgroundColor: '#fff',
-    margin: 16,
-    borderRadius: 16,
-    padding: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 6,
-    elevation: 3,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    marginBottom: 16,
-  },
-  restaurantName: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    color: '#333',
-  },
-  location: {
-    fontSize: 14,
-    color: '#777',
-    marginTop: 4,
-  },
-  statusBadge: {
-    backgroundColor: '#e6f4ea',
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 12,
-    alignSelf: 'flex-start',
-  },
-  statusText: {
-    color: '#388e3c',
-    fontWeight: 'bold',
-    fontSize: 12,
-  },
-  statusBadgeP: {
-    backgroundColor: '#f4e6e6',
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 12,
-    alignSelf: 'flex-start',
-  },
-  statusTextP: {
-    color: '#d32f2f',
-    fontWeight: 'bold',
-    fontSize: 12,
-  },
-  detailsSection: {
-    marginTop: 8,
-    borderTopWidth: 1,
-    borderTopColor: '#eee',
-    paddingTop: 16,
-  },
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#444',
-    marginBottom: 12,
-  },
-  detailRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 10,
-  },
-  icon: {
-    marginRight: 8,
-  },
-  detailLabel: {
-    fontSize: 15,
-    color: '#555',
-    width: 70,
-  },
-  detailValue: {
-    fontSize: 15,
-    fontWeight: '500',
-    color: '#000',
-  },
-  cancelButton: {
-    marginTop: 24,
-    backgroundColor: '#e53935',
-    paddingVertical: 12,
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  cancelButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
+  container: { flex: 1, backgroundColor: '#00000084' },
+  contentContainer: { flex: 1, justifyContent: 'center' },
+  coverImage: { width: '100%', height: 220, resizeMode: 'cover' },
+  card: { backgroundColor: '#fff', margin: 16, borderRadius: 16, padding: 16, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.1, shadowRadius: 6, elevation: 3 },
+  header: { flexDirection: 'row', alignItems: 'flex-start', marginBottom: 16 },
+  restaurantName: { fontSize: 22, fontWeight: 'bold', color: '#333' },
+  location: { fontSize: 14, color: '#777', marginTop: 4 },
+  statusBadge: { backgroundColor: '#e6f4ea', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12, alignSelf: 'flex-start' },
+  statusText: { color: '#388e3c', fontWeight: 'bold', fontSize: 12 },
+  statusBadgeP: { backgroundColor: '#f4e6e6', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12, alignSelf: 'flex-start' },
+  statusTextP: { color: '#d32f2f', fontWeight: 'bold', fontSize: 12 },
+  detailsSection: { marginTop: 8, borderTopWidth: 1, borderTopColor: '#eee', paddingTop: 16 },
+  sectionTitle: { fontSize: 16, fontWeight: 'bold', color: '#444', marginBottom: 12 },
+  detailRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 10 },
+  icon: { marginRight: 8 },
+  detailLabel: { fontSize: 15, color: '#555', width: 70 },
+  detailValue: { fontSize: 15, fontWeight: '500', color: '#000' },
+  cancelButton: { marginTop: 24, backgroundColor: '#e53935', paddingVertical: 12, borderRadius: 8, alignItems: 'center' },
+  cancelButtonText: { color: '#fff', fontSize: 16, fontWeight: 'bold' }
 });
+*/
 
 export default BookingDetailsScreen;

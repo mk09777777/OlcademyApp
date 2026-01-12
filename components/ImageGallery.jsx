@@ -2,7 +2,6 @@ import React, { useState, useCallback, useRef, useEffect } from 'react';
 import {
   View,
   Image,
-  StyleSheet,
   Dimensions,
   FlatList,
   TouchableOpacity,
@@ -136,20 +135,19 @@ const ImageGallery = ({
       //   activeOpacity={0.8}
       //   style={styles.imageContainer}
       // >
-      <View activeOpacity={0.8}
-       style={styles.imageContainer}>
+      <View className="bg-gray-100 justify-center items-center" style={{ width, height: 350 }}>
         {isLoading && (
-          <ActivityIndicator style={styles.loadingIndicator} size="large" color="#fff" />
+          <ActivityIndicator className="absolute" size="large" color="#fff" />
         )}
         {isError ? (
-          <View style={styles.errorContainer}>
+          <View className="justify-center items-center">
             <MaterialIcons name="broken-image" size={50} color="#ccc" />
-            <Text style={styles.errorText}>Failed to load image</Text>
+            <Text className="mt-2.5 color-gray-500 font-outfit">Failed to load image</Text>
           </View>
         ) : (
           <Image
             source={typeof item === 'string' ? { uri: item } : item}
-            style={styles.image}
+            className="w-full h-full"
             resizeMode="cover"
             onLoad={() => handleImageLoad(index)}
             onError={() => handleImageError(index)}
@@ -162,16 +160,15 @@ const ImageGallery = ({
   const renderIndicator = useCallback((_, index) => (
     <View 
       key={index}
-      style={[
-        styles.indicator,
-        index === currentIndex && styles.activeIndicator
-      ]}
+      className={`w-2 h-2 rounded-full mx-1 ${
+        index === currentIndex ? 'bg-white' : 'bg-white/50'
+      }`}
     />
   ), [currentIndex]);
 
   return (
     <View 
-      style={styles.mainContainer}
+      className="flex-1"
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
     >
@@ -190,11 +187,11 @@ const ImageGallery = ({
           offset: width * index,
           index,
         })}
-        style={styles.container}
+        className="h-87.5"
       />
 
       {showIndicators && galleryImages.length > 1 && (
-        <View style={styles.indicatorsContainer}>
+        <View className="absolute bottom-4 left-0 right-0 flex-row justify-center items-center">
           {galleryImages.map(renderIndicator)}
         </View>
       )}
@@ -203,38 +200,38 @@ const ImageGallery = ({
         <Modal
           visible={selectedImageIndex !== null}
           onDismiss={handleModalClose}
-          contentContainerStyle={styles.modalContainer}
+          contentContainerClassName="flex-1 bg-black/90"
         >
           <TouchableOpacity
-            style={styles.closeButton}
+            className="absolute top-12 right-4 z-10 p-2"
             onPress={handleModalClose}
           >
             <MaterialCommunityIcons name="close" size={24} color="#fff" />
           </TouchableOpacity>
           
           {selectedImageIndex !== null && (
-            <View style={styles.modalContent}>
+            <View className="flex-1 justify-center items-center">
               <Image
                 source={
                   typeof galleryImages[selectedImageIndex] === 'string' 
                     ? { uri: galleryImages[selectedImageIndex] } 
                     : galleryImages[selectedImageIndex]
                 }
-                style={styles.modalImage}
+                className="w-full h-4/5"
                 resizeMode="contain"
               />
               
               {galleryImages.length > 1 && (
                 <>
                   <TouchableOpacity 
-                    style={[styles.navButton, styles.prevButton]} 
+                    className="absolute left-4 top-1/2 -mt-5 p-2" 
                     onPress={handlePrev}
                   >
                     <MaterialCommunityIcons name="chevron-left" size={40} color="#fff" />
                   </TouchableOpacity>
                   
                   <TouchableOpacity 
-                    style={[styles.navButton, styles.nextButton]} 
+                    className="absolute right-4 top-1/2 -mt-5 p-2" 
                     onPress={handleNext}
                   >
                     <MaterialCommunityIcons name="chevron-right" size={40} color="#fff" />
@@ -249,6 +246,7 @@ const ImageGallery = ({
   );
 };
 
+/* COMMENTED OUT STYLESHEET - CONVERTED TO NATIVEWIND
 const styles = StyleSheet.create({
   mainContainer: {
     flex: 1,
@@ -335,5 +333,6 @@ const styles = StyleSheet.create({
     width: 12,
   },
 });
+*/
 
 export default ImageGallery;

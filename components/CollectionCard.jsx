@@ -1,8 +1,6 @@
 import React from 'react';
-import { View, Image, TouchableOpacity } from 'react-native';
-import { Text } from 'react-native-paper';
+import { View, Image, TouchableOpacity, Text } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import styles from '@/styles/Collection';
 
 export default function CollectionCard({ collection, onPress }) {
   const renderInfo = () => {
@@ -10,13 +8,13 @@ export default function CollectionCard({ collection, onPress }) {
       case 'tiffin':
       case 'dining':
         return (
-          <Text style={styles.collectionInfo}>
+          <Text className="text-xs font-outfit text-textsecondary">
             {collection.dishes} dishes • {collection.restaurants} restaurants
           </Text>
         );
       case 'events':
         return (
-          <Text style={styles.collectionInfo}>
+          <Text className="text-xs font-outfit text-textsecondary">
             <MaterialCommunityIcons name="calendar" size={14} color="#666" />
             {' '}{collection.date} • {collection.location}
           </Text>
@@ -28,20 +26,20 @@ export default function CollectionCard({ collection, onPress }) {
 
   return (
     <TouchableOpacity onPress={() => onPress(collection)} activeOpacity={0.7}>
-      <View style={styles.collectionCard}>
+      <View className="bg-white rounded-xl mb-4 overflow-hidden shadow-md">
         <Image 
           source={collection.image || require('@/assets/images/placeholder.png')} 
-          style={styles.collectionImage}
+          className="w-full h-35"
         />
-        <View style={styles.collectionContent}>
-          <Text style={styles.collectionTitle}>{collection.title}</Text>
-          <Text style={styles.collectionInfo}>{collection.description}</Text>
+        <View className="p-3">
+          <Text className="text-base font-outfit-bold text-textprimary mb-1">{collection.title}</Text>
+          <Text className="text-xs font-outfit text-textsecondary mb-1">{collection.description}</Text>
           {renderInfo()}
         </View>
 
         {collection.featured && (
-          <View style={styles.offerBadge}>
-            <Text style={styles.offerText}>Featured</Text>
+          <View className="absolute top-2 left-2 bg-primary px-2 py-1 rounded">
+            <Text className="text-white text-xs font-bold">Featured</Text>
           </View>
         )}
       </View>

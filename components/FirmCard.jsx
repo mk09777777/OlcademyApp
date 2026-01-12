@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { View, TouchableOpacity, Text, StyleSheet } from "react-native";
-import { styles } from "../styles/FirmCardStyle";
+import { View, TouchableOpacity, Text } from "react-native";
 import { FontAwesome, MaterialIcons } from "@expo/vector-icons";
 import { LinearGradient } from 'expo-linear-gradient';
 import ImageGallery from '@/components/ImageGallery';
@@ -91,8 +90,8 @@ useEffect(() => {
   // };
 
   return (
-    <TouchableOpacity style={styles.card} onPress={onPress}>
-      <View style={{ height: 150 }}>
+    <TouchableOpacity className="bg-white rounded-3xl overflow-hidden mb-5 mr-1.5 ml-1.5 shadow-md shadow-black border border-gray-200" onPress={onPress}>
+      <View style={{ height: 140 }}>
         <ImageGallery
           images={displayImages.slice(0,4)}
           currentIndex={currentImageIndex}
@@ -101,64 +100,54 @@ useEffect(() => {
 
         {/* Promoted Banner */}
         {promoted && (
-          <View style={styles.promotedBanner}>
-            <Text style={styles.promotedText}>Promoted</Text>
+          <View className="absolute top-2.5 left-2.5 bg-black/70 px-2 py-1 rounded z-10">
+            <Text className="text-white text-xs font-bold">Promoted</Text>
           </View>
         )}
 
         {/* Discount Banners */}
-        <View style={styles.discountContainer}>
+        <View className="absolute bottom-2.5 left-2.5 flex-row z-10">
           {offB && (
-            <View style={styles.offBanner}>
-              <Text style={styles.offText}>{off}% OFF</Text>
+            <View className="bg-primary px-2 py-1 rounded mr-1">
+              <Text className="text-white text-xs font-bold">{off}% OFF</Text>
             </View>
           )}
           {proExtraB && (
-            <View style={styles.proExtraBanner}>
-              <Text style={styles.proExtraText}>Pro extra {proExtra}% OFF</Text>
+            <View className="bg-green-500 px-2 py-1 rounded">
+              <Text className="text-white text-xs font-bold">Pro extra {proExtra}% OFF</Text>
             </View>
           )}
         </View>
 
         {/* Delivery Time */}
-        <View style={styles.timeContainer}>
-          <Text style={styles.timeText}>{displayTime} min</Text>
+        <View className="absolute bottom-2.5 right-2.5 bg-black/70 px-2 py-1 rounded z-10">
+          <Text className="text-white text-xs font-bold">{displayTime} min</Text>
         </View>
       </View>
 
       {/* Bookmark Button */}
       <TouchableOpacity
         onPress={handleClick}
-        style={{ position: 'absolute', top: 8, right: 8 }}
+        className="absolute top-2 right-2"
         activeOpacity={0.7}
         hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
       >
         <MaterialIcons
           name={isFavorited ? "bookmark" : "bookmark-border"}
           size={32}
-          color={isFavorited ? "#e23845" : "white"}
+          color={isFavorited ? "#02757A" : "white"}
         />
       </TouchableOpacity>
-      {/* {offer && (
-        <LinearGradient
-          colors={['#e23845', 'rgba(226, 56, 69, 0)']}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 0 }}
-          style={styles.offerBanner}
-        >
-          <Text style={styles.offerText}>5% OFF</Text>
-        </LinearGradient>
-      )} */}
 
       {/* Text Content Section */}
-      <View style={styles.textCard}>
-        <View style={{ flex: 1, marginRight: 8 }}>
-          <Text style={styles.firmName} numberOfLines={1} ellipsizeMode="tail">
+      <View className="p-3 flex-row justify-between">
+        <View className="flex-1 mr-2">
+          <Text className="text-lg font-outfit-bold text-textprimary mb-1" numberOfLines={1} ellipsizeMode="tail">
             {displayName}
           </Text>
 
           <Text
-            style={styles.subtext}
+            className="text-sm font-outfit text-textsecondary mb-1"
             numberOfLines={1}
             ellipsizeMode="tail"
           >
@@ -166,27 +155,27 @@ useEffect(() => {
           </Text>
 
           <Text
-            style={styles.area}
+            className="text-sm font-outfit text-textsecondary"
             numberOfLines={1}
             ellipsizeMode="tail"
           >
             {displayArea}
           </Text>
         </View>
-        <View style={styles.areamain}>
-          <View style={styles.reviewBox}>
-            <Text style={styles.reviewText}>{displayRating.toFixed(1)}</Text>
+        <View className="items-end">
+          <View className="bg-green-600 rounded-lg px-2 py-1 flex-row items-center">
+            <Text className="text-white text-sm font-semibold mr-1">{displayRating.toFixed(1)}</Text>
             <FontAwesome name='star' size={16} color='white' />
           </View>
           {displaydistance && (
-            <Text style={{marginTop:6,fontWeight:"bold",fontSize:12,color:"#57606F" }}>
+            <Text className="mt-1.5 font-bold text-xs text-gray-600">
               {displaydistance.length > 3
                 ? `${displaydistance.toString().slice(0, 3)} km`
                 : `${displaydistance.toString().slice(0, 3)} km`}
             </Text>
           )}
           {displayPrice && displayPrice !== 'N/A' && (
-            <Text style={styles.priceText}>
+            <Text className="text-xs font-outfit text-textsecondary mt-1">
               {typeof displayPrice === 'string' ? displayPrice : `$${displayPrice}`}
             </Text>
           )}

@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import {
   View,
-  StyleSheet,
   ScrollView,
   TouchableOpacity,
 } from 'react-native';
@@ -19,7 +18,6 @@ const ReviewSection = ({ reviews = [], firmId = '' }) => {
       return;
     }
     try {
-      // Here you would typically submit the review to your backend
       console.log('Submitting review:', { firmId, rating, review });
       setRating(0);
       setReview('');
@@ -40,24 +38,24 @@ const ReviewSection = ({ reviews = [], firmId = '' }) => {
           name={index < count ? 'star' : 'star-outline'}
           size={24}
           color="#FFD700"
-          style={styles.star}
+          className="mr-1"
         />
       </TouchableOpacity>
     ));
   };
 
   return (
-    <View style={styles.container}>
+    <View className="flex-1 bg-white">
       {/* Review Input Section */}
-      <Card style={styles.reviewInputCard}>
+      <Card className="m-4 shadow-md">
         <Card.Content>
-          <Text style={styles.sectionTitle}>Write a Review</Text>
-          <View style={styles.ratingContainer}>
-            <Text style={styles.label}>Rating:</Text>
-            <View style={styles.starsContainer}>
-              {renderStars(rating, setRating)}
-            </View>
+          <Text className="text-lg font-bold mb-4 text-gray-800">Write a Review</Text>
+
+          <View className="flex-row items-center mb-4">
+            <Text className="text-base text-gray-600 mr-2">Rating:</Text>
+            <View className="flex-row items-center">{renderStars(rating, setRating)}</View>
           </View>
+
           <TextInput
             mode="outlined"
             label="Your Review"
@@ -65,49 +63,47 @@ const ReviewSection = ({ reviews = [], firmId = '' }) => {
             onChangeText={setReview}
             multiline
             numberOfLines={4}
-            style={styles.reviewInput}
+            className="mb-4"
           />
-          {error ? <Text style={styles.error}>{error}</Text> : null}
-          <Button 
-            mode="contained" 
-            onPress={handleSubmitReview}
-            style={styles.submitButton}
-          >
+
+          {error ? <Text className="text-red-600 mb-2">{error}</Text> : null}
+
+          <Button mode="contained" onPress={handleSubmitReview} className="mt-2 bg-green-600">
             Submit Review
           </Button>
         </Card.Content>
       </Card>
 
       {/* Reviews List */}
-      <View style={styles.reviewsContainer}>
-        <Text style={styles.sectionTitle}>Customer Reviews</Text>
-        <ScrollView style={styles.reviewsList}>
+      <View className="flex-1 px-4 pb-4">
+        <Text className="text-lg font-bold mb-4 text-gray-800">Customer Reviews</Text>
+
+        <ScrollView className="flex-1">
           {reviews && reviews.length > 0 ? (
             reviews.map((item, index) => (
-              <Card key={`${item.user || 'anonymous'}-${index}`} style={styles.reviewCard}>
+              <Card key={`${item.user || 'anonymous'}-${index}`} className="mb-4">
                 <Card.Content>
-                  <View style={styles.reviewHeader}>
-                    <Avatar.Text 
-                      size={40} 
-                      label={(item.user || 'A').charAt(0).toUpperCase()} 
-                      style={styles.avatar}
+                  <View className="flex-row items-center mb-2">
+                    <Avatar.Text
+                      size={40}
+                      label={(item.user || 'A').charAt(0).toUpperCase()}
+                      className="mr-3 bg-red-500"
                     />
-                    <View style={styles.reviewHeaderText}>
-                      <Text style={styles.userName}>{item.user || 'Anonymous'}</Text>
-                      <View style={styles.starsContainer}>
-                        {renderStars(item.rating || 0)}
-                      </View>
+                    <View className="flex-1">
+                      <Text className="text-base font-bold text-gray-800 mb-1">{item.user || 'Anonymous'}</Text>
+                      <View className="flex-row items-center">{renderStars(item.rating || 0)}</View>
                     </View>
                   </View>
-                  <Text style={styles.reviewText}>{item.comment || 'No comment provided'}</Text>
-                  <Text style={styles.reviewDate}>
+
+                  <Text className="text-sm text-gray-600 my-2">{item.comment || 'No comment provided'}</Text>
+                  <Text className="text-xs text-gray-400">
                     {item.date ? new Date(item.date).toLocaleDateString() : 'No date'}
                   </Text>
                 </Card.Content>
               </Card>
             ))
           ) : (
-            <Text style={styles.noReviews}>No reviews yet. Be the first to review!</Text>
+            <Text className="text-center text-gray-500 mt-4">No reviews yet. Be the first to review!</Text>
           )}
         </ScrollView>
       </View>
@@ -115,6 +111,9 @@ const ReviewSection = ({ reviews = [], firmId = '' }) => {
   );
 };
 
+export default ReviewSection;
+
+/* ---------------- OLD STYLESHEET (COMMENTED OUT) ----------------
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -200,5 +199,4 @@ const styles = StyleSheet.create({
     marginTop: 16,
   },
 });
-
-export default ReviewSection;
+------------------------------------------------------------------ */

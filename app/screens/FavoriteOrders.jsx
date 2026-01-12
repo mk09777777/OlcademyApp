@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, FlatList, SafeAreaView, ActivityIndicator, TouchableOpacity,Image } from 'react-native';
+import { View, Text, FlatList, ActivityIndicator, TouchableOpacity,Image } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons,MaterialCommunityIcons } from '@expo/vector-icons';
-import styles from '../../styles/FavoriteOrder';
 import axios from 'axios';
 import TakeawayOrderCard from '../../Card/TakewayCard';
 import TiffinOrderCard from '../../components/TiffinOrderCard';
- // Add this import
 
 import { API_CONFIG } from '../../config/apiConfig';
+import BackRouting from '@/components/BackRouting';
 const SERVER_URL = API_CONFIG.BACKEND_URL;
 export default function FavoriteOrdersScreen() {
   const [activeTab, setActiveTab] = useState('Takeaway');
@@ -208,20 +208,20 @@ const prepareOrderData = (order) => {
   const renderFooter = () => {
     if (!loading) return null;
     return (
-      <View style={styles.loadingFooter}>
-        <ActivityIndicator size="small" color="#fc8019" />
+      <View className="py-4">
+        <ActivityIndicator size="small" color="#02757A" />
       </View>
     );
   };
 
   const renderError = () => (
-    <View style={styles.errorContainer}>
-      <Text style={styles.errorText}>{error}</Text>
+    <View className="flex-1 items-center justify-center p-4">
+      <Text className="text-primary text-center font-outfit mb-4">{error}</Text>
       <TouchableOpacity 
-        style={styles.retryButton} 
+        className="bg-primary px-6 py-3 rounded-lg" 
         onPress={() => fetchOrders(1, activeTab === 'Takeaway' ? 'Firm' : 'Tiffin')}
       >
-        <Text style={styles.retryButtonText}>Retry</Text>
+        <Text className="text-white font-outfit-bold">Retry</Text>
       </TouchableOpacity>
     </View>
   );
@@ -251,27 +251,55 @@ const prepareOrderData = (order) => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView className="flex-1 bg-background">
+      <BackRouting tittle ="Favorite Orders"/>
       {/* Tabs */}
-      <View style={styles.tabContainer}>
-        <TouchableOpacity
-          style={[styles.tab, activeTab === 'Takeaway' && styles.activeTab]}
-          onPress={() => setActiveTab('Takeaway')}
-        >
-          <Ionicons name="fast-food-outline" size={24} color='#fc8019' />
-          <Text style={[styles.tabText, activeTab === 'Takeaway' && styles.activeTabText]}>
-            Takeaway
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.tab, activeTab === 'Tiffin' && styles.activeTab]}
-          onPress={() => setActiveTab('Tiffin')}
-        >
-           <MaterialCommunityIcons name="food-takeout-box-outline" size={24} color='#fc8019' />
-          <Text style={[styles.tabText, activeTab === 'Tiffin' && styles.activeTabText]}>
-            Tiffin
-          </Text>
-        </TouchableOpacity>
+      <View className="px-5 py-3">
+        <View className="bg-gray-200 rounded-full flex-row relative">
+          {/* Active Tab Indicator */}
+          <View
+            className="absolute top-0 w-1/2 h-full bg-primary rounded-full"
+            style={{
+              left: activeTab === 'Takeaway' ? 0 : '50%',
+            }}
+          />
+          
+          <TouchableOpacity
+            className="flex-1 flex-row items-center justify-center py-3 rounded-full"
+            onPress={() => setActiveTab('Takeaway')}
+          >
+            <View className="mr-2">
+              <Ionicons 
+                name="fast-food" 
+                size={20} 
+                color={activeTab === 'Takeaway' ? '#FFFFFF' : '#02757A'} 
+              />
+            </View>
+            <Text 
+              className={`text-sm font-outfit-semibold ${activeTab === 'Takeaway' ? 'text-white' : 'text-primary'}`}
+            >
+              Takeaway
+            </Text>
+          </TouchableOpacity>
+          
+          <TouchableOpacity
+            className="flex-1 flex-row items-center justify-center py-3 rounded-full"
+            onPress={() => setActiveTab('Tiffin')}
+          >
+            <View className="mr-2">
+              <MaterialCommunityIcons 
+                name="food-takeout-box" 
+                size={20} 
+                color={activeTab === 'Tiffin' ? '#FFFFFF' : '#02757A'} 
+              />
+            </View>
+            <Text 
+              className={`text-sm font-outfit-semibold ${activeTab === 'Tiffin' ? 'text-white' : 'text-primary'}`}
+            >
+              Tiffin
+            </Text>
+          </TouchableOpacity>
+        </View>
       </View>
 
       {/* Error Display */}
@@ -279,24 +307,24 @@ const prepareOrderData = (order) => {
 
       {/* Orders List */}
       {loading && orders.length === 0 ? (
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#fc8019" />
+        <View className="flex-1 items-center justify-center">
+          <ActivityIndicator size="large" color="#02757A" />
         </View>
       ) : (
         <FlatList
           data={orders}
           renderItem={renderItem}
           keyExtractor={(item) => item._id}
-          contentContainerStyle={styles.ordersList}
+          contentContainerClassName="p-4"
           ListEmptyComponent={
             !error && (
-              <View style={styles.emptyContainer}>
+              <View className="flex-1 items-center justify-center py-12">
                 <Image 
                   source={require('../../assets/images/logo.jpg')} 
-                  style={styles.emptyImage}
+                  className="w-24 h-24 mb-4"
                   resizeMode="contain"
                 />
-                <Text style={styles.emptyText}>No favorite {activeTab.toLowerCase()} orders found</Text>
+                <Text className="text-textsecondary text-center font-outfit">No favorite {activeTab.toLowerCase()} orders found</Text>
               </View>
             )
           }

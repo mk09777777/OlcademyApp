@@ -1,0 +1,313 @@
+openapi: 3.1.0
+info:
+  title: Events Module API
+  version: 1.0.0
+  description: API for Events discovery, booking, ticket issuance, validation, resale and transfers.
+servers:
+  - url: https://api.domain.com/v1
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    Error:
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+    Event:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        startAt:
+          type: string
+          format: date-time
+        endAt:
+          type: string
+          format: date-time
+        venue:
+          $ref: '#/components/schemas/Venue'
+        ticketTypes:
+          type: array
+          items:
+            $ref: '#/components/schemas/TicketType'
+        images:
+          type: array
+          items:
+            type: string
+        resaleRules:
+          type: object
+    Venue:
+      type: object
+      properties:
+        id: { type: string }
+        name: { type: string }
+        address: { type: string }
+        lat: { type: number }
+        lng: { type: number }
+    TicketType:
+      type: object
+      properties:
+        id: { type: string }
+        name: { type: string }
+        priceCents: { type: integer }
+        currency: { type: string }
+        inventory: { type: integer }
+        type: { type: string, enum: ["GA","RESERVED"] }
+        seatMapId: { type: string, nullable: true }
+    OrderRequest:
+      type: object
+      required: [items, userInfo, idempotencyKey]
+      properties:
+        idempotencyKey: { type: string }
+        items:
+          type: array
+          items:
+            type: object
+            properties:
+              ticketTypeId: { type: string }
+              quantity: { type: integer }
+              seatInfo:
+                type: object
+        userInfo:
+          type: object
+          properties:
+            name: { type: string }
+            email: { type: string }
+        paymentMethodId:
+          type: string
+    OrderResponse:
+      type: object
+      properties:
+        orderId: { type: string }
+        status: { type: string }
+        amountCents: { type: integer }
+paths:
+  /events:
+    get:
+      summary: Search / list events
+      parameters:
+        - name: q
+          in: query
+          schema: { type: string }
+        - name: city
+          in: query
+          schema: { type: string }
+        - name: from
+          in: query
+          schema: { type: string, format: date-time }
+        - name: to
+          in: query
+          schema: { type: string, format: date-time }
+        - name: category
+          in: query
+          schema: { type: string }
+        - name: lat
+          in: query
+          schema: { type: number }
+        - name: lng
+          in: query
+          schema: { type: number }
+        - name: radiusKm
+          in: query
+          schema: { type: number }
+      responses:
+        '200':
+          description: list
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Event' }
+  /events/{id}:
+    get:
+      summary: Get event by id
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Event' }
+        '404':
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+  /orders:
+    post:
+      summary: Create an order (hold inventory, return client secret)
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/OrderRequest' }
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/OrderResponse' }
+        '409':
+          description: Conflict (inventory)
+  /payments/confirm:
+    post:
+      summary: Confirm payment (webhook style from client) - server finalizes order
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                orderId: { type: string }
+                paymentIntentId: { type: string }
+      responses:
+        '200':
+          description: payment processed
+  /webhooks/stripe:
+    post:
+      summary: Stripe webhooks
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object }
+      responses:
+        '200': { description: ok }
+  /tickets/{ticketId}:
+    get:
+      summary: Get ticket detail (for My Tickets)
+      parameters:
+        - name: ticketId
+          in: path
+          required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id: { type: string }
+                  qrSecret: { type: string }
+                  seatInfo: { type: object }
+  /tickets/issue:
+    post:
+      summary: Issue ticket (internal, called after payment webhook)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                orderId: { type: string }
+      responses:
+        '201':
+          description: ticket(s) created
+  /tickets/validate:
+    post:
+      summary: Validate a ticket QR (scanner apps)
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [qrSecret, scannerId]
+              properties:
+                qrSecret: { type: string }
+                scannerId: { type: string }
+                scannedAt: { type: string, format: date-time }
+      responses:
+        '200':
+          description: validation result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: { type: string, enum: [VALID, INVALID, ALREADY_CHECKED_IN] }
+                  ticketId: { type: string }
+                  checkedInAt: { type: string, format: date-time }
+  /tickets/{ticketId}/transfer:
+    post:
+      summary: Initiate transfer of ticket
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                toEmail: { type: string }
+      responses:
+        '200':
+          description: transfer pending
+  /tickets/{ticketId}/resell:
+    post:
+      summary: List ticket on resale marketplace
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                priceCents: { type: integer }
+      responses:
+        '201':
+          description: listing created
+  /users/{userId}/bookings:
+    get:
+      summary: Get bookings for a user
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: userId
+          in: path
+          required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    orderId: { type: string }
+                    tickets: { type: array }
+  /organizers/{orgId}/events:
+    post:
+      summary: Organizer creates an event
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Event'
+      responses:
+        '201': { description: created }

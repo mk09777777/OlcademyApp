@@ -3,7 +3,6 @@ import {
   View,
   Text,
   TouchableOpacity,
-  StyleSheet,
   Platform,
   Animated,
   StatusBar,
@@ -44,49 +43,46 @@ const DetailHeader = ({
     <>
       <StatusBar barStyle="dark-content" backgroundColor="#fff" />
       <Animated.View
-        style={[
-          styles.header,
-          {
-            height: headerHeight + STATUSBAR_HEIGHT,
-            transform: [{ translateY: headerTranslate }],
-          },
-        ]}
+        className="absolute top-0 left-0 right-0 z-50"
+        style={{
+          height: headerHeight + STATUSBAR_HEIGHT,
+          transform: [{ translateY: headerTranslate }],
+        }}
       >
         <Animated.View
-          style={[
-            styles.background,
-            {
-              opacity: headerOpacity,
-            },
-          ]}
+          className="absolute top-0 left-0 right-0 bottom-0 bg-white border-b border-gray-200"
+          style={{
+            opacity: headerOpacity,
+          }}
         />
-        <View style={[styles.headerContent, { marginTop: STATUSBAR_HEIGHT }]}>
+        <View className="flex-1 flex-row items-center justify-between px-4" style={{ marginTop: STATUSBAR_HEIGHT }}>
           <TouchableOpacity 
             onPress={onBack} 
-            style={styles.backButton}
+            className="p-2 -ml-2"
             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
           >
             <Ionicons name="arrow-back" size={24} color="#000" />
           </TouchableOpacity>
 
           <Animated.Text 
-            style={[styles.title, { opacity: titleOpacity }]} 
+            className="text-lg font-outfit-semibold color-gray-900 flex-1 text-center mx-4" 
+            style={{ opacity: titleOpacity }}
             numberOfLines={1}
           >
             {title || ''}
           </Animated.Text>
 
-          <View style={styles.rightButtons}>
+          <View className="flex-row items-center">
             <TouchableOpacity 
               onPress={onShare} 
-              style={styles.iconButton}
+              className="p-2 ml-2"
               hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
             >
               <Ionicons name="share-outline" size={24} color="#000" />
             </TouchableOpacity>
             <TouchableOpacity 
               onPress={onFavorite} 
-              style={styles.iconButton}
+              className="p-2 ml-2"
               hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
             >
               <Ionicons
@@ -102,6 +98,7 @@ const DetailHeader = ({
   );
 };
 
+/* COMMENTED OUT STYLESHEET - CONVERTED TO NATIVEWIND
 const styles = StyleSheet.create({
   header: {
     position: 'absolute',
@@ -148,5 +145,6 @@ const styles = StyleSheet.create({
     marginLeft: 8,
   },
 });
+*/
 
 export default DetailHeader; 

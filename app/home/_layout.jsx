@@ -16,26 +16,20 @@ export default function TabLayout() {
   }
   const { width } = Dimensions.get('window');
   
-  // Calculate responsive sizes based on screen width
-  // const tabBarHeight = width < 400 ? 70 : 80;
+  const tabBarHeight = width < 400 ? 70 : 80;
   const iconSize = width < 400 ? 25 : 27;
-  const fontSize = width < 400 ? 12 : 15;
-  const tabBarPadding = width < 400 ? 3 : 5;
+  const fontSize = 12;
+  const tabBarPadding = width < 400 ? 4 : 6;
 
   return (
-    // <SafeAreaView style={{ flex: 1 }} >
     <Tabs
       screenOptions={{
         headerShown: false,
         tabBarStyle: {
-          // marginBottom: width < 400 ? 10 : 15,
           paddingBottom: tabBarPadding,
           paddingTop: tabBarPadding,
-          height: 65,
+          height: tabBarHeight,
         },
-        // tabBarItemStyle: {
-        //   paddingVertical: 4,
-        // },
       }}
     >
       {/* TakeAway Tab */}
@@ -45,18 +39,18 @@ export default function TabLayout() {
           tabBarLabel: ({ focused }) => (
             <Text style={{ 
               fontFamily: focused ? 'outfit-bold' : 'outfit',
-              color: focused ? '#e23845' : 'gray',
+              color: focused ? '#02757A' : 'gray',
               fontSize: fontSize,
-              marginTop: 2,
+              marginTop: -2,
             }}>
               Take Away
             </Text>
           ),
           tabBarIcon: ({ focused }) => (
             <Ionicons 
-              name="fast-food-outline" 
+              name="fast-food-sharp" 
               size={iconSize} 
-              color={focused ? '#e23845' : 'grey'} 
+              color={focused ? '#02757A' : 'grey'} 
             />
           ),
         }}
@@ -69,18 +63,18 @@ export default function TabLayout() {
           tabBarLabel: ({ focused }) => (
             <Text style={{ 
               fontFamily: focused ? 'outfit-bold' : 'outfit',
-              color: focused ? '#e23845' : 'gray',
+              color: focused ? '#02757A' : 'gray',
               fontSize: fontSize,
-              marginTop: 2,
+              marginTop: -2,
             }}>
               Dining
             </Text>
           ),
           tabBarIcon: ({ focused }) => (
             <MaterialIcons 
-              name="restaurant" 
+              name="restaurant-menu" 
               size={iconSize} 
-              color={focused ? '#e23845' : 'grey'} 
+              color={focused ? '#02757A' : 'grey'} 
             />
           ),
         }}
@@ -93,9 +87,9 @@ export default function TabLayout() {
           tabBarLabel: ({ focused }) => (
             <Text style={{ 
               fontFamily: focused ? 'outfit-bold' : 'outfit',
-              color: focused ? '#e23845' : 'gray',
+              color: focused ? '#02757A' : 'gray',
               fontSize: fontSize,
-              marginTop: 2,
+              marginTop: -2,
             }}>
               Tiffin
             </Text>
@@ -104,36 +98,35 @@ export default function TabLayout() {
             <MaterialCommunityIcons 
               name="food-takeout-box-outline" 
               size={iconSize} 
-              color={focused ? '#e23845' : 'grey'} 
+              color={focused ? '#02757A' : 'grey'} 
             />
           ),
         }}
       />
 
-      {/* LiveShows Tab */}
+      {/* Events Tab */}
       <Tabs.Screen 
-        name="LiveShows"
+        name="Events"
         options={{
           tabBarLabel: ({ focused }) => (
             <Text style={{ 
               fontFamily: focused ? 'outfit-bold' : 'outfit',
-              color: focused ? '#e23845' : 'gray',
+              color: focused ? '#02757A' : 'gray',
               fontSize: fontSize,
-              marginTop: 2,
+              marginTop: -2,
             }}>
-              Live Shows
+              Events
             </Text>
           ),
           tabBarIcon: ({ focused }) => (
             <MaterialIcons 
               name="live-tv" 
               size={iconSize} 
-              color={focused ? '#e23845' : 'grey'} 
+              color={focused ? '#02757A' : 'grey'} 
             />
           ),
         }}
       />
     </Tabs>
-    // </SafeAreaView>
   )
 }

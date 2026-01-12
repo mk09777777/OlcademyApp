@@ -2,120 +2,72 @@ import React from 'react';
 import {
   View,
   Text,
-  TextInput,
   TouchableOpacity,
   Image,
-  StyleSheet,
   ScrollView,
   Alert
 } from 'react-native';
-import { AntDesign, MaterialIcons } from '@expo/vector-icons';
 import { useAuth } from '../../context/AuthContext'; 
+import { SafeAreaView } from 'react-native-safe-area-context';
+import BackRouting from '@/components/BackRouting';
 
-export default function Logout({ navigation }) {
+export default function Logout() {
   const { logout } = useAuth(); 
 
-const handleLogout = async () => {
-  Alert.alert(
-    "Log Out",
-    "Are you sure you want to log out?",
-    [
-      {
-        text: "Cancel",
-        style: "cancel"
-      },
-      { 
-        text: "Log Out", 
-        onPress: async () => {
-          try {
-            await logout();
-          } catch (error) {
-            Alert.alert(
-              "Logout Error",
-              "There was a problem during logout. You've been signed out locally.",
-              [{ text: "OK" }]
-            );
+  const handleLogout = async () => {
+    Alert.alert(
+      "Log Out",
+      "Are you sure you want to log out?",
+      [
+        {
+          text: "Cancel",
+          style: "cancel"
+        },
+        { 
+          text: "Log Out", 
+          onPress: async () => {
+            try {
+              await logout();
+            } catch (error) {
+              console.error('Logout failed, clearing locally', error);
+              Alert.alert(
+                "Logout Error",
+                "There was a problem during logout. You&apos;ve been signed out locally.",
+                [{ text: "OK" }]
+              );
+            }
           }
         }
-      }
-    ]
-  );
-};
+      ]
+    );
+  };
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
+    <SafeAreaView className="flex-1 bg-white">
+      <BackRouting title='Logout' />
+      <ScrollView className="flex-1 items-center justify-center pb-10 bg-white">
       {/* Header Image */}
       <Image
         source={{ uri: 'https://www.grabon.in/indulge/wp-content/uploads/2022/07/Zomato-494x350.png' }}
-        style={styles.topImage}
+        className="w-full h-58"
         resizeMode="cover"
       />
       
-      <Text style={styles.tagline}>India's #1 Food Delivery and Dining App</Text>
+  <Text className="text-base text-center mt-2 mb-8 font-outfit-bold text-textprimary">India&apos;s #1 Food Delivery and Dining App</Text>
       
       {/* Logout Content */}
-      <View style={styles.logoutContainer}>
-        <Text style={styles.logoutText}>You're currently logged in</Text>
+      <View className="w-4/5 items-center p-5 rounded-lg bg-light shadow-sm">
+  <Text className="text-base mb-5 text-textsecondary text-center font-outfit">You&apos;re currently logged in</Text>
         
         <TouchableOpacity 
-          style={styles.logoutBtn}
+          className="bg-primary py-4 rounded-lg w-full"
           onPress={handleLogout}
         >
-          <Text style={styles.logoutBtnText}>Log Out</Text>
+          <Text className="text-white text-base text-center font-outfit-bold">Log Out</Text>
         </TouchableOpacity>
       </View>
-    </ScrollView>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingBottom: 40,
-    backgroundColor: '#fff',
-  },
-  topImage: {
-    width: '101%',
-    height: 230,
-  },
-  tagline: {
-    fontSize: 16,
-    textAlign: 'center',
-    marginTop: 8,
-    marginBottom: 30,
-    fontWeight: '600',
-    color: '#222',
-  },
-  logoutContainer: {
-    width: '85%',
-    alignItems: 'center',
-    padding: 20,
-    borderRadius: 10,
-    backgroundColor: '#f9f9f9',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  logoutText: {
-    fontSize: 16,
-    marginBottom: 20,
-    color: '#555',
-    textAlign: 'center',
-  },
-  logoutBtn: {
-    backgroundColor: '#e23744',
-    paddingVertical: 14,
-    borderRadius: 8,
-    width: '101%',
-  },
-  logoutBtnText: {
-    color: '#fff',
-    fontSize: 16,
-    textAlign: 'center',
-    fontWeight: '600',
-  },
-});

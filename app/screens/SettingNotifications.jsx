@@ -1,20 +1,20 @@
 import React, { Fragment, useEffect, useRef, useState } from "react";
 import { View, Text, ScrollView, Switch, Modal, TouchableOpacity, ToastAndroid, Platform } from "react-native";
-import NotifcationStyles from "../../styles/SettingNotificationStyles";
-import Ionicons from '@expo/vector-icons/Ionicons';
+
+import { Ionicons } from '@expo/vector-icons';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import NotificationModal from '../../components/NotificationModal';
-import { router } from "expo-router";
 import * as Notifications from 'expo-notifications';
 import Constants from 'expo-constants';
 import { API_CONFIG } from '../../config/apiConfig';
-
-// Check if running in development build or Expo Go
-const isExpoGo = Constants.appOwnership === 'expo';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import BackRouting from "@/components/BackRouting";
 import { useSafeNavigation } from "@/hooks/navigationPage";
+
+// Check if running in development build or Expo Go
+const isExpoGo = Constants.appOwnership === 'expo';
+
 export default function NotificationSettings() {
     const [enableAll, setEnableAll] = useState(false);
     const [promosPush, setPromosPush] = useState(false);
@@ -24,7 +24,8 @@ export default function NotificationSettings() {
     const [ordersWhatsapp, setOrdersWhatsapp] = useState(false);
     const [buttonActive, setButtonActive] = useState(false);
     const [notificationmodal, setNotificationModal] = useState(false);
-   const { safeNavigation } = useSafeNavigation();
+    const { safeNavigation } = useSafeNavigation();
+    
     const initialState = useRef({
         enableAll: false,
         promosPush: false,
@@ -62,7 +63,6 @@ export default function NotificationSettings() {
 
     const fetchInitialSettings = async () => {
         try {
-
             const response = await fetch(`${API_CONFIG.BACKEND_URL}/api/getnotifications`, {
                 method: 'GET',
                 credentials: 'include',
@@ -124,7 +124,7 @@ export default function NotificationSettings() {
 
         try {
             const response = await fetch(`${API_CONFIG.BACKEND_URL}/api/putnotifications`, {
-                  method: 'PUT',
+                method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',
                 body: JSON.stringify(payload),
@@ -149,119 +149,166 @@ export default function NotificationSettings() {
                 </Modal>
             )}
 
-            <View style={NotifcationStyles.background}>
-                <ScrollView>
-                    <View style={NotifcationStyles.NotficationContainer}>
-                        <View style={NotifcationStyles.PushnotificationContainer}>
-                            <Text style={NotifcationStyles.NotificationText}>Enable all</Text>
+            <BackRouting title="Notification settings" />
+            <View className="flex-1 bg-background">
+                <ScrollView
+                    showsVerticalScrollIndicator={false}
+                    contentContainerStyle={{ padding: 16, paddingBottom: 96 }}
+                >
+                    <View className="bg-white rounded-lg border border-border p-4 mb-3">
+                        <View className="flex-row items-start justify-between">
+                            <View className="flex-row flex-1">
+                                <Ionicons name="notifications-outline" size={22} color="#222" />
+                                <View className="ml-3 flex-1">
+                                    <Text className="text-textprimary font-outfit-bold text-base">Enable all</Text>
+                                    <Text className="text-textsecondary font-outfit text-sm mt-1">
+                                        Activate all notifications
+                                    </Text>
+                                </View>
+                            </View>
                             <Switch
-                                style={NotifcationStyles.togglebutton}
                                 value={enableAll}
                                 onValueChange={onToggleEnableAll}
-                                trackColor={{ false: '#767577', true: '#ffdbdf' }}
-                                thumbColor={enableAll ? '#ea4c5f' : '#fff'}
-                            />
-                        </View>
-                        <Text style={NotifcationStyles.NotificationText2}>Activate all notifications</Text>
-                    </View>
-
-                    <View style={NotifcationStyles.NotficationContainer2}>
-                        <Text style={NotifcationStyles.NotificationText}>Promos and offers</Text>
-                        <Text style={NotifcationStyles.NotificationText2}>Receive updates about coupons, promotions, and money-saving offers</Text>
-                        <View style={NotifcationStyles.PushnotificationContainer2}>
-                            <View style={NotifcationStyles.notificationTextcontainer}>
-                                <MaterialIcons name="notifications-active" size={24} color={promosPush ? "#ea4c5f" : "black"} />
-                                <Text style={NotifcationStyles.NotificationText3}>Push</Text>
-                            </View>
-                            <Switch
-                                style={NotifcationStyles.togglebutton}
-                                value={promosPush}
-                                onValueChange={setPromosPush}
-                                trackColor={{ false: '#767577', true: '#ffdbdf' }}
-                                thumbColor={promosPush ? '#ea4c5f' : '#fff'}
-                                disabled={enableAll}
-                            />
-                        </View>
-
-                        <View style={NotifcationStyles.PushnotificationContainer3}>
-                            <View style={NotifcationStyles.notificationTextcontainer}>
-                                <FontAwesome5 name="whatsapp" size={24} color={promosWhatsapp ? "#ea4c5f" : "black"} />
-                                <Text style={NotifcationStyles.NotificationText3}>Whatsapp</Text>
-                            </View>
-                            <Switch
-                                style={NotifcationStyles.togglebutton}
-                                value={promosWhatsapp}
-                                onValueChange={setPromosWhatsapp}
-                                trackColor={{ false: '#767577', true: '#ffdbdf' }}
-                                thumbColor={promosWhatsapp ? '#ea4c5f' : '#fff'}
-                                disabled={enableAll}
+                                trackColor={{ false: '#E0E0E0', true: '#ffdbdf' }}
+                                thumbColor={enableAll ? '#FF002E' : '#fff'}
                             />
                         </View>
                     </View>
 
-                    <View style={NotifcationStyles.NotficationContainer2}>
-                        <Text style={NotifcationStyles.NotificationText}>Social notifications</Text>
-                        <Text style={NotifcationStyles.NotificationText2}>Get notified when someone follows you or interacts with your posts</Text>
-                        <View style={NotifcationStyles.PushnotificationContainer}>
-                            <View style={NotifcationStyles.notificationTextcontainer}>
-                                <MaterialIcons name="notifications-active" size={24} color={socialPush ? "#ea4c5f" : "black"} />
-                                <Text style={NotifcationStyles.NotificationText3}>Push</Text>
+                    {/* Promos and Offers Section */}
+                    <View className="bg-white rounded-lg border border-border p-4 mb-3">
+                        <View className="flex-row">
+                            <MaterialIcons name="local-offer" size={22} color="#9C27B0" />
+                            <View className="ml-3 flex-1">
+                                <Text className="text-textprimary font-outfit-bold text-base">Promos and offers</Text>
+                                <Text className="text-textsecondary font-outfit text-sm mt-1">
+                                    Receive updates about coupons, promotions, and money-saving offers
+                                </Text>
+                            </View>
+                        </View>
+
+                        <View className="border-t border-border mt-4 pt-4">
+                            <View className="flex-row justify-between items-center mb-4">
+                                <View className="flex-row items-center">
+                                    <MaterialIcons name="notifications-active" size={18} color={promosPush ? "#FF002E" : "#9E9E9E"} />
+                                    <Text className="text-textprimary font-outfit ml-3">Push</Text>
+                                </View>
+                                <Switch
+                                    value={promosPush}
+                                    onValueChange={setPromosPush}
+                                    trackColor={{ false: '#E0E0E0', true: '#ffdbdf' }}
+                                    thumbColor={promosPush ? '#FF002E' : '#fff'}
+                                    disabled={enableAll}
+                                />
+                            </View>
+
+                            <View className="flex-row justify-between items-center">
+                                <View className="flex-row items-center">
+                                    <FontAwesome5 name="whatsapp" size={18} color={promosWhatsapp ? "#FF002E" : "#9E9E9E"} />
+                                    <Text className="text-textprimary font-outfit ml-3">WhatsApp</Text>
+                                </View>
+                                <Switch
+                                    value={promosWhatsapp}
+                                    onValueChange={setPromosWhatsapp}
+                                    trackColor={{ false: '#E0E0E0', true: '#ffdbdf' }}
+                                    thumbColor={promosWhatsapp ? '#FF002E' : '#fff'}
+                                    disabled={enableAll}
+                                />
+                            </View>
+                        </View>
+                    </View>
+
+                    {/* Social Notifications Section */}
+                    <View className="bg-white rounded-lg border border-border p-4 mb-3">
+                        <View className="flex-row">
+                            <Ionicons name="people-outline" size={22} color="#2196F3" />
+                            <View className="ml-3 flex-1">
+                                <Text className="text-textprimary font-outfit-bold text-base">Social notifications</Text>
+                                <Text className="text-textsecondary font-outfit text-sm mt-1">
+                                    Get notified when someone follows you or interacts with your posts
+                                </Text>
+                            </View>
+                        </View>
+
+                        <View className="border-t border-border mt-4 pt-4 flex-row justify-between items-center">
+                            <View className="flex-row items-center">
+                                <MaterialIcons name="notifications-active" size={18} color={socialPush ? "#FF002E" : "#9E9E9E"} />
+                                <Text className="text-textprimary font-outfit ml-3">Push</Text>
                             </View>
                             <Switch
-                                style={NotifcationStyles.togglebutton}
                                 value={socialPush}
                                 onValueChange={setSocialPush}
-                                trackColor={{ false: '#767577', true: '#ffdbdf' }}
-                                thumbColor={socialPush ? '#ea4c5f' : '#fff'}
+                                trackColor={{ false: '#E0E0E0', true: '#ffdbdf' }}
+                                thumbColor={socialPush ? '#FF002E' : '#fff'}
                                 disabled={enableAll}
                             />
                         </View>
                     </View>
 
-                    <View style={NotifcationStyles.NotficationContainer2}>
-                        <Text style={NotifcationStyles.NotificationText}>Orders and purchases</Text>
-                        <Text style={NotifcationStyles.NotificationText2}>Receive updates about your orders and memberships</Text>
-                        <View style={NotifcationStyles.PushnotificationContainer2}>
-                            <View style={NotifcationStyles.notificationTextcontainer}>
-                                <MaterialIcons name="notifications-active" size={24} color={ordersPush ? "#ea4c5f" : "black"} />
-                                <Text style={NotifcationStyles.NotificationText3}>Push</Text>
+                    {/* Orders and Purchases Section */}
+                    <View className="bg-white rounded-lg border border-border p-4">
+                        <View className="flex-row">
+                            <Ionicons name="receipt-outline" size={22} color="#4CAF50" />
+                            <View className="ml-3 flex-1">
+                                <Text className="text-textprimary font-outfit-bold text-base">Orders and purchases</Text>
+                                <Text className="text-textsecondary font-outfit text-sm mt-1">
+                                    Receive updates about your orders and memberships
+                                </Text>
                             </View>
-                            <Switch
-                                style={NotifcationStyles.togglebutton}
-                                value={ordersPush}
-                                onValueChange={setOrdersPush}
-                                trackColor={{ false: '#767577', true: '#ffdbdf' }}
-                                thumbColor={ordersPush ? '#ea4c5f' : '#fff'}
-                                disabled={enableAll}
-                            />
                         </View>
 
-                        <View style={NotifcationStyles.PushnotificationContainer3}>
-                            <View style={NotifcationStyles.notificationTextcontainer}>
-                                <FontAwesome5 name="whatsapp" size={24} color={ordersWhatsapp ? "#ea4c5f" : "black"} />
-                                <Text style={NotifcationStyles.NotificationText3}>Whatsapp</Text>
+                        <View className="border-t border-border mt-4 pt-4">
+                            <View className="flex-row justify-between items-center mb-4">
+                                <View className="flex-row items-center">
+                                    <MaterialIcons name="notifications-active" size={18} color={ordersPush ? "#FF002E" : "#9E9E9E"} />
+                                    <Text className="text-textprimary font-outfit ml-3">Push</Text>
+                                </View>
+                                <Switch
+                                    value={ordersPush}
+                                    onValueChange={setOrdersPush}
+                                    trackColor={{ false: '#E0E0E0', true: '#ffdbdf' }}
+                                    thumbColor={ordersPush ? '#FF002E' : '#fff'}
+                                    disabled={enableAll}
+                                />
                             </View>
-                            <Switch
-                                style={NotifcationStyles.togglebutton}
-                                value={ordersWhatsapp}
-                                onValueChange={setOrdersWhatsapp}
-                                trackColor={{ false: '#767577', true: '#ffdbdf' }}
-                                thumbColor={ordersWhatsapp ? '#ea4c5f' : '#fff'}
-                                disabled={enableAll}
-                            />
+
+                            <View className="flex-row justify-between items-center">
+                                <View className="flex-row items-center">
+                                    <FontAwesome5 name="whatsapp" size={18} color={ordersWhatsapp ? "#FF002E" : "#9E9E9E"} />
+                                    <Text className="text-textprimary font-outfit ml-3">WhatsApp</Text>
+                                </View>
+                                <Switch
+                                    value={ordersWhatsapp}
+                                    onValueChange={setOrdersWhatsapp}
+                                    trackColor={{ false: '#E0E0E0', true: '#ffdbdf' }}
+                                    thumbColor={ordersWhatsapp ? '#FF002E' : '#fff'}
+                                    disabled={enableAll}
+                                />
+                            </View>
                         </View>
                     </View>
-
-                    <View style={{ padding: 50 }} />
                 </ScrollView>
 
+                {/* Save Button */}
                 {buttonActive ? (
-                    <TouchableOpacity onPress={submitNotificationSettings} style={NotifcationStyles.SavechangesButtonActive}>
-                        <Text style={NotifcationStyles.savechangesTextAtive}>Save Changes</Text>
+                    <TouchableOpacity 
+                        onPress={submitNotificationSettings} 
+                        className="bg-primary mx-4 mb-4 rounded-lg"
+                        activeOpacity={0.8}
+                    >
+                        <View className="p-4 flex-row items-center justify-center">
+                            <Ionicons name="checkmark-circle" size={20} color="#FFFFFF" style={{ marginRight: 8 }} />
+                            <Text className="text-white font-outfit-bold text-center">Save Changes</Text>
+                        </View>
                     </TouchableOpacity>
                 ) : (
-                    <View style={NotifcationStyles.SavechangesButton}>
-                        <Text style={NotifcationStyles.savechangesText}>Save Changes</Text>
+                    <View 
+                        className="bg-gray-200 mx-4 mb-4 rounded-lg opacity-60"
+                    >
+                        <View className="p-4 flex-row items-center justify-center">
+                            <Ionicons name="save-outline" size={20} color="#9E9E9E" style={{ marginRight: 8 }} />
+                            <Text className="text-textsecondary font-outfit-bold text-center">Save Changes</Text>
+                        </View>
                     </View>
                 )}
             </View>

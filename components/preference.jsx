@@ -1,5 +1,5 @@
 import { View, TouchableOpacity, Text } from "react-native";
-import PreferenceStyles from "../styles/preference";
+// import PreferenceStyles from "../styles/preference";
 import Entypo from '@expo/vector-icons/Entypo';
 import { CheckBox } from "@rneui/themed";
 import { useState } from "react";
@@ -9,9 +9,10 @@ export default function Preference({ togglepref,senddatatoparent , message , sor
     const [applyactive, setapplyactive] = useState(false);
 
     const options = [
-        { label: "Relevance", value: "Relevance" },
+        { label: "Verified", value: "Verified" },
         { label: "High Rating", value: "High Rating" },
-        { label: "Latest", value: "Latest" }
+        { label: "Latest", value: "Latest" },
+        { label: "Relevance", value: "Relevance" }
     ];
 
     const handleSelection = (value) => {
@@ -26,15 +27,15 @@ export default function Preference({ togglepref,senddatatoparent , message , sor
     }
 
     return (
-        <View style={{ flex: 1, backgroundColor: "rgba(0, 0, 0, 0.53)", justifyContent: "flex-end" }}>
-            <View style={PreferenceStyles.background}>
-                <View style={PreferenceStyles.headingContainer}>
-                    <TouchableOpacity style={PreferenceStyles.imgcontainer} onPress={togglepref}>
-                        <Entypo name="circle-with-cross" size={34} color="#2f2f37" style={PreferenceStyles.crossimg} />
+        <View className="flex-1 bg-black/50 justify-end">
+            <View className="bg-white rounded-t-3xl p-6">
+                <View className="flex-row items-center justify-between mb-6">
+                    <TouchableOpacity className="p-2" onPress={togglepref}>
+                        <Entypo name="circle-with-cross" size={34} color="#2f2f37" />
                     </TouchableOpacity>
-                    <Text style={PreferenceStyles.headingText}>Sort By</Text>
+                    <Text className="text-xl font-bold text-gray-800">Sort By</Text>
                 </View>
-                <View style={PreferenceStyles.preferenceContainer}>
+                <View className="mb-6">
                     {options.map((option, index) => (
                         <CheckBox
                             key={index}
@@ -47,13 +48,13 @@ export default function Preference({ togglepref,senddatatoparent , message , sor
                         />
                     ))}
                 </View>
-                <View style={PreferenceStyles.Applycontainer}>
+                <View className="">
                     <TouchableOpacity 
-                        style={applyactive ? PreferenceStyles.ApplyButtonActive : PreferenceStyles.ApplyButton} 
+                        className={`py-3 px-6 rounded-lg items-center ${applyactive ? 'bg-pink-500' : 'bg-gray-300'}`} 
                         disabled={!applyactive}
                         onPress={handleSendtoParent}
                     >
-                        <Text style={applyactive ? PreferenceStyles.ApplyTextActive : PreferenceStyles.ApplyText}>Apply</Text>
+                        <Text className={`font-semibold ${applyactive ? 'text-white' : 'text-gray-500'}`}>Apply</Text>
                     </TouchableOpacity>
                 </View>
             </View>

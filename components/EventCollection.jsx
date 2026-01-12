@@ -1,64 +1,132 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { View, FlatList } from 'react-native';
-import { useGlobalSearchParams, useRouter } from 'expo-router';
+import { useGlobalSearchParams } from 'expo-router';
 import { Text, ActivityIndicator } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { collections } from '@/Data/EventCollection';
 import { useFirm } from '@/context/FirmContext';
 import EventCard from '@/components/EventCard';
 import SearchBar from '@/components/SearchBar';
-import styles from '@/styles/Collection';
 import BackRouting from '@/components/BackRouting';
 import { useSafeNavigation } from '@/hooks/navigationPage';
+import { fetchEvents } from '@/services/eventService';
 export default function EventCollection() {
   const { collectionId } = useGlobalSearchParams();
-  const router = useRouter();
   const { firms, loading: firmsLoading } = useFirm();
   const [searchQuery, setSearchQuery] = useState('');
-  const [filteredEvents, setFilteredEvents] = useState([]);
+  const [remoteEvents, setRemoteEvents] = useState([]);
+  const [eventsLoading, setEventsLoading] = useState(false);
   const { safeNavigation } = useSafeNavigation();
   const collection = collections.find(c => c.id === collectionId);
 
   useEffect(() => {
-    if (firms) {
-      const filtered = firms.filter(firm => {
-        const matchesSearch = firm.name.toLowerCase().includes(searchQuery.toLowerCase());
+    let isMounted = true;
+
+    if (!collection || collection.type !== 'events') {
+      setRemoteEvents([]);
+      return () => {
+        isMounted = false;
+      };
+    }
+
+    setEventsLoading(true);
+    fetchEvents(collection.categoryKey ? { category: collection.categoryKey } : {})
+      .then((events) => {
+        if (isMounted) {
+          setRemoteEvents(events || []);
+        }
+      })
+      .finally(() => {
+        if (isMounted) {
+          setEventsLoading(false);
+        }
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [collection]);
+
+  const filteredEvents = useMemo(() => {
+    if (!collection) {
+      return [];
+    }
+
+    const lowerSearch = searchQuery.trim().toLowerCase();
+
+    if (collection.type === 'events') {
+      return (remoteEvents || [])
+        .filter((event) => {
+          if (!lowerSearch) {
+            return true;
+          }
+          const haystack = [event.title, event.city, event.venue, event.location]
+            .filter(Boolean)
+            .map((value) => value.toLowerCase());
+          return haystack.some((value) => value.includes(lowerSearch));
+        })
+        .map((event) => ({
+          ...event,
+          firmId: event.id,
+          firmName: event.venue ?? event.location ?? event.city,
+          firmImage: event.image,
+          date: event.dateLabel || event.date,
+          time: event.startTime,
+          price: event.pricing?.general,
+        }));
+    }
+
+    if (!firms) {
+      return [];
+    }
+
+    return firms
+      .filter((firm) => {
+        const matchesSearch = firm.name.toLowerCase().includes(lowerSearch);
         const hasEvents = firm.events?.length > 0;
-        return matchesSearch && hasEvents;
-      }).flatMap(firm => 
-        firm.events.map(event => ({
+        return (!lowerSearch || matchesSearch) && hasEvents;
+      })
+      .flatMap((firm) =>
+        firm.events.map((event) => ({
           ...event,
           firmId: firm.id,
           firmName: firm.name,
-          firmImage: firm.image
+          firmImage: firm.image,
         }))
       );
-      setFilteredEvents(filtered);
-    }
-  }, [firms, searchQuery]);
+  }, [collection, firms, remoteEvents, searchQuery]);
 
   if (!collection) {
     return (
-      <View style={styles.emptyState}>
+      <View className="flex-1 justify-center items-center p-4">
         <MaterialCommunityIcons 
           name="alert-circle-outline" 
           size={48} 
           color="#666" 
-          style={styles.emptyStateIcon}
+          className="mb-4"
         />
-        <Text style={styles.emptyStateTitle}>Collection Not Found</Text>
-        <Text style={styles.emptyStateMessage}>
+        <Text className="text-lg font-outfit-bold color-gray-700 mb-2">Collection Not Found</Text>
+        <Text className="text-sm color-gray-500 font-outfit text-center">
           The collection you're looking for doesn't exist or has been removed.
         </Text>
       </View>
     );
   }
 
-  if (firmsLoading) {
+  if (collection.type === 'events' && eventsLoading) {
     return (
-      <View style={styles.emptyState}>
+      <View className="flex-1 justify-center items-center p-4">
         <ActivityIndicator size="large" />
-        <Text style={styles.emptyStateMessage}>Loading events...</Text>
+        <Text className="text-sm color-gray-500 font-outfit text-center mt-4">Loading events...</Text>
+      </View>
+    );
+  }
+
+  if (collection.type !== 'events' && firmsLoading) {
+    return (
+      <View className="flex-1 justify-center items-center p-4">
+        <ActivityIndicator size="large" />
+        <Text className="text-sm color-gray-500 font-outfit text-center mt-4">Loading events...</Text>
       </View>
     );
   }
@@ -70,7 +138,6 @@ export default function EventCollection() {
         pathname: '/screens/EventDetails',
         params: { 
           eventId: event.id,
-          firmId: event.firmId
         }
       })}
     />
@@ -78,13 +145,13 @@ export default function EventCollection() {
 
   return (
     <View style={styles.container}>
-      <BackRouting tittle= "Event Collection"/>
+      <BackRouting title="Event Collection" />
       <View style={styles.collectionCard}>
         <View style={styles.collectionContent}>
           <Text style={styles.collectionTitle}>{collection.title}</Text>
           <Text style={styles.collectionInfo}>{collection.description}</Text>
           {collection.date && (
-            <Text style={styles.collectionInfo}>
+            <Text className="text-sm color-gray-600 font-outfit mt-1">
               {collection.date} • {collection.location}
             </Text>
           )}
@@ -98,15 +165,15 @@ export default function EventCollection() {
       />
 
       {filteredEvents.length === 0 ? (
-        <View style={styles.emptyState}>
+        <View className="flex-1 justify-center items-center p-4">
           <MaterialCommunityIcons 
             name="calendar-blank" 
             size={48} 
             color="#666" 
-            style={styles.emptyStateIcon}
+            className="mb-4"
           />
-          <Text style={styles.emptyStateTitle}>No Events Found</Text>
-          <Text style={styles.emptyStateMessage}>
+          <Text className="text-lg font-outfit-bold color-gray-700 mb-2">No Events Found</Text>
+          <Text className="text-sm color-gray-500 font-outfit text-center">
             Try adjusting your search or check back later for new events.
           </Text>
         </View>
@@ -115,7 +182,7 @@ export default function EventCollection() {
           data={filteredEvents}
           renderItem={renderEventCard}
           keyExtractor={item => item.id}
-          contentContainerStyle={styles.firmList}
+          contentContainerClassName="p-4"
           showsVerticalScrollIndicator={false}
         />
       )}

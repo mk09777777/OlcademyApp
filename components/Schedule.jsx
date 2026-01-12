@@ -5,7 +5,6 @@ import {
   TouchableOpacity,
   ScrollView,
   Modal,
-  StyleSheet,
   Alert,
 } from "react-native";
 
@@ -145,76 +144,79 @@ export const Schedule = ({ onClose, onSave,type }) => {
 
   return (
     <Modal transparent={true} animationType="fade">
-      <View style={styles.modalOverlay}>
-        <View style={styles.modalContent}>
-          <Text style={styles.modalTitle}>{type==="dining"?"Schedule booking":"Schedule Pickup"}</Text>
+      <View className="flex-1 bg-black/50 justify-center items-center">
+        <View className="bg-[#f0fafaff] rounded-xl w-11/12 max-w-sm p-5 mb-10">
+          <Text className="text-lg font-outfit-bold mb-4 text-textprimary">{type==="dining"?"Schedule booking":"Schedule Pickup"}</Text>
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.daysContainer}
+            contentContainerStyle={{ paddingBottom: 8, marginBottom: 16 }}
           >
             {availableDays.map((day) => (
               <TouchableOpacity
                 key={day}
-                style={[
-                  styles.dayButton,
-                  selectedDay === day && styles.selectedDayButton
-                ]}
+                className={`p-2.5 rounded-lg mr-2 ${
+                  selectedDay === day ? 'bg-primary' : 'bg-white'
+                }`}
                 onPress={() => handleDayClick(day)}
               >
-                <Text style={selectedDay === day ? styles.selectedDayText : styles.dayText}>
+                <Text className={`font-outfit ${
+                  selectedDay === day ? 'text-white font-semibold' : 'text-textprimary'
+                }`}>
                   {formatDayForDisplay(day)}
                 </Text>
               </TouchableOpacity>
             ))}
             {availableDays.length === 0 && (
-              <Text style={styles.noDaysText}>No days available for scheduling.</Text>
+              <Text className="text-sm text-smalltext font-outfit">No days available for scheduling.</Text>
             )}
           </ScrollView>
 
           {selectedDay && (
-            <View style={styles.timeSlotsContainer}>
-              <Text style={styles.timeSlotsTitle}>
+            <View className="mt-2">
+              <Text className="text-base font-outfit-bold mb-3 text-textprimary">
                 {formatFullDate(selectedDay)} - Select Time
               </Text>
-              <ScrollView style={styles.timeSlotsScroll}>
+              <ScrollView className="max-h-48 mb-3">
                 {timeSlotsForDay.map((slot) => (
                   <TouchableOpacity
                     key={slot.value}
-                    style={[
-                      styles.timeSlotButton,
-                      selectedTime === slot.value && styles.selectedTimeSlotButton
-                    ]}
+                    className={`p-3 rounded-lg border mb-2 ${
+                      selectedTime === slot.value 
+                        ? 'bg-primary border-primary' 
+                        : 'bg-white border-border'
+                    }`}
                     onPress={() => handleTimeSelect(slot.value)}
                   >
-                    <Text style={selectedTime === slot.value ? styles.selectedTimeSlotText : styles.timeSlotText}>
+                    <Text className={`font-outfit ${
+                      selectedTime === slot.value ? 'text-white' : 'text-textprimary'
+                    }`}>
                       {slot.label}
                     </Text>
                   </TouchableOpacity>
                 ))}
                 {timeSlotsForDay.length === 0 && (
-                  <Text style={styles.noTimeSlotsText}>No time slots available for this day.</Text>
+                  <Text className="text-sm text-smalltext font-outfit">No time slots available for this day.</Text>
                 )}
               </ScrollView>
             </View>
           )}
 
-          <View style={styles.buttonsContainer}>
+          <View className="mt-10 flex-row justify-end gap-2">
             <TouchableOpacity
-              style={styles.cancelButton}
+              className="px-4 py-2 rounded-lg bg-white"
               onPress={() => onClose(false)}
             >
-              <Text style={styles.cancelButtonText}>Cancel</Text>
+              <Text className="text-textprimary font-outfit">Cancel</Text>
             </TouchableOpacity>
             <TouchableOpacity
-              style={[
-                styles.scheduleButton,
-                !selectedTime && styles.scheduleButtonDisabled
-              ]}
+              className={`px-4 py-2 rounded-lg ${
+                selectedTime ? 'bg-primary' : 'bg-gray-300'
+              }`}
               onPress={handleScheduleClick}
               disabled={!selectedTime}
             >
-              <Text style={styles.scheduleButtonText}>Schedule</Text>
+              <Text className="text-white font-outfit">Schedule</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -223,112 +225,4 @@ export const Schedule = ({ onClose, onSave,type }) => {
   );
 };
 
-const styles = StyleSheet.create({
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  modalContent: {
-    backgroundColor: "#F9F9F9",
-    borderRadius: 12,
-    width: "90%",
-    maxWidth: 400,
-    padding: 20,
-  },
-  modalTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
-    marginBottom: 16,
-    color: "black",
-  },
-  daysContainer: {
-    paddingBottom: 8,
-    marginBottom: 16,
-  },
-  dayButton: {
-    padding: 10,
-    borderRadius: 8,
-    backgroundColor: "white",
-    marginRight: 8,
-  },
-  selectedDayButton: {
-    backgroundColor: "#FF002E",
-  },
-  dayText: {
-    color: "black",
-  },
-  selectedDayText: {
-    color: "white",
-    fontWeight: "600",
-  },
-  noDaysText: {
-    fontSize: 14,
-    color: "#6b7280",
-  },
-  timeSlotsContainer: {
-    marginTop: 8,
-  },
-  timeSlotsTitle: {
-    fontSize: 16,
-    fontWeight: "600",
-    marginBottom: 12,
-    color: "black",
-  },
-  timeSlotsScroll: {
-    maxHeight: 200,
-  },
-  timeSlotButton: {
-    padding: 12,
-    borderRadius: 8,
-    backgroundColor: "white",
-    borderWidth: 1,
-    borderColor: "#e5e7eb",
-    marginBottom: 8,
-  },
-  selectedTimeSlotButton: {
-    backgroundColor: "#FF002E",
-    borderColor: "#FF002E",
-  },
-  timeSlotText: {
-    color: "black",
-  },
-  selectedTimeSlotText: {
-    color: "white",
-  },
-  noTimeSlotsText: {
-    fontSize: 14,
-    color: "#6b7280",
-  },
-  buttonsContainer: {
-    marginTop: 24,
-    flexDirection: "row",
-    justifyContent: "flex-end",
-    gap: 8,
-  },
-  cancelButton: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 8,
-    backgroundColor: "white",
-  },
-  cancelButtonText: {
-    color: "black",
-    fontSize: 14,
-  },
-  scheduleButton: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 8,
-    backgroundColor: "#FF002E",
-  },
-  scheduleButtonDisabled: {
-    backgroundColor: "#cccccc",
-  },
-  scheduleButtonText: {
-    color: "white",
-    fontSize: 14,
-    fontWeight: "600",
-  },
-});
+export default Schedule;

@@ -1,0 +1,20 @@
+sequenceDiagram
+    actor User
+    participant WebApp as Frontend
+    participant API as API Gateway
+    participant OrderSvc as Order Service
+    participant Stripe as Stripe (PSP)
+    participant TicketSvc as Ticket Service
+    participant EmailSvc as Notification Service
+
+    User->>WebApp: Select event and click Book
+    WebApp->>API: POST /orders (items, userInfo)
+    API->>OrderSvc: Create pending order and hold inventory
+    OrderSvc->>Stripe: Create PaymentIntent
+    Stripe-->>OrderSvc: client_secret returned
+    OrderSvc-->>WebApp: Return client_secret
+    WebApp->>Stripe: Confirm PaymentIntent
+    Stripe-->>API: Webhook payment_intent.succeeded
+    API->>TicketSvc: Issue tickets and QR codes
+    TicketSvc->>EmailSvc: Send confirmation with e-ticket
+    EmailSvc-->>User: Booking confirmation email

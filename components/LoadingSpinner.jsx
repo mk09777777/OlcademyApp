@@ -1,8 +1,6 @@
 import React from 'react';
 import { View, ActivityIndicator } from 'react-native';
 import { Text } from 'react-native-paper';
-import { COLORS } from '../styles/tiffinstyle';
-import styles from '../styles/tiffinstyle';
 
 const LoadingSpinner = ({
   message = 'Loading...',
@@ -10,20 +8,20 @@ const LoadingSpinner = ({
 }) => {
   if (overlay) {
     return (
-      <View style={styles.loadingOverlay}>
-        <View style={styles.loadingIndicator}>
-          <ActivityIndicator size="large" color={COLORS.PRIMARY} />
-          <Text style={styles.loadingTitle}>{message}</Text>
-          <Text style={styles.loadingSubtext}>Please wait</Text>
+      <View className="absolute inset-0 bg-black/50 justify-center items-center z-50">
+        <View className="bg-white p-6 rounded-lg items-center">
+          <ActivityIndicator size="large" color="#FF002E" />
+          <Text className="text-lg font-outfit-bold text-textprimary mt-3">{message}</Text>
+          <Text className="text-sm font-outfit text-textsecondary mt-1">Please wait</Text>
         </View>
       </View>
     );
   }
 
   return (
-    <View style={styles.loadingContainer}>
-      <ActivityIndicator size="large" color={COLORS.PRIMARY} />
-      <Text style={styles.loadingText}>{message}</Text>
+    <View className="flex-1 justify-center items-center">
+      <ActivityIndicator size="large" color="#FF002E" />
+      <Text className="text-base font-outfit text-textsecondary mt-3">{message}</Text>
     </View>
   );
 };

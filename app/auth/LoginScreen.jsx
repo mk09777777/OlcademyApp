@@ -1,11 +1,10 @@
-import { View, Text, TouchableOpacity, TextInput, SafeAreaView, ScrollView, ActivityIndicator, Alert } from 'react-native'
+import { View, Text, TouchableOpacity, TextInput, ScrollView, ActivityIndicator, Alert, StyleSheet, Platform } from 'react-native'
+import { SafeAreaView } from 'react-native-safe-area-context'
 import React, { useEffect, useState, useRef } from 'react'
-import { Ionicons } from '@expo/vector-icons'
-import { styles } from '@/styles/LoginScreenStyles'
+import { Ionicons, FontAwesome } from '@expo/vector-icons'
 import { useRouter } from 'expo-router'
 import { useAuth } from '@/context/AuthContext';
 import axios from 'axios'
-import AsyncStorage from '@react-native-async-storage/async-storage'
 import { API_CONFIG } from '../../config/apiConfig';
 const Api_url = API_CONFIG.BACKEND_URL;
 export default function LoginScreen() {
@@ -36,6 +35,69 @@ export default function LoginScreen() {
     if (otpError) setOtpError('')
   }
 
+  // Timer effect for OTP
+  useEffect(() => {
+    let interval
+    if (showOtp && timer > 0) {
+      interval = setInterval(() => {
+        setTimer(prev => {
+          if (prev <= 1) {
+            setResendDisabled(false)
+            return 0
+          }
+          return prev - 1
+        })
+      }, 1000)
+    }
+    return () => clearInterval(interval)
+  }, [showOtp, timer])
+
+  const handleOtpChange = (index, text) => {
+    if (text.length > 1) return
+    
+    const newOtpArray = [...otpArray]
+    newOtpArray[index] = text
+    setOtpArray(newOtpArray)
+    
+    if (text && index < 5) {
+      otpRefs.current[index + 1]?.focus()
+    }
+    
+    clearError()
+  }
+
+  const handleOtpKeyPress = (index, e) => {
+    if (e.nativeEvent.key === 'Backspace' && !otpArray[index] && index > 0) {
+      otpRefs.current[index - 1]?.focus()
+    }
+  }
+
+  const validateEmail = (value) => /\S+@\S+\.\S+/.test(value);
+
+  const resendOtp = async () => {
+    setOtpLoading(true)
+    try {
+      const normalizedEmail = formData.email.trim().toLowerCase()
+      if (!validateEmail(normalizedEmail)) {
+        setOtpLoading(false)
+        setOtpError('Enter a valid email address before resending OTP.')
+        return
+      }
+
+      await axios.post(`${Api_url}/api/send-email-otp`, { 
+        email: normalizedEmail 
+      })
+      setTimer(60)
+      setResendDisabled(true)
+      setOtpArray(Array(6).fill(''))
+      setOtpError('')
+    } catch (error) {
+      setOtpError(error.response?.data?.message || 'Failed to resend OTP')
+    } finally {
+      setOtpLoading(false)
+    }
+  }
+
   const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60)
     const secs = seconds % 60
@@ -56,10 +118,12 @@ const handleLogin = async () => {
 
   setLoading(true);
   try {
+    console.log('Attempting login with:', { email: formData.email, rememberMe });
+    
     const response = await axios.post(
       `${Api_url}/api/login`, 
       {
-        email: formData.email,
+        email: formData.email.trim().toLowerCase(),
         password: formData.password,
         rememberMe
       },
@@ -72,16 +136,27 @@ const handleLogin = async () => {
       }
     );
 
-    if (response.data.message === "Login successful!") {
-      // Ensure we have the user data before navigating
-      await AsyncStorage.setItem('userData', JSON.stringify(response.data.user));
-      login(response.data.user);
+    console.log('Login response:', response.data);
+
+    if (response.data.success || response.data.message === "Login successful!") {
+      const userData = response.data.user || response.data.data;
+      if (userData) {
+        await login(userData);
+      } else {
+        setError('Login successful but user data not received');
+      }
     } else {
       setError(response.data.message || 'Login failed');
     }
   } catch (error) {
+    console.error('Login error:', error.response?.data || error.message);
+    
     if (error.response?.status === 401) {
-      setError('Invalid credentials. Please try again.');
+      setError('Invalid email or password. Please check your credentials.');
+    } else if (error.response?.status === 400) {
+      setError(error.response?.data?.message || 'Invalid request. Please check your input.');
+    } else if (error.response?.status >= 500) {
+      setError('Server error. Please try again later.');
     } else {
       setError(error.response?.data?.message || 'Login error. Please try again.');
     }
@@ -96,10 +171,16 @@ const handleLogin = async () => {
       setError('Please enter your email to reset password.')
       return
     }
+
+    const normalizedEmail = formData.email.trim().toLowerCase()
+    if (!validateEmail(normalizedEmail)) {
+      setError('Please enter a valid email address.')
+      return
+    }
     setOtpLoading(true)
     try {
       await axios.post(`${Api_url}/api/send-email-otp`, { 
-        email: formData.email 
+        email: normalizedEmail 
       })
       setShowOtp(true)
       setTimer(60)
@@ -121,8 +202,9 @@ const handleLogin = async () => {
     }
     setOtpLoading(true)
     try {
+      const normalizedEmail = formData.email.trim().toLowerCase()
       const response = await axios.post(`${Api_url}/api/verify-otp`, {
-        email: formData.email,
+        email: normalizedEmail,
         otp: enteredOtp
       })
       if (response.data.success) {
@@ -151,8 +233,9 @@ const handleLogin = async () => {
     }
     setResetLoading(true)
     try {
+      const normalizedEmail = formData.email.trim().toLowerCase()
       const response = await axios.post(`${Api_url}/api/reset-password`, {
-        email: formData.email,
+        email: normalizedEmail,
         newPassword
       })
       if (response.data.success) {
@@ -171,16 +254,32 @@ const handleLogin = async () => {
     }
   }
 
+  const launchOAuthFlow = (provider) => {
+    const targetUrl = `${Api_url}/api/${provider}?rememberMe=${rememberMe}`
+    if (Platform.OS === 'web' && typeof window !== 'undefined') {
+      window.location.href = targetUrl
+      return
+    }
+
+    router.push({
+      pathname: '/auth/OAuthWebView',
+      params: {
+        provider,
+        rememberMe: rememberMe ? 'true' : 'false',
+      },
+    })
+  }
+
   const LoginWithGoogle = () => {
-    router.push(`${Api_url}/api/google?rememberMe=` + rememberMe);
+    launchOAuthFlow('google')
   }
 
   const LoginWithFacebook = () => {
-    router.push(`${Api_url}/api/facebook?rememberMe=` + rememberMe);
+    launchOAuthFlow('facebook')
   }
 
   const LoginWithTwitter = () => {
-    router.push(`${Api_url}/api/twitter?rememberMe=` + rememberMe);
+    launchOAuthFlow('twitter')
   }
 
   let currentView = 'login'
@@ -191,13 +290,11 @@ const handleLogin = async () => {
   }
 
   return (
-    <SafeAreaView
-      style={styles.container}
-    >
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
-        <View style={styles.content}>
-          <View style={styles.header}>
-            <Text style={styles.title}>
+    <SafeAreaView className="flex-1 justify-center p-5 bg-white" style={styles.screen}>
+      <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: 'center' }}>
+        <View style={styles.card} className="w-full bg-white">
+          <View className="flex-row justify-between items-center mb-6">
+            <Text className="text-2xl font-bold text-textprimary">
               {currentView === 'login' && 'Login'}
               {currentView === 'otp' && 'Verify Email'}
               {currentView === 'resetPassword' && 'Reset Password'}
@@ -205,51 +302,53 @@ const handleLogin = async () => {
           </View>
 
           {currentView === 'login' && (
-            <View style={styles.formContainer}>
-              {error ? <Text style={styles.errorText}>{error}</Text> : null}
+            <View className="w-full">
+              {error ? <Text className="text-red-500 text-sm mb-2.5">{error}</Text> : null}
 
               <TextInput
-                style={styles.inputField}
+                className="border border-border rounded-2.5 p-4 mb-4 text-base bg-white text-green-600"
                 placeholder="Email Address"
+                placeholderTextColor="#047857"
                 value={formData.email}
                 onChangeText={(text) => handleChange('email', text)}
                 keyboardType="email-address"
                 autoCapitalize="none"
               />
 
-              <View style={styles.passwordInputContainer}>
+              <View className="flex-row items-center border border-border rounded-2.5 mb-4 bg-white px-2">
                 <TextInput
-                  style={[styles.inputField, { flex: 1 }]}
+                  className="flex-1 py-4 pl-2 pr-3 text-base text-green-600"
                   placeholder="Password"
+                  placeholderTextColor="#047857"
                   value={formData.password}
                   onChangeText={(text) => handleChange('password', text)}
                   secureTextEntry={!showPassword}
+                  autoCapitalize="none"
                 />
                 <TouchableOpacity
                   onPress={() => setShowPassword(prev => !prev)}
-                  style={styles.eyeButton}
+                  className="px-2 py-2"
+                  activeOpacity={0.7}
                 >
                   <Ionicons
                     name={showPassword ? 'eye-off' : 'eye'}
                     size={20}
-                    color="#666"
+                    color="#047857"
                   />
                 </TouchableOpacity>
               </View>
 
-              <View style={styles.optionsRow}>
-                <View style={styles.rememberMeContainer}>
-                  <TouchableOpacity
-                    onPress={() => setRememberMe(!rememberMe)}
-                    style={[
-                      styles.checkbox,
-                      rememberMe && styles.checkboxChecked,
-                    ]}
-                  >
-                    {rememberMe && <Text style={styles.checkmark}>✓</Text>}
-                  </TouchableOpacity>
-                  <Text style={styles.rememberMeText}>Remember Me</Text>
-                </View>
+              <View className="flex-row justify-between items-center mb-5">
+                <TouchableOpacity
+                  onPress={() => setRememberMe(!rememberMe)}
+                  className="flex-row items-center"
+                  activeOpacity={0.7}
+                >
+                  <View className={`w-5 h-5 rounded border border-border mr-2 items-center justify-center ${rememberMe ? 'bg-primary border-primary' : 'bg-white'}`}>
+                    {rememberMe && <Ionicons name="checkmark" size={12} color="#fff" />}
+                  </View>
+                  <Text className="text-sm text-textsecondary">Remember Me</Text>
+                </TouchableOpacity>
                 <TouchableOpacity
                   onPress={handleForgotPassword}
                   disabled={loading || otpLoading}
@@ -257,7 +356,7 @@ const handleLogin = async () => {
                   {otpLoading ? (
                     <ActivityIndicator size="small" color="#000" />
                   ) : (
-                    <Text style={styles.forgotPasswordLink}>
+                    <Text className="text-sm text-primary">
                       Forgot password?
                     </Text>
                   )}
@@ -265,57 +364,69 @@ const handleLogin = async () => {
               </View>
 
               <TouchableOpacity
-                style={styles.submitButton}
+                className="bg-primary p-4 rounded-2xl items-center mb-5"
                 onPress={handleLogin}
                 disabled={loading}
               >
                 {loading ? (
                   <ActivityIndicator color="#fff" />
                 ) : (
-                  <Text style={styles.submitButtonText}>Log In</Text>
+                  <Text className="text-white text-base font-bold">Log In</Text>
                 )}
               </TouchableOpacity>
 
-              <View style={styles.divider}>
-                <View style={styles.dividerLine} />
-                <Text style={styles.dividerText}>or</Text>
-                <View style={styles.dividerLine} />
+              <View className="flex-row items-center my-5">
+                <View className="flex-1 h-px bg-border" />
+                <Text className="mx-2.5 text-textsecondary text-sm">or</Text>
+                <View className="flex-1 h-px bg-border" />
               </View>
 
               <TouchableOpacity
-                style={styles.socialButton}
+                className="border border-border p-4 rounded-2xl items-center mb-2.5 bg-white"
                 onPress={LoginWithGoogle}
                 disabled={loading}
+                style={styles.socialButton}
               >
-                <Text style={styles.socialButtonText}>
-                  Continue with Google
-                </Text>
+                <View className="flex-row items-center justify-center">
+                  <FontAwesome name="google" size={18} color="#DB4437" style={styles.socialIcon} />
+                  <Text className="text-base text-textsecondary font-medium">
+                    Continue with Google
+                  </Text>
+                </View>
               </TouchableOpacity>
               <TouchableOpacity
-                style={styles.socialButton}
+                className="border border-border p-4 rounded-2xl items-center mb-2.5 bg-white"
                 onPress={LoginWithTwitter}
                 disabled={loading}
+                style={styles.socialButton}
               >
-                <Text style={styles.socialButtonText}>
-                  Continue with Twitter
-                </Text>
+                <View className="flex-row items-center justify-center">
+                  <FontAwesome name="twitter" size={18} color="#1DA1F2" style={styles.socialIcon} />
+                  <Text className="text-base text-textsecondary font-medium">
+                    Continue with Twitter
+                  </Text>
+                </View>
               </TouchableOpacity>
               <TouchableOpacity
-                style={styles.socialButton}
+                className="border border-border p-4 rounded-2xl items-center mb-2.5 bg-white"
                 onPress={LoginWithFacebook}
                 disabled={loading}
+                style={styles.socialButton}
               >
-                <Text style={styles.socialButtonText}>
-                  Continue with Facebook
-                </Text>
+                <View className="flex-row items-center justify-center">
+                  <FontAwesome name="facebook" size={18} color="#1877F2" style={styles.socialIcon} />
+                  <Text className="text-base text-textsecondary font-medium">
+                    Continue with Facebook
+                  </Text>
+                </View>
               </TouchableOpacity>
 
-              <View style={styles.signupPrompt}>
-                <Text style={styles.detailsText}>
-                  Don't have an Account? 
+              <View className="flex-row justify-center mt-2.5">
+                <Text className="text-sm text-textsecondary">
+                  Don&apos;t have an Account?{' '}
                   <Text
-                    style={styles.registerButton}
-                    onPress={() => router.navigate('/auth/Signup')}
+                    className="text-sm text-primary font-bold"
+                    onPress={() => router.push('/auth/Signup')}
                   >
                     Register
                   </Text>
@@ -325,24 +436,24 @@ const handleLogin = async () => {
           )}
 
           {currentView === 'otp' && (
-            <View style={styles.otpSection}>
-              <Text style={styles.subtext}>
+            <View className="w-full items-center">
+              <Text className="text-sm text-textsecondary mb-5 text-center">
                 Enter the 6-digit code sent to{' '}
-                <Text style={{ fontWeight: 'bold' }}>{formData.email}</Text>.
+                <Text className="font-bold">{formData.email}</Text>.
               </Text>
 
               {otpError ? (
-                <Text style={[styles.errorText, { textAlign: 'center' }]}>
+                <Text className="text-red-500 text-sm mb-2.5 text-center">
                   {otpError}
                 </Text>
               ) : null}
 
-              <View style={styles.otpInputContainer}>
+              <View className="flex-row justify-between mb-5 w-full">
                 {otpArray.map((digit, index) => (
                   <TextInput
                     key={index}
                     ref={el => (otpRefs.current[index] = el)}
-                    style={styles.otpInput}
+                    className="w-11 h-11 border border-border rounded-2xl text-center text-lg bg-slate-50 text-textprimary"
                     keyboardType="numeric"
                     maxLength={1}
                     value={digit}
@@ -354,19 +465,19 @@ const handleLogin = async () => {
               </View>
 
               <TouchableOpacity
-                style={styles.submitButton}
+                className="bg-primary p-4 rounded-2xl items-center mb-5 w-full"
                 onPress={verifyOtp}
                 disabled={otpLoading || otpArray.join('').length !== 6}
               >
                 {otpLoading ? (
                   <ActivityIndicator color="#fff" />
                 ) : (
-                  <Text style={styles.submitButtonText}>Verify Code</Text>
+                  <Text className="text-white text-base font-bold">Verify Code</Text>
                 )}
               </TouchableOpacity>
 
-              <View style={styles.resendContainer}>
-                <Text style={styles.resendText}>Didn't receive code?</Text>
+              <View className="flex-row justify-center mt-2.5">
+                <Text className="text-sm text-textsecondary mr-1">Didn&apos;t receive code?</Text>
                 <TouchableOpacity
                   onPress={resendOtp}
                   disabled={resendDisabled || otpLoading}
@@ -374,7 +485,7 @@ const handleLogin = async () => {
                   {otpLoading && !resendDisabled ? (
                     <ActivityIndicator size="small" color="#000" />
                   ) : (
-                    <Text style={styles.resendLink}>
+                    <Text className="text-sm text-primary font-bold">
                       {resendDisabled
                         ? `Resend in ${formatTime(timer)}`
                         : 'Resend Code'}
@@ -386,14 +497,14 @@ const handleLogin = async () => {
           )}
 
           {currentView === 'resetPassword' && (
-            <View style={styles.resetPasswordSection}>
-              <Text style={styles.subtext}>Create a new secure password.</Text>
+            <View className="w-full">
+              <Text className="text-sm text-textsecondary mb-5 text-center">Create a new secure password.</Text>
 
-              {error ? <Text style={styles.errorText}>{error}</Text> : null}
+              {error ? <Text className="text-red-500 text-sm mb-2.5">{error}</Text> : null}
 
-              <View style={styles.passwordInputContainer}>
+              <View className="flex-row items-center border-border rounded-2.5 mb-4">
                 <TextInput
-                  style={[styles.inputField, { flex: 1 }]}
+                  className="flex-1 border border-border rounded-2.5 p-4 text-base bg-slate-50 text-textprimary"
                   placeholder="New Password"
                   value={newPassword}
                   onChangeText={setNewPassword}
@@ -401,9 +512,9 @@ const handleLogin = async () => {
                 />
               </View>
 
-              <View style={styles.passwordInputContainer}>
+              <View className="flex-row items-center border-border rounded-2.5 mb-4">
                 <TextInput
-                  style={[styles.inputField, { flex: 1 }]}
+                  className="flex-1 border border-border rounded-2.5 p-4 text-base bg-slate-50 text-textprimary"
                   placeholder="Confirm New Password"
                   value={confirmPassword}
                   onChangeText={setConfirmPassword}
@@ -412,14 +523,14 @@ const handleLogin = async () => {
               </View>
 
               <TouchableOpacity
-                style={styles.submitButton}
+                className="bg-primary p-4 rounded-2xl items-center mb-5"
                 onPress={resetPassword}
                 disabled={resetLoading}
               >
                 {resetLoading ? (
                   <ActivityIndicator color="#fff" />
                 ) : (
-                  <Text style={styles.submitButtonText}>Reset Password</Text>
+                  <Text className="text-white text-base font-bold">Reset Password</Text>
                 )}
               </TouchableOpacity>
             </View>
@@ -429,3 +540,20 @@ const handleLogin = async () => {
     </SafeAreaView>
   )
 }
+
+const styles = StyleSheet.create({
+  screen: {
+    backgroundColor: '#FFFFFF',
+    marginTop: -20,
+  },
+  card: {
+    backgroundColor: '#ffffff',
+    padding: 24,
+  },
+  socialButton: {
+    borderRadius: 20,
+  },
+  socialIcon: {
+    marginRight: 12,
+  },
+})

@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState, useCallback } from 'react';
+import React, { useEffect, useMemo, useState, useCallback, useRef } from 'react';
 import {
   View,
   Text,
@@ -20,10 +20,11 @@ import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { useSafeNavigation } from '@/hooks/navigationPage';
 import DiningCard from '@/components/DaningCard';
+import { API_CONFIG } from '../../config/apiConfig';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const windowHeight = Dimensions.get('window').height;
 const windowWidth = Dimensions.get('window').width;
-import { API_CONFIG } from '../../config/apiConfig';
 const Api_url = API_CONFIG.BACKEND_URL;
 
 const quickFilters = [
@@ -54,6 +55,27 @@ export default function Collections() {
   const [offerFilter, setOfferFilter] = useState(false);
   const navigation = useNavigation();
   const { safeNavigation } = useSafeNavigation();
+
+  const isMountedRef = useRef(false);
+  const collectionRequestRef = useRef(null);
+  const collectionRequestIdRef = useRef(0);
+  const searchRequestRef = useRef(null);
+  const searchRequestIdRef = useRef(0);
+
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+      if (collectionRequestRef.current) {
+        collectionRequestRef.current.abort();
+        collectionRequestRef.current = null;
+      }
+      if (searchRequestRef.current) {
+        searchRequestRef.current.abort();
+        searchRequestRef.current = null;
+      }
+    };
+  }, []);
 
   const [filter, setFilter] = useState({
     sort: "",
@@ -99,7 +121,7 @@ export default function Collections() {
     const url = `${Api_url}/firm/fav/${firmId}`;
     console.log("Fetching URL:", url);
 
-    const response = await axios.post(url, { withCredentials: true });
+    const response = await axios.post(url, {}, { withCredentials: true });
     alert("updated successfull");
     console.log("Response:", response.data);
   };
@@ -118,7 +140,7 @@ export default function Collections() {
   const removeFavorite = async (firmId) => {
     try {
       const url = `${Api_url}/firm/favRemove/${firmId}`;
-      const response = await axios.post(url, { withCredentials: true });
+      const response = await axios.post(url, {}, { withCredentials: true });
       console.log("Response:", response.data);
       alert(response.data.message);
     } catch (error) {
@@ -171,10 +193,21 @@ export default function Collections() {
   };
   // Fetch collection data
   const fetchCollectionData = async () => {
+    const requestId = ++collectionRequestIdRef.current;
+    if (collectionRequestRef.current) {
+      collectionRequestRef.current.abort();
+    }
+    const controller = new AbortController();
+    collectionRequestRef.current = controller;
+
     try {
       setIsLoading(true);
-      const response = await axios.get(`${Api_url}/collections/by-slug/${encodeURIComponent(collectionName)}`);
+      const response = await axios.get(
+        `${Api_url}/collections/by-slug/${encodeURIComponent(collectionName)}`,
+        { signal: controller.signal }
+      );
       if (response.data) {
+        if (!isMountedRef.current || requestId !== collectionRequestIdRef.current) return;
         setCollectionData(response.data);
         const collectionFirms = response.data.restaurants.map(restaurant => ({
           _id: restaurant._id,
@@ -192,8 +225,10 @@ export default function Collections() {
         setFirms(collectionFirms);
       }
     } catch (error) {
+      if (error?.name === 'CanceledError' || error?.name === 'AbortError' || error?.code === 'ERR_CANCELED') return;
       console.error('Error fetching collection data:', error);
     } finally {
+      if (!isMountedRef.current || requestId !== collectionRequestIdRef.current) return;
       setIsLoading(false);
     }
   };
@@ -208,19 +243,39 @@ export default function Collections() {
   // Initial load
   useEffect(() => {
     fetchCollectionData();
+    return () => {
+      if (collectionRequestRef.current) {
+        collectionRequestRef.current.abort();
+        collectionRequestRef.current = null;
+      }
+    };
   }, [collectionName]);
 
   useEffect(() => {
     const searchRestaurants = async () => {
       if (!query.trim()) {
+        if (searchRequestRef.current) {
+          searchRequestRef.current.abort();
+          searchRequestRef.current = null;
+        }
         setSearchResults([]);
         setIsSearching(false);
         return;
       }
       setIsSearching(true);
 
+      const requestId = ++searchRequestIdRef.current;
+      if (searchRequestRef.current) {
+        searchRequestRef.current.abort();
+      }
+      const controller = new AbortController();
+      searchRequestRef.current = controller;
+
       try {
-        const response = await axios.get(`${Api_url}/search`, { params: { query } });
+        const response = await axios.get(`${Api_url}/search`, {
+          params: { query },
+          signal: controller.signal,
+        });
         const results = response.data?.restaurants || [];
 
         const formattedResults = results.map((restaurant) => ({
@@ -235,11 +290,15 @@ export default function Collections() {
           },
         }));
 
+        if (!isMountedRef.current || requestId !== searchRequestIdRef.current) return;
         setSearchResults(formattedResults);
       } catch (error) {
+        if (error?.name === 'CanceledError' || error?.name === 'AbortError' || error?.code === 'ERR_CANCELED') return;
         console.error('Error searching restaurants:', error);
+        if (!isMountedRef.current || requestId !== searchRequestIdRef.current) return;
         setSearchResults([]);
       } finally {
+        if (!isMountedRef.current || requestId !== searchRequestIdRef.current) return;
         setIsSearching(false);
       }
     };
@@ -330,7 +389,7 @@ export default function Collections() {
 
   if (isLoading) {
     return (
-      <View style={styles.loadingContainer}>
+      <View className="flex-1 justify-center items-center">
         <ActivityIndicator size="large" color="#e23845" />
       </View>
     );
@@ -338,24 +397,24 @@ export default function Collections() {
 
   if (!collectionData) {
     return (
-      <View style={styles.emptyContainer}>
-        <Text style={styles.emptyText}>Collection not found</Text>
+      <View className="flex-1 justify-center items-center p-5">
+        <Text className="text-base text-gray-600">Collection not found</Text>
       </View>
     );
   }
 
   return (
-    <View style={styles.container}>
+    <View className="flex-1 bg-white">
       {/* Collection Header */}
       <ImageBackground
         source={{ uri: collectionData.photoApp }}
-        style={styles.collectionHeader}
-        imageStyle={styles.collectionHeaderImage}
+        className="h-62.5 w-full justify-end"
+        imageStyle={{ borderRadius: 0 }}
       >
-        <View style={styles.collectionOverlay}>
-          <Text style={styles.collectionTitle}>{collectionData.title}</Text>
-          <Text style={styles.collectionDescription}>{collectionData.description}</Text>
-          <Text style={styles.collectionCount}>{firms.length} Places</Text>
+        <View className="bg-black/50 p-5">
+          <Text className="text-2xl font-bold text-white mb-1.25">{collectionData.title}</Text>
+          <Text className="text-base text-white mb-2.5">{collectionData.description}</Text>
+          <Text className="text-sm text-white">{firms.length} Places</Text>
         </View>
       </ImageBackground>
 
@@ -410,8 +469,8 @@ export default function Collections() {
         <Text style={styles.mainFilterText}>Filters</Text>
       </TouchableOpacity> */}
 
-      {/* Restaurant List */}
-      <View style={styles.resContainer}>
+  {/* Restaurant List */}
+  <View className="flex-1 mx-1.5 mt-5 px-3.75 py-3.75">
         <FlatList
           data={filteredFirms}
           refreshControl={
@@ -443,8 +502,8 @@ export default function Collections() {
           )}
           keyExtractor={(item) => item._id}
           ListEmptyComponent={
-            <View style={styles.emptyContainer}>
-              <Text style={styles.emptyText}>No restaurants found in this collection</Text>
+            <View className="flex-1 justify-center items-center p-5">
+              <Text className="text-base text-gray-600">No restaurants found in this collection</Text>
             </View>
           }
         />
@@ -457,28 +516,28 @@ export default function Collections() {
         visible={modalVisible}
         onRequestClose={() => setModalVisible(false)}
       >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Filters</Text>
+        <View className="flex-1 justify-end bg-black/50">
+          <View className="bg-white rounded-t-5 p-5" style={{ height: windowHeight * 0.7 }}>
+            <Text className="text-xl font-bold text-center mb-5 text-gray-800">Filters</Text>
             
-            <View style={styles.modalBody}>
-              <View style={styles.categoryList}>
+            <View className="flex-1 flex-row">
+              <View className="w-2/5 border-r border-gray-200 pr-2.5">
                 <FlatList
                   data={categories}
                   keyExtractor={(item) => item}
                   renderItem={({ item }) => (
                     <TouchableOpacity
-                      style={[
-                        styles.categoryButton,
-                        selectedCategory === item && styles.activeCategory,
-                      ]}
+                      className={`p-3.75 rounded-md mb-1.25 ${
+                        selectedCategory === item ? 'bg-red-50' : ''
+                      }`}
                       onPress={() => handleCategoryPress(item)}
                     >
                       <Text
-                        style={[
-                          styles.categoryText,
-                          selectedCategory === item && styles.activeCategoryText,
-                        ]}
+                        className={`${
+                          selectedCategory === item 
+                            ? 'text-red-500 font-medium' 
+                            : 'text-gray-600'
+                        }`}
                       >
                         {item}
                       </Text>
@@ -487,7 +546,7 @@ export default function Collections() {
                 />
               </View>
               
-              <View style={styles.optionsList}>
+              <View className="w-3/5 pl-3.75">
                 <FlatList
                   data={options[selectedCategory] || []}
                   keyExtractor={(item) => item}
@@ -495,17 +554,17 @@ export default function Collections() {
                     const isSelected = filter[selectedCategory.toLowerCase().replace(' ', '')] === item;
                     return (
                       <TouchableOpacity
-                        style={[
-                          styles.optionButton,
-                          isSelected && styles.selectedOptionButton,
-                        ]}
+                        className={`p-3.75 rounded-md mb-1.25 ${
+                          isSelected ? 'bg-red-50' : ''
+                        }`}
                         onPress={() => handleOptionSelect(selectedCategory, item)}
                       >
                         <Text
-                          style={[
-                            styles.optionText,
-                            isSelected && styles.selectedOptionText,
-                          ]}
+                          className={`${
+                            isSelected 
+                              ? 'text-red-500 font-medium' 
+                              : 'text-gray-600'
+                          }`}
                         >
                           {item}
                         </Text>
@@ -516,18 +575,18 @@ export default function Collections() {
               </View>
             </View>
             
-            <View style={styles.modalFooter}>
+            <View className="flex-row justify-between mt-5">
               <TouchableOpacity
-                style={styles.clearButton}
+                className="p-3.75 rounded-md border border-red-500 flex-1 mr-2.5 items-center"
                 onPress={clearFilters}
               >
-                <Text style={styles.clearButtonText}>Clear All</Text>
+                <Text className="text-red-500 font-medium">Clear All</Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={styles.applyButton}
+                className="p-3.75 rounded-md bg-red-500 flex-1 items-center"
                 onPress={() => setModalVisible(false)}
               >
-                <Text style={styles.applyButtonText}>Apply</Text>
+                <Text className="text-white font-medium">Apply</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -537,189 +596,44 @@ export default function Collections() {
   );
 }
 
+/* Original CSS Reference:
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: 'white',
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  emptyContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
-  },
-  emptyText: {
-    fontSize: 16,
-    color: '#666',
-  },
-  collectionHeader: {
-    height: 250,
-    width: '100%',
-    justifyContent: 'flex-end',
-  },
-  collectionHeaderImage: {
-    borderRadius: 0,
-  },
-  collectionOverlay: {
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    padding: 20,
-  },
-  collectionTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: 'white',
-    marginBottom: 5,
-  },
-  collectionDescription: {
-    fontSize: 16,
-    color: 'white',
-    marginBottom: 10,
-  },
-  collectionCount: {
-    fontSize: 14,
-    color: 'white',
-  },
-  filterContainer: {
-    padding: 15,
-    paddingBottom: 5,
-  },
-  resContainer: {
-    flex: 1,
-    paddingHorizontal: 15,
-    paddingVertical:15,
-  },
-  filterButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    marginRight: 8,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: '#e23845',
-  },
-  filterText: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: '#e23845',
-  },
-  selectedFilterButton: {
-    backgroundColor: '#e23845',
-  },
-  selectedFilterText: {
-    color: '#fff',
-  },
-  mainFilterButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 10,
-    marginHorizontal: 15,
-    marginBottom: 10,
-    borderWidth: 1,
-    borderColor: '#e23845',
-    borderRadius: 5,
-    alignSelf: 'flex-start',
-  },
-  mainFilterText: {
-    marginLeft: 5,
-    color: '#e23845',
-    fontWeight: '500',
-  },
-  modalOverlay: {
-    flex: 1,
-    justifyContent: 'flex-end',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-  },
-  modalContent: {
-    height: windowHeight * 0.7,
-    backgroundColor: '#fff',
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    padding: 20,
-  },
-  modalTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    marginBottom: 20,
-    color: '#333',
-  },
-  modalBody: {
-    flex: 1,
-    flexDirection: 'row',
-  },
-  categoryList: {
-    width: '40%',
-    borderRightWidth: 1,
-    borderRightColor: '#eee',
-    paddingRight: 10,
-  },
-  categoryButton: {
-    padding: 15,
-    borderRadius: 5,
-    marginBottom: 5,
-  },
-  activeCategory: {
-    backgroundColor: '#f8e8e9',
-  },
-  categoryText: {
-    color: '#666',
-  },
-  activeCategoryText: {
-    color: '#e23845',
-    fontWeight: '500',
-  },
-  optionsList: {
-    width: '60%',
-    paddingLeft: 15,
-  },
-  optionButton: {
-    padding: 15,
-    borderRadius: 5,
-    marginBottom: 5,
-  },
-  selectedOptionButton: {
-    backgroundColor: '#f8e8e9',
-  },
-  optionText: {
-    color: '#666',
-  },
-  selectedOptionText: {
-    color: '#e23845',
-    fontWeight: '500',
-  },
-  modalFooter: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 20,
-  },
-  clearButton: {
-    padding: 15,
-    borderRadius: 5,
-    borderWidth: 1,
-    borderColor: '#e23845',
-    flex: 1,
-    marginRight: 10,
-    alignItems: 'center',
-  },
-  clearButtonText: {
-    color: '#e23845',
-    fontWeight: '500',
-  },
-  applyButton: {
-    padding: 15,
-    borderRadius: 5,
-    backgroundColor: '#e23845',
-    flex: 1,
-    alignItems: 'center',
-  },
-  applyButtonText: {
-    color: '#fff',
-    fontWeight: '500',
-  },
+  container: { flex: 1, backgroundColor: 'white' },
+  loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  emptyContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 },
+  emptyText: { fontSize: 16, color: '#666' },
+  collectionHeader: { height: 250, width: '100%', justifyContent: 'flex-end' },
+  collectionHeaderImage: { borderRadius: 0 },
+  collectionOverlay: { backgroundColor: 'rgba(0,0,0,0.5)', padding: 20 },
+  collectionTitle: { fontSize: 24, fontWeight: 'bold', color: 'white', marginBottom: 5 },
+  collectionDescription: { fontSize: 16, color: 'white', marginBottom: 10 },
+  collectionCount: { fontSize: 14, color: 'white' },
+  filterContainer: { padding: 15, paddingBottom: 5 },
+  resContainer: { flex: 1, paddingHorizontal: 15, paddingVertical: 15 },
+  filterButton: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, paddingVertical: 8, marginRight: 8, borderRadius: 20, borderWidth: 1, borderColor: '#e23845' },
+  filterText: { fontSize: 14, fontWeight: '500', color: '#e23845' },
+  selectedFilterButton: { backgroundColor: '#e23845' },
+  selectedFilterText: { color: '#fff' },
+  mainFilterButton: { flexDirection: 'row', alignItems: 'center', padding: 10, marginHorizontal: 15, marginBottom: 10, borderWidth: 1, borderColor: '#e23845', borderRadius: 5, alignSelf: 'flex-start' },
+  mainFilterText: { marginLeft: 5, color: '#e23845', fontWeight: '500' },
+  modalOverlay: { flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0, 0, 0, 0.5)' },
+  modalContent: { height: windowHeight * 0.7, backgroundColor: '#fff', borderTopLeftRadius: 20, borderTopRightRadius: 20, padding: 20 },
+  modalTitle: { fontSize: 20, fontWeight: 'bold', textAlign: 'center', marginBottom: 20, color: '#333' },
+  modalBody: { flex: 1, flexDirection: 'row' },
+  categoryList: { width: '40%', borderRightWidth: 1, borderRightColor: '#eee', paddingRight: 10 },
+  categoryButton: { padding: 15, borderRadius: 5, marginBottom: 5 },
+  activeCategory: { backgroundColor: '#f8e8e9' },
+  categoryText: { color: '#666' },
+  activeCategoryText: { color: '#e23845', fontWeight: '500' },
+  optionsList: { width: '60%', paddingLeft: 15 },
+  optionButton: { padding: 15, borderRadius: 5, marginBottom: 5 },
+  selectedOptionButton: { backgroundColor: '#f8e8e9' },
+  optionText: { color: '#666' },
+  selectedOptionText: { color: '#e23845', fontWeight: '500' },
+  modalFooter: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 20 },
+  clearButton: { padding: 15, borderRadius: 5, borderWidth: 1, borderColor: '#e23845', flex: 1, marginRight: 10, alignItems: 'center' },
+  clearButtonText: { color: '#e23845', fontWeight: '500' },
+  applyButton: { padding: 15, borderRadius: 5, backgroundColor: '#e23845', flex: 1, alignItems: 'center' },
+  applyButtonText: { color: '#fff', fontWeight: '500' }
 });
+*/

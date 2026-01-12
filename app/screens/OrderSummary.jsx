@@ -2,13 +2,11 @@ import React, { useState } from 'react';
 import {
   View,
   Text,
-  StyleSheet,
   TouchableOpacity,
   ScrollView,
-  SafeAreaView,
   Modal,
-  TextInput,
-} from 'react-native';
+  TextInput } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   Feather,
   Entypo,
@@ -16,7 +14,45 @@ import {
   MaterialCommunityIcons,
 } from '@expo/vector-icons';
 import BackRouting from '@/components/BackRouting';
+
 const OrderSummary = () => {
+  /* Original CSS Reference:
+   * container: { flex: 1, backgroundColor: '#f3f4f6' }
+   * scroll: { padding: 16, paddingBottom: 101 }
+   * card: { backgroundColor: '#fff', borderRadius: 18, padding: 16, marginBottom: 20, gap: 18 }
+   * row: { flexDirection: 'row', alignItems: 'flex-start', gap: 12 }
+   * info: { flex: 1 }
+   * label: { color: '#333', fontSize: 14 }
+   * bold: { fontWeight: 'bold' }
+   * link: { color: '#444', fontSize: 13, textDecorationLine: 'underline', marginTop: 2 }
+   * address: { color: '#666', fontSize: 13 }
+   * striked: { textDecorationLine: 'line-through', color: '#999', fontSize: 13 }
+   * boldPrice: { color: '#111', fontWeight: 'bold', fontSize: 14 }
+   * billRow: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 6, marginTop: 2 }
+   * badge: { backgroundColor: '#e2ebfb', borderRadius: 12, paddingHorizontal: 8, paddingVertical: 2 }
+   * badgeText: { color: '#3c73d3', fontSize: 12, fontWeight: '600' }
+   * subLabel: { color: '#888', fontSize: 12, marginTop: 2 }
+   * cancelTitle: { fontSize: 13, fontWeight: 'bold', marginTop: 10, color: '#555' }
+   * cancelText: { fontSize: 13, color: '#777', marginVertical: 6, lineHeight: 18 }
+   * paymentCard: { backgroundColor: '#fff', borderRadius: 12, padding: 16, marginTop: 10 }
+   * paymentRow: { flexDirection: 'row', alignItems: 'center' }
+   * walletTitle: { fontSize: 14, fontWeight: 'bold', color: '#222' }
+   * walletDesc: { fontSize: 12, color: '#666', marginTop: 2 }
+   * footer: { position: 'absolute', bottom: 0, left: 0, right: 0, backgroundColor: '#fff', borderTopWidth: 1, borderColor: '#ddd', padding: 14, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }
+   * paymentMethod: { flexDirection: 'row', alignItems: 'center', flex: 1 }
+   * payUsing: { fontSize: 10, color: '#888' }
+   * payMethod: { fontSize: 13, fontWeight: 'bold', color: '#333', marginTop: 2 }
+   * placeOrderBtn: { backgroundColor: '#e23744', borderRadius: 8, paddingVertical: 8, paddingHorizontal: 12, marginLeft: 10, alignItems: 'flex-end' }
+   * totalText: { fontSize: 12, color: '#fff', fontWeight: 'bold' }
+   * placeText: { fontSize: 14, color: '#fff', fontWeight: 'bold' }
+   * modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'center', alignItems: 'center' }
+   * modalContent: { width: '90%', backgroundColor: '#fff', borderRadius: 16, padding: 20, elevation: 10 }
+   * modalTitle: { fontSize: 16, fontWeight: 'bold', marginBottom: 10, color: '#333' }
+   * modalSub: { fontSize: 12, color: '#666', marginBottom: 10 }
+   * input: { borderWidth: 1, borderColor: '#ccc', borderRadius: 8, padding: 10, marginBottom: 12 }
+   * submitBtn: { backgroundColor: '#e23744', padding: 12, borderRadius: 8, alignItems: 'center' }
+   * submitText: { color: '#fff', fontWeight: 'bold', fontSize: 14 }
+   */
   const [modalVisible, setModalVisible] = useState(false);
   const [scheduleModalVisible, setScheduleModalVisible] = useState(false);
   const [addressModalVisible, setAddressModalVisible] = useState(false);
@@ -102,104 +138,104 @@ const OrderSummary = () => {
   const selectedAddress = addresses.find(addr => addr.isSelected) || addresses[0];
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView className="flex-1 bg-gray-100">
       <BackRouting tittle="Order Summary"/>
-      <ScrollView contentContainerStyle={styles.scroll}>
-        <View style={styles.card}>
+      <ScrollView contentContainerClassName="p-4 pb-25">
+        <View className="bg-white rounded-2xl p-4 mb-5 gap-4.5">
           {/* Delivery Time */}
-          <View style={styles.row}>
+          <View className="flex-row items-start gap-3">
             <Feather name="clock" size={20} color="#333" />
-            <View style={styles.info}>
-              <Text style={styles.label}>
+            <View className="flex-1">
+              <Text className="color-gray-700 text-sm font-outfit">
                 Delivery in{' '}
-                <Text style={styles.bold}>
+                <Text className="font-outfit-bold">
                   {selectedTime ? `${dateLabels[selectedDateIndex]}, ${selectedTime}` : '25–35 mins'}
                 </Text>
               </Text>
 
               <TouchableOpacity onPress={() => setScheduleModalVisible(true)}>
-                <Text style={styles.link}>Want this later? Schedule it</Text>
+                <Text className="color-gray-600 text-sm font-outfit underline mt-0.5">Want this later? Schedule it</Text>
               </TouchableOpacity>
             </View>
             <Entypo name="chevron-right" size={20} color="#aaa" />
           </View>
 
           {/* Address */}
-          <TouchableOpacity style={styles.row} onPress={() => setAddressModalVisible(true)}>
+          <TouchableOpacity className="flex-row items-start gap-3" onPress={() => setAddressModalVisible(true)}>
             <Entypo name="location-pin" size={20} color="#333" />
-            <View style={styles.info}>
-              <Text style={styles.label}>
-                Delivery at <Text style={styles.bold}>{selectedAddress.type}</Text>
+            <View className="flex-1">
+              <Text className="color-gray-700 text-sm font-outfit">
+                Delivery at <Text className="font-outfit-bold">{selectedAddress.type}</Text>
               </Text>
-              <Text style={styles.address}>
+              <Text className="color-gray-500 text-sm font-outfit">
                 {selectedAddress.fullAddress || `${selectedAddress.street}, ${selectedAddress.area}`}
               </Text>
-              <Text style={styles.link}>Add instructions for delivery partner</Text>
+              <Text className="color-gray-600 text-sm font-outfit underline mt-0.5">Add instructions for delivery partner</Text>
             </View>
             <Entypo name="chevron-right" size={20} color="#aaa" />
           </TouchableOpacity>
 
           {/* Phone - Tap to edit */}
-          <TouchableOpacity style={styles.row} onPress={() => setModalVisible(true)}>
+          <TouchableOpacity className="flex-row items-start gap-3" onPress={() => setModalVisible(true)}>
             <Feather name="phone" size={18} color="#333" />
-            <View style={styles.info}>
-              <Text style={styles.label}>
-                {selectedAddress.name}, <Text style={styles.bold}>{selectedAddress.phone}</Text>
+            <View className="flex-1">
+              <Text className="color-gray-700 text-sm font-outfit">
+                {selectedAddress.name}, <Text className="font-outfit-bold">{selectedAddress.phone}</Text>
               </Text>
             </View>
             <Entypo name="chevron-right" size={20} color="#aaa" />
           </TouchableOpacity>
 
           {/* Total Bill */}
-          <TouchableOpacity style={styles.row} onPress={() => setBillModalVisible(true)}>
+          <TouchableOpacity className="flex-row items-start gap-3" onPress={() => setBillModalVisible(true)}>
             <MaterialCommunityIcons name="receipt" size={18} color="#333" />
-            <View style={styles.info}>
-              <View style={styles.billRow}>
-                <Text style={styles.striked}>₹279</Text>
-                <Text style={styles.boldPrice}> ₹235 </Text>
-                <View style={styles.badge}>
-                  <Text style={styles.badgeText}>You saved ₹44</Text>
+            <View className="flex-1">
+              <View className="flex-row items-center flex-wrap gap-1.5 mt-0.5">
+                <Text className="line-through color-gray-400 text-sm font-outfit">₹279</Text>
+                <Text className="color-gray-900 font-outfit-bold text-sm"> ₹235 </Text>
+                <View className="bg-blue-100 rounded-xl px-2 py-0.5">
+                  <Text className="color-blue-600 text-xs font-outfit-semibold">You saved ₹44</Text>
                 </View>
               </View>
-              <Text style={styles.subLabel}>Incl. taxes, charges & donation</Text>
+              <Text className="color-gray-500 text-xs font-outfit mt-0.5">Incl. taxes, charges & donation</Text>
             </View>
             <Entypo name="chevron-right" size={20} color="#aaa" />
           </TouchableOpacity>
         </View>
 
         {/* Cancellation Policy */}
-        <Text style={styles.cancelTitle}>CANCELLATION POLICY</Text>
-        <Text style={styles.cancelText}>
+        <Text className="text-sm font-outfit-bold mt-2.5 color-gray-600">CANCELLATION POLICY</Text>
+        <Text className="text-sm color-gray-500 my-1.5 leading-4.5 font-outfit">
           Help us reduce food waste by avoiding cancellations after placing your order. A 101% cancellation fee will be applied.
         </Text>
 
         {/* Zomato Money Card */}
-        <View style={styles.paymentCard}>
-          <View style={styles.paymentRow}>
+        <View className="bg-white rounded-xl p-4 mt-2.5">
+          <View className="flex-row items-center">
             <MaterialIcons name="account-balance-wallet" size={24} color="#e23744" />
-            <View style={{ marginLeft: 10 }}>
-              <Text style={styles.walletTitle}>Zomato Money</Text>
-              <Text style={styles.walletDesc}>Single tap payments. Zero failures</Text>
+            <View className="ml-2.5">
+              <Text className="text-sm font-outfit-bold color-gray-800">Zomato Money</Text>
+              <Text className="text-xs color-gray-500 mt-0.5 font-outfit">Single tap payments. Zero failures</Text>
             </View>
-            <Entypo name="chevron-right" size={20} color="#aaa" style={{ marginLeft: 'auto' }} />
+            <Entypo name="chevron-right" size={20} color="#aaa" className="ml-auto" />
           </View>
         </View>
       </ScrollView>
 
       {/* Bottom Bar */}
-      <View style={styles.footer}>
-        <View style={styles.paymentMethod}>
+      <View className="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-300 p-3.5 flex-row justify-between items-center">
+        <View className="flex-row items-center flex-1">
           <MaterialCommunityIcons name="credit-card-outline" size={20} color="#333" />
-          <View style={{ marginLeft: 8 }}>
-            <Text style={styles.payUsing}>PAY USING</Text>
-            <Text style={styles.payMethod}>Pay on delivery</Text>
-            <Text style={styles.subLabel}>UPI / Cash</Text>
+          <View className="ml-2">
+            <Text className="text-xs color-gray-500 font-outfit">PAY USING</Text>
+            <Text className="text-sm font-outfit-bold color-gray-700 mt-0.5">Pay on delivery</Text>
+            <Text className="color-gray-500 text-xs font-outfit mt-0.5">UPI / Cash</Text>
           </View>
         </View>
 
-        <TouchableOpacity style={styles.placeOrderBtn}>
-          <Text style={styles.totalText}>₹235 TOTAL</Text>
-          <Text style={styles.placeText}>Place Order</Text>
+        <TouchableOpacity className="bg-red-600 rounded-lg py-2 px-3 ml-2.5 items-end">
+          <Text className="text-xs color-white font-outfit-bold">₹235 TOTAL</Text>
+          <Text className="text-sm color-white font-outfit-bold">Place Order</Text>
         </TouchableOpacity>
       </View>
 
@@ -210,10 +246,10 @@ const OrderSummary = () => {
         transparent={true}
         onRequestClose={() => setModalVisible(false)}
       >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Update receiver details</Text>
-            <Text style={styles.modalSub}>
+        <View className="flex-1 bg-black/40 justify-center items-center">
+          <View className="w-11/12 bg-white rounded-2xl p-5">
+            <Text className="text-base font-outfit-bold mb-2.5 color-gray-700">Update receiver details</Text>
+            <Text className="text-xs color-gray-500 mb-2.5 font-outfit">
               {selectedAddress.type} - {selectedAddress.fullAddress || `${selectedAddress.street}, ${selectedAddress.area}`}
             </Text>
 
@@ -226,7 +262,7 @@ const OrderSummary = () => {
                 );
                 setAddresses(updatedAddresses);
               }}
-              style={styles.input}
+              className="border border-gray-300 rounded-lg p-2.5 mb-3 font-outfit"
             />
             <TextInput
               placeholder="Receiver's mobile number"
@@ -238,10 +274,10 @@ const OrderSummary = () => {
                 setAddresses(updatedAddresses);
               }}
               keyboardType="phone-pad"
-              style={styles.input}
+              className="border border-gray-300 rounded-lg p-2.5 mb-3 font-outfit"
             />
-            <TouchableOpacity style={styles.submitBtn} onPress={() => setModalVisible(false)}>
-              <Text style={styles.submitText}>Submit</Text>
+            <TouchableOpacity className="bg-red-600 p-3 rounded-lg items-center" onPress={() => setModalVisible(false)}>
+              <Text className="color-white font-outfit-bold text-sm">Submit</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -254,34 +290,19 @@ const OrderSummary = () => {
         transparent={true}
         onRequestClose={() => setScheduleModalVisible(false)}
       >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Select your delivery time</Text>
+        <View className="flex-1 bg-black/40 justify-center items-center">
+          <View className="w-11/12 bg-white rounded-2xl p-5">
+            <Text className="text-base font-outfit-bold mb-2.5 color-gray-700">Select your delivery time</Text>
 
             {/* Date Tabs */}
-            <View
-              style={{
-                flexDirection: 'row',
-                justifyContent: 'space-around',
-                marginVertical: 10,
-              }}
-            >
+            <View className="flex-row justify-around my-2.5">
               {dateLabels.map((label, index) => (
                 <TouchableOpacity
                   key={index}
                   onPress={() => setSelectedDateIndex(index)}
-                  style={{
-                    paddingBottom: 6,
-                    borderBottomWidth: 2,
-                    borderColor: selectedDateIndex === index ? '#e23744' : 'transparent',
-                  }}
+                  className={`pb-1.5 border-b-2 ${selectedDateIndex === index ? 'border-red-600' : 'border-transparent'}`}
                 >
-                  <Text
-                    style={{
-                      fontWeight: selectedDateIndex === index ? 'bold' : 'normal',
-                      color: '#333',
-                    }}
-                  >
+                  <Text className={`${selectedDateIndex === index ? 'font-outfit-bold' : 'font-outfit'} color-gray-700`}>
                     {label}
                   </Text>
                 </TouchableOpacity>
@@ -289,24 +310,14 @@ const OrderSummary = () => {
             </View>
 
             {/* Time Slots */}
-            <ScrollView style={{ maxHeight: 180, marginVertical: 10 }}>
+            <ScrollView className="max-h-45 my-2.5">
               {timeSlots.map((slot, i) => (
                 <TouchableOpacity
                   key={i}
                   onPress={() => setSelectedTime(slot)}
-                  style={{
-                    backgroundColor: selectedTime === slot ? '#ffe8e8' : '#f2f2f2',
-                    padding: 12,
-                    marginVertical: 6,
-                    borderRadius: 8,
-                  }}
+                  className={`${selectedTime === slot ? 'bg-red-50' : 'bg-gray-100'} p-3 my-1.5 rounded-lg`}
                 >
-                  <Text
-                    style={{
-                      color: selectedTime === slot ? '#e23744' : '#555',
-                      textAlign: 'center',
-                    }}
-                  >
+                  <Text className={`${selectedTime === slot ? 'color-red-600' : 'color-gray-600'} text-center font-outfit`}>
                     {slot}
                   </Text>
                 </TouchableOpacity>
@@ -316,16 +327,10 @@ const OrderSummary = () => {
             {/* Confirm Button */}
             <TouchableOpacity
               onPress={() => setScheduleModalVisible(false)}
-              style={{
-                backgroundColor: '#e23744',
-                padding: 12,
-                borderRadius: 8,
-                marginTop: 10,
-                opacity: selectedTime ? 1 : 0.5,
-              }}
+              className={`bg-red-600 p-3 rounded-lg mt-2.5 ${selectedTime ? 'opacity-100' : 'opacity-50'}`}
               disabled={!selectedTime}
             >
-              <Text style={{ color: '#fff', fontWeight: 'bold', textAlign: 'center' }}>
+              <Text className="color-white font-outfit-bold text-center">
                 Confirm
               </Text>
             </TouchableOpacity>
@@ -340,56 +345,56 @@ const OrderSummary = () => {
         transparent={true}
         onRequestClose={() => setAddressModalVisible(false)}
       >
-        <View style={styles.modalOverlay}>
-          <View style={[styles.modalContent, { paddingBottom: 20 }]}>
-            <Text style={styles.modalTitle}>Select an address</Text>
+        <View className="flex-1 bg-black/40 justify-center items-center">
+          <View className="w-11/12 bg-white rounded-2xl p-5 pb-5">
+            <Text className="text-base font-outfit-bold mb-2.5 color-gray-700">Select an address</Text>
             
             <TouchableOpacity 
-              style={styles.addAddressButton}
+              className="border border-red-600 rounded-lg p-4 my-2.5 items-center"
               onPress={() => {
                 setAddressModalVisible(false);
                 setAddAddressModalVisible(true);
               }}
             >
-              <Text style={styles.addAddressText}>+ Add Address</Text>
+              <Text className="color-red-600 font-outfit-bold">+ Add Address</Text>
             </TouchableOpacity>
             
-            <View style={styles.separator} />
+            <View className="h-px bg-gray-200 my-2.5" />
             
-            <Text style={styles.savedAddressesTitle}>SAVED ADDRESSES</Text>
+            <Text className="text-sm font-outfit-bold color-gray-600 mb-2.5">SAVED ADDRESSES</Text>
             
             {addresses.map(address => (
               <TouchableOpacity 
                 key={address.id}
-                style={styles.addressItem}
+                className="py-3 border-b border-gray-100"
                 onPress={() => selectAddress(address.id)}
               >
-                <View style={styles.addressHeader}>
-                  <Text style={styles.addressType}>DELIVERS TO</Text>
-                  <Text style={styles.addressName}>{address.type}</Text>
+                <View className="flex-row items-center mb-1.25">
+                  <Text className="text-xs color-blue-600 mr-2.5 font-outfit">DELIVERS TO</Text>
+                  <Text className="text-sm font-outfit-bold color-gray-700">{address.type}</Text>
                   {address.isSelected && (
                     <MaterialIcons 
                       name="check" 
                       size={20} 
                       color="#e23744" 
-                      style={{ marginLeft: 'auto' }}
+                      className="ml-auto"
                     />
                   )}
                 </View>
-                <Text style={styles.addressDetails}>
+                <Text className="text-sm color-gray-500 mb-1.25 font-outfit">
                   {address.fullAddress || `${address.street}, ${address.area}`}
                 </Text>
-                <Text style={styles.receiverDetails}>
+                <Text className="text-sm color-gray-500 font-outfit">
                   {address.name}, {address.phone}
                 </Text>
               </TouchableOpacity>
             ))}
             
             <TouchableOpacity 
-              style={styles.cancelButton}
+              className="mt-5 p-3 items-center"
               onPress={() => setAddressModalVisible(false)}
             >
-              <Text style={styles.cancelButtonText}>Cancel</Text>
+              <Text className="color-gray-500 font-outfit-bold">Cancel</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -402,92 +407,89 @@ const OrderSummary = () => {
         transparent={true}
         onRequestClose={() => setAddAddressModalVisible(false)}
       >
-        <View style={styles.modalOverlay}>
-          <View style={[styles.modalContent, { padding: 20 }]}>
-            <Text style={styles.modalTitle}>Add New Address</Text>
+        <View className="flex-1 bg-black/40 justify-center items-center">
+          <View className="w-11/12 bg-white rounded-2xl p-5">
+            <Text className="text-base font-outfit-bold mb-2.5 color-gray-700">Add New Address</Text>
             
-            <Text style={styles.addressLabel}>Address</Text>
-            <Text style={styles.addressText}>{newAddress.street}, {newAddress.area}</Text>
+            <Text className="text-sm color-gray-700 mb-1.25 font-outfit">Address</Text>
+            <Text className="text-sm color-gray-500 mb-3.75 font-outfit">{newAddress.street}, {newAddress.area}</Text>
             
-            <Text style={styles.inputLabel}>Additional address details*</Text>
-            <Text style={styles.inputSubLabel}>E.g. Floor, House no.</Text>
+            <Text className="text-sm color-gray-700 mt-2.5 mb-1.25 font-outfit">Additional address details*</Text>
+            <Text className="text-xs color-gray-400 mb-1.25 font-outfit">E.g. Floor, House no.</Text>
             <TextInput
-              style={styles.textInput}
+              className="border border-gray-300 rounded-lg p-3 text-sm mb-2.5 font-outfit"
               placeholder="Enter additional details"
               value={newAddress.additional}
               onChangeText={(text) => setNewAddress({...newAddress, additional: text})}
             />
             
-            <Text style={styles.sectionTitle}>Receiver details for this address</Text>
+            <Text className="text-sm font-outfit-bold color-gray-700 mt-3.75 mb-2.5">Receiver details for this address</Text>
             
-            <Text style={styles.inputLabel}>Receiver's Name</Text>
+            <Text className="text-sm color-gray-700 mt-2.5 mb-1.25 font-outfit">Receiver's Name</Text>
             <TextInput
-              style={styles.textInput}
+              className="border border-gray-300 rounded-lg p-3 text-sm mb-2.5 font-outfit"
               placeholder="Enter receiver's name"
               value={newAddress.name}
               onChangeText={(text) => setNewAddress({...newAddress, name: text})}
             />
             
-            <Text style={styles.inputLabel}>Receiver's Phone</Text>
+            <Text className="text-sm color-gray-700 mt-2.5 mb-1.25 font-outfit">Receiver's Phone</Text>
             <TextInput
-              style={styles.textInput}
+              className="border border-gray-300 rounded-lg p-3 text-sm mb-2.5 font-outfit"
               placeholder="Enter receiver's phone"
               value={newAddress.phone}
               onChangeText={(text) => setNewAddress({...newAddress, phone: text})}
               keyboardType="phone-pad"
             />
             
-            <Text style={styles.inputLabel}>Save address as</Text>
-            <View style={styles.addressTypeContainer}>
+            <Text className="text-sm color-gray-700 mt-2.5 mb-1.25 font-outfit">Save address as</Text>
+            <View className="flex-row justify-between my-2.5">
               <TouchableOpacity 
-                style={[
-                  styles.addressTypeButton,
-                  newAddress.type === 'Home' && styles.addressTypeButtonSelected
-                ]}
+                className={`border rounded-lg p-2.5 flex-1 mx-1.25 items-center ${
+                  newAddress.type === 'Home' ? 'border-red-600 bg-red-50' : 'border-gray-300'
+                }`}
                 onPress={() => setNewAddress({...newAddress, type: 'Home'})}
               >
-                <Text style={newAddress.type === 'Home' ? styles.addressTypeTextSelected : styles.addressTypeText}>
+                <Text className={`${newAddress.type === 'Home' ? 'color-red-600 font-outfit-bold' : 'color-gray-500 font-outfit'}`}>
                   Home
                 </Text>
               </TouchableOpacity>
               
               <TouchableOpacity 
-                style={[
-                  styles.addressTypeButton,
-                  newAddress.type === 'Work' && styles.addressTypeButtonSelected
-                ]}
+                className={`border rounded-lg p-2.5 flex-1 mx-1.25 items-center ${
+                  newAddress.type === 'Work' ? 'border-red-600 bg-red-50' : 'border-gray-300'
+                }`}
                 onPress={() => setNewAddress({...newAddress, type: 'Work'})}
               >
-                <Text style={newAddress.type === 'Work' ? styles.addressTypeTextSelected : styles.addressTypeText}>
+                <Text className={`${newAddress.type === 'Work' ? 'color-red-600 font-outfit-bold' : 'color-gray-500 font-outfit'}`}>
                   Work
                 </Text>
               </TouchableOpacity>
               
               <TouchableOpacity 
-                style={[
-                  styles.addressTypeButton,
-                  newAddress.type === 'Other' && styles.addressTypeButtonSelected
-                ]}
+                className={`border rounded-lg p-2.5 flex-1 mx-1.25 items-center ${
+                  newAddress.type === 'Other' ? 'border-red-600 bg-red-50' : 'border-gray-300'
+                }`}
                 onPress={() => setNewAddress({...newAddress, type: 'Other'})}
               >
-                <Text style={newAddress.type === 'Other' ? styles.addressTypeTextSelected : styles.addressTypeText}>
+                <Text className={`${newAddress.type === 'Other' ? 'color-red-600 font-outfit-bold' : 'color-gray-500 font-outfit'}`}>
                   Other
                 </Text>
               </TouchableOpacity>
             </View>
             
             <TouchableOpacity 
-              style={styles.saveAddressButton}
+              className="bg-red-600 rounded-lg p-3.75 items-center mt-5"
               onPress={handleSaveAddress}
             >
-              <Text style={styles.saveAddressButtonText}>Save address</Text>
+              <Text className="color-white font-outfit-bold text-base">Save address</Text>
             </TouchableOpacity>
             
             <TouchableOpacity 
-              style={styles.cancelButton}
+              className="mt-5 p-3 items-center"
               onPress={() => setAddAddressModalVisible(false)}
             >
-              <Text style={styles.cancelButtonText}>Cancel</Text>
+              <Text className="color-gray-500 font-outfit-bold">Cancel</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -500,67 +502,67 @@ const OrderSummary = () => {
         transparent={true}
         onRequestClose={() => setBillModalVisible(false)}
       >
-        <View style={styles.modalOverlay}>
-          <View style={[styles.modalContent, { paddingBottom: 20 }]}>
-            <Text style={styles.modalTitle}>You saved ₹44 on this order</Text>
-            <Text style={styles.modalSub}>Auto-applied as your order is above ₹200</Text>
+        <View className="flex-1 bg-black/40 justify-center items-center">
+          <View className="w-11/12 bg-white rounded-2xl p-5 pb-5">
+            <Text className="text-base font-outfit-bold mb-2.5 color-gray-700">You saved ₹44 on this order</Text>
+            <Text className="text-xs color-gray-500 mb-2.5 font-outfit">Auto-applied as your order is above ₹200</Text>
             
-            <TouchableOpacity style={styles.viewCouponsButton}>
-              <Text style={styles.viewCouponsText}>View all coupons</Text>
+            <TouchableOpacity className="border border-red-600 rounded-lg p-3 my-2.5 items-center">
+              <Text className="color-red-600 font-outfit-bold">View all coupons</Text>
             </TouchableOpacity>
 
-            <Text style={styles.billSummaryTitle}>Bill Summary</Text>
+            <Text className="text-base font-outfit-bold mt-2.5 mb-3.75 color-gray-700">Bill Summary</Text>
             
-            <View style={styles.billRowItem}>
-              <Text style={styles.billLabel}>Item total</Text>
-              <Text style={styles.billValue}>₹199</Text>
+            <View className="flex-row justify-between mb-2">
+              <Text className="color-gray-500 text-sm font-outfit">Item total</Text>
+              <Text className="color-gray-700 text-sm font-outfit">₹199</Text>
             </View>
             
-            <View style={styles.billRowItem}>
-              <Text style={styles.billLabel}>GST and restaurant charges</Text>
-              <Text style={styles.billValue}>₹25.33</Text>
+            <View className="flex-row justify-between mb-2">
+              <Text className="color-gray-500 text-sm font-outfit">GST and restaurant charges</Text>
+              <Text className="color-gray-700 text-sm font-outfit">₹25.33</Text>
             </View>
             
-            <View style={styles.billRowItem}>
-              <Text style={styles.billLabel}>Delivery partner fee</Text>
-              <Text style={styles.billValue}>₹42</Text>
+            <View className="flex-row justify-between mb-2">
+              <Text className="color-gray-500 text-sm font-outfit">Delivery partner fee</Text>
+              <Text className="color-gray-700 text-sm font-outfit">₹42</Text>
             </View>
-            <Text style={styles.billSubtext}>fully goes to them for their time and effort</Text>
+            <Text className="color-gray-400 text-xs mb-2 ml-auto font-outfit">fully goes to them for their time and effort</Text>
             
-            <View style={styles.billRowItem}>
-              <Text style={styles.billLabel}>Surge fee</Text>
-              <Text style={styles.billValue}>₹10</Text>
-            </View>
-            
-            <View style={styles.billRowItem}>
-              <Text style={styles.billLabel}>Platform fee</Text>
-              <Text style={styles.billValue}>₹10</Text>
+            <View className="flex-row justify-between mb-2">
+              <Text className="color-gray-500 text-sm font-outfit">Surge fee</Text>
+              <Text className="color-gray-700 text-sm font-outfit">₹10</Text>
             </View>
             
-            <View style={[styles.billRowItem, { marginTop: 10 }]}>
-              <Text style={[styles.billLabel, { fontWeight: 'bold' }]}>Grand Total</Text>
-              <Text style={[styles.billValue, { fontWeight: 'bold' }]}>₹272.33</Text>
+            <View className="flex-row justify-between mb-2">
+              <Text className="color-gray-500 text-sm font-outfit">Platform fee</Text>
+              <Text className="color-gray-700 text-sm font-outfit">₹10</Text>
             </View>
             
-            <View style={styles.billRowItem}>
-              <Text style={styles.billLabel}>Cash round off</Text>
-              <Text style={styles.billValue}>₹0.33</Text>
+            <View className="flex-row justify-between mb-2 mt-2.5">
+              <Text className="color-gray-600 text-sm font-outfit-bold">Grand Total</Text>
+              <Text className="color-gray-800 text-sm font-outfit-bold">₹272.33</Text>
             </View>
             
-            <View style={[styles.billRowItem, { marginTop: 10 }]}>
-              <Text style={[styles.billLabel, { fontWeight: 'bold' }]}>To pay</Text>
-              <Text style={[styles.billValue, { fontWeight: 'bold' }]}>₹272</Text>
+            <View className="flex-row justify-between mb-2">
+              <Text className="color-gray-600 text-sm font-outfit">Cash round off</Text>
+              <Text className="color-gray-800 text-sm font-outfit">₹0.33</Text>
+            </View>
+            
+            <View className="flex-row justify-between mb-2 mt-2.5">
+              <Text className="color-gray-600 text-sm font-outfit-bold">To pay</Text>
+              <Text className="color-gray-800 text-sm font-outfit-bold">₹272</Text>
             </View>
 
-            <View style={styles.savingsContainer}>
-              <Text style={styles.savingsText}>You saved ₹44 on this order</Text>
+            <View className="mt-4 p-2.5 bg-blue-50 rounded-lg">
+              <Text className="color-blue-600 text-sm font-outfit-semibold text-center">You saved ₹44 on this order</Text>
             </View>
 
             <TouchableOpacity 
-              style={styles.closeButton}
+              className="mt-5 bg-primary p-3 rounded-lg items-center"
               onPress={() => setBillModalVisible(false)}
             >
-              <Text style={styles.closeButtonText}>Close</Text>
+              <Text className="text-white font-outfit-bold">Close</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -569,7 +571,7 @@ const OrderSummary = () => {
   );
 };
 
-// Styles remain the same as in your original code
+/* COMMENTED OUT STYLESHEET - CONVERTED TO NATIVEWIND
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#f3f4f6' },
   scroll: { padding: 16, paddingBottom: 101 },
@@ -951,5 +953,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
 });
+*/
 
 export default OrderSummary;

@@ -1,33 +1,43 @@
 import React, { Fragment } from "react";
-import {View,Text, TouchableOpacity} from "react-native";
-import SettingStyles from "../../styles/Settingstyles";
-import Ionicons from '@expo/vector-icons/Ionicons';
-import { router } from "expo-router";
+import { View, Text, TouchableOpacity } from "react-native";
+import { Ionicons } from '@expo/vector-icons';
 import { useSafeNavigation } from "@/hooks/navigationPage";
 import BackRouting from "@/components/BackRouting";
-export default function Settings(){
+
+export default function Settings() {
     const { safeNavigation } = useSafeNavigation();
 
-    return(
+    return (
         <Fragment>
-            <BackRouting tittle="Settings"/>
-            <View style={SettingStyles.backgrond}>
-            {/* <Ionicons name="arrow-back" size={26} color="black" style={SettingStyles.backIcon} />
-            <Text style={SettingStyles.Heading1}>Settings</Text> */}
-            <View style={SettingStyles.SettinContainer1}>
-                <Text style={SettingStyles.settinText}>Edit profile</Text>
-                <Text style={SettingStyles.settinText2}>Change your name, description and profile photo</Text>
-            </View>
-            <TouchableOpacity onPress={()=>safeNavigation("/screens/SettingNotifications")} style={SettingStyles.SettinContainer2}>
-                <Text style={SettingStyles.settinText}>Notification settings</Text>
-                <Text style={SettingStyles.settinText2}>Define what alerts and notifications you want to see</Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={()=>safeNavigation("/screens/AccountSettings")} style={SettingStyles.SettinContainer2}>
-                <Text style={SettingStyles.settinText}>Account settings</Text>
-                <Text style={SettingStyles.settinText2}>Delete your account</Text>
-            </TouchableOpacity>
+            <BackRouting title="Settings" />
+            <View className="flex-1 bg-background p-4">
+                <TouchableOpacity
+                    onPress={() => safeNavigation("/screens/ProfileScreen")}
+                    className="flex-row items-center justify-between py-4 px-4 bg-white rounded-lg mb-3 border border-border"
+                    activeOpacity={0.7}
+                >
+                    <Text className="text-textprimary text-base font-outfit">Edit profile</Text>
+                    <Ionicons name="chevron-forward" size={22} color="#222" />
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                    onPress={() => safeNavigation("/screens/SettingNotifications")}
+                    className="flex-row items-center justify-between py-4 px-4 bg-white rounded-lg mb-3 border border-border"
+                    activeOpacity={0.7}
+                >
+                    <Text className="text-textprimary text-base font-outfit">Notification settings</Text>
+                    <Ionicons name="chevron-forward" size={22} color="#222" />
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                    onPress={() => safeNavigation("/screens/AccountSettings")}
+                    className="flex-row items-center justify-between py-4 px-4 bg-white rounded-lg border border-border"
+                    activeOpacity={0.7}
+                >
+                    <Text className="text-textprimary text-base font-outfit">Account settings</Text>
+                    <Ionicons name="chevron-forward" size={22} color="#222" />
+                </TouchableOpacity>
             </View>
         </Fragment>
     )
-
 }

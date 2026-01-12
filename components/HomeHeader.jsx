@@ -1,8 +1,8 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import { useLocationContext } from '@/context/LocationContext'; // or wherever your context is
+import { useLocationContext } from '@/context/LocationContext';
 import { useRouter } from 'expo-router';
 import { useSafeNavigation } from '@/hooks/navigationPage';
 export default function LocationHeader() {
@@ -10,46 +10,20 @@ export default function LocationHeader() {
   const router = useRouter();
    const {safeNavigation} = useSafeNavigation();
   return (
-    <View style={styles.container}>
-      <Ionicons name='location' size={24} style={styles.locationIcon} />
+    <View className="flex-row items-center p-2.5">
+      <Ionicons name='location' size={24} color='#02757A' className="pt-1.5 pr-2" />
       <TouchableOpacity
-        style={styles.locationInfo}
-        onPress={() => safeNavigation('/screens//SelectLocation')}
+        className="flex-row items-center"
+        onPress={() => safeNavigation('/screens/SelectLocation')}
       >
         <View>
-          <Text style={styles.cityText}>
+          <Text className="text-base font-bold text-textprimary">
             { location.city || 'Select Location'}
           </Text>
-          <Text style={styles.stateText}>{location.state || ''}</Text>
+          <Text className="text-xs text-textsecondary">{location.state || ''}</Text>
         </View>
         <MaterialIcons name="keyboard-arrow-down" size={22} color="#555" />
       </TouchableOpacity>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 10,
-  },
-  locationIcon: {
-    paddingTop: 6,
-    paddingRight: 7,
-    color: '#e23845',
-  },
-  locationInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  cityText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#000',
-  },
-  stateText: {
-    fontSize: 12,
-    color: '#555',
-  },
-});

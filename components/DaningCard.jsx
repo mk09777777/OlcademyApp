@@ -2,20 +2,19 @@ import React, { useEffect, useState } from 'react'
 import {
   View,
   Text,
-  StyleSheet,
   FlatList,
   Dimensions,
   TouchableOpacity,
-  SafeAreaView,
   Pressable,
   Image
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import ImageGallery from '@/components/ImageGallery';
 import { MaterialIcons } from "@expo/vector-icons";
-const { width } = Dimensions.get('window');
 import axios from 'axios';
 import { API_CONFIG } from '../config/apiConfig';
+const { width } = Dimensions.get('window');
 
 const DiningCard = ({ firmId,
   firmName,
@@ -88,249 +87,85 @@ const DiningCard = ({ firmId,
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <TouchableOpacity style={styles.card} onPress={onPress}>
-        <View style={styles.card}>
-          <View style={{ height: 250 }}>
-            <ImageGallery
-              images={displayImages.slice(0, 4)}
-              currentIndex={currentImageIndex}
-              onIndexChange={(index) => setCurrentImageIndex(index)}
-            />
-            {/* Promoted Banner */}
-            {promoted && (
-              <View style={styles.promotedBanner}>
-                <Text style={styles.promotedText}>Promoted</Text>
-              </View>
-            )}
-
-            {/* Discount Banners */}
-            <View style={styles.discountContainer}>
-              {offB && (
-                <View style={styles.offBanner}>
-                  <Text style={styles.offText}>{off}% OFF</Text>
-                </View>
-              )}
-              {proExtraB && (
-                <View style={styles.proExtraBanner}>
-                  <Text style={styles.proExtraText}>Pro extra {proExtra}% OFF</Text>
-                </View>
-              )}
-            </View>
-
-            {/* Delivery Time */}
-            {/* <View style={styles.timeContainer}>
-              <Text style={styles.timeText}>{displayTime} min</Text>
-            </View> */}
+    <TouchableOpacity className="bg-white rounded-3xl overflow-hidden mb-5 mr-1.5 ml-1.5 shadow-md shadow-black border border-gray-200" onPress={onPress}>
+      <View style={{ height: 140 }}>
+        <ImageGallery
+          images={displayImages.slice(0, 4)}
+          currentIndex={currentImageIndex}
+          onIndexChange={(index) => setCurrentImageIndex(index)}
+        />
+        
+        {promoted && (
+          <View className="absolute top-2.5 left-2.5 bg-black/70 px-2 py-1 rounded z-10">
+            <Text className="text-white text-xs font-bold">Promoted</Text>
           </View>
-          <TouchableOpacity
-            onPress={handleClick}
-            style={{ position: 'absolute', top: 8, right: 8 }}
-            activeOpacity={0.7}
-            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-          >
-            <MaterialIcons
-              name={isFavorited ? "bookmark" : "bookmark-border"}
-              size={32}
-              color={isFavorited ? "#e23845" : "white"}
-            />
-          </TouchableOpacity>
-          <LinearGradient
-            colors={['#3A8DFF', '#6ABEFFE5', '#3A8DFF00']}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 0 }}
-            style={styles.badge}
-          >
+        )}
 
-            <Text style={styles.badgeTitle}>{table}</Text>
-            <Text style={styles.badgeOffer}>{offer}</Text>
-          </LinearGradient>
-
-          {/* Card Content */}
-          <View style={styles.content}>
-            <View style={styles.leftColumn}>
-              <Text
-                style={styles.name}
-                numberOfLines={1}
-                ellipsizeMode="tail"
-              >
-                {displayName}
-              </Text>
-              <Text
-                style={styles.subtext}
-                numberOfLines={1}
-                ellipsizeMode="tail"
-              >
-                {displayArea}
-              </Text>
-              <Text
-                style={styles.subtext}
-                numberOfLines={1}
-                ellipsizeMode="tail"
-              >
-                {Array.isArray(displayCuisines) ? displayCuisines.join(' • ') : displayCuisines}
-              </Text>
+        <View className="absolute bottom-2.5 left-2.5 flex-row z-10">
+          {offB && (
+            <View className="bg-primary px-2 py-1 rounded mr-1">
+              <Text className="text-white text-xs font-bold">{off}% OFF</Text>
             </View>
-            <View style={styles.rightColumn}>
-              <View style={styles.ratingBox}>
-                <Text style={styles.ratingText}>{displayRating} ★</Text>
-              </View>
-              {displaydistance && (
-                <Text>
-                  {displaydistance.length > 3
-                    ? `${displaydistance.toString().slice(0, 4)} km`
-                    : `${displaydistance.toString().slice(0, 4)} km`}
-                </Text>
-              )}
-              <Text style={styles.subinfo}>{displayPrice}</Text>
+          )}
+          {proExtraB && (
+            <View className="bg-green-500 px-2 py-1 rounded">
+              <Text className="text-white text-xs font-bold">Pro extra {proExtra}% OFF</Text>
             </View>
-          </View>
+          )}
         </View>
+
+        <View className="absolute bottom-2.5 right-2.5 bg-black/70 px-2 py-1 rounded z-10">
+          <Text className="text-white text-xs font-bold">{displayTime} min</Text>
+        </View>
+      </View>
+
+      <TouchableOpacity
+        onPress={handleClick}
+        className="absolute top-2 right-2"
+        activeOpacity={0.7}
+        hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+      >
+        <MaterialIcons
+          name={isFavorited ? "bookmark" : "bookmark-border"}
+          size={32}
+          color={isFavorited ? "#02757A" : "white"}
+        />
       </TouchableOpacity>
-    </SafeAreaView>
+
+      <View className="p-3 flex-row justify-between">
+        <View className="flex-1 mr-2">
+          <Text className="text-lg font-outfit-bold text-textprimary mb-1" numberOfLines={1} ellipsizeMode="tail">
+            {displayName}
+          </Text>
+          <Text className="text-sm font-outfit text-textsecondary mb-1" numberOfLines={1} ellipsizeMode="tail">
+            {Array.isArray(displayCuisines) ? displayCuisines.join(' • ') : displayCuisines}
+          </Text>
+          <Text className="text-sm font-outfit text-textsecondary" numberOfLines={1} ellipsizeMode="tail">
+            {displayArea}
+          </Text>
+        </View>
+        <View className="items-end">
+          <View className="bg-green-600 rounded-lg px-2 py-1 flex-row items-center">
+            <Text className="text-white text-sm font-semibold mr-1">{displayRating.toFixed(1)}</Text>
+            <Text className="text-white text-sm">★</Text>
+          </View>
+          {displaydistance && (
+            <Text className="mt-1.5 font-bold text-xs text-gray-600">
+              {displaydistance.length > 3
+                ? `${displaydistance.toString().slice(0, 3)} km`
+                : `${displaydistance.toString().slice(0, 3)} km`}
+            </Text>
+          )}
+          {displayPrice && displayPrice !== 'N/A' && (
+            <Text className="text-xs font-outfit text-textsecondary mt-1">
+              {typeof displayPrice === 'string' ? displayPrice : `$${displayPrice}`}
+            </Text>
+          )}
+        </View>
+      </View>
+    </TouchableOpacity>
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  card: {
-    borderRadius: 20,
-    overflow: 'hidden',
-    backgroundColor: '#fff',
-    marginBottom: 14,
-    elevation: 4,
-    height: 250,
-  },
-  image: {
-    width: '100%',
-    height: '100%',
-    resizeMode: 'cover'
-  },
-  badge: {
-    position: 'absolute',
-    bottom: 90,
-    left: 10,
-    paddingVertical: 6,
-    paddingHorizontal: 10,
-    borderRadius: 4,
-    width:"90%"
-  },
-  badgeTitle: {
-    color: '#fff',
-    fontSize: 12,
-    fontWeight: '500'
-  },
-  badgeOffer: {
-    color: '#fff',
-    fontSize: 13,
-    fontWeight: 'bold',
-  },
-  content: {
-    backgroundColor: 'white',
-    flexDirection: 'row',
-    padding: 7,
-    bottom: 95,
-    margin: 7,
-    borderRadius: 10,
-    justifyContent: 'space-between',
-  },
-  leftColumn: {
-    flex: 1,
-    marginRight: 10,
-  },
-  rightColumn: {
-    alignItems: 'flex-end',
-  },
-  name: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#1A1A1A',
-    marginBottom: 4,
-  },
-  subtext: {
-    fontSize: 14,
-    color: '#666666',
-    marginBottom: 4,
-  },
-  ratingBox: {
-    backgroundColor: '#048520',
-    borderRadius: 8,
-    paddingVertical: 3,
-    paddingHorizontal: 8,
-    // marginBottom: 5,
-  },
-  ratingText: {
-    color: '#FFFFFF',
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  subinfo: {
-    fontSize: 12,
-    color: '#444',
-    marginTop: 2,
-    fontWeight: 'bold'
-  },
-  promotedBanner: {
-    position: 'absolute',
-    top: 10,
-    left: 10,
-    backgroundColor: 'rgba(0, 0, 0, 0.7)',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 4,
-    zIndex: 1,
-  },
-  promotedText: {
-    color: 'white',
-    fontSize: 12,
-    fontWeight: 'bold',
-  },
-  discountContainer: {
-    position: 'absolute',
-    bottom: 10,
-    left: 10,
-    flexDirection: 'row',
-    zIndex: 1,
-  },
-  offBanner: {
-    backgroundColor: '#e23845',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 4,
-    marginRight: 5,
-  },
-  offText: {
-    color: 'white',
-    fontSize: 12,
-    fontWeight: 'bold',
-  },
-  proExtraBanner: {
-    backgroundColor: '#4CAF50',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 4,
-  },
-  proExtraText: {
-    color: 'white',
-    fontSize: 12,
-    fontWeight: 'bold',
-  },
-  timeContainer: {
-    position: 'absolute',
-    bottom: 10,
-    right: 10,
-    backgroundColor: 'rgba(0, 0, 0, 0.7)',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 4,
-    zIndex: 1,
-  },
-  timeText: {
-    color: 'white',
-    fontSize: 12,
-    fontWeight: 'bold',
-  },
-});
+
 export default DiningCard;

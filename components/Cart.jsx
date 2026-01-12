@@ -3,14 +3,12 @@ import {
   View,
   Text,
   TouchableOpacity,
-  StyleSheet,
   FlatList,
   Image,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useCart } from './CartContext';
 import { useNavigation } from '@react-navigation/native';
-import styles from '../styles/Cart';
 
 const Cart = () => {
   const navigation = useNavigation();
@@ -30,64 +28,64 @@ const renderCustomizationDetails = (item) => {
   if (!item.customization) return null;
   
   return (
-    <View style={styles.customizationDetails}>
-      {item.plan && <Text style={styles.customizationLabel}>Plan: {item.plan.label}</Text>}
+    <View className="mt-2 p-2 bg-gray-50 rounded-lg">
+      {item.plan && <Text className="text-xs color-gray-600 font-outfit mb-1">Plan: {item.plan.label}</Text>}
       {item.dates && (
-        <Text style={styles.customizationLabel}>
+        <Text className="text-xs color-gray-600 font-outfit mb-1">
           Dates: {item.dates.slice(0, 3).join(', ')}
           {item.dates.length > 3 ? ` +${item.dates.length - 3} more` : ''}
         </Text>
       )}
       {item.timeSlots && (
-        <Text style={styles.customizationLabel}>
+        <Text className="text-xs color-gray-600 font-outfit mb-1">
           Time: {item.timeSlots.join(', ')}
         </Text>
       )}
       {item.addons?.length > 0 && (
-        <Text style={styles.customizationLabel}>
+        <Text className="text-xs color-gray-600 font-outfit mb-1">
           Add-ons: {item.addons.map(a => a.label).join(', ')}
         </Text>
       )}
       {item.preferences && Object.keys(item.preferences).length > 0 && (
-        <Text style={styles.customizationLabel}>
+        <Text className="text-xs color-gray-600 font-outfit mb-1">
           Preferences: {Object.entries(item.preferences).map(([key, value]) => `${key}: ${value}`).join(', ')}
         </Text>
       )}
       {item.specialInstructions && (
-        <Text style={styles.customizationLabel}>Notes: {item.specialInstructions}</Text>
+        <Text className="text-xs color-gray-600 font-outfit">Notes: {item.specialInstructions}</Text>
       )}
     </View>
   );
 };
 
   const renderCartItem = ({ item }) => (
-    <View style={styles.cartItem}>
-      <Image source={item.image} style={styles.itemImage} />
-      <View style={styles.itemInfo}>
-        <Text style={styles.itemName}>{item.name}</Text>
+    <View className="bg-white p-4 mb-3 rounded-lg shadow-sm flex-row">
+      <Image source={item.image} className="w-16 h-16 rounded-lg" />
+      <View className="flex-1 ml-3">
+        <Text className="text-base font-outfit-bold color-gray-900">{item.name}</Text>
         {item.description && (
-          <Text style={styles.itemDescription}>{item.description}</Text>
+          <Text className="text-sm color-gray-600 font-outfit mt-1">{item.description}</Text>
         )}
         {renderCustomizationDetails(item)}
-        <Text style={styles.itemPrice}>₹{item.price.toFixed(2)}</Text>
+        <Text className="text-base font-outfit-bold color-primary mt-2">₹{item.price.toFixed(2)}</Text>
       </View>
-      <View style={styles.quantityContainer}>
+      <View className="flex-row items-center bg-gray-100 rounded-lg px-2 py-1 ml-2">
         <TouchableOpacity
-          style={styles.quantityButton}
+          className="p-1"
           onPress={() => decrementQuantity(item.id)}
         >
           <Ionicons name="remove" size={20} color="#4CAF50" />
         </TouchableOpacity>
-        <Text style={styles.quantity}>{item.quantity}</Text>
+        <Text className="text-base font-outfit-bold mx-3 color-gray-900">{item.quantity}</Text>
         <TouchableOpacity
-          style={styles.quantityButton}
+          className="p-1"
           onPress={() => incrementQuantity(item.id)}
         >
           <Ionicons name="add" size={20} color="#4CAF50" />
         </TouchableOpacity>
       </View>
       <TouchableOpacity
-        style={styles.removeButton}
+        className="p-2 ml-2"
         onPress={() => removeFromCart(item.id)}
       >
         <Ionicons name="trash-outline" size={20} color="#F44336" />
@@ -97,46 +95,46 @@ const renderCustomizationDetails = (item) => {
 
   if (cartItems.length === 0) {
     return (
-      <View style={styles.emptyCart}>
+      <View className="flex-1 justify-center items-center bg-gray-50">
         <Ionicons name="cart-outline" size={48} color="#666" />
-        <Text style={styles.emptyCartText}>Your cart is empty</Text>
+        <Text className="text-lg color-gray-600 font-outfit mt-4 mb-6">Your cart is empty</Text>
         <TouchableOpacity
-          style={styles.continueShoppingButton}
+          className="bg-primary py-3 px-6 rounded-lg"
           onPress={() => navigation.goBack()}
         >
-          <Text style={styles.continueShoppingText}>Continue </Text>
+          <Text className="text-white font-outfit-bold text-base">Continue Shopping</Text>
         </TouchableOpacity>
       </View>
     );
   }
 
   return (
-    <View style={styles.container}>
+    <View className="flex-1 bg-gray-50">
       <FlatList
         data={cartItems}
         renderItem={renderCartItem}
         keyExtractor={(item) => item.id}
-        contentContainerStyle={styles.listContent}
+        contentContainerClassName="p-4 pb-32"
       />
-      <View style={styles.summary}>
-        <View style={styles.summaryRow}>
-          <Text style={styles.summaryLabel}>Subtotal</Text>
-          <Text style={styles.summaryValue}>₹{getSubtotal().toFixed(2)}</Text>
+      <View className="bg-white p-4 border-t border-gray-200">
+        <View className="flex-row justify-between mb-2">
+          <Text className="text-base color-gray-600 font-outfit">Subtotal</Text>
+          <Text className="text-base color-gray-900 font-outfit">₹{getSubtotal().toFixed(2)}</Text>
         </View>
-        <View style={styles.summaryRow}>
-          <Text style={styles.summaryLabel}>Discount</Text>
-          <Text style={styles.summaryValue}>-₹{getDiscount().toFixed(2)}</Text>
+        <View className="flex-row justify-between mb-2">
+          <Text className="text-base color-gray-600 font-outfit">Discount</Text>
+          <Text className="text-base color-gray-900 font-outfit">-₹{getDiscount().toFixed(2)}</Text>
         </View>
-        <View style={[styles.summaryRow, styles.totalRow]}>
-          <Text style={styles.totalLabel}>Total</Text>
-          <Text style={styles.totalValue}>₹{getTotal().toFixed(2)}</Text>
+        <View className="flex-row justify-between mb-4 pt-2 border-t border-gray-200">
+          <Text className="text-lg font-outfit-bold color-gray-900">Total</Text>
+          <Text className="text-lg font-outfit-bold color-primary">₹{getTotal().toFixed(2)}</Text>
         </View>
       </View>
       <TouchableOpacity
-        style={styles.checkoutButton}
+        className="bg-primary py-4 mx-4 mb-4 rounded-lg items-center"
         onPress={() => navigation.navigate('Checkout')}
       >
-        <Text style={styles.checkoutButtonText}>Proceed to Checkout</Text>
+        <Text className="text-white font-outfit-bold text-base">Proceed to Checkout</Text>
       </TouchableOpacity>
     </View>
   );

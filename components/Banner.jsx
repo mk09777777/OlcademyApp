@@ -3,7 +3,6 @@ import {
   View, 
   Image, 
   TouchableOpacity, 
-  StyleSheet, 
   Dimensions, 
   FlatList,
   ActivityIndicator,
@@ -119,11 +118,12 @@ const BannerCarousel = ({ page }) => {
     <TouchableOpacity 
       activeOpacity={0.9} 
       onPress={() => handleClick(item)}
-      style={styles.slide}
+      className="justify-center items-center bg-transparent h-25"
+      style={{ width: windowWidth }}
     >
       <Image
         source={{ uri: item.photoApp }}
-        style={styles.carouselImage}
+        className="w-full h-full rounded-lg"
         resizeMode="contain"
       />
     </TouchableOpacity>
@@ -133,30 +133,29 @@ const BannerCarousel = ({ page }) => {
     if (validBanners.length <= 1) return null;
     
     return (
-      <View style={styles.pagination}>
+      <View className="absolute bottom-2 flex-row self-center">
         {validBanners.map((_, index) => (
           <View 
             key={index}
-            style={[
-              styles.paginationDot,
-              index === currentIndex ? styles.paginationDotActive : null
-            ]}
+            className={`w-2 h-2 rounded-full m-1 ${
+              index === currentIndex ? 'bg-black' : 'bg-gray-300'
+            }`}
           />
         ))}
       </View>
     );
   };
 
-  if (loading) return <ActivityIndicator style={styles.loadingContainer} size="large" />;
+  if (loading) return <ActivityIndicator className="h-25 justify-center items-center" size="large" />;
   if (error) return (
-    <View style={styles.errorContainer}>
+    <View className="h-25 bg-red-50 justify-center items-center p-5">
       <Text>Error loading banners</Text>
     </View>
   );
   if (validBanners.length === 0) return null;
 
   return (
-    <View style={styles.carouselContainer}>
+    <View className="my-2 relative">
       <FlatList
         ref={flatListRef}
         data={validBanners}
@@ -181,53 +180,6 @@ const BannerCarousel = ({ page }) => {
   );
 };
 
-const styles = StyleSheet.create({
-  carouselContainer: { 
-    marginVertical: 10,
-    // height: 110, 
-    position: 'relative',
-  },
-  slide: {
-    width: Dimensions.get("window").width,
-    height: 100,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "transparent",
-    // marginHorizontal: 20,
-  },
-  carouselImage: {
-    width: "100%",
-    height: "100%",
-    borderRadius: 8,
-  },
-  loadingContainer: {
-    height: 100,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  errorContainer: {
-    height: 100,
-    backgroundColor: "#ffebee",
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 20,
-  },
-  pagination: {
-    position: 'absolute',
-    bottom: 10,
-    flexDirection: 'row',
-    alignSelf: 'center',
-  },
-  paginationDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: '#ccc',
-    margin: 5,
-  },
-  paginationDotActive: {
-    backgroundColor: '#000',
-  },
-});
+
 
 export default BannerCarousel;

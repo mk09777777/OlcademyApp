@@ -1,14 +1,13 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import {
   View,
   Text,
   TouchableOpacity,
-  SafeAreaView,
-  StyleSheet,
   ScrollView,
   FlatList,
   Alert,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { TextInput } from 'react-native-paper';
 import { useRouter } from 'expo-router';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
@@ -23,15 +22,40 @@ import BackRouting from "@/components/BackRouting";
 
 export default function SelectLocation({ placeholder = "Enter area, landmark ...", query, setQuery }) {
   const { safeNavigation } = useSafeNavigation();
-  const { setLocation, recentlyAdds, setRecentlyAdds } = useLocationContext();
+  const { updateLocation, recentlyAdds, setRecentlyAdds, refreshLocation, locationMetadata, resetToGPS } = useLocationContext();
 
   const [localQuery, setLocalQuery] = useState(query || '');
   const [loading, setLoading] = useState(false);
   const [region, setRegion] = useState();
   const [suggestions, setSuggestions] = useState([]);
-  const [debounceTimer, setDebounceTimer] = useState(null);
+  const debounceTimerRef = useRef(null);
+  const isMountedRef = useRef(false);
+  const suggestionsRequestRef = useRef(null);
+  const suggestionsRequestIdRef = useRef(0);
+
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+        debounceTimerRef.current = null;
+      }
+      if (suggestionsRequestRef.current) {
+        suggestionsRequestRef.current.abort();
+        suggestionsRequestRef.current = null;
+      }
+    };
+  }, []);
 
   const fetchSuggestions = async (text) => {
+    const requestId = ++suggestionsRequestIdRef.current;
+    if (suggestionsRequestRef.current) {
+      suggestionsRequestRef.current.abort();
+    }
+    const controller = new AbortController();
+    suggestionsRequestRef.current = controller;
+
     try {
       const res = await axios.get(
         `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(text)}&format=json&addressdetails=1`,
@@ -39,15 +63,28 @@ export default function SelectLocation({ placeholder = "Enter area, landmark ...
           headers: {
             'User-Agent': 'tiffinuser/1.0.0 (mayurvicky01234@gmail.com)',
           },
+          signal: controller.signal,
         }
       );
+      if (!isMountedRef.current || requestId !== suggestionsRequestIdRef.current) return;
       setSuggestions(res.data);
     } catch (err) {
+      // Ignore aborts; they are expected during fast typing/navigation.
+      if (err?.name === 'CanceledError' || err?.name === 'AbortError' || err?.code === 'ERR_CANCELED') return;
       console.error('Error fetching suggestions', err);
     }
   };
 
   const handleSuggestionSelect = async (item) => {
+    if (suggestionsRequestRef.current) {
+      suggestionsRequestRef.current.abort();
+      suggestionsRequestRef.current = null;
+    }
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+      debounceTimerRef.current = null;
+    }
+
     const address = item.address || {};
     const { city, town, village, suburb, county, state, country } = address;
     const selectedCity = item.city || city || town || village || suburb || county || 'Unknown';
@@ -68,7 +105,7 @@ export default function SelectLocation({ placeholder = "Enter area, landmark ...
       houseNumber: '',
     };
 
-    setLocation(locationData);
+  await updateLocation(locationData, 'manual');
 
     try {
       const existing = await AsyncStorage.getItem('recentlyAddList');
@@ -109,72 +146,13 @@ export default function SelectLocation({ placeholder = "Enter area, landmark ...
   const getCurrentLocation = async () => {
     try {
       setLoading(true);
-      const { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== 'granted') {
-        Alert.alert('Permission Denied', 'Location permission is required to use this feature');
-        return;
+      // Use LocationContext instead of direct GPS call
+      const locationData = await refreshLocation(true);
+      if (locationData && locationData.lat) {
+        safeNavigation('/home');
+      } else {
+        Alert.alert('Error', 'Could not get current location. Please try again.');
       }
-
-      const { coords } = await Location.getCurrentPositionAsync({});
-      setRegion(coords);
-      
-      // Try to get detailed address information using reverse geocoding
-      try {
-        const reverseGeocode = await Location.reverseGeocodeAsync({
-          latitude: coords.latitude,
-          longitude: coords.longitude,
-        });
-        
-        if (reverseGeocode.length > 0) {
-          const location = reverseGeocode[0];
-          const locationData = {
-            city: location.city || '',
-            state: location.region || '',
-            country: location.country || '',
-            lat: coords.latitude.toString(),
-            lon: coords.longitude.toString(),
-            fullAddress: `${location.name || ''} ${location.street || ''}, ${location.city || ''}, ${location.region || ''}, ${location.country || ''}`.trim(),
-            area: location.district || '',
-            street: location.street || '',
-            houseNumber: location.name || '',
-            display_name: `${location.name || ''} ${location.street || ''}, ${location.city || ''}, ${location.region || ''}, ${location.country || ''}`.trim(),
-          };
-          
-          setLocation(locationData);
-          
-          // Save to recent locations
-          try {
-            const existing = await AsyncStorage.getItem('recentlyAddList');
-            let parsed = existing ? JSON.parse(existing) : [];
-            parsed = parsed.filter(i => i.fullAddress !== locationData.fullAddress);
-            parsed.unshift(locationData);
-            if (parsed.length > 5) parsed = parsed.slice(0, 5);
-            await AsyncStorage.setItem('recentlyAddList', JSON.stringify(parsed));
-            setRecentlyAdds(parsed);
-          } catch (err) {
-            console.error("Failed to update recent list", err);
-          }
-        }
-      } catch (reverseError) {
-        console.log('Reverse geocoding failed:', reverseError);
-        // Fallback: Use coordinates only
-        const locationData = {
-          city: '',
-          state: '',
-          country: '',
-          lat: coords.latitude.toString(),
-          lon: coords.longitude.toString(),
-          fullAddress: `Lat: ${coords.latitude.toFixed(6)}, Lon: ${coords.longitude.toFixed(6)}`,
-          area: '',
-          street: '',
-          houseNumber: '',
-          display_name: `Lat: ${coords.latitude.toFixed(6)}, Lon: ${coords.longitude.toFixed(6)}`,
-        };
-        
-        setLocation(locationData);
-      }
-      
-      safeNavigation('/home');
     } catch (err) {
       console.error('Location error:', err);
       Alert.alert('Error', 'Could not get current location. Please check your internet connection and try again.');
@@ -184,23 +162,37 @@ export default function SelectLocation({ placeholder = "Enter area, landmark ...
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <BackRouting style={{ backgroundColor: '#f0f0f0'  }} title='Select Location' />
-      <ScrollView keyboardShouldPersistTaps="handled" style={styles.container} >
-        <View style={styles.searchContainer}>
+    <SafeAreaView className="flex-1 bg-white">
+      <BackRouting className="bg-white" tittle='Select Location' />
+      <ScrollView keyboardShouldPersistTaps="handled" className="bg-white">
+        {/* <Text className="text-xl font-outfit-bold color-gray-800 p-4">Select Location</Text> */}
+        <View className="p-4">
           <TextInput
             mode="outlined"
             placeholder={placeholder}
             value={localQuery}
             onChangeText={(text) => {
               setLocalQuery(text);
-              if (debounceTimer) clearTimeout(debounceTimer);
-              setDebounceTimer(setTimeout(() => {
-                text.length > 2 ? fetchSuggestions(text) : setSuggestions([]);
-              }, 500));
+              if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
+              debounceTimerRef.current = setTimeout(() => {
+                if (!isMountedRef.current) return;
+                if (text.length > 2) {
+                  fetchSuggestions(text);
+                } else {
+                  // Cancel in-flight requests and clear results.
+                  if (suggestionsRequestRef.current) {
+                    suggestionsRequestRef.current.abort();
+                    suggestionsRequestRef.current = null;
+                  }
+                  setSuggestions([]);
+                }
+              }, 500);
             }}
-            style={styles.searchInput}
-            theme={{ colors: { text: '#000' } }}
+            className="bg-white"
+            theme={{
+              colors: { text: '#000', onSurface: '#000', primary: '#E41E3F', placeholder: '#666' }
+            }}
+            placeholderTextColor="#666"
             left={<TextInput.Icon icon="magnify" />}
             right={
               loading ? (
@@ -224,50 +216,73 @@ export default function SelectLocation({ placeholder = "Enter area, landmark ...
         <FlatList
           data={suggestions}
           keyExtractor={item => item.place_id.toString()}
-          style={styles.suggestionList}
+          className="mx-4"
           renderItem={({ item }) => (
             <TouchableOpacity
-              style={styles.suggestionItem}
+              className="flex-row items-center p-4 border-b border-gray-100"
               onPress={() => handleSuggestionSelect({ ...item, id: item.place_id })}
             >
-              <Text style={styles.suggestionText}>{item.display_name}</Text>
+              <Text className="flex-1 text-sm font-outfit color-gray-800">{item.display_name}</Text>
             </TouchableOpacity>
           )}
         />
 
-        <View style={{ backgroundColor: "#fff", marginLeft: 20, marginRight: 20, borderRadius: 10, elevation: 3 }}>
+        <View className="bg-white mx-5 rounded-2.5 shadow-md">
           <TouchableOpacity
-            style={styles.addBtn}
-            onPress={() => safeNavigation({ pathname: '/MapPicker' })}
+            className="bg-primary mx-5 p-2 rounded-lg mb-2.5 items-center justify-center flex-row mt-2.5"
+            onPress={() => safeNavigation({ pathname: '/screens/MapPicker' })}
           >
-            <Text style={{ color: 'white', fontSize: 26 }}>+</Text>
-            <Text style={styles.addBtnTxt}> Add Address</Text>
+            <Text className="text-white text-2xl font-outfit-bold">+</Text>
+            <Text className="text-white font-outfit-bold"> Add Address</Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={styles.useLocationBtn}
+            className="bg-blue-50 p-3 mx-5 rounded-lg mb-2.5 items-center mt-1"
             onPress={getCurrentLocation}
           >
-            <Text style={styles.useLocationTxt}>{loading ? 'Fetching...' : '📍 Use Current Location'}</Text>
+            <Text className="color-gray-800 font-outfit-bold text-base">{loading ? 'Fetching...' : '📍 Use Current Location'}</Text>
           </TouchableOpacity>
+          {locationMetadata?.source === 'manual' && (
+            <TouchableOpacity
+              className="bg-gray-100 p-3 mx-5 rounded-lg mb-2.5 items-center mt-1"
+              onPress={async () => {
+                setLoading(true);
+                try {
+                  const result = await resetToGPS();
+                  if (result) {
+                    Alert.alert('Success', 'Switched back to GPS location');
+                    safeNavigation('/home');
+                  } else {
+                    Alert.alert('Error', 'Could not get GPS location');
+                  }
+                } catch (err) {
+                  Alert.alert('Error', 'Failed to reset to GPS');
+                } finally {
+                  setLoading(false);
+                }
+              }}
+            >
+              <Text className="color-gray-600 font-outfit-bold text-sm">🔄 Reset to GPS Location</Text>
+            </TouchableOpacity>
+          )}
         </View>
 
-        <View style={styles.separatorRow}>
-          <View style={styles.line} />
-          <Text style={styles.separatorText}>Recent locations</Text>
-          <View style={styles.line} />
+        <View className="flex-row items-center mt-7.5 mb-2.5">
+          <View className="flex-1 h-0.5 bg-gray-300" />
+          <Text className="text-lg color-gray-400 mx-2 font-outfit-bold">Recent locations</Text>
+          <View className="flex-1 h-0.5 bg-gray-300" />
         </View>
 
         <FlatList
           data={recentlyAdds}
           keyExtractor={(item, index) => index.toString()}
           renderItem={({ item }) => (
-            <TouchableOpacity onPress={() => handleSuggestionSelect(item)} style={styles.RecentlyContainer}>
-              <View style={{ justifyContent: "center", alignItems: "center" }}>
-                <FontAwesome6 name="clock" size={20} color="#999999" style={styles.Logo} />
+            <TouchableOpacity onPress={() => handleSuggestionSelect(item)} className="flex-row bg-white rounded-2.5 mx-5 mt-2 p-2.5 shadow-md mb-2.5">
+              <View className="justify-center items-center">
+                <FontAwesome6 name="clock" size={20} color="#999999" className="ml-1 mr-4" />
               </View>
-              <View style={styles.RecentlyTextContainer}>
-                <Text style={styles.RecText1}>{item.city || 'Unknown City'}</Text>
-                <Text style={styles.RecText2}>{item.fullAddress}</Text>
+              <View className="flex-col mr-10">
+                <Text className="color-gray-800 text-base font-outfit-medium">{item.city || 'Unknown City'}</Text>
+                <Text className="color-gray-800 text-sm font-outfit mt-1">{item.fullAddress}</Text>
               </View>
             </TouchableOpacity>
           )}
@@ -277,11 +292,12 @@ export default function SelectLocation({ placeholder = "Enter area, landmark ...
   );
 }
 
+/* COMMENTED OUT STYLESHEET - CONVERTED TO NATIVEWIND
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#ffffffff',paddingTop:10, },
-  header: { fontSize: 20, fontWeight: '600', margin: 20 },
+  container: { flex: 1, backgroundColor: '#ffffff' },
+  header: { fontSize: 20, fontWeight: '600', margin: 20, fontFamily: 'outfit-medium' },
   searchContainer: { paddingHorizontal: 20, marginBottom: 10, borderRadius: 20 },
-  searchInput: { backgroundColor: '#fff', fontFamily:'outfit-medium', fontSize:15, },
+  searchInput: { backgroundColor: '#ffffff', fontFamily:'outfit-medium', fontSize:15, },
   addBtn: {
     backgroundColor: '#e41e3f',
     marginHorizontal: 20,
@@ -293,7 +309,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     marginTop: 10
   },
-  addBtnTxt: { color: '#fff' ,fontFamily:'outfit-bold', fontSize:14,},
+  addBtnTxt: { color: '#fff', fontWeight: 'bold', fontFamily: 'outfit-bold', },
   suggestionList: { backgroundColor: '#fff', maxHeight: 150, marginHorizontal: 20 },
   suggestionItem: { padding: 10, borderBottomWidth: 1, borderBottomColor: '#ddd' },
   suggestionText: { color: '#000' ,fontFamily:'outfit-bold', fontSize:14,},
@@ -306,7 +322,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 3
   },
-  useLocationTxt: { color: '#000', fontSize: 15 ,fontFamily:'outfit-bold'},
+  useLocationTxt: { color: '#000', fontWeight: 'bold', fontSize: 15, fontFamily: 'outfit' },
   separatorRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -318,7 +334,8 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: '#999999',
     marginHorizontal: 7,
-    fontFamily:'outfit-bold'
+    fontWeight: "500",
+    fontFamily: 'outfit-bold',
   },
   RecentlyContainer: {
     flexDirection: "row",
@@ -341,13 +358,16 @@ const styles = StyleSheet.create({
   RecText1: {
     color: "black",
     fontSize: 16,
-        fontFamily:'outfit-bold',
+    fontWeight: "500",
+    fontFamily: 'outfit-medium',
   },
   RecText2: {
     color: "black",
-        fontFamily:'outfit-medium',
+    fontFamily:'outfit-medium',
     fontSize: 14,
     fontWeight: "400",
-    marginTop: 4
+    marginTop: 4,
+    fontFamily: 'outfit-medium',
   }
 });
+*/

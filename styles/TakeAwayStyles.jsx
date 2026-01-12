@@ -7,7 +7,7 @@ export const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: 'white',
-    padding: 15
+    padding: 5
   },
   topContainer: {
     flexDirection: 'row',
@@ -27,6 +27,7 @@ export const styles = StyleSheet.create({
   locationAddress: {
     fontFamily: 'outfit',
     fontSize: 14,
+    fontFamily: 'outfit',
     color: 'gray'
   },
   offerBanner: {
@@ -37,7 +38,6 @@ export const styles = StyleSheet.create({
   },
   searchAndVegContainer: {
     flexDirection: 'row',
-    alignItems: 'center',
     justifyContent: 'space-between',
     marginTop: 0,
     minHeight: 0,
@@ -63,21 +63,27 @@ export const styles = StyleSheet.create({
    vegFilterContainer: {
     flexDirection: "column",
     alignItems: 'center',
-    justifyContent:"flex-start"
-
+    justifyContent:"flex-start",
+    marginLeft: 10,
   },  
   vegFilterText: {
     // marginLeft: 10, // If you uncomment this, it adds space from the icon
     fontSize: 14,
+    fontFamily: 'outfit',
     fontWeight: 'bold',
     color: '#333',
+    textAlign: 'center',
+    fontFamily: 'outfit',
+    fontWeight: '500',
   },
    vegFilterText2: {
     // marginLeft: 10, // If you uncomment this, it adds space from the icon
     fontSize: 12,
+    fontFamily: 'outfit',
     fontWeight: '900',
     color: '#333',
-    marginBottom:0
+    textAlign: 'center',
+    fontFamily: 'outfit',
   },
   // veg On Modal
   VegBack:{
@@ -92,6 +98,7 @@ export const styles = StyleSheet.create({
     height:90,
   },
   VegText:{
+    fontFamily: 'outfit',
     fontSize:16,
     color:"black",
     fontWeight:"600",
@@ -150,18 +157,18 @@ export const styles = StyleSheet.create({
   separatorRow: {
 		flexDirection: 'row',
 		alignItems: 'center',
-		marginTop: 10,
+		marginTop: 0,
     marginBottom: 10
 	  },
   line: {
     flex: 1,
     height: 1,
-    backgroundColor: '#ccc',
+    backgroundColor: '#FF002E',
   },
 	separatorText: {
 		fontFamily: 'outfit',
-		fontSize: 14,
-		color: '#ccc',
+		fontSize: 13,
+		color: '#222222',
     marginHorizontal: 7
 	},
   filterContainer: {
@@ -178,6 +185,7 @@ export const styles = StyleSheet.create({
     borderColor: '#e23845',
   },
   filterText: {
+    fontFamily: 'outfit-medium',
     fontSize: 14,
     fontWeight: '500',
   },

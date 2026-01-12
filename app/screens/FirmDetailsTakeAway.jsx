@@ -1,12 +1,19 @@
 import { View, Text, TouchableOpacity, FlatList, Image, Modal, ActivityIndicator, Alert, ScrollView } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { LinearGradient } from 'expo-linear-gradient';
 import React, { useEffect, useState } from 'react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { styles } from '@/styles/FirmDetailsTakeAwayStyles';
 import axios from 'axios';
-import { AntDesign, FontAwesome, FontAwesome5, Ionicons, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
+import { AntDesign, FontAwesome, FontAwesome5, Ionicons, MaterialCommunityIcons, MaterialIcons, Feather } from '@expo/vector-icons';
 import { useCart } from '@/context/CartContext';
 import ImageGallery from '@/components/ImageGallery';
+import OffersCard from '@/components/OffersCard';
+import { useSafeNavigation } from "@/hooks/navigationPage";
+
+
+
 import { API_CONFIG } from '../../config/apiConfig';
+const API_BASE_URL = API_CONFIG.BACKEND_URL;
 const API_URL = API_CONFIG.BACKEND_URL;
 
 const filtersData = {
@@ -42,57 +49,20 @@ export default function FirmDetailsTakeAway() {
   const [firmDetails, setFirmDetails] = useState(null);
   const [toggleBookmark, setToggleBookmark] = useState(false);
   const [offersVisible, setOffersVisible] = useState(false);
-  const [filterVisible, setFilterVisible] = useState(false);
+  const { safeNavigation } = useSafeNavigation();
+
   const [expandedOffer, setExpandedOffer] = useState(null);
-  const [isExpanded, setIsExpanded]=useState();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [offers, setOffers] = useState([
-    {
-      _id: "1",
-      name: "Caffè Coco",
-      code: "Coco24",
-      offerType: "percentage",
-      discountValue: 11,
-      minOrder: "₹300"
-    },
-    {
-      _id: "2",
-      name: "Italy",
-      code: "Italy24",
-      offerType: "flat",
-      discountValue: 16,
-      minOrder: "₹500"
-    }
-  ]);
-
-  const filters = [
-    { name: "Filter", icon: "filter" },
-    { name: "Veg", icon: "leaf" },
-    { name: "Non-veg", icon: "nutrition" },
-    { name: "Spicy", icon: "flame" },
-    { name: "Popular", icon: "trending-up" }
+  const offers = [
+    { id: 1, title: "Flat 10% Off on Orders Above 399", validity: "Valid till 15th February" },
+    { id: 2, title: "Flat 20% Off on Orders Upto 200", validity: "Valid till 28th February" },
+    { id: 3, title: "Items @99", validity: "Valid Today" }
   ];
-
-  useEffect(() => {
-    const fetchOffers = async () => {
-      try {
-        const response = await fetch(
-          `${API_URL}/api/offers/takeaway/offer/${firmId}`
-        );
-        const data = await response.json();
-        console.log(data, "offerdata");
-        setOffers(data);
-      } catch (error) {
-        console.error("Error fetching offers:", error);
-      }
-    };
-    fetchOffers();
-  }, []);
 
   const fetchRestaurantDetails = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`${API_URL}/firm/getOne/${firmId}`, {
+      const response = await axios.get(`${API_BASE_URL}/firm/getOne/${firmId}`, {
         timeout: 5000,
       });
       setFirmDetails(response.data);
@@ -110,7 +80,7 @@ export default function FirmDetailsTakeAway() {
     try {
       setLoading(true);
       const response = await axios.get(
-        `${API_URL}/firm/restaurants/menu-sections-items/${firmId}`,
+        `${API_BASE_URL}/firm/restaurants/menu-sections-items/${firmId}`,
         { timeout: 5000 }
       );
 
@@ -159,37 +129,18 @@ export default function FirmDetailsTakeAway() {
   };
 
 
-const UploadRecentlyViewd = async () => {
-  try {
-    const restId = firmId;
-    if (!restId) {
-      console.warn("No restaurant ID available for recently viewed tracking");
-      return;
-    }
-
-    const response = await axios.post(
-      `${API_URL}/firm/recently-viewed/${restId}`,
-      {},
-      { 
-        withCredentials: true,
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      }
-    );
-
-    if (response.status !== 200 && response.status !== 201) {
-      throw new Error(`Unexpected status code: ${response.status}`);
-    }
-
-    console.log("Recently viewed uploaded successfully:", response.data);
-  } catch (err) {
-    console.error("Failed to upload recently viewed:", err);
-    if (err.response) {
-      console.error("Response data:", err.response.data);
+  const UploadRecentlyViewd = async () => {
+    try {
+      const restId = firmId
+      if (!restId) return
+      await axios.post(`${API_URL}/firm/recently-viewed/${restId}`, null, {
+        withCredentials: true
+      });
+      console.log("recently viewed uploaded successfully")
+    } catch (err) {
+      console.error("Failed to upload recently viewed:", err)
     }
   }
-};
 
 
   useEffect(() => {
@@ -221,8 +172,6 @@ const UploadRecentlyViewd = async () => {
         return items.map(item => ({
           ...item,
           _id: item._id || Math.random().toString(36).substr(2, 9),
-          categoryId:tab.categoryId,
-          subcategoryId:item.subcategoryId,
           category: section.name || tab.name || 'Uncategorized',
           productName: item.name || 'Unnamed Item',
           description: item.description || '',
@@ -259,40 +208,6 @@ const UploadRecentlyViewd = async () => {
   const [selectedFilter, setSelectedFilter] = useState([]);
   const [addError, setAddError] = useState(null);
 
-  const toggleFilter = (category, filterId) => {
-    setFilter((prevFilters) => ({
-      ...prevFilters,
-      [category]: prevFilters[category].map((filter) =>
-        filter.id === filterId ? { ...filter, selected: !filter.selected } : filter
-      ),
-    }));
-  };
-
-  const clearFilters = () => {
-    setFilter((prevFilters) =>
-      Object.keys(prevFilters).reduce((acc, category) => {
-        acc[category] = prevFilters[category].map((filter) => ({
-          ...filter,
-          selected: false,
-        }));
-        return acc;
-      }, {})
-    );
-  };
-
-  const handleFilterPress = (filterName) => {
-    if (filterName === 'Filter') {
-      setFilterVisible(true);
-    } else {
-      setSelectedFilter((prevFilters) =>
-        prevFilters.includes(filterName)
-          ? prevFilters.filter((filter) => filter !== filterName)
-          : [...prevFilters, filterName]
-      );
-    }
-  };
-
-  const selectedCount = Object.values(filter).flat().filter((f) => f.selected).length;
 
   const renderItem = ({ item }) => {
     const cartItems = getCartItems();
@@ -310,14 +225,10 @@ const UploadRecentlyViewd = async () => {
             : item.price)
           : 8;
 
-        // if (isNaN(priceValue) || priceValue <= 0) {
-        //   throw new Error('Invalid price value');
-        // }
-
         const cartItem = {
           itemToAdd: {
-            subcategoryId: item.subcategoryId,
-            categoryId: item?.categoryId,
+            subcategoryId: null,
+            categoryId: "507f1f77bcf86cd799439011",
             productId: item?._id || item?.id,
             name: item?.productName || item?.name || 'Unknown Item',
             description: item?.description || '',
@@ -354,80 +265,82 @@ const UploadRecentlyViewd = async () => {
     };
 
     return (
-      <View style={styles.itemContainer}>
-        <View style={styles.imageContainer}>
-          <Image
-            source={item?.image_urls?.[0]
-              ? { uri: item.image_urls[0] }
-              : require('@/assets/images/food_placeholder.jpg')}
-            style={styles.image}
-          />
-          <View style={styles.cartControls}>
+      <View className="mx-3 mb-3 p-3 bg-gray-50 border border-gray-200 rounded-xl">
+        <View className="flex-row p-4 bg-white rounded-lg shadow-sm">
+          <View className="w-32 h-40 mr-4">
+            <Image
+              source={item?.image_urls?.[0]
+                ? { uri: item.image_urls[0] }
+                : require('@/assets/images/food_placeholder.jpg')}
+              className="w-full h-full rounded-lg"
+            />
+          </View>
+
+          <View className="flex-1">
+            <Text className="text-textprimary font-outfit-bold text-base mb-1">{item?.productName || item?.name || 'Unnamed Item'}</Text>
+            <Text className="text-textprimary font-outfit-bold text-md mb-1">{item?.price || 'Price not available'}</Text>
+            <Text className="text-textsecondary font-outfit text-sm mb-2">{item?.description || ''}</Text>
+
+            {item.variations?.length > 0 && (
+              <View className="mb-2">
+                {item.variations.map((variation, index) => (
+                  <Text key={index} className="text-textsecondary font-outfit text-xs">
+                    {variation.name}: {variation.price}
+                  </Text>
+                ))}
+              </View>
+            )}
+
             {quantity > 0 ? (
-              <View style={styles.quantityControls}>
+              <View className="bg-light border-primary flex-row border-2 rounded-lg justify-center items-center">
                 <TouchableOpacity onPress={handleDecrement}>
-                  <Text style={styles.controlButton}>-</Text>
+                  <Text className="text-primary font-outfit-bold text-lg px-3 py-1">-</Text>
                 </TouchableOpacity>
-                <Text style={styles.quantityText}>{quantity}</Text>
-                <TouchableOpacity onPress={handleAdd} activeOpacity={1.0}>
-                  <Text style={styles.controlButton}>+</Text>
+                <Text className="text-primary font-outfit-bold text-base px-3">{quantity}</Text>
+                <TouchableOpacity onPress={handleIncrement}>
+                  <Text className="text-primary font-outfit-bold text-lg px-3 py-1">+</Text>
                 </TouchableOpacity>
               </View>
             ) : (
-              <TouchableOpacity
-                style={styles.addButton}
-                onPress={handleAdd}
-                activeOpacity={1.0}
-              >
-                <Text style={styles.addButtonText}>ADD</Text>
+              <TouchableOpacity className="bg-light border-primary border-2 px-4 py-2 rounded-lg items-center" onPress={handleAdd} activeOpacity={1.0}>
+                <Text className="text-primary font-outfit-bold text-sm">ADD</Text>
               </TouchableOpacity>
             )}
           </View>
-        </View>
-        <View style={styles.details}>
-          <Text style={styles.title}>{item?.productName || item?.name || 'Unnamed Item'}</Text>
-          <Text style={styles.description}>{item?.description || ''}</Text>
-          <Text style={styles.price}>{item?.price || 'Price not available'}</Text>
-          {item.variations?.length > 0 && (
-            <View style={styles.variationsContainer}>
-              {item.variations.map((variation, index) => (
-                <Text key={index} style={styles.variationText}>
-                  {variation.name}: {variation.price}
-                </Text>
-              ))}
-            </View>
-          )}
         </View>
       </View>
     );
   };
 
+
   if (loading) {
     return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#0000ff" />
-      </View>
+      <SafeAreaView className="flex-1 justify-center items-center bg-[#f0fafaff]">
+        <ActivityIndicator size="large" color="#02757A" />
+        <Text className="text-textsecondary font-outfit mt-4">Loading service details...</Text>
+      </SafeAreaView>
     );
   }
 
   if (error) {
     return (
-      <View style={styles.errorContainer}>
-        <Text style={styles.errorText}>{error}</Text>
+      <View className="flex-1 justify-center items-center bg-background p-4">
+        <Text className="text-primary text-center font-outfit mb-4">{error}</Text>
         <TouchableOpacity
-          style={styles.retryButton}
+          className="bg-primary px-6 py-3 rounded-lg"
           onPress={() => router.back()}
         >
-          <Text style={styles.retryButtonText}>Go Back</Text>
+          <Text className="text-white font-outfit-bold">Go Back</Text>
         </TouchableOpacity>
       </View>
     );
   }
 
   return (
-    <View style={styles.container}>
-      <View style={{ height: 180 }}>
+    <View className="flex-1 bg-background">
+  <View className="h-64 overflow-hidden ">
         <ImageGallery
+          style={{ backgroundColor: "rgba(0, 0, 0, 0.63)" }}
           images={
             firmDetails?.image_urls?.length > 0
               ? firmDetails.image_urls
@@ -436,227 +349,252 @@ const UploadRecentlyViewd = async () => {
           currentIndex={currentImageIndex}
           onIndexChange={(index) => setCurrentImageIndex(index)}
         />
-      </View>
+        <LinearGradient
+          colors={['transparent', 'rgba(0, 0, 0, 0.8)']}
+          className="absolute inset-0"
+          start={{ x: 0.5, y: 0.5 }}
+          end={{ x: 0.5, y: 1 }}
+        />
 
-      <View style={styles.upperPannel}>
-        <TouchableOpacity onPress={() => router.back()}>
-          <Ionicons name='chevron-back' size={30} />
-        </TouchableOpacity>
-
-        <View style={styles.rightPannel}>
-          <TouchableOpacity>
-            <AntDesign name='sharealt' size={30} />
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => setToggleBookmark(!toggleBookmark)}
-            style={{ marginLeft: 10 }}
-          >
-            {toggleBookmark ?
-              <Ionicons name='bookmark' size={30} /> :
-              <Ionicons name='bookmark-outline' size={30} />
-            }
+        <View className="absolute top-4 left-4 right-4 flex-row justify-between items-center z-10">
+          <TouchableOpacity onPress={() => router.back()} className="rounded-full bg-black/40 p-2 items-center justify-center">
+            <Ionicons name='chevron-back' size={28} color='white' />
           </TouchableOpacity>
         </View>
-      </View>
 
-      <View style={styles.bttomPannel}>
-        <View>
-          <TouchableOpacity
-            onPress={() => router.push({
-              pathname: '/screens/RestaurantDetailsScreen',
-              params: { restaurant: JSON.stringify(firmDetails) }
-            })}
-          >
-            <Text style={styles.restaurantName}>
-              {firmDetails?.restaurantInfo?.name || "Restaurant"}
-            </Text>
-          </TouchableOpacity>
-          <Text style={styles.restaurantAddress}>
-            {firmDetails?.restaurantInfo?.address}
-          </Text>
-          <View style={styles.cuisineContainer}>
-            <Text style={styles.cuisineText}>
-              {firmDetails?.restaurantInfo?.cuisines?.join(", ")}
-            </Text>
-          </View>
-        </View>
-        <TouchableOpacity
-          onPress={() => router.push({
-            pathname: "/screens/Reviewsall",
-            params: {
-              firmId: firmId,
-              restaurantName: firmDetails?.restaurantInfo?.name,
-              averageRating: firmDetails?.restaurantInfo?.ratings?.overall,
-              reviewCount: firmDetails?.restaurantInfo?.ratings?.totalReviews,
-              reviewType:"takeaway"
-            }
-          })}
-          style={styles.reviewBox}
+        <View
+          className="absolute bottom-3 left-0 right-0 h-[60%] flex-row justify-between items-center"
+          style={{ zIndex: 20, elevation: 12 }}
         >
-          <View style={styles.reviewBoxTopContainer}>
-            <View style={styles.reviewBoxUpperContainer}>
-              <Text style={styles.reviewText}>
-                {firmDetails?.restaurantInfo?.ratings?.overall || "4.5"}
-              </Text>
-              <FontAwesome name="star" size={24} color="white" />
+          <LinearGradient
+            colors={['rgba(0,0,0,0)',
+    'rgba(0,0,0,0.59)',
+    'rgba(0,0,0,0.6)',]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 0, y: 1 }}
+            style={{
+              flexDirection: "row",
+              width: "100%",
+              justifyContent: "space-between",
+              zIndex: 20,
+            }}
+          >
+            <View className="w-[80%] px-6 mb-3 mt-14">
+
+              <View>
+                <TouchableOpacity
+                  onPress={() => safeNavigation({
+                    pathname: '/screens/RestaurantDetailsScreen',
+                    params: { restaurant: JSON.stringify(firmDetails) }
+                  })}
+                >
+                  <Text className="text-white font-outfit-bold text-xl mb-1">
+                    {firmDetails?.restaurantInfo?.name || "Restaurant"}
+                  </Text>
+                </TouchableOpacity>
+                <Text className="text-white/80 font-outfit text-sm mb-1">
+                  {firmDetails?.restaurantInfo?.address}
+                </Text>
+                <Text className="text-white/80 font-outfit text-sm mb-1">
+                  {Array.isArray(firmDetails?.restaurantInfo?.cuisines)
+                    ? firmDetails.restaurantInfo.cuisines.join(' • ')
+                    : firmDetails?.restaurantInfo?.cuisines || 'Italian • Dessert'}
+                </Text>
+                <Text className="text-white/80 font-outfit text-sm">
+                  {firmDetails?.restaurantInfo?.priceRange || '₹1010 for Two'}
+                </Text>
+              </View>
+            </View>
+
+            <TouchableOpacity
+              // Kept your margins, changed rounding, and added shadow for depth
+            className="absolute bottom-8 right-3 rounded-lg shadow-md shadow-black/15"
+              onPress={() => safeNavigation({
+                pathname: "/screens/Reviewsall",
+                params: {
+                  firmId: firmId,
+                  restaurantName: firmDetails?.restaurantInfo?.name,
+                  averageRating: firmDetails?.restaurantInfo?.ratings?.overall,
+                  reviewCount: firmDetails?.restaurantInfo?.ratings?.totalReviews,
+                  reviewType: "dining"
+                }
+              })}
+            >
+              {/* Top Part: Rating + Star */}
+              <View className="bg-green-600 p-2 rounded-t-lg">
+                {/* Added space-x-1 for spacing between text and star */}
+                <View className="flex-row items-center justify-center space-x-1">
+                  {/* Made text smaller and bold for a cleaner look */}
+                  <Text className="text-white text-sm font-bold font-outfit">
+                    {firmDetails?.restaurantInfo?.ratings?.overall?.toFixed(1) || '4.5'}
+                  </Text>
+                  <FontAwesome name='star' size={14} color='white' />
+                </View>
+              </View>
+
+              {/* Bottom Part: Count + "Reviews" */}
+              <View className="bg-white rounded-b-lg px-2 py-1.5 items-center">
+                {/* Added font-bold to the number and changed color for contrast */}
+                <Text className="text-xs text-gray-900 font-bold font-outfit">
+                  {firmDetails?.restaurantInfo?.ratings?.totalReviews || '2179'}
+                </Text>
+                {/* Made "Reviews" text lighter as it's a sub-label */}
+                <Text className="text-xs text-gray-500 font-outfit">
+                  Reviews
+                </Text>
+              </View>
+            </TouchableOpacity>
+          </LinearGradient>
+        </View>
+      </View>
+
+      <ScrollView className="flex-1" style={{ zIndex: 1 }}>
+  <View className="flex-row items-center my-4">
+    <View className="flex-1 h-px bg-border" />
+    <Text className="text-textsecondary font-outfit-bold mx-4 text-sm">
+      Offers
+    </Text>
+    <View className="flex-1 h-px bg-border" />
+  </View>
+
+  <View className="mb-5">
+    <FlatList
+      data={offers}
+      horizontal
+      showsHorizontalScrollIndicator={false}
+      keyExtractor={item => item.id.toString()}
+      contentContainerStyle={{ paddingHorizontal: 10 }}
+      renderItem={({ item }) => (
+        <View
+          className="
+            bg-[#6A00D4]
+            rounded-xl
+            px-5
+            py-4
+            mr-3
+            w-[300px]
+            justify-center
+          "
+        >
+          {/* First line */}
+          <Text
+            className="
+              text-white
+              font-outfit-bold
+              text-base
+              py-1
+            "
+            numberOfLines={1}
+            ellipsizeMode="tail"
+          >
+            {item.title}
+          </Text>
+
+          {/* Second line */}
+          <Text
+            className="
+              text-white/90
+              font-outfit-regular
+              text-sm
+              py-1
+            "
+            numberOfLines={1}
+          >
+            {item.validity}
+          </Text>
+        </View>
+      )}
+    />
+  </View>
+
+
+        <View className="flex-row items-center my-4">
+          <View className="flex-1 h-px bg-border" />
+          <Text className="text-textsecondary font-outfit-bold mx-4 text-sm">MENU</Text>
+          <View className="flex-1 h-px bg-border" />
+        </View>
+        <FlatList
+          data={categories}
+          keyExtractor={(category) => category}
+          renderItem={({ item: category }) => (
+            <View className="mb-4">
+              <TouchableOpacity className="flex-row justify-between items-center p-4 bg-white border-b border-border" onPress={() => toggleCategory(category)}>
+                <Text className="text-textprimary font-outfit-bold text-lg">{category}</Text>
+                <Feather name={collapsed[category] ? "chevron-down" : "chevron-up"} size={20} color="#333333" />
+              </TouchableOpacity>
+              {!collapsed[category] && (
+                <View className="pt-3">
+                  <FlatList
+                    data={groupedProducts[category]}
+                    keyExtractor={(item) => item._id}
+                    renderItem={renderItem}
+                  />
+                </View>
+              )}
+            </View>
+          )}
+        />
+
+        <Modal visible={offersVisible} transparent animationType="slide">
+          <View className="flex-1 bg-black/50 justify-end">
+            <View className="bg-white rounded-t-3xl p-6 max-h-4/5">
+              <Text className="text-textprimary font-outfit-bold text-xl mb-2">Offers at {firmDetails?.restaurantInfo?.name || "Restaurant"}</Text>
+              <Text className="text-textsecondary font-outfit text-base mb-4">Restaurant Coupons</Text>
+              <FlatList
+                data={offers}
+                keyExtractor={(item) => item._id || item.id}
+                renderItem={({ item }) => (
+                  <View className="bg-background border border-border rounded-lg p-4 mb-3">
+                    <TouchableOpacity
+                      className="flex-row items-center justify-between"
+                      onPress={() =>
+                        setExpandedOffer(expandedOffer === item._id ? null : item._id)
+                      }
+                    >
+                      <Ionicons name={item.icon} size={22} color="#007BFF" />
+                      <Text className="text-textprimary font-outfit-bold text-base flex-1 mx-3">{item.title}</Text>
+                      <Ionicons
+                        name={expandedOffer === item.id ? "chevron-up" : "chevron-down"}
+                        size={22}
+                        color="#333"
+                      />
+                    </TouchableOpacity>
+                    {expandedOffer === item._id && (
+                      <View className="mt-3 pt-3 border-t border-border">
+                        {item.code && (
+                          <Text className="text-primary font-outfit-bold text-sm mb-2">Use code {item?.code} | above {item?.minOrder}</Text>
+                        )}
+                        {item.details?.map((detail, index) => (
+                          <View key={index} className="flex-row items-center mb-1">
+                            <Ionicons name="checkmark-circle-outline" size={18} color="green" />
+                            <Text className="text-textsecondary font-outfit text-sm ml-2">{detail}</Text>
+                          </View>
+                        ))}
+                      </View>
+                    )}
+                  </View>
+                )}
+              />
+              <TouchableOpacity onPress={() => setOffersVisible(false)} className="bg-primary p-4 rounded-lg mt-4">
+                <Text className="text-white font-outfit-bold text-center">Close</Text>
+              </TouchableOpacity>
             </View>
           </View>
-          <View style={styles.reviewBoxBottomContainer}>
-            <Text style={styles.reviewCount}>
-              {firmDetails?.restaurantInfo?.ratings?.totalReviews}
-            </Text>
-            <Text style={styles.reviewCount}>Reviews</Text>
-          </View>
-        </TouchableOpacity>
-      </View>
-    <View style={styles.offersContainer}>
-        <TouchableOpacity
-          onPress={() => setIsExpanded(!isExpanded)}
-          style={styles.offersHeaderContainer}
-        >
-          <Text style={styles.offersHeader}>Available Offers</Text>
-          <Text style={styles.dropdownIcon}>
-            {isExpanded ? '▲' : '▼'}
-          </Text>
-        </TouchableOpacity>
-
-        {isExpanded && (
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.offersTrack}
-          >
-            {offers?.map((offer) => {
-              const discountText =
-                offer.offerType === "percentage"
-                  ? `${offer.discountValue}% OFF`
-                  : `Flat $${offer.discountValue} OFF`;
-
-              const isPercentageOffer = offer.offerType === "percentage";
-
-              return (
-                <TouchableOpacity
-                  key={offer._id}
-                  activeOpacity={0.8}
-                >
-                  <View style={[
-                    styles.offerCard,
-                    isPercentageOffer ? styles.percentageOffer : styles.flatOffer
-                  ]}>
-                    <View style={styles.offerBadge}>
-                      <Text style={styles.offerBadgeText}>
-                        {isPercentageOffer ? 'HOT' : 'FLAT'}
-                      </Text>
-                    </View>
-
-                    <Text style={styles.offerTitle} numberOfLines={1}>
-                      {offer.name}
-                    </Text>
-
-                    <Text style={styles.offerDiscount}>
-                      {discountText}
-                    </Text>
-
-                    <View style={styles.offerCodeContainer}>
-                      <Text style={styles.offerCodeText}>
-                        Use code:
-                      </Text>
-                      <Text style={styles.offerCode}>
-                        {offer.code}
-                      </Text>
-                    </View>
-                  </View>
-                </TouchableOpacity>
-              );
-            })}
-          </ScrollView>
-        )}
-      </View>
-      <View style={styles.separatorRow}>
-        <View style={styles.line} />
-        <Text style={styles.separatorText}>MENU</Text>
-        <View style={styles.line} />
-      </View>
-
-      {/* <View style={styles.filterContainer}>
-        <FlatList
-          data={filters}
-          horizontal={true}
-          showsHorizontalScrollIndicator={false}
-          keyExtractor={(item) => item.name}
-          renderItem={({ item }) => {
-            const isSelected = selectedFilter.includes(item.name);
-            const renderIcon = () => {
-              switch (item.name) {
-                case "Filter":
-                  return (
-                    <FontAwesome
-                      name={item.icon}
-                      size={16}
-                      color={!isSelected ? "#e23845" : "white"}
-                      style={{ marginRight: 4 }}
-                    />
-                  )
-                case "Non-veg":
-                case "Spicy":
-                  return (
-                    <Ionicons
-                      name={item.icon}
-                      size={16}
-                      color={!isSelected ? "#e23845" : "white"}
-                      style={{ marginRight: 4 }}
-                    />
-                  )
-                default:
-                  return (
-                    <MaterialCommunityIcons
-                      name={item.icon}
-                      size={16}
-                      color={!isSelected ? "#e23845" : "white"}
-                      style={{ marginRight: 4 }}
-                    />
-                  )
-              }
-            }
-            return (
-              <TouchableOpacity
-                style={[styles.filterButton, isSelected && styles.selectedFilterButton]}
-                onPress={() => handleFilterPress(item.name)}
-              >
-                {renderIcon()}
-                <Text style={!isSelected ? styles.filterText : styles.selectedFilterText}>
-                  {item.name}
-                </Text>
-              </TouchableOpacity>
-            );
-          }}
-        />
-      </View> */}
-
-      <FlatList
-        data={categories}
-        keyExtractor={(category) => category}
-        renderItem={({ item: category }) => (
-          <View style={styles.categoryContainer}>
-            <TouchableOpacity style={styles.categoryHeader} onPress={() => toggleCategory(category)}>
-              <Text style={styles.categoryTitle}>{category}</Text>
-              <Text style={styles.toggleIcon}>{collapsed[category] ? "▼" : "▲"}</Text>
-            </TouchableOpacity>
-            {!collapsed[category] && (
-              <FlatList
-                data={groupedProducts[category]}
-                keyExtractor={(item) => item._id}
-                renderItem={renderItem}
-              />
-            )}
-          </View>
-        )}
-      />
+        </Modal>
+      </ScrollView>
 
       {getTotalItems() > 0 && (
         <TouchableOpacity
-          style={styles.proceedToCartButton}
-          onPress={() => router.push({
+          className="bg-primary p-4 rounded-lg"
+          style={{
+            position: 'absolute',
+            bottom: 20,
+            left: 16,
+            right: 16,
+            zIndex: 9999,
+            elevation: 20,
+          }}
+          onPress={() => safeNavigation({
             pathname: 'screens/TakeAwayCart',
             params: {
               offers: JSON.stringify(offers),
@@ -665,114 +603,11 @@ const UploadRecentlyViewd = async () => {
             }
           })}
         >
-          <Text style={styles.proceedToCartText}>
+          <Text className="text-white text-center font-outfit-bold">
             {getTotalItems()} items | ${getSubtotal()} | Go to Cart
           </Text>
         </TouchableOpacity>
       )}
-
-      <Modal visible={offersVisible} transparent animationType="slide">
-        <View style={styles.offerModalOverlay}>
-          <View style={styles.offerModalContainer}>
-            <Text style={styles.offerHeader}>Offers at {firmDetails?.restaurantInfo?.name || "Restaurant"}</Text>
-            <Text style={styles.offerSubHeader}>Restaurant Coupons</Text>
-            <FlatList
-              data={offers}
-              keyExtractor={(item) => item.id}
-              renderItem={({ item }) => (
-                <View style={styles.offerCard}>
-                  <TouchableOpacity
-                    style={styles.offerHeader}
-                    onPress={() =>
-                      setExpandedOffer(expandedOffer === item.id ? null : item.id)
-                    }
-                  >
-                    <Ionicons name={item.icon} size={22} color="#007BFF" />
-                    <Text style={styles.offerTitle}>{item.title}</Text>
-                    <Ionicons
-                      name={expandedOffer === item.id ? "chevron-up" : "chevron-down"}
-                      size={22}
-                      color="#333"
-                    />
-                  </TouchableOpacity>
-                  {expandedOffer === item.id && (
-                    <View style={styles.offerExpandedContent}>
-                      {item.code && (
-                        <Text style={styles.offerCodeText}>Use code {item?.code} | above {item?.minOrder}</Text>
-                      )}
-                      {item.details.map((detail, index) => (
-                        <View key={index} style={styles.offerDetailItem}>
-                          <Ionicons name="checkmark-circle-outline" size={18} color="green" />
-                          <Text style={styles.offerDetailText}>{detail}</Text>
-                        </View>
-                      ))}
-                    </View>
-                  )}
-                </View>
-              )}
-            />
-            <TouchableOpacity onPress={() => setOffersVisible(false)} style={styles.offerCloseButton}>
-              <Text style={styles.offerCloseButtonText}>Close</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
-
-      <Modal visible={filterVisible} transparent animationType="slide">
-        <View style={styles.filterOverlay}>
-          <View style={styles.filterModalContainer}>
-            <Text style={styles.filterHeader}>Filters and Sorting</Text>
-            <FlatList
-              data={Object.entries(filter)}
-              keyExtractor={(item) => item[0]}
-              renderItem={({ item }) => {
-                const category = item[0];
-                const filterItems = item[1];
-
-                if (!Array.isArray(filterItems)) return null;
-
-                return (
-                  <View style={styles.filterSection}>
-                    <Text style={styles.filterSectionTitle}>{category}</Text>
-                    <View style={styles.filterChipContainer}>
-                      {filterItems.map((filter) => (
-                        <TouchableOpacity
-                          key={filter.id}
-                          style={[styles.filterChip, filter.selected && styles.filterChipSelected]}
-                          onPress={() => toggleFilter(category, filter.id)}
-                        >
-                          {filter.icon && (
-                            <Ionicons
-                              name={filter.icon}
-                              size={16}
-                              color={filter.selected ? "#fff" : "#333"}
-                              style={{ marginRight: 5 }}
-                            />
-                          )}
-                          <Text style={[styles.filterChipText, filter.selected && styles.filterChipTextSelected]}>
-                            {filter.label}
-                          </Text>
-                          {filter.selected && (
-                            <Ionicons name="close" size={14} color="#fff" style={{ marginLeft: 5 }} />
-                          )}
-                        </TouchableOpacity>
-                      ))}
-                    </View>
-                  </View>
-                );
-              }}
-            />
-            <View style={styles.filterFooter}>
-              <TouchableOpacity onPress={clearFilters} style={styles.filterClearButton}>
-                <Text style={styles.filterClearButtonText}>Clear All</Text>
-              </TouchableOpacity>
-              <TouchableOpacity onPress={() => setFilterVisible(false)} style={styles.filterApplyButton}>
-                <Text style={styles.filterApplyButtonText}>Apply ({selectedCount})</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-      </Modal>
     </View>
   );
 }

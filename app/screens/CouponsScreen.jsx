@@ -1,6 +1,5 @@
 import React from 'react';
-import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Image } from 'react-native';
-import styles from '../../styles/CouponsScreen';
+import { View, Text, ScrollView, TouchableOpacity, Image } from 'react-native';
 
 const coupons = [
   {
@@ -54,23 +53,23 @@ const coupons = [
 ];
 
 const CouponCard = ({ brand, offer, expiry, logo }) => (
-  <View style={styles.card}>
-    <Image source={{ uri: logo }} style={styles.logo} resizeMode="contain" />
-    <Text style={styles.brand}>{brand}</Text>
-    <Text style={styles.offer}>{offer}</Text>
-    <Text style={styles.expiry}>{expiry}</Text>
-    <TouchableOpacity style={styles.button}>
-      <Text style={styles.buttonText}>View details ➜</Text>
+  <View className="bg-white rounded-lg p-4 m-2 border border-border shadow-sm">
+    <Image source={{ uri: logo }} className="w-16 h-16 mb-3" resizeMode="contain" />
+    <Text className="text-textprimary text-lg font-outfit-bold mb-1">{brand}</Text>
+    <Text className="text-primary text-base font-outfit mb-2">{offer}</Text>
+    <Text className="text-textsecondary text-sm font-outfit mb-3">{expiry}</Text>
+    <TouchableOpacity className="bg-primary py-2 px-4 rounded-lg">
+      <Text className="text-white text-sm font-outfit-bold text-center">View details ➜</Text>
     </TouchableOpacity>
   </View>
 );
 
 const CouponsScreen = () => {
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.title}>Your coupons</Text>
-      <Text style={styles.subtitle}>BRAND COUPONS</Text>
-      <View style={styles.grid}>
+    <ScrollView className="flex-1 bg-background p-4">
+      <Text className="text-textprimary text-2xl font-outfit-bold mb-4">Your coupons</Text>
+      <Text className="text-textsecondary text-sm font-outfit-bold mb-4 tracking-wider">BRAND COUPONS</Text>
+      <View className="flex-row flex-wrap justify-between">
         {coupons.map((coupon, index) => (
           <CouponCard key={index} {...coupon} />
         ))}

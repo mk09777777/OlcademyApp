@@ -1,10 +1,17 @@
-import { View, Text, TextInput, FlatList, TouchableOpacity, Image } from 'react-native'
+import { View, Text, TextInput, FlatList, TouchableOpacity, Image, Alert } from 'react-native'
 import React, { useEffect, useState } from 'react'
-import { styles } from '@/styles/SelectCountryCodesStyles'
+
 import CountryList from 'country-list-with-dial-code-and-flag'
 import { Ionicons } from '@expo/vector-icons'
 import { useRouter } from 'expo-router'
 import { useSafeNavigation } from '@/hooks/navigationPage'
+import AsyncStorage from '@react-native-async-storage/async-storage'
+
+const getFlagUrl = (countryCode) => {
+  const safeCode = countryCode?.toUpperCase?.() || 'US'
+  return `https://flagsapi.com/${safeCode}/flat/64.png`
+}
+
 export default function SelectCountryCode() {
   const router = useRouter()
   const { safeNavigation } = useSafeNavigation();
@@ -21,16 +28,18 @@ export default function SelectCountryCode() {
       setFilteredCountries(CountryList.findByKeyword(text.trim()));
     }
   }
-  const handleSelect = (item) => {
-    safeNavigation({
-      pathname: '/',
-      params: { selectedCountry: JSON.stringify(item) },
-    });
+  const handleSelect = async (item) => {
+    try {
+      await AsyncStorage.setItem('pendingCountrySelection', JSON.stringify(item));
+    } catch (storageError) {
+      console.error('Failed to store selected country', storageError);
+      Alert.alert('Unable to save selection', 'Please try choosing a country again.');
+    } finally {
+      router.back();
+    }
   }
   return (
-    <View
-      style={styles.container}
-    >
+    <View className="flex-1 bg-background p-4">
       <TouchableOpacity
         onPress={() => {
           router.back()
@@ -39,7 +48,7 @@ export default function SelectCountryCode() {
       <Ionicons name="arrow-back" size={24} color="black" />
       </TouchableOpacity>
       <TextInput
-        style={styles.searchBar}
+        className="bg-white border border-border rounded-lg p-3 mb-4 text-textprimary font-outfit"
         placeholder="Search for a country"
         value={searchText}
         onChangeText={handleSearch}
@@ -49,22 +58,17 @@ export default function SelectCountryCode() {
         keyExtractor={(item, index) => index.toString()}
         renderItem={({ item }) => (
           <TouchableOpacity
-            style={styles.listItem}
+            className="flex-row items-center p-4 bg-white mb-2 rounded-lg border border-border"
             onPress={() => handleSelect(item)}
           >
-            <Image 
-              source={require('../assets/images/food.jpg')}
-              style={styles.countryIcon}
-            >
-            </Image>
-            <Text 
-              style={styles.itemText}
-            >
+            <Image
+              source={{ uri: getFlagUrl(item.code || item?.data?.code) }}
+              className="w-8 h-8 rounded mr-3"
+            />
+            <Text className="flex-1 text-textprimary font-outfit text-base">
               {item.name}
             </Text>
-            <Text
-              style={styles.itemText}
-            >
+            <Text className="text-textsecondary font-outfit text-base">
               {item.data.dial_code}
             </Text>
           </TouchableOpacity>

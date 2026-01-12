@@ -1,20 +1,20 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import {
-  StyleSheet,
   View,
   Text,
   TouchableOpacity,
   FlatList,
   TextInput,
   Image,
-  ActivityIndicator,
-  SafeAreaView
+  ActivityIndicator
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import TakeawayOrderCard from '../../Card/TakewayCard';
 import axios from 'axios';
+import { API_CONFIG } from '../../config/apiConfig';
 
-const SERVER_URL = 'https://backend-0wyj.onrender.com';
+const SERVER_URL = API_CONFIG.BACKEND_URL;
 
 export default function TakeawayOrdersScreen() {
   const [activeTab, setActiveTab] = useState('all');
@@ -39,7 +39,7 @@ export default function TakeawayOrdersScreen() {
       );
 
       const { orders: fetchedOrders, totalPages: fetchedTotalPages, currentPage: fetchedCurrentPage } = response.data;
-      // console.log(response.data)
+
       if (page === 1) {
         setOrders(fetchedOrders);
       } else {
@@ -50,11 +50,12 @@ export default function TakeawayOrdersScreen() {
       setCurrentPage(fetchedCurrentPage);
       setHasMore(fetchedCurrentPage < fetchedTotalPages);
     } catch (error) {
-      console.error('Error fetching orders:', error);
-      setError(error.response?.data?.message || 'Failed to fetch orders. Please try again.');
-      if (error.response?.status === 404) {
-        setError('Endpoint not found. Please check the server configuration.');
-      }
+      console.error('Error fetching takeaway orders:', error);
+      const message = error.response?.status === 404
+        ? 'Takeaway orders endpoint not found. Please check the server configuration.'
+        : error.response?.data?.message || 'Failed to fetch orders. Please try again.';
+      setError(message);
+      setHasMore(false);
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -90,7 +91,6 @@ export default function TakeawayOrdersScreen() {
       );
     } catch (error) {
       console.error('Error toggling favorite:', error);
-      // Revert if error
       setOrders(orders.map(order =>
         order._id === orderId ? { ...order, fav: !order.fav } : order
       ));
@@ -108,18 +108,16 @@ export default function TakeawayOrdersScreen() {
   const getFilteredOrders = () => {
     let filtered = orders;
 
-    // Apply status filter based on active tab
     if (activeTab === 'active') {
       filtered = filtered.filter(order =>
-        ['ready', 'accepted', 'preparing'].includes(order.status)
+        ['ready', 'accepted', 'preparing'].includes(order.status.toLowerCase())
       );
     } else if (activeTab === 'past') {
       filtered = filtered.filter(order =>
-        ['completed', 'Delivered', 'cancelled', 'rejected', 'user_cancel'].includes(order.status)
+        ['completed', 'delivered', 'cancelled', 'rejected', 'user_cancel'].includes(order.status.toLowerCase())
       );
     }
 
-    // Apply search filter if any
     if (searchQuery) {
       filtered = filtered.filter(order => {
         const restaurantName = order.items[0]?.sourceEntityId?.restaurantInfo?.name || '';
@@ -136,28 +134,27 @@ export default function TakeawayOrdersScreen() {
   const renderFooter = () => {
     if (!loading) return null;
     return (
-      <View style={styles.loadingFooter}>
-        <ActivityIndicator size="small" color="#fc8019" />
+      <View className="py-4 items-center">
+        <ActivityIndicator size="small" color="#02757A" />
+        <Text className="text-sm font-outfit color-gray-600 mt-2">Loading more orders...</Text>
       </View>
     );
   };
 
   const renderError = () => (
-    <View style={styles.errorContainer}>
-      <Text style={styles.errorText}>{error}</Text>
+    <View className="flex-1 items-center justify-center p-4">
+      <Text className="text-base font-outfit color-red-600 text-center mb-4">{error}</Text>
       <TouchableOpacity
-        style={styles.retryButton}
+        className="bg-primary px-6 py-3 rounded-lg"
         onPress={() => fetchOrders(1)}
       >
-        <Text style={styles.retryButtonText}>Retry</Text>
+        <Text className="text-white font-outfit-medium">Retry</Text>
       </TouchableOpacity>
     </View>
   );
 
   const renderOrderItem = ({ item }) => {
     const restaurantInfo = item.items?.[0]?.sourceEntityId?.restaurantInfo || {};
-     const restaurantInfof = item.items?.[0]?.sourceEntityId
-// console.log(restaurantInfof)
     const safeItem = {
       ...item,
       amount: item.totalPrice || 0,
@@ -192,51 +189,41 @@ export default function TakeawayOrdersScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView className="flex-1 bg-white">
       {/* Search Bar */}
-      {/* <View style={styles.searchContainer}>
-        <Ionicons name="search" size={20} color="#666" style={styles.searchIcon} />
+      <View className="flex-row items-center bg-gray-50 mx-4 my-2 px-3 py-2 rounded-lg">
+        <Ionicons name="search" size={20} color="#666" className="mr-2" />
         <TextInput
-          style={styles.searchInput}
-          placeholder="Search by restaurant or dish"
-          placeholderTextColor="#666"
+          className="flex-1 text-base font-outfit color-gray-800"
+          placeholder="Search orders..."
           value={searchQuery}
           onChangeText={setSearchQuery}
         />
-        {searchQuery ? (
-          <TouchableOpacity onPress={() => setSearchQuery('')}>
-            <Ionicons name="close-circle" size={20} color="#666" />
-          </TouchableOpacity>
-        ) : (
-          <TouchableOpacity>
-            <Ionicons name="mic" size={20} color="#666" />
-          </TouchableOpacity>
-        )}
-      </View> */}
+      </View>
 
       {/* Tabs */}
-      <View style={styles.tabContainer}>
+      <View className="flex-row bg-white border-b border-gray-200">
         <TouchableOpacity
-          style={[styles.tab, activeTab === 'all' && styles.activeTab]}
+          className={`flex-1 py-3 items-center ${activeTab === 'all' ? 'border-b-2 border-primary' : ''}`}
           onPress={() => setActiveTab('all')}
         >
-          <Text style={[styles.tabText, activeTab === 'all' && styles.activeTabText]}>
+          <Text className={`text-sm font-outfit-medium ${activeTab === 'all' ? 'color-primary' : 'color-gray-600'}`}>
             All Orders
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
-          style={[styles.tab, activeTab === 'active' && styles.activeTab]}
+          className={`flex-1 py-3 items-center ${activeTab === 'active' ? 'border-b-2 border-primary' : ''}`}
           onPress={() => setActiveTab('active')}
         >
-          <Text style={[styles.tabText, activeTab === 'active' && styles.activeTabText]}>
+          <Text className={`text-sm font-outfit-medium ${activeTab === 'active' ? 'color-primary' : 'color-gray-600'}`}>
             Active
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
-          style={[styles.tab, activeTab === 'past' && styles.activeTab]}
+          className={`flex-1 py-3 items-center ${activeTab === 'past' ? 'border-b-2 border-primary' : ''}`}
           onPress={() => setActiveTab('past')}
         >
-          <Text style={[styles.tabText, activeTab === 'past' && styles.activeTabText]}>
+          <Text className={`text-sm font-outfit-medium ${activeTab === 'past' ? 'color-primary' : 'color-gray-600'}`}>
             Past Orders
           </Text>
         </TouchableOpacity>
@@ -247,24 +234,25 @@ export default function TakeawayOrdersScreen() {
 
       {/* Orders List */}
       {loading && orders.length === 0 ? (
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#fc8019" />
+        <View className="flex-1 items-center justify-center">
+          <ActivityIndicator size="large" color="#02757A" />
+          <Text className="text-base font-outfit color-gray-600 mt-4">Loading your orders...</Text>
         </View>
       ) : (
         <FlatList
           data={getFilteredOrders()}
           renderItem={renderOrderItem}
           keyExtractor={(item) => item._id}
-          contentContainerStyle={styles.ordersList}
+          contentContainerClassName="pb-4"
           ListEmptyComponent={
             !error && (
-              <View style={styles.emptyContainer}>
+              <View className="flex-1 items-center justify-center p-8">
                 <Image
                   source={require('../../assets/images/logo.jpg')}
-                  style={styles.emptyImage}
+                  className="w-24 h-24 mb-4"
                   resizeMode="contain"
                 />
-                <Text style={styles.emptyText}>
+                <Text className="text-lg font-outfit-medium color-gray-600 text-center">
                   {activeTab === 'all'
                     ? 'No orders found'
                     : activeTab === 'active'
@@ -284,101 +272,3 @@ export default function TakeawayOrdersScreen() {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f8f8f8',
-  },
-  searchContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    margin: 16,
-    padding: 12,
-    backgroundColor: '#fff',
-    borderRadius: 8,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-  },
-  searchIcon: {
-    marginRight: 8,
-  },
-  searchInput: {
-    flex: 1,
-    fontSize: 16,
-    color: '#333',
-  },
-  tabContainer: {
-    flexDirection: 'row',
-    backgroundColor: '#fff',
-    paddingHorizontal: 16,
-    marginBottom: 8,
-  },
-  tab: {
-    flex: 1,
-    paddingVertical: 12,
-    alignItems: 'center',
-    borderBottomWidth: 2,
-    borderBottomColor: 'transparent',
-  },
-  activeTab: {
-    borderBottomColor: '#fc8019',
-  },
-  tabText: {
-    fontSize: 14,
-    color: '#666',
-    fontWeight: '500',
-  },
-  activeTabText: {
-    color: '#fc8019',
-  },
-  ordersList: {
-    padding: 16,
-    paddingBottom: 80,
-  },
-  emptyContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 32,
-  },
-  emptyImage: {
-    width: 120,
-    height: 120,
-    marginBottom: 16,
-    opacity: 0.7,
-  },
-  emptyText: {
-    fontSize: 16,
-    color: '#666',
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  loadingFooter: {
-    paddingVertical: 20,
-  },
-  errorContainer: {
-    padding: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  errorText: {
-    color: 'red',
-    marginBottom: 10,
-    textAlign: 'center',
-  },
-  retryButton: {
-    backgroundColor: '#fc8019',
-    padding: 10,
-    borderRadius: 5,
-  },
-  retryButtonText: {
-    color: 'white',
-    fontWeight: 'bold',
-  },
-});

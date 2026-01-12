@@ -9,13 +9,12 @@ import {
   Modal,
   TextInput,
   ScrollView,
-  SafeAreaView,
   ActivityIndicator,
   SectionList,
   Pressable,
   TouchableWithoutFeedback
 } from 'react-native';
-import { styles } from '@/styles/TakeAwayCartStyles';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   MaterialIcons,
   Feather,
@@ -31,6 +30,9 @@ import axios from 'axios';
 import * as Notifications from 'expo-notifications';
 import { Picker } from '@react-native-picker/picker';
 import { Schedule } from '@/components/Schedule';
+import { useSafeNavigation } from "@/hooks/navigationPage";
+import { API_CONFIG } from '../../config/apiConfig';
+
 import AsyncStorage from '@react-native-async-storage/async-storage';
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -61,6 +63,8 @@ const TakeAwayCart = () => {
   const [cartItems, setCartItems] = useState([]);
   const [billModalVisible, setBillModalVisible] = useState(false);
   const [groupedItems, setGroupedItems] = useState([]);
+  const { safeNavigation } = useSafeNavigation();
+
   const [scheduleModalVisible, setScheduleModalVisible] = useState(false);
   const [appliedOffer, setAppliedOffer] = useState(null);
   const [selectedScheduleTime, setSelectedScheduleTime] = useState(null);
@@ -218,11 +222,8 @@ const TakeAwayCart = () => {
 
   const fetchInitialSettings = async () => {
     try {
-      const response = await fetch('http://10.34.125.16:3000/api/getnotifications', {
-        method: 'GET',
-        credentials: 'include',
-      });
-      const settings = await response.json();
+      const response = await api.get('/api/getnotifications', { withCredentials: true });
+      const settings = response.data;
 
       setEnableAll(settings.enableAll);
       setPromosPush(settings.promoPush);
@@ -534,13 +535,13 @@ const TakeAwayCart = () => {
       }
 
       const response = await api.post('/api/create', orderData, { withCredentials: true });
-console.log(response)
+      console.log(response)
       if (response.data.success) {
-UploadNotifications(orderData)
+        UploadNotifications(orderData)
         await fetchCart();
-        
 
-        router.push({
+
+        safeNavigation({
           pathname: '/screens/OrderSceess',
           params: {
             orderId: response.data.data.order._id,
@@ -588,7 +589,8 @@ UploadNotifications(orderData)
         description: `Your order from ${restaurantName} ($${order.totalPrice.toFixed(2)}) is confirmed. Expected ${deliveryType} at ${scheduledTime}`,
         time: formattedTime,
       };
-      const response = await axios.post("http://192.168.0.100:3000/api/postNotificationsInfo", uploadData, {
+      const baseUrl = String(API_CONFIG.BACKEND_URL).replace(/\/+$/, '');
+      const response = await axios.post(`${baseUrl}/api/postNotificationsInfo`, uploadData, {
         headers: { "Content-Type": "application/json" },
         withCredentials: true
       });
@@ -611,18 +613,18 @@ UploadNotifications(orderData)
   };
 
   const renderRestaurantHeader = ({ section }) => (
-    <View style={styles.restaurantHeader}>
+    <View className="flex-row items-center p-4 bg-white border-b border-border">
       {section.image && (
         <Image
           source={{ uri: section.image }}
-          style={styles.restaurantImage}
+          className="w-12 h-12 rounded-lg mr-3"
         />
       )}
-      <View style={styles.restaurantHeaderText}>
-        <Text style={styles.restaurantName} numberOfLines={1} ellipsizeMode="tail">
+      <View className="flex-1">
+        <Text className="text-textprimary font-outfit-bold text-base" numberOfLines={1} ellipsizeMode="tail">
           {section.name}
         </Text>
-        <Text style={styles.restaurantAddress} numberOfLines={2} ellipsizeMode="tail">
+        <Text className="text-textsecondary font-outfit text-sm" numberOfLines={2} ellipsizeMode="tail">
           {section.address}
         </Text>
       </View>
@@ -630,34 +632,47 @@ UploadNotifications(orderData)
   );
 
   const renderItem = ({ item }) => (
-    <View style={styles.itemContainer}>
-      <View style={styles.itemInfo}>
-        <Text style={styles.itemText}>{item.name}</Text>
-        <Text style={styles.itemPrice}>  Item Price:-  ${(item.price || 0).toFixed(2)}</Text>
-        <Text style={styles.itemPrice}>Total Item Price:-  ${subtotal.toFixed(2)}</Text>
+    <View className="flex-row items-center p-3 bg-white border-b rounded-lg border-border">
+      <View className="flex-1">
+        <Text className="text-textprimary font-outfit-bold text-base mb-1">{item.name}</Text>
+        <Text className="text-textsecondary font-outfit text-sm mb-1">
+          Item Price:- ${(item.basePrice || item.price || 0).toFixed(2)}
+        </Text>
+        <Text className="text-primary font-outfit-bold text-sm">
+          Total Item Price:-  ${(item.basePrice || item.price || 0).toFixed(2)}
+        </Text>
       </View>
-      <View style={styles.controls}>
+
+      {/* Quantity and Delete Controls */}
+      <View className="flex-row items-center ml-2">
         <TouchableOpacity
           onPress={() => handleQuantityChange(item.productId || item._id || item.id, -1)}
-          style={styles.controlButton}
+          className="w-6 h-6 bg-primary rounded items-center justify-center mr-1"
         >
-          <Text style={styles.controlButtonText}>-</Text>
+          <Text className="text-white font-outfit-bold">-</Text>
         </TouchableOpacity>
-        <Text style={styles.quantityText}>{item.quantity}</Text>
+
+        <Text className="text-textprimary font-outfit-bold text-base mx-2">
+          {item.quantity}
+        </Text>
+
         <TouchableOpacity
           onPress={() => handleQuantityChange(item.productId || item._id || item.id, 1)}
-          style={styles.controlButton}
+          className="w-6 h-6 bg-primary rounded items-center justify-center mr-2"
         >
-          <Text style={styles.controlButtonText}>+</Text>
+          <Text className="text-white font-outfit-bold">+</Text>
         </TouchableOpacity>
+
         <TouchableOpacity
           onPress={() => handleRemove(item.productId || item._id || item.id)}
-          style={styles.deleteButton}
+          className="p-2"
         >
-          <MaterialIcons name='delete-outline' size={24} color={'red'} />
+          <MaterialIcons name="delete-outline" size={24} color="#02757A" />
         </TouchableOpacity>
       </View>
     </View>
+
+
   );
   const renderPromoModal = () => (
     <Modal
@@ -666,45 +681,45 @@ UploadNotifications(orderData)
       transparent={true}
       onRequestClose={() => setIsPromoOpen(false)}
     >
-      <View style={styles.modalOverlay}>
-        <View style={[styles.modalContent, { padding: 20, maxHeight: '80%' }]}>
-          <Text style={[styles.modalTitle, { marginBottom: 20 }]}>Promotions</Text>
+      <View className="flex-1 bg-black/50 justify-center">
+        <View className="bg-white rounded-lg p-5 mx-4 max-h-4/5">
+          <Text className="text-textprimary font-outfit-bold text-xl mb-5">Promotions</Text>
 
           <View style={{ flexDirection: 'row', marginBottom: 20 }}>
             <TextInput
               placeholder="Enter promo code"
               value={manualPromoCode}
               onChangeText={setManualPromoCode}
-              style={[styles.input, { flex: 1, marginRight: 10 }]}
+              className="flex-1 border border-border rounded-lg p-3 mr-2 text-textprimary font-outfit"
             />
             <TouchableOpacity
-              style={[styles.confirmButton, { paddingHorizontal: 20 }]}
+              className="bg-primary px-5 py-3 rounded-lg"
               onPress={handleManualCodeApply}
             >
-              <Text style={styles.confirmButtonText}>Apply</Text>
+              <Text className="text-white font-outfit-bold">Apply</Text>
             </TouchableOpacity>
           </View>
 
           <ScrollView>
             {filteredOffers.length > 0 ? (
               filteredOffers.map((offer) => (
-                <View key={`${offer._id}-${offer.source}`} style={styles.promoCard}>
-                  <Text style={styles.promoName}>{offer.name || `Offer ${offer.code}`}</Text>
-                  {offer.code && <Text style={styles.promoCode}>Code: {offer.code}</Text>}
-                  <Text style={styles.promoDiscount}>
+                <View key={`${offer._id}-${offer.source}`} className="bg-background p-4 rounded-lg mb-3 border border-border">
+                  <Text className="text-textprimary font-outfit-bold text-base mb-1">{offer.name || `Offer ${offer.code}`}</Text>
+                  {offer.code && <Text className="text-textsecondary font-outfit text-sm mb-1">Code: {offer.code}</Text>}
+                  <Text className="text-primary font-outfit-bold text-sm mb-2">
                     Discount: {offer.offerType === "percentage"
                       ? `${offer.discountValue}%`
                       : `$${offer.discountValue.toFixed(2)}`}
                   </Text>
                   <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 10 }}>
-                    <Text style={styles.promoDate}>
+                    <Text className="text-textsecondary font-outfit text-xs">
                       Valid until: {formatPromoDate(offer.endDate)}
                     </Text>
                     <TouchableOpacity
-                      style={styles.promoApplyButton}
+                      className="bg-primary px-3 py-1 rounded"
                       onPress={() => handleApplyOffer(offer)}
                     >
-                      <Text style={styles.promoApplyButtonText}>Apply</Text>
+                      <Text className="text-white font-outfit text-sm">Apply</Text>
                     </TouchableOpacity>
                   </View>
                 </View>
@@ -717,10 +732,10 @@ UploadNotifications(orderData)
           </ScrollView>
 
           <TouchableOpacity
-            style={[styles.closeButton, { marginTop: 20 }]}
+            className="bg-border p-3 rounded-lg mt-5"
             onPress={() => setIsPromoOpen(false)}
           >
-            <Text style={styles.closeButtonText}>Close</Text>
+            <Text className="text-textprimary font-outfit-bold text-center">Close</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -728,18 +743,23 @@ UploadNotifications(orderData)
   );
 
   return (
-    <SafeAreaView style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scroll}>
-        <View style={styles.cartSummary}>
-          <Text style={styles.title}>Your Cart</Text>
+    <SafeAreaView className="flex-1 bg-background">
+      <View className="flex-row items-center justify-center w-full">
+        <TouchableOpacity onPress={() => router.back()} className="absolute left-4 bottom-4">
+          <Entypo name="chevron-left" size={24} color="black" />
+        </TouchableOpacity>
+        <Text className="text-textprimary text-xl font-outfit-bold mb-4">Your Cart</Text>
+      </View>
+      <ScrollView contentContainerStyle={{ paddingBottom: 100 }}>
+        <View className="bg-white ml-5 mr-5 rounded-lg p-4 mb-4 shadow-sm shadow-black">
 
           {cartItems.length === 0 ? (
-            <View style={styles.emptyCartContainer}>
+            <View className="items-center py-12">
               <Image
-                style={styles.emptyCartImage}
+                className="w-32 h-32 mb-4"
                 source={require('@/assets/images/empty_cart.png')}
               />
-              <Text style={styles.emptyCartText}>Your cart is empty!</Text>
+              <Text className="text-textsecondary font-outfit text-lg">Your cart is empty!</Text>
             </View>
           ) : (
             <SectionList
@@ -748,263 +768,238 @@ UploadNotifications(orderData)
               renderItem={renderItem}
               renderSectionHeader={renderRestaurantHeader}
               scrollEnabled={false}
-              contentContainerStyle={{ paddingBottom: 20 }}
             />
           )}
         </View>
-
-        <View style={styles.card}>
-          <View style={styles.promotionContainer}>
-            <Text style={styles.sectionTitle}>Promotion</Text>
-            {!appliedOffer ? (
+        <View className="bg-white ml-5 mr-5 mb-4 shadow-sm shadow-black rounded-lg">
+          {!appliedOffer ? (
+            <View className="flex-row">
+              <TextInput
+                placeholder="Enter promo code"
+                value={manualPromoCode}
+                onChangeText={setManualPromoCode}
+                className="flex-1 border border-border rounded-l-lg p-3 text-textprimary font-outfit"
+              />
               <TouchableOpacity
-                style={styles.addPromoButton}
-                onPress={() => setIsPromoOpen(true)}
+                className="bg-primary px-5 py-3 rounded-r-lg"
+                onPress={handleManualCodeApply}
               >
-                <Text style={styles.addPromoButtonText}>Add promo code</Text>
+                <Text className="text-white font-outfit-bold">Apply</Text>
               </TouchableOpacity>
-            ) : (
-              <View style={styles.appliedPromoContainer}>
-                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                  <Text style={styles.emoji}>🎉</Text>
-                  <Text style={styles.appliedPromoText}>
-                    You saved ${discount.toFixed(2)} with '{appliedOffer.code || appliedOffer.name}'
-                  </Text>
-                </View>
-                <TouchableOpacity
-                  onPress={() => setAppliedOffer(null)}
-                  style={styles.removePromoButton}
-                >
-                  <Text style={styles.removePromoButtonText}>×</Text>
-                </TouchableOpacity>
+            </View>
+          ) : (
+            <View className="flex-row justify-between items-center bg-green-50 p-3 rounded-lg">
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <Text className="text-lg mr-2">🎉</Text>
+                <Text className="text-green-700 font-outfit text-sm flex-1">
+                  You saved ${discount.toFixed(2)} with '{appliedOffer.code || appliedOffer.name}'
+                </Text>
               </View>
-            )}
-            {appliedOffer && (
               <TouchableOpacity
-                style={styles.viewAllCouponsButton}
-                onPress={() => setIsPromoOpen(true)}
+                onPress={() => setAppliedOffer(null)}
+                className="w-6 h-6 bg-red-500 rounded-full items-center justify-center"
               >
-                <Text style={styles.viewAllCouponsText}>View all coupons</Text>
+                <Text className="text-white font-outfit-bold">×</Text>
               </TouchableOpacity>
-            )}
-          </View>
+            </View>
+          )}
+        </View>
 
-          {/* Tiffin-specific fields */}
-          {isTiffinOrder && (
-            <View>
-              <View style={{ marginTop: 10, marginBottom: 10, }}>
-                {cartItems[0]?.selectedDeliveryTimeSlot ? (
-                  <View style={{
-                    backgroundColor: '#ebf8ff',
-                    borderColor: '#90cdf4',
-                    borderWidth: 1,
-                    borderRadius: 6,
-                    padding: 10,
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    shadowColor: '#000',
-                    shadowOffset: { width: 0, height: 1 },
-                    shadowOpacity: 0.1,
-                    shadowRadius: 2,
-                  }}>
-                    {/* <Text style={{ fontSize: 20, marginRight: 12 }}>⏰</Text> */}
-                    <Text style={{ fontWeight: '600', fontSize: 16, color: '#2b6cb0' }}>
-                      Delivery Time: {cartItems[0]?.selectedDeliveryTimeSlot}
+        <View className="bg-white p-1 ml-5 mr-5 shadow-sm shadow-black mb-4 rounded-lg">
+          <Text className="text-textprimary font-outfit-bold text-lg ml-5 mt-3 mb-4">Delivery Details</Text>
+          <View>
+            {/* Tiffin-specific fields */}
+            {isTiffinOrder && (
+              <View>
+                <View style={{ marginTop: 10, marginBottom: 10, }}>
+                  {cartItems[0]?.selectedDeliveryTimeSlot ? (
+                    <View style={{
+                      backgroundColor: '#ebf8ff',
+                      borderColor: '#90cdf4',
+                      borderWidth: 1,
+                      borderRadius: 6,
+                      padding: 10,
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      shadowColor: '#000',
+                      shadowOffset: { width: 0, height: 1 },
+                      shadowOpacity: 0.1,
+                      shadowRadius: 2,
+                    }}>
+                      <Text style={{ fontWeight: '600', fontSize: 16, color: '#2b6cb0' }}>
+                        Delivery Time: {cartItems[0]?.selectedDeliveryTimeSlot}
+                      </Text>
+                    </View>
+                  ) : (
+                    <Text style={{
+                      color: '#718096',
+                      textAlign: 'center',
+                      paddingVertical: 16,
+                      fontSize: 14,
+                      backgroundColor: '#f7fafc',
+                      borderRadius: 6,
+                      borderColor: '#e2e8f0',
+                      borderWidth: 1,
+                    }}>
+                      Delivery time not found for tiffin.
                     </Text>
-                  </View>
-                ) : (
-                  <Text style={{
-                    color: '#718096',
-                    textAlign: 'center',
-                    paddingVertical: 16,
-                    fontSize: 14,
-                    backgroundColor: '#f7fafc',
-                    borderRadius: 6,
-                    borderColor: '#e2e8f0',
-                    borderWidth: 1,
-                  }}>
-                    Delivery time not found for tiffin.
-                  </Text>
-                )}
-              </View>
-              <View style={styles.pickup}>
-                <Text style={styles.modalTitle}>Delivery Details</Text>
-                <View style={styles.container}>
-                  <Text style={styles.label}>Country Code</Text>
-                  <View style={styles.pickerContainer}>
-                    <Picker
-                      selectedValue={countryCode}
-                      style={styles.picker}
-                      onValueChange={(itemValue) => setCountryCode(itemValue)}
-                    >
-                      <Picker.Item label="India (+91)" value="+91" />
-                      <Picker.Item label="USA (+1)" value="+1" />
-                      <Picker.Item label="UK (+44)" value="+44" />
-                    </Picker>
-
-                  </View>
-
-
+                  )}
                 </View>
-                <TextInput
-                  placeholder="Phone Number"
-                  value={phoneNumber}
-                  onChangeText={setPhoneNumber}
-                  keyboardType="phone-pad"
-                  style={styles.input}
-                />
-                {/* <TextInput
-                  placeholder="Delivery Address"
-                  value={pickupAddress}
-                  onChangeText={setPickupAddress}
-                  multiline
-                  style={[styles.input, { height: 80 }]}
-                /> */}
+                <View className="bg-white p-4 rounded-lg mb-4">
+                  <Text className="text-textprimary font-outfit-bold text-lg mb-4">Delivery Details</Text>
+                  <View className="mb-4">
+                    <Text className="text-textprimary font-outfit-bold text-sm mb-2">Country Code</Text>
+                    <View className="border border-border rounded-lg">
+                      <Picker
+                        selectedValue={countryCode}
+                        className="h-12"
+                        onValueChange={(itemValue) => setCountryCode(itemValue)}
+                      >
+                        <Picker.Item label="India (+91)" value="+91" />
+                        <Picker.Item label="USA (+1)" value="+1" />
+                        <Picker.Item label="UK (+44)" value="+44" />
+                      </Picker>
+                    </View>
+                  </View>
+                  <TextInput
+                    placeholder="Phone Number"
+                    value={phoneNumber}
+                    onChangeText={setPhoneNumber}
+                    keyboardType="phone-pad"
+                    className="border border-border rounded-lg p-3 text-textprimary font-outfit mb-4"
+                  />
+                </View>
 
-                              <TouchableOpacity
-                                onPress={() => router.push('/screens/DeliveryAddress')}
-                                style={styles.addressInputContainer}
-                              >
-                                <TextInput
-                                  placeholder="Delivery Address"
-                                  value={pickupAddress}
-                                  onChangeText={setPickupAddress}
-                                  multiline
-                                  style={[styles.input, { height: 90 }]}
-                                  editable={false}
-                                />
-                                {/* <Text style={styles.stateText}>{location.fullAddress || ''}</Text> */}
-                                {/* <Ionicons name="location-outline" size={20} color="#666" style={styles.addressIcon} /> */}
-                
-                                {/* Saved Address Label */}
-                                {/* {pickupAddress ? (
-                    <Text style={styles.savedAddressLabel}>Saved Address</Text>
-                  ) : null} */}
-                
-                                {/* Clear Address Button */}
-                                {pickupAddress ? (
-                                  <TouchableOpacity
-                                    onPress={async () => {
-                                      setPickupAddress('');
-                                      await AsyncStorage.removeItem('selectedAddress');
-                                    }}
-                                    // style={styles.clearAddressButton}
-                                  >
-                                    {/* <Text style={styles.clearAddressText}>Clear</Text> */}
-                                  </TouchableOpacity>
-                                ) : null}
-                              </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => safeNavigation('/screens/DeliveryAddress')}
+                  className="mb-4"
+                >
+                  <TextInput
+                    placeholder="Delivery Address"
+                    value={pickupAddress}
+                    onChangeText={setPickupAddress}
+                    multiline
+                    className="border border-border rounded-lg p-3 text-textprimary font-outfit h-24"
+                    editable={false}
+                  />
+                  {pickupAddress ? (
+                    <TouchableOpacity
+                      onPress={async () => {
+                        setPickupAddress('');
+                        await AsyncStorage.removeItem('selectedAddress');
+                      }}
+                    >
+                    </TouchableOpacity>
+                  ) : null}
+                </TouchableOpacity>
 
                 <TextInput
                   placeholder="Special Instructions"
                   value={specialInstructions}
                   onChangeText={setSpecialInstructions}
                   multiline
-                  style={[styles.input, { height: 80 }]}
+                  className="border border-border rounded-lg p-3 text-textprimary font-outfit h-20"
                 />
               </View>
-            </View>
-          )}
+            )}
 
-          {/* Restaurant pickup details */}
-          {!isTiffinOrder && (
-
-            <View style={styles.container}>
-              {/* Delivery/Pickup Time Section */}
-              <Pressable onPress={() => setScheduleModalVisible(true)}>
-                <View style={styles.row}>
-                  <Feather name="clock" size={20} color="#333" />
-                  <View style={styles.info}>
-                    <Text style={styles.locationTitle}>Pickup Time</Text>
-                    <Text style={styles.locationAddress}>
-                      Standard (Approx. 30 Mins)
-                    </Text>
-                    <Text style={styles.locationSubAddress}>
-                      {
-                        selectedScheduleTime
-                          ? `Scheduled: ${new Date(selectedScheduleTime).toLocaleDateString("en-IN", {
-                            day: 'numeric',
-                            month: 'short',
-                            year: 'numeric'
-                          })} at ${new Date(selectedScheduleTime).toLocaleTimeString("en-IN", {
-                            hour: "2-digit",
-                            minute: "2-digit",
-                            hour12: true,
-                          })}`
-                          : "Schedule for later"
-                      }
-                    </Text>
-
-                    {/* <Text style={styles.link}>Want this later? Schedule it</Text> */}
+            {/* Restaurant pickup details */}
+            {!isTiffinOrder && (
+              <View className="">
+                {/* Delivery/Pickup Time Section */}
+                <Pressable onPress={() => setScheduleModalVisible(true)}>
+                  <View className="flex-row items-center p-4">
+                    <Feather name="clock" size={20} color="#333" />
+                    <View className="flex-1 ml-3">
+                      <Text className="text-textprimary font-outfit-bold text-base">Pickup Time</Text>
+                      <Text className="text-textsecondary font-outfit text-sm">
+                        Standard (Approx. 30 Mins)
+                      </Text>
+                      <Text className="text-textsecondary font-outfit text-xs">
+                        {
+                          selectedScheduleTime
+                            ? `Scheduled: ${new Date(selectedScheduleTime).toLocaleDateString("en-IN", {
+                              day: 'numeric',
+                              month: 'short',
+                              year: 'numeric'
+                            })} at ${new Date(selectedScheduleTime).toLocaleTimeString("en-IN", {
+                              hour: "2-digit",
+                              minute: "2-digit",
+                              hour12: true,
+                            })}`
+                            : "Schedule for later"
+                        }
+                      </Text>
+                    </View>
+                    <Entypo name="chevron-right" size={20} color="#aaa" />
                   </View>
-                  <Entypo name="chevron-right" size={20} color="#aaa" />
-                </View>
-              </Pressable>
+                </Pressable>
 
-              {/* Location Section */}
-              <View style={styles.locationContainer}>
-                <Feather name="map-pin" size={18} color="#333" style={styles.icon} />
-                <View style={styles.locationDetails}>
-                  <Text style={styles.locationTitle}>Pickup Location</Text>
-                  <Text style={styles.locationAddress}>
-                    {taxDetails[0]?.name || 'Restaurant Name'}
-                  </Text>
-                  <Text style={styles.locationSubAddress}>
-                    {taxDetails[0]?.address || '123 Main St, City, State'}
-                  </Text>
+                {/* Location Section */}
+                <View className="flex-row items-center p-4">
+                  <Feather name="map-pin" size={18} color="#333" className="mr-4" />
+                  <View className="flex-1">
+                    <Text className="text-textprimary font-outfit-bold text-base ml-3">Pickup Location</Text>
+                    <Text className="text-textsecondary font-outfit text-sm ml-3">
+                      {taxDetails[0]?.name || 'Restaurant Name'}
+                    </Text>
+                    <Text className="text-textsecondary font-outfit text-xs ml-3">
+                      {taxDetails[0]?.address || '123 Main St, City, State'}
+                    </Text>
+                  </View>
                 </View>
               </View>
-            </View>
-          )}
+            )}
 
-          {/* Total Bill */}
-          <TouchableOpacity style={styles.row} onPress={() => setBillModalVisible(true)}>
-            <MaterialCommunityIcons name="receipt" size={18} color="#333" />
-            <View style={styles.info}>
-              <View style={styles.billRow}>
-                {appliedOffer && (
-                  <Text style={styles.striked}>${subtotal.toFixed(2)}</Text>
-                )}
-                <Text style={styles.boldPrice}>${(Number(total) || 0).toFixed(2)} </Text>
-                {appliedOffer && (
-                  <View style={styles.badge}>
-                    <Text style={styles.badgeText}>You saved ${discount.toFixed(2)}</Text>
-                  </View>
-                )}
+            {/* Total Bill */}
+            <TouchableOpacity className="flex-row items-center p-4" onPress={() => setBillModalVisible(true)}>
+              <MaterialIcons name="receipt" size={24} color="black" />
+              <View className="flex-1 ml-3">
+                <View className="flex-row items-center">
+                  {appliedOffer && (
+                    <Text className="line-through text-textsecondary">${subtotal.toFixed(2)}</Text>
+                  )}
+                  <Text className="text-textprimary font-outfit-bold text-lg">${(Number(total) || 0).toFixed(2)} </Text>
+                  {appliedOffer && (
+                    <View className="bg-green-100 px-2 py-1 rounded ml-2">
+                      <Text className="text-green-700 text-xs">You saved ${discount.toFixed(2)}</Text>
+                    </View>
+                  )}
+                </View>
+                <Text className="text-textsecondary text-sm">Incl. taxes, charges & donation</Text>
               </View>
-              <Text style={styles.subLabel}>Incl. taxes, charges & donation</Text>
-            </View>
-            <Entypo name="chevron-right" size={20} color="#aaa" />
-          </TouchableOpacity>
+              <Entypo name="chevron-right" size={20} color="#aaa" />
+            </TouchableOpacity>
+
+            {/* Cancellation Policy */}
+            <Text className="text-textprimary font-outfit-bold text-sm mb-2 px-4">CANCELLATION POLICY</Text>
+            <Text className="text-textsecondary text-sm px-4 mb-4">
+              Help us reduce food waste by avoiding cancellations after placing your order. A 100% cancellation fee will be applied.
+            </Text>
+          </View>
         </View>
-
-        {/* Cancellation Policy */}
-        <Text style={styles.cancelTitle}>CANCELLATION POLICY</Text>
-        <Text style={styles.cancelText}>
-          Help us reduce food waste by avoiding cancellations after placing your order. A 100% cancellation fee will be applied.
-        </Text>
-      </ScrollView >
+      </ScrollView>
 
       {/* Bottom Bar */}
-      < View style={styles.footer} >
-        <View style={styles.paymentMethod}>
+      <View className="absolute bottom-0 left-0 right-0 bg-white p-4 border-t border-border flex-row items-center justify-between">
+        <View className="flex-row items-center">
           <MaterialCommunityIcons name="credit-card-outline" size={20} color="#333" />
-          <View style={{ marginLeft: 8 }}>
-            <Text style={styles.payUsing}>PAY USING</Text>
-            <Text style={styles.payMethod}>Pay on delivery</Text>
-            <Text style={styles.subLabel}>UPI / Cash</Text>
+          <View className="ml-2">
+            <Text className="text-textsecondary text-xs font-outfit">PAY USING</Text>
+            <Text className="text-textprimary font-outfit-bold">Pay on delivery</Text>
+            <Text className="text-textsecondary text-xs font-outfit">UPI / Cash</Text>
           </View>
         </View>
 
         <TouchableOpacity
-          style={[styles.placeOrderBtn, isCartEmpty && styles.disabledButton]}
+          className={`px-6 py-3 rounded-lg ${isCartEmpty ? 'bg-border' : 'bg-primary'}`}
           onPress={handlePlaceOrder}
           disabled={isCartEmpty}
         >
-          <Text style={styles.totalText}>${(Number(total) || 0).toFixed(2)} TOTAL</Text>
-          <Text style={styles.placeText}>Place Order</Text>
+          <Text className="text-white font-outfit-bold text-sm">${(Number(total) || 0).toFixed(2)} TOTAL</Text>
+          <Text className="text-white font-outfit text-xs">Place Order</Text>
         </TouchableOpacity>
-      </View >
+      </View>
       {renderPromoModal()}
       {/* Schedule Delivery Modal */}
       {
@@ -1025,43 +1020,38 @@ UploadNotifications(orderData)
         transparent={true}
         onRequestClose={() => setBillModalVisible(false)}
       >
-        <View style={styles.modalOverlay}>
-          <View style={[styles.modalContent, { paddingBottom: 20 }]}>
+        <View className="flex-1 justify-center items-center bg-black/50">
+          <View className="bg-white rounded-lg p-6 mx-4 w-80 max-h-96">
             {appliedOffer && (
               <>
-                <Text style={styles.modalTitle}>You saved ${discount.toFixed(2)} on this order</Text>
-                <Text style={styles.modalSub}>Applied coupon: {appliedOffer.code}</Text>
+                <Text className="text-textprimary font-outfit-bold text-lg mb-2">You saved ${discount.toFixed(2)} on this order</Text>
+                <Text className="text-textsecondary font-outfit text-sm mb-4">Applied coupon: {appliedOffer.code}</Text>
               </>
             )}
-            <Text style={styles.billSummaryTitle}>Bill Summary</Text>
+            <Text className="text-textprimary font-outfit-bold text-lg mb-4">Bill Summary</Text>
 
-            <View style={styles.billRowItem}>
-              <Text style={styles.billLabel}>Item total</Text>
-              <Text style={styles.billValue}>${(subtotal || 0).toFixed(2)}</Text>
+            <View className="flex-row justify-between items-center mb-2">
+              <Text className="text-textsecondary font-outfit text-sm">Item total</Text>
+              <Text className="text-textprimary font-outfit text-sm">${(subtotal || 0).toFixed(2)}</Text>
             </View>
 
             {appliedOffer && (
-              <View style={styles.billRowItem}>
-                <Text style={styles.billLabel}>Discount ({appliedOffer.code})</Text>
-                <Text style={[styles.billValue, { color: 'green' }]}>-${discount.toFixed(2)}</Text>
+              <View className="flex-row justify-between items-center mb-2">
+                <Text className="text-textsecondary font-outfit text-sm">Discount ({appliedOffer.code})</Text>
+                <Text className="text-green-600 font-outfit text-sm">-${discount.toFixed(2)}</Text>
               </View>
             )}
 
             {!isTiffinOrder && (
-              <View style={styles.billRowItem}>
-                <Text style={styles.billLabel}>Delivery partner fee</Text>
-                <Text style={styles.billValue}>${deliveryFee.toFixed(2)}</Text>
+              <View className="flex-row justify-between items-center mb-2">
+                <Text className="text-textsecondary font-outfit text-sm">Delivery partner fee</Text>
+                <Text className="text-textprimary font-outfit text-sm">${deliveryFee.toFixed(2)}</Text>
               </View>
             )}
 
-            {/* <View style={styles.billRowItem}>
-              <Text style={styles.billLabel}>Platform fee</Text>
-              <Text style={styles.billValue}>${platformFee.toFixed(2)}</Text>
-            </View> */}
-
-            <View style={styles.billRowItem}>
-              <Text style={styles.billLabel}>GST Charges</Text>
-              <Text style={styles.billValue}>
+            <View className="flex-row justify-between items-center mb-2">
+              <Text className="text-textsecondary font-outfit text-sm">GST Charges</Text>
+              <Text className="text-textprimary font-outfit text-sm">
                 ${typeof gstAmount === 'number' ? gstAmount.toFixed(2) : '0.00'}
               </Text>
             </View>
@@ -1121,36 +1111,36 @@ UploadNotifications(orderData)
             )}
 
             {carts?.taxDetails?.map((tax, index) => (
-              <View key={`tax-detail-${index}`} style={styles.taxDetailRow}>
-                <Text style={styles.billLabel}>
+              <View key={`tax-detail-${index}`} className="flex-row justify-between items-center mb-2">
+                <Text className="text-textsecondary font-outfit text-sm">
                   {tax.appliedTaxes[0]?.name} (
                   {carts.avgFirmSubcategoryTax === "0.00%"
                     ? "5%"
                     : carts.avgFirmSubcategoryTax}
                   )
                 </Text>
-                <Text style={styles.billValue}>
+                <Text className="text-textprimary font-outfit text-sm">
                   ${tax.gstAmount?.toFixed(2)}
                 </Text>
               </View>
             ))}
 
-            <View style={[styles.billRowItem, { marginTop: 10 }]}>
-              <Text style={[styles.billLabel, { fontWeight: 'bold' }]}>Grand Total</Text>
-              <Text style={[styles.billValue, { fontWeight: 'bold' }]}>${total.toFixed(2)}</Text>
+            <View className="flex-row justify-between items-center mt-4 pt-2 border-t border-border">
+              <Text className="text-textprimary font-outfit-bold text-base">Grand Total</Text>
+              <Text className="text-textprimary font-outfit-bold text-base">${total.toFixed(2)}</Text>
             </View>
 
             {appliedOffer && (
-              <View style={styles.savingsContainer}>
-                <Text style={styles.savingsText}>You saved ${discount.toFixed(2)} on this order</Text>
+              <View className="bg-green-50 p-3 rounded-lg mt-4">
+                <Text className="text-green-700 font-outfit text-sm text-center">You saved ${discount.toFixed(2)} on this order</Text>
               </View>
             )}
 
             <TouchableOpacity
-              style={styles.closeButton}
+              className="bg-primary p-4 rounded-lg mt-4"
               onPress={() => setBillModalVisible(false)}
             >
-              <Text style={styles.closeButtonText}>Close</Text>
+              <Text className="text-white font-outfit-bold text-center">Close</Text>
             </TouchableOpacity>
           </View>
         </View>

@@ -1,3 +1,4 @@
+import { SortDescIcon } from 'lucide-react-native';
 import { StyleSheet, Dimensions } from 'react-native';
 
 const { width } = Dimensions.get('window');
@@ -178,20 +179,21 @@ noCommentsText: {
         display: "flex",
         backgroundColor: "green",
         marginTop: 15,
-        marginLeft: 21,
+        marginLeft: 2,
         borderRadius: 7,
         flexDirection: "row",
-        padding: 3,
+        padding: 0,
         
     },
     RatingText: {
         color: "white",
         fontWeight: "bold",
         fontSize: 11,
-        marginLeft: 0,
+        marginLeft: 3,
     },
     RatingImg: {
-        marginLeft: 1,
+      paddingLeft:2,
+        
         marginTop:1
     },
     TotalText: {
@@ -211,13 +213,16 @@ noCommentsText: {
   
     SearchContainer: {
         display: "flex",
+        borderWidth: 1,
+        borderColor: "#ddd",
+        backgroundColor:  "#F2E8E8",
         flexDirection: "row",
         padding: 4,
         marginLeft: 17,
         marginTop: 20,
         elevation: 5,
         borderRadius: 10,
-        backgroundColor: "#ffffff",
+        
         marginRight: 17,
     
     },
@@ -236,13 +241,13 @@ noCommentsText: {
         marginTop: 16,
         marginLeft: 17,
         elevation: 8,
-        padding: 10
+      
     },
     otherfilters:{
         display:"flex",
         flexDirection:"column",
         justifyContent:"space-between",
-        padding:2
+       
     },
     Relevance: {
         display: "flex",
@@ -250,9 +255,8 @@ noCommentsText: {
         elevation: 3,
         borderRadius: 6,
         padding: 9,
-        backgroundColor: "white",
         marginTop: 0,
-        marginRight: 12,
+        marginRight: 4,
         marginBottom: 4,
         paddingTop:10
     },
@@ -263,8 +267,8 @@ noCommentsText: {
         flexDirection: "row",
         elevation: 3,
         borderRadius: 6,
-        padding: 9,
-        borderColor: "#e5d1d5",
+        
+        borderColor: "#F2E8E8",
         borderWidth: 1,
         paddingTop:10,
         marginRight: 10,
@@ -273,7 +277,12 @@ noCommentsText: {
         color: "black",
         fontWeight: "bold",
         fontSize: 11,
-        padding: 3
+        padding: 4,
+        backgroundColor: "#f2e8e8",
+        borderRadius: 60,
+        paddingLeft: 8,
+        paddingRight: 8,
+        marginLeft: 4
     },
     DropImg: {
         top: 0,
@@ -284,7 +293,7 @@ noCommentsText: {
         flexDirection: "row",
         elevation: 3,
         borderRadius: 6,
-        padding: 8,
+        padding: 10,
         backgroundColor: "white",
         marginTop: 3,
         marginBottom: 3,
@@ -305,14 +314,24 @@ noCommentsText: {
         
       
     },
+    commentMainContainer: {
+      margin: 10,
+      borderRadius: 15,
+      backgroundColor: "white",
+      elevation: 2,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.1,
+      shadowRadius: 2,
+    },
     commentcontainer: {
         display: "flex",
         flexDirection: "column",
         padding: 16,
         marginTop:3,
         backgroundColor:"white",
-        justifyContent:"space-between"
-        
+        justifyContent:"space-between",
+        borderRadius: 15,
     },
     commentheadingcontainer: {
         display: "flex",
@@ -328,7 +347,7 @@ noCommentsText: {
     commentRatingcontainer: {
         display: "flex",
         flexDirection: "column",
-        padding: 2,
+        padding: 4,
         
     },
     commentButton: {
@@ -341,7 +360,7 @@ noCommentsText: {
   shadowOffset: { width: 0, height: 2 },
   shadowOpacity: 0.2,
   shadowRadius: 4,
-  elevation: 3, // for Android
+  elevation: 3, 
   marginVertical: 15,
 },
 commentButtonContent: {
@@ -384,7 +403,7 @@ commentButtonText: {
         borderRadius: 7,
         flexDirection: "row",
         padding: 3,
-        marginLeft:40,
+        marginLeft:50,
         marginRight:5
     },
     verifiedimg:{
@@ -414,6 +433,7 @@ commentButtonText: {
         padding:5,
         paddingLeft:3,
         marginTop:2,
+        mmarginLeft: 10,
         marginBottom:3
     },
     commenttabbox:{
@@ -436,6 +456,7 @@ commentButtonText: {
     LikeCommentCalculateContainer:{
         display:"flex",
         flexDirection:"row",
+        marginLeft:10,
         justifyContent:"space-between"
     },
     commentimgContainer:{

@@ -5,9 +5,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     flexGrow: 1,
   },
-  backArrow: {
-    fontSize: 2,
-    color: '#000',
+  backButtonFeedBack:{
+    paddingLeft: 35,
   },
   title: {
     fontSize: 22,

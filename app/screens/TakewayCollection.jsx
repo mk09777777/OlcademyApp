@@ -1,6 +1,6 @@
 import React, { useState, useEffect} from 'react';
-import { View, Text, TouchableOpacity, SafeAreaView, ActivityIndicator, FlatList, ScrollView } from 'react-native';
-import { styles } from '../../styles/TakewayCollection';
+import { View, Text, TouchableOpacity, ActivityIndicator, FlatList, ScrollView } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import FirmCard from '../../components/FirmCard';
 import { useBookmarkManager } from '../../hooks/BookMarkmanger';
 import { useRouter } from 'expo-router';
@@ -75,7 +75,7 @@ const TakewayCollection = () => {
 
   if (loading) {
     return (
-      <View style={styles.loaderContainer}>
+      <View className="flex-1 justify-center items-center">
         <ActivityIndicator size="large" color="#e23845" />
       </View>
     );
@@ -83,40 +83,40 @@ const TakewayCollection = () => {
 
   if (error) {
     return (
-      <View style={styles.errorContainer}>
-        <Text style={styles.errorText}>{error}</Text>
-        <TouchableOpacity style={styles.retryButton} onPress={fetchRestaurants}>
-          <Text style={styles.retryText}>Retry</Text>
+      <View className="flex-1 justify-center items-center p-5">
+        <Text className="text-lg font-outfit-bold color-red-600 text-center mb-4">{error}</Text>
+        <TouchableOpacity className="bg-primary px-6 py-3 rounded-lg" onPress={fetchRestaurants}>
+          <Text className="text-white font-outfit-bold">Retry</Text>
         </TouchableOpacity>
       </View>
     );
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView className="flex-1 bg-white">
       <BackRouting tittle ="Bookmarks"/>
-      <View style={styles.tabs}>
+      <View className="flex-row bg-white border-b border-gray-200">
         <TouchableOpacity
-          style={[styles.tab, activeTab === 'dishes' && styles.activeTab]}
+          className={`flex-1 py-3 items-center ${activeTab === 'dishes' ? 'border-b-2 border-primary' : ''}`}
           onPress={() => setActiveTab('dishes')}
         >
-          <Text style={[styles.tabText, activeTab === 'dishes' && styles.activeTabText]}>
+          <Text className={`text-sm font-outfit-medium ${activeTab === 'dishes' ? 'color-primary' : 'color-gray-600'}`}>
             Dishes
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
-          style={[styles.tab, activeTab === 'restaurants' && styles.activeTab]}
+          className={`flex-1 py-3 items-center ${activeTab === 'restaurants' ? 'border-b-2 border-primary' : ''}`}
           onPress={() => setActiveTab('restaurants')}
         >
-          <Text style={[styles.tabText, activeTab === 'restaurants' && styles.activeTabText]}>
+          <Text className={`text-sm font-outfit-medium ${activeTab === 'restaurants' ? 'color-primary' : 'color-gray-600'}`}>
             Restaurants
           </Text>
         </TouchableOpacity>
       </View>
 
-      <ScrollView style={styles.content}>
+      <ScrollView className="flex-1">
         {activeTab === 'dishes' ? (
-          <View style={styles.restaurantsContainer}>
+          <View className="p-4">
             {dishes && dishes.length > 0 ? (
               <FlatList
                 data={dishes}
@@ -131,11 +131,11 @@ const TakewayCollection = () => {
                 )}
               />
             ) : (
-              <Text style={styles.noResultsText}>No dishes found in your collection.</Text>
+              <Text className="text-lg font-outfit-medium color-gray-600 text-center mt-8">No dishes found in your collection.</Text>
             )}
           </View>
         ) : (
-          <View style={styles.restaurantsContainer}>
+          <View className="p-4">
             {bookmarkedRestaurants && bookmarkedRestaurants.length > 0 ? (
               <FlatList
                 data={bookmarkedRestaurants}
@@ -161,7 +161,7 @@ const TakewayCollection = () => {
                 )}
               />
             ) : (
-              <Text style={styles.noResultsText}>No restaurants added to your collection yet.</Text>
+              <Text className="text-lg font-outfit-medium color-gray-600 text-center mt-8">No restaurants added to your collection yet.</Text>
             )}
           </View>
         )}
@@ -169,5 +169,24 @@ const TakewayCollection = () => {
     </SafeAreaView>
   );
 };
+
+/* COMMENTED OUT STYLESHEET - CONVERTED TO NATIVEWIND
+const styles = {
+  container: { flex: 1, backgroundColor: '#fff' },
+  loaderContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  errorContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 },
+  errorText: { fontSize: 18, fontWeight: 'bold', color: '#e23845', marginBottom: 16 },
+  retryButton: { backgroundColor: '#e23845', paddingHorizontal: 24, paddingVertical: 12, borderRadius: 8 },
+  retryText: { color: '#fff', fontWeight: 'bold' },
+  tabs: { flexDirection: 'row', backgroundColor: '#fff', borderBottomWidth: 1, borderBottomColor: '#e0e0e0' },
+  tab: { flex: 1, paddingVertical: 12, alignItems: 'center', borderBottomWidth: 2, borderBottomColor: 'transparent' },
+  activeTab: { borderBottomColor: '#e23845' },
+  tabText: { fontSize: 14, color: '#666', fontFamily: 'outfit-medium' },
+  activeTabText: { color: '#e23845', fontFamily: 'outfit-bold' },
+  content: { flex: 1 },
+  restaurantsContainer: { padding: 16 },
+  noResultsText: { fontSize: 16, fontFamily: 'outfit-medium', color: '#666', textAlign: 'center', marginTop: 32 }
+};
+*/
 
 export default TakewayCollection;

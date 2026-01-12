@@ -269,8 +269,8 @@ console.log('reply',res)
 
   if (isLoading) {
     return (
-      <View style={styles.modalContainer}>
-        <View style={styles.modalContent}>
+      <View className="flex-1 bg-white">
+        <View className="flex-1 p-5">
           <Text>Loading...</Text>
         </View>
       </View>
@@ -279,8 +279,8 @@ console.log('reply',res)
 
   if (!selectedComment || !selectedComment._id) {
     return (
-      <View style={styles.modalContainer}>
-        <View style={styles.modalContent}>
+      <View className="flex-1 bg-white">
+        <View className="flex-1 p-5">
           <Text>No comment data available</Text>
         </View>
       </View>
@@ -288,91 +288,97 @@ console.log('reply',res)
   }
 
   return (
-    <View style={styles.modalContainer}>
-      <View style={styles.modalContent}>
-        <View style={styles.modalHeader}>
+    <View className="flex-1 bg-white">
+      <View className="flex-1 p-5">
+        <View className="flex-row justify-between items-center mb-3.75 border-b border-gray-200 pb-2.5">
           <TouchableOpacity onPress={() => router.back()}>
             <Ionicons name="chevron-back" size={24} color="black" />
           </TouchableOpacity>
-          <Text style={styles.modalTitle}>Comments</Text>
+          <Text className="text-lg font-bold">Comments</Text>
           <View style={{ width: 24 }} />
         </View>
         
         {/* Original Review Comment */}
-        <View style={styles.commentcontainer}>
-          <View style={styles.commentheadingcontainer}>
-            <View style={styles.ratingStartcontainer}>
+        <View className="bg-gray-50 p-3.75 rounded-2.5 mb-3.75">
+          <View className="flex-row justify-between mb-2.5">
+            <View className="flex-row items-center">
               <FontAwesome name="user-circle-o" size={33} color="#b5b9dc" />
-              <View style={styles.commentnamecontainer}>
-                <Text style={styles.commentName}>{selectedComment.user?.username || "Anonymous"}</Text>
-                <Text style={styles.commentfollowers}>{reviewStatus.followers} Followers</Text>
+              <View className="ml-2.5">
+                <Text className="text-base font-semibold">{selectedComment.user?.username || "Anonymous"}</Text>
+                <Text className="text-xs text-gray-500">{reviewStatus.followers} Followers</Text>
               </View>
               <TouchableOpacity
                 onPress={handleFollow}
-                style={[styles.followButton, reviewStatus.isFollowing && styles.followingButton]}
+                className={`ml-3.75 px-3 py-1.5 rounded-3.75 ${
+                  reviewStatus.isFollowing 
+                    ? 'bg-transparent border border-pink-500' 
+                    : 'bg-pink-500'
+                }`}
               >
-                <Text style={[styles.followButtonText, reviewStatus.isFollowing && styles.followingButtonText]}>
+                <Text className={`text-xs ${
+                  reviewStatus.isFollowing ? 'text-pink-500' : 'text-white'
+                }`}>
                   {reviewStatus.isFollowing ? "Following" : "Follow"}
                 </Text>
               </TouchableOpacity>
             </View>
-            <View style={styles.commentRatingcontainer}>
-              <View style={styles.RatingsContainer2}>
-                <Text style={styles.RatingText}>{selectedComment.rating || 0}</Text>
-                <AntDesign name="star" size={11} color="white" style={styles.RatingImg} />
+            <View className="items-end">
+              <View className="flex-row items-center bg-green-500 px-1.5 py-0.5 rounded-1 mb-1.25">
+                <Text className="text-white text-xs mr-0.75">{selectedComment.rating || 0}</Text>
+                <AntDesign name="star" size={11} color="white" className="ml-0.5" />
               </View>
-              <View style={styles.commentverifiedtextcontainer}>
+              <View className="flex-row items-center">
                 {selectedComment.verified && (
                   <>
-                    <MaterialIcons name="verified" size={10} color="#6b7280ef" style={styles.verifiedimg} />
-                    <Text style={styles.commentverified}>Verified order</Text>
+                    <MaterialIcons name="verified" size={10} color="#6b7280ef" className="mr-0.75" />
+                    <Text className="text-xs text-gray-500">Verified order</Text>
                   </>
                 )}
               </View>
             </View>
           </View>
-          <Text style={styles.commentText}>
+          <Text className="text-sm mb-2.5 leading-5">
             {Array.isArray(selectedComment.comment) 
               ? selectedComment.comment[0] 
               : selectedComment.comment || "No comment text available"
             }
           </Text>
-          <View style={styles.LikeCommentCalculateContainer}>
-            <Text style={styles.commentText2}>{getDaysAgo(selectedComment.createdAt)}</Text>
-            <Text style={styles.commentText2}>
+          <View className="flex-row justify-between">
+            <Text className="text-xs text-gray-500">{getDaysAgo(selectedComment.createdAt)}</Text>
+            <Text className="text-xs text-gray-500">
               {reviewStatus.likes} helpful votes, {commentList.length} comments
             </Text>
           </View>
         </View>
         
-        <View style={styles.commenttabscontainer}>
-          <TouchableOpacity onPress={handleLike} style={styles.commenttabbox}>
+        <View className="flex-row justify-around border-t border-gray-200 pt-2.5 mb-3.75">
+          <TouchableOpacity onPress={handleLike} className="flex-row items-center">
             <AntDesign
               name={reviewStatus.isLiked ? "like1" : "like2"}
               size={20}
               color={reviewStatus.isLiked ? "#E91E63" : "black"}
             />
-            <Text style={[styles.commenttabtext, reviewStatus.isLiked && {color: "#E91E63"}]}>Helpful</Text>
+            <Text className={`ml-1.25 text-sm ${reviewStatus.isLiked ? 'text-pink-500' : 'text-black'}`}>Helpful</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.commenttabbox}>
+          <TouchableOpacity className="flex-row items-center">
             <MaterialCommunityIcons
               name="comment-text-outline"
               size={20}
               color="black"
-              style={styles.likeimage}
+              className="mr-1.25"
             />
-            <Text style={styles.commenttabtext}>Comment</Text>
+            <Text className="text-sm">Comment</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.commenttabbox}>
-            <Fontisto name="share" size={20} color="black" style={styles.likeimage} />
-            <Text style={styles.commenttabtext}>Share</Text>
+          <TouchableOpacity className="flex-row items-center">
+            <Fontisto name="share" size={20} color="black" className="mr-1.25" />
+            <Text className="text-sm">Share</Text>
           </TouchableOpacity>
         </View>
 
         {/* Comments List - Fixed with comprehensive null checking */}
-        <ScrollView style={styles.commentsList}>
+        <ScrollView className="flex-1 mb-3.75">
           {commentList.length === 0 ? (
-            <Text style={styles.noCommentsText}>No comments yet</Text>
+            <Text className="text-center text-gray-500 mt-5 text-base">No comments yet</Text>
           ) : (
             commentList
               .filter(commentItem => commentItem && typeof commentItem === 'object')
@@ -383,36 +389,36 @@ console.log('reply',res)
                 const safeComment = commentItem || {};
                 
                 return (
-                  <View key={commentId} style={styles.commentItem}>
-                    <View style={styles.commentHeader}>
+                  <View key={commentId} className="bg-gray-50 p-3 rounded-2 mb-2.5">
+                    <View className="flex-row items-center mb-2">
                       <FontAwesome name="user-circle-o" size={20} color="#b5b9dc" />
-                      <Text style={styles.commentUsername}>
+                      <Text className="ml-2 font-semibold text-sm">
                         {safeComment?.username || "Anonymous"}
                       </Text>
-                      <Text style={styles.commentTime}>
+                      <Text className="ml-2.5 text-xs text-gray-500">
                         {getDaysAgo(safeComment?.date || safeComment?.createdAt)}
                       </Text>
                     </View>
-                    <Text style={styles.commentText}>{safeComment?.comment || "No comment"}</Text>
+                    <Text className="text-sm mb-2.5 leading-5">{safeComment?.comment || "No comment"}</Text>
                     
                     {/* Replies Section - Fixed with proper null checks */}
                     {replies.length > 0 && (
-                      <View style={styles.repliesContainer}>
+                      <View className="mt-2.5 ml-5 border-l-2 border-gray-200 pl-2.5">
                         {replies.slice(0, visibleReplies[commentId] ? undefined : 2).map((reply, replyIndex) => {
                           // Safe reply object with fallbacks
                           const safeReply = reply || {};
                           return (
-                            <View key={safeReply._id || `reply-${replyIndex}`} style={styles.replyItem}>
-                              <View style={styles.replyHeader}>
+                            <View key={safeReply._id || `reply-${replyIndex}`} className="mb-2.5">
+                              <View className="flex-row items-center mb-1.25">
                                 <FontAwesome name="user-circle-o" size={16} color="#b5b9dc" />
-                                <Text style={styles.replyUsername}>
+                                <Text className="ml-1.25 font-semibold text-xs">
                                   {safeReply?.username || "Anonymous"}
                                 </Text>
-                                <Text style={styles.replyTime}>
+                                <Text className="ml-2 text-xs text-gray-500">
                                   {getDaysAgo(safeReply?.createdAt)}
                                 </Text>
                               </View>
-                              <Text style={styles.replyText}>{safeReply?.reply || "No reply"}</Text>
+                              <Text className="text-xs ml-6.25">{safeReply?.reply || "No reply"}</Text>
                             </View>
                           );
                         })}
@@ -420,9 +426,9 @@ console.log('reply',res)
                         {replies.length > 1 && (
                           <TouchableOpacity
                             onPress={() => handleViewMoreReplies(commentId)}
-                            style={styles.viewMoreButton}
+                            className="mt-1.25"
                           >
-                            <Text style={styles.viewMoreText}>
+                            <Text className="text-pink-500 text-xs">
                               {visibleReplies[commentId] ? "View less" : `View ${replies.length} more replies`}
                             </Text>
                           </TouchableOpacity>
@@ -431,18 +437,18 @@ console.log('reply',res)
                     )}
                     
                     {/* Reply Input */}
-                    <View style={styles.replyInputContainer}>
+                    <View className="flex-row items-center mt-2.5">
                       <TextInput
-                        style={styles.replyInput}
+                        className="flex-1 border border-gray-200 rounded-5 px-3.75 py-2 text-sm mr-2.5"
                         placeholder="Write a reply..."
                         value={replyMap[commentId] || ""}
                         onChangeText={(text) => setReplyMap({...replyMap, [commentId]: text})}
                       />
                       <TouchableOpacity
                         onPress={() => handleReply(commentId)}
-                        style={styles.replyButton}
+                        className="bg-pink-500 px-3.75 py-2 rounded-5"
                       >
-                        <Text style={styles.replyButtonText}>Reply</Text>
+                        <Text className="text-white text-sm">Reply</Text>
                       </TouchableOpacity>
                     </View>
                   </View>
@@ -452,9 +458,9 @@ console.log('reply',res)
         </ScrollView>
         
         {/* Add Comment Input */}
-        <View style={styles.addCommentContainer}>
+        <View className="flex-row items-center border-t border-gray-200 pt-3.75">
           <TextInput
-            style={styles.commentInput}
+            className="flex-1 border border-gray-200 rounded-5 px-3.75 py-2.5 text-sm mr-2.5 max-h-25"
             placeholder="Add a comment..."
             value={comment}
             onChangeText={setComment}
@@ -462,267 +468,69 @@ console.log('reply',res)
           />
           <TouchableOpacity
             onPress={handleCommentSubmit}
-            style={styles.commentButton}
+            className="bg-pink-500 px-5 py-2.5 rounded-5"
             disabled={!comment.trim()}
           >
-            <Text style={styles.commentButtonText}>Post</Text>
+            <Text className="text-white text-sm font-semibold">Post</Text>
           </TouchableOpacity>
         </View>
       </View>
     </View>
   );}
 
+/* Original CSS Reference:
 const styles = StyleSheet.create({
-  modalContainer: {
-    flex: 1,
-    backgroundColor: 'white',
-  },
-  modalContent: {
-    flex: 1,
-    padding: 20,
-  },
-  modalHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: '#e5e7eb',
-    paddingBottom: 10,
-  },
-  modalTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  commentcontainer: {
-    backgroundColor: '#f9fafb',
-    padding: 15,
-    borderRadius: 10,
-    marginBottom: 15,
-  },
-  commentheadingcontainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 10,
-  },
-  ratingStartcontainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  commentnamecontainer: {
-    marginLeft: 10,
-  },
-  commentName: {
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  commentfollowers: {
-    fontSize: 12,
-    color: '#6b7280',
-  },
-  followButton: {
-    marginLeft: 15,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    backgroundColor: '#E91E63',
-    borderRadius: 15,
-  },
-  followingButton: {
-    backgroundColor: 'transparent',
-    borderWidth: 1,
-    borderColor: '#E91E63',
-  },
-  followButtonText: {
-    color: 'white',
-    fontSize: 12,
-  },
-  followingButtonText: {
-    color: '#E91E63',
-  },
-  commentRatingcontainer: {
-    alignItems: 'flex-end',
-  },
-  RatingsContainer2: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#22c55e',
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 4,
-    marginBottom: 5,
-  },
-  RatingText: {
-    color: 'white',
-    fontSize: 12,
-    marginRight: 3,
-  },
-  RatingImg: {
-    marginLeft: 2,
-  },
-  commentverifiedtextcontainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  verifiedimg: {
-    marginRight: 3,
-  },
-  commentverified: {
-    fontSize: 10,
-    color: '#6b7280',
-  },
-  commentText: {
-    fontSize: 14,
-    marginBottom: 10,
-    lineHeight: 20,
-  },
-  LikeCommentCalculateContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  commentText2: {
-    fontSize: 12,
-    color: '#6b7280',
-  },
-  commenttabscontainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    borderTopWidth: 1,
-    borderTopColor: '#e5e7eb',
-    paddingTop: 10,
-    marginBottom: 15,
-  },
-  commenttabbox: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  commenttabtext: {
-    marginLeft: 5,
-    fontSize: 14,
-  },
-  likeimage: {
-    marginRight: 5,
-  },
-  commentsList: {
-    flex: 1,
-    marginBottom: 15,
-  },
-  noCommentsText: {
-    textAlign: 'center',
-    color: '#6b7280',
-    marginTop: 20,
-    fontSize: 16,
-  },
-  commentItem: {
-    backgroundColor: '#f9fafb',
-    padding: 12,
-    borderRadius: 8,
-    marginBottom: 10,
-  },
-  commentHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  commentUsername: {
-    marginLeft: 8,
-    fontWeight: '600',
-    fontSize: 14,
-  },
-  commentTime: {
-    marginLeft: 10,
-    fontSize: 12,
-    color: '#6b7280',
-  },
-  repliesContainer: {
-    marginTop: 10,
-    marginLeft: 20,
-    borderLeftWidth: 2,
-    borderLeftColor: '#e5e7eb',
-    paddingLeft: 10,
-  },
-  replyItem: {
-    marginBottom: 10,
-  },
-  replyHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 5,
-  },
-  replyUsername: {
-    marginLeft: 5,
-    fontWeight: '600',
-    fontSize: 13,
-  },
-  replyTime: {
-    marginLeft: 8,
-    fontSize: 11,
-    color: '#6b7280',
-  },
-  replyText: {
-    fontSize: 13,
-    marginLeft: 25,
-  },
-  viewMoreButton: {
-    marginTop: 5,
-  },
-  viewMoreText: {
-    color: '#E91E63',
-    fontSize: 12,
-  },
-  replyInputContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 10,
-  },
-  replyInput: {
-    flex: 1,
-    borderWidth: 1,
-    borderColor: '#e5e7eb',
-    borderRadius: 20,
-    paddingHorizontal: 15,
-    paddingVertical: 8,
-    fontSize: 14,
-    marginRight: 10,
-  },
-  replyButton: {
-    backgroundColor: '#E91E63',
-    paddingHorizontal: 15,
-    paddingVertical: 8,
-    borderRadius: 20,
-  },
-  replyButtonText: {
-    color: 'white',
-    fontSize: 14,
-  },
-  addCommentContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderTopWidth: 1,
-    borderTopColor: '#e5e7eb',
-    paddingTop: 15,
-  },
-  commentInput: {
-    flex: 1,
-    borderWidth: 1,
-    borderColor: '#e5e7eb',
-    borderRadius: 20,
-    paddingHorizontal: 15,
-    paddingVertical: 10,
-    fontSize: 14,
-    marginRight: 10,
-    maxHeight: 100,
-  },
-  commentButton: {
-    backgroundColor: '#E91E63',
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 20,
-  },
-  commentButtonText: {
-    color: 'white',
-    fontSize: 14,
-    fontWeight: '600',
-  },
+  modalContainer: { flex: 1, backgroundColor: 'white' },
+  modalContent: { flex: 1, padding: 20 },
+  modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 15, borderBottomWidth: 1, borderBottomColor: '#e5e7eb', paddingBottom: 10 },
+  modalTitle: { fontSize: 18, fontWeight: 'bold' },
+  commentcontainer: { backgroundColor: '#f9fafb', padding: 15, borderRadius: 10, marginBottom: 15 },
+  commentheadingcontainer: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 10 },
+  ratingStartcontainer: { flexDirection: 'row', alignItems: 'center' },
+  commentnamecontainer: { marginLeft: 10 },
+  commentName: { fontSize: 16, fontWeight: '600' },
+  commentfollowers: { fontSize: 12, color: '#6b7280' },
+  followButton: { marginLeft: 15, paddingHorizontal: 12, paddingVertical: 6, backgroundColor: '#E91E63', borderRadius: 15 },
+  followingButton: { backgroundColor: 'transparent', borderWidth: 1, borderColor: '#E91E63' },
+  followButtonText: { color: 'white', fontSize: 12 },
+  followingButtonText: { color: '#E91E63' },
+  commentRatingcontainer: { alignItems: 'flex-end' },
+  RatingsContainer2: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#22c55e', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 4, marginBottom: 5 },
+  RatingText: { color: 'white', fontSize: 12, marginRight: 3 },
+  RatingImg: { marginLeft: 2 },
+  commentverifiedtextcontainer: { flexDirection: 'row', alignItems: 'center' },
+  verifiedimg: { marginRight: 3 },
+  commentverified: { fontSize: 10, color: '#6b7280' },
+  commentText: { fontSize: 14, marginBottom: 10, lineHeight: 20 },
+  LikeCommentCalculateContainer: { flexDirection: 'row', justifyContent: 'space-between' },
+  commentText2: { fontSize: 12, color: '#6b7280' },
+  commenttabscontainer: { flexDirection: 'row', justifyContent: 'space-around', borderTopWidth: 1, borderTopColor: '#e5e7eb', paddingTop: 10, marginBottom: 15 },
+  commenttabbox: { flexDirection: 'row', alignItems: 'center' },
+  commenttabtext: { marginLeft: 5, fontSize: 14 },
+  likeimage: { marginRight: 5 },
+  commentsList: { flex: 1, marginBottom: 15 },
+  noCommentsText: { textAlign: 'center', color: '#6b7280', marginTop: 20, fontSize: 16 },
+  commentItem: { backgroundColor: '#f9fafb', padding: 12, borderRadius: 8, marginBottom: 10 },
+  commentHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 8 },
+  commentUsername: { marginLeft: 8, fontWeight: '600', fontSize: 14 },
+  commentTime: { marginLeft: 10, fontSize: 12, color: '#6b7280' },
+  repliesContainer: { marginTop: 10, marginLeft: 20, borderLeftWidth: 2, borderLeftColor: '#e5e7eb', paddingLeft: 10 },
+  replyItem: { marginBottom: 10 },
+  replyHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 5 },
+  replyUsername: { marginLeft: 5, fontWeight: '600', fontSize: 13 },
+  replyTime: { marginLeft: 8, fontSize: 11, color: '#6b7280' },
+  replyText: { fontSize: 13, marginLeft: 25 },
+  viewMoreButton: { marginTop: 5 },
+  viewMoreText: { color: '#E91E63', fontSize: 12 },
+  replyInputContainer: { flexDirection: 'row', alignItems: 'center', marginTop: 10 },
+  replyInput: { flex: 1, borderWidth: 1, borderColor: '#e5e7eb', borderRadius: 20, paddingHorizontal: 15, paddingVertical: 8, fontSize: 14, marginRight: 10 },
+  replyButton: { backgroundColor: '#E91E63', paddingHorizontal: 15, paddingVertical: 8, borderRadius: 20 },
+  replyButtonText: { color: 'white', fontSize: 14 },
+  addCommentContainer: { flexDirection: 'row', alignItems: 'center', borderTopWidth: 1, borderTopColor: '#e5e7eb', paddingTop: 15 },
+  commentInput: { flex: 1, borderWidth: 1, borderColor: '#e5e7eb', borderRadius: 20, paddingHorizontal: 15, paddingVertical: 10, fontSize: 14, marginRight: 10, maxHeight: 100 },
+  commentButton: { backgroundColor: '#E91E63', paddingHorizontal: 20, paddingVertical: 10, borderRadius: 20 },
+  commentButtonText: { color: 'white', fontSize: 14, fontWeight: '600' }
 });
+*/
 
 export default CommentsScreen;

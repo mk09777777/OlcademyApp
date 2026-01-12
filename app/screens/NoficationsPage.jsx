@@ -6,7 +6,6 @@ import {
   PanResponder,
   TouchableOpacity,
   Dimensions,
-  StyleSheet,
   FlatList,
 } from "react-native";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
@@ -57,28 +56,30 @@ const NotificationItem = ({ notification, onDelete }) => {
   };
 
   return (
-    <View style={styles.itemContainer}>
-      <View style={styles.deleteButton}>
+    <View className="overflow-hidden my-2 rounded-lg bg-white shadow-sm">
+      <View className="absolute right-0 w-20 h-full bg-primary justify-center items-center rounded-lg">
         <TouchableOpacity onPress={handleDelete}>
           <MaterialCommunityIcons name="trash-can-outline" size={20} color="white" />
         </TouchableOpacity>
       </View>
 
       <Animated.View
-        style={[styles.notificationContainer, { transform: [{ translateX }] }]}
+        className="flex-row items-center py-4 px-4 bg-white"
         {...panResponder.panHandlers}
+        style={{ transform: [{ translateX }] }}
       >
-        <MaterialCommunityIcons
-          name="cart-check"
-          size={20}
-          color="#e23744"
-          style={styles.icon}
-        />
-        <View style={styles.content}>
-          <Text style={styles.title}>{notification.title}</Text>
-          <Text style={styles.message}>{notification.description}</Text>
+        <View className="mr-3">
+          <MaterialCommunityIcons
+            name="cart-check"
+            size={20}
+            color="#e23744"
+          />
         </View>
-        <Text style={styles.time}>{notification.time}</Text>
+        <View className="flex-1">
+          <Text className="text-textprimary font-outfit-bold text-base mb-1">{notification.title}</Text>
+          <Text className="text-textsecondary font-outfit text-sm leading-5">{notification.description}</Text>
+        </View>
+        <Text className="text-textsecondary font-outfit text-xs ml-3 self-start">{notification.time}</Text>
       </Animated.View>
     </View>
   );
@@ -88,6 +89,26 @@ export default function NotificationPage() {
   const [notifications, setNotifications] = useState([]);
   const navigation = useNavigation();
   const { safeNavigation } = useSafeNavigation();
+
+  const baseUrl = String(API_CONFIG.BACKEND_URL).replace(/\/+$/, '');
+
+  const deleteNotification = async (id) => {
+    const safeId = encodeURIComponent(String(id));
+
+    try {
+      await axios.delete(`${baseUrl}/api/deleteNotificationsInfo/${safeId}`, {
+        withCredentials: true,
+      });
+      return;
+    } catch (error) {
+      const status = error?.response?.status;
+      if (status !== 404) throw error;
+    }
+
+    await axios.delete(`${baseUrl}/api/deleteNotificatonsInfo/${safeId}`, {
+      withCredentials: true,
+    });
+  };
 
   useEffect(() => {
     navigation.setOptions({ headerTitle: "Notifications" });
@@ -116,9 +137,7 @@ export default function NotificationPage() {
 
   const handleDeleteNotifications = async (id) => {
     try {
-      await axios.delete(`${API_CONFIG.BACKEND_URL}/api/deleteNotificatonsInfo/${id}`, {
-        withCredentials: true,
-      });
+      await deleteNotification(id);
       setNotifications((prev) => prev.filter((item) => item._id !== id));
       console.log("Notification deleted successfully", id);
     } catch (error) {
@@ -129,9 +148,7 @@ export default function NotificationPage() {
   const clearAllNotifications = async () => {
     try {
       const deletePromises = notifications.map((item) =>
-        axios.delete(`${API_CONFIG.BACKEND_URL}/api/deleteNotificatonsInfo/${item._id}`, {
-          withCredentials: true,
-        })
+        deleteNotification(item._id)
       );
       await Promise.all(deletePromises);
       setNotifications([]);
@@ -154,86 +171,32 @@ export default function NotificationPage() {
   );
 
   return (
-    <View style={styles.container}>
+    <View className="flex-1 bg-white px-4">
       <BackRouting tittle="Notifications" />
       
 
       {Array.isArray(notifications) && notifications.length > 0 ? (
         <View>
-          <View style={{ flexDirection: "row", justifyContent: "flex-end", marginRight: 20, marginTop: 10 }}>
-        <TouchableOpacity onPress={clearAllNotifications}>
-          <Text style={{ color: "#f04f5f", fontWeight: "bold" }}>Clear All</Text>
-        </TouchableOpacity>
-      </View>
+          <View className="flex-row justify-end mr-5 mt-2">
+            <TouchableOpacity onPress={clearAllNotifications}>
+              <Text className="text-primary font-outfit-bold">Clear All</Text>
+            </TouchableOpacity>
+          </View>
           <FlatList
-          data={notifications}
-          keyExtractor={(item, index) => item._id || index.toString()}
-          renderItem={renderItem}
-          contentContainerStyle={{ paddingBottom: 16 }}
-        />
+            data={notifications}
+            keyExtractor={(item, index) => item._id || index.toString()}
+            renderItem={renderItem}
+            contentContainerClassName="pb-4"
+          />
         </View>
       ) : (
-        <TouchableOpacity
-          // onPress={() => safeNavigation("/screens/DiningBookingDetails")}
-          style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
-        >
-          <Text style={{ fontSize: 20, color: "black", fontWeight: "bold" }}>
+        <View className="flex-1 justify-center items-center">
+          <Text className="text-textprimary text-xl font-outfit-bold">
             No Notifications found
           </Text>
-        </TouchableOpacity>
+        </View>
       )}
     </View>
   );
 }
 
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#fff", paddingHorizontal: 16 },
-  itemContainer: {
-    overflow: "hidden",
-    marginVertical: 8,
-    borderRadius: 8,
-    backgroundColor: "#ffffff",
-    elevation: 2,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-  },
-  notificationContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingVertical: 16,
-    paddingHorizontal: 16,
-    backgroundColor: "#ffffff",
-  },
-  icon: { marginRight: 12 },
-  content: { flex: 1 },
-  title: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#1a1a1a",
-    marginBottom: 4,
-  },
-  message: {
-    fontSize: 14,
-    color: "#666666",
-    lineHeight: 20,
-  },
-  time: {
-    fontSize: 12,
-    color: "#999999",
-    marginLeft: 12,
-    alignSelf: "flex-start",
-  },
-  deleteButton: {
-    position: "absolute",
-    right: 0,
-    width: 80,
-    height: "101%",
-    backgroundColor: "#e23744",
-    justifyContent: "center",
-    alignItems: "center",
-    borderRadius: 8,
-  },
-});

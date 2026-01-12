@@ -13,6 +13,7 @@ const ChangeEmailStyles = StyleSheet.create({
    changeText:{
     marginLeft:10,
     fontSize:16,
+    fontFamily: 'outfit-medium ',
     color:"#000000",
     fontWeight:"bold",
     marginBottom:10,
@@ -21,6 +22,7 @@ const ChangeEmailStyles = StyleSheet.create({
    changeText2:{
     marginLeft:10,
     fontSize:15,
+    fontFamily: 'outfit ',
     color:"#000000",
     marginBottom:10,
     fontWeight:"500"

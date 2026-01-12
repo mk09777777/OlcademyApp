@@ -1,55 +1,66 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { MaterialIcons } from '@expo/vector-icons';
+import { View, Text, TouchableOpacity } from 'react-native';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import Colors from '../components/constants/Colors';
-import styles from '../styles/FoodSection';
 import { router } from 'expo-router';
+import { useSafeNavigation } from "@/hooks/navigationPage";
+
+
 const FoodSection = () => {
+const { safeNavigation } = useSafeNavigation();
   const FoodItem = ({ icon, title, chevron, onPress }) => (
-    <TouchableOpacity onPress={onPress} style={styles.section}>
-      <View style={styles.iconContainer}>
-        <MaterialIcons name={icon} size={24} color={Colors.textLight} />
+    <TouchableOpacity onPress={onPress} className="flex-row items-center py-4 px-4 bg-white border-b border-gray-100">
+      <View className="w-10 h-10 rounded-full bg-gray-50 items-center justify-center mr-3">
+        <MaterialCommunityIcons name={icon} size={24} color={Colors.textLight} />
       </View>
-      <View style={styles.sectionContent}>
-        <Text style={styles.sectionTitle}>{title}</Text>
+      <View className="flex-1">
+        <Text className="text-base font-outfit-medium color-gray-800">{title}</Text>
       </View>
-      {chevron && <MaterialIcons name="chevron-right" size={24} color={Colors.textLight} style={styles.chevron} />}
+      {chevron && (
+        <MaterialCommunityIcons
+          name="chevron-right"
+          size={24}
+          color={Colors.textLight}
+        />
+      )}
     </TouchableOpacity>
   );
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Food Orders</Text>
+    <View className="bg-white rounded-lg mx-4 my-2 overflow-hidden shadow-sm">
+      <View className="px-4 py-3 border-b border-gray-100">
+        <Text className="text-lg font-outfit-bold color-gray-800">Food Orders</Text>
       </View>
 
       <FoodItem
-        icon="shopping-bag"
+        icon="shopping-outline"
         title="Your Orders"
         chevron
-        onPress={() => router.push('/screens/Order')}
+        onPress={() => safeNavigation('/screens/Order')}
       />
 
       <FoodItem
-        icon="favorite-border"
+        icon="heart-outline"
         title="Favorite Orders"
         chevron
-        onPress={() => router.push('/screens/FavoriteOrders')}
-      />
-      <FoodItem
-        icon="location-on"
-        title="Your Address"
-        chevron
-        onPress={() => router.push('/screens/Address')}
+        onPress={() => safeNavigation('/screens/FavoriteOrders')}
       />
 
       <FoodItem
-        icon="chat"
+        icon="map-marker-outline"
+        title="Your Address"
+        chevron
+        onPress={() => safeNavigation('/screens/Address')}
+      />
+
+      <FoodItem
+        icon="chat-outline"
         title="Online Ordering Help"
         chevron
-        onPress={() => router.push('/screens/OrderSupportChat')}
+        onPress={() => safeNavigation('/screens/OrderSupportChat')}
       />
     </View>
   );
 };
+
 export default FoodSection;

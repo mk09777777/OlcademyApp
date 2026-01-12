@@ -3,6 +3,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
 import { API_CONFIG } from '../config/apiConfig';
 import axios from 'axios';
+import { log, warn, error as logError } from '../utils/logger';
+import { shouldLogoutOnAuthFailure } from '../utils/authBootstrapDecision';
 const api = axios.create({
 
   baseURL: API_CONFIG.BACKEND_URL,
@@ -26,24 +28,47 @@ export const AuthProvider = ({ children }) => {
         const userData = await AsyncStorage.getItem('userData');
         if (userData) {
           const parsedUser = JSON.parse(userData);
-          const response = await api.get('/api/user');
-
-          if (response.data?.user) {
-            setIsAuthenticated(true);
-            setUser(parsedUser);
-            const profileResponse = await api.get('/api/profile');
-            setProfileData(profileResponse.data);
-          } else {
-            await AsyncStorage.removeItem('userData');
-            setIsAuthenticated(false);
-            setUser(null);
-            router.replace('/auth/LoginScreen'); 
+          log('Checking stored auth state');
+          
+          try {
+            const response = await api.get('/api/user');
+            
+            if (response.data?.user || response.data?.success) {
+              setIsAuthenticated(true);
+              setUser(parsedUser);
+              
+              // Try to get profile data, but don't fail auth if it fails
+              try {
+                const profileResponse = await api.get('/api/profile');
+                setProfileData(profileResponse.data);
+              } catch (profileError) {
+                warn('Profile fetch failed:', profileError.message);
+              }
+            } else {
+              throw new Error('User validation failed');
+            }
+          } catch (apiError) {
+            const status = apiError?.response?.status;
+            if (shouldLogoutOnAuthFailure(status)) {
+              log('API auth rejected, clearing auth:', apiError.message);
+              await AsyncStorage.removeItem('userData');
+              setIsAuthenticated(false);
+              setUser(null);
+              router.replace('/auth/LoginScreen');
+            } else {
+              // Transient failure (offline, timeout, 5xx): do NOT force logout.
+              warn('API validation unavailable; keeping local auth:', apiError.message);
+              setIsAuthenticated(true);
+              setUser(parsedUser);
+            }
           }
         } else {
+          log('No stored user data, redirecting to login');
+          setIsAuthenticated(false);
           router.replace('/auth/LoginScreen'); 
         }
       } catch (error) {
-        console.error('Auth check error:', error);
+        logError('Auth check error:', error);
         setIsAuthenticated(false);
         setUser(null);
         await AsyncStorage.removeItem('userData');
@@ -57,12 +82,23 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (userData) => {
     try {
+      log('Setting user data');
       await AsyncStorage.setItem('userData', JSON.stringify(userData));
       setIsAuthenticated(true);
       setUser(userData);
+      
+      // Try to fetch profile data after login
+      try {
+        const profileResponse = await api.get('/api/profile');
+        setProfileData(profileResponse.data);
+      } catch (profileError) {
+        warn('Profile fetch after login failed:', profileError.message);
+      }
+      
       router.replace('home');
     } catch (error) {
-      console.error('Login error:', error);
+      logError('Login error:', error);
+      throw error;
     }
   };
 
@@ -71,11 +107,11 @@ export const AuthProvider = ({ children }) => {
       await api.get('/api/Logout');
     } catch (error) {
       if (error.response) {
-        console.error('Logout failed:', error.response.status);
+        logError('Logout failed:', error.response.status);
       } else if (error.request) {
-        console.error('No server response during logout');
+        logError('No server response during logout');
       } else {
-        console.error('Logout setup error:', error.message);
+        logError('Logout setup error:', error.message);
       }
     } finally {
       // Always perform client-side cleanup
@@ -86,7 +122,7 @@ export const AuthProvider = ({ children }) => {
         setProfileData({});
         router.replace('/auth/LoginScreen');
       } catch (cleanupError) {
-        console.error('Storage cleanup error:', cleanupError);
+        logError('Storage cleanup error:', cleanupError);
         router.replace('/auth/LoginScreen');
       }
     }

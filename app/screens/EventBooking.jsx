@@ -1,10 +1,272 @@
-import { View, Text } from 'react-native'
-import React from 'react'
+import { View, Text, ScrollView, ImageBackground, TouchableOpacity, TextInput, Alert, KeyboardAvoidingView, Platform, TouchableWithoutFeedback, Keyboard, ActivityIndicator } from 'react-native';
+import React, { useEffect, useMemo, useState } from 'react';
+import { useGlobalSearchParams } from 'expo-router';
+import { useSafeNavigation } from '@/hooks/navigationPage';
+import { fetchEventById } from '@/services/eventService';
+import { normalizeImageSource, transformEventPayload } from '@/utils/eventUtils';
+
+const placeholderImage = require('@/assets/images/placeholder.png');
 
 export default function EventBooking() {
+  const { eventId, event } = useGlobalSearchParams();
+  const [eventDetails, setEventDetails] = useState(null);
+  const [ticketCount, setTicketCount] = useState(1);
+  const [selectedSection, setSelectedSection] = useState('General Admission');
+  const [buyerName, setBuyerName] = useState('');
+  const [buyerEmail, setBuyerEmail] = useState('');
+  const [keyboardOffset, setKeyboardOffset] = useState(0);
+  const { safeNavigation } = useSafeNavigation();
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(null);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const assignEvent = (payload) => {
+      if (!isMounted) {
+        return;
+      }
+      const normalized = transformEventPayload(payload);
+      setEventDetails(normalized ?? null);
+      setLoadError(normalized ? null : new Error('Event not found'));
+    };
+
+    const hydrate = async () => {
+      if (eventId) {
+        setLoading(true);
+        try {
+          const fetched = await fetchEventById(eventId);
+          assignEvent(fetched);
+        } catch (error) {
+          console.warn('Unable to load event details', error);
+          if (isMounted) {
+            setLoadError(error);
+            setEventDetails(null);
+          }
+        } finally {
+          if (isMounted) {
+            setLoading(false);
+          }
+        }
+        return;
+      }
+
+      if (event) {
+        try {
+          const parsed = JSON.parse(event);
+          assignEvent(parsed);
+        } catch (parseError) {
+          console.warn('Unable to parse event payload:', parseError);
+          if (isMounted) {
+            setEventDetails(null);
+            setLoadError(parseError);
+          }
+        }
+      }
+
+      if (isMounted) {
+        setLoading(false);
+      }
+    };
+
+    hydrate();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [event, eventId]);
+
+  useEffect(() => {
+    const handleShow = (event) => {
+      setKeyboardOffset(event.endCoordinates?.height ?? 0);
+    };
+
+    const handleHide = () => {
+      setKeyboardOffset(0);
+    };
+
+    const showListener = Keyboard.addListener('keyboardDidShow', handleShow);
+    const hideListener = Keyboard.addListener('keyboardDidHide', handleHide);
+
+    return () => {
+      showListener.remove();
+      hideListener.remove();
+    };
+  }, []);
+
+  const pricing = useMemo(() => ({
+    general: eventDetails?.pricing?.general ?? 799,
+    vip: eventDetails?.pricing?.vip ?? 1499,
+  }), [eventDetails]);
+
+  const ticketPrice = selectedSection === 'VIP' ? pricing.vip : pricing.general;
+  const totalPrice = ticketCount * ticketPrice;
+  const formattedTotal = totalPrice.toLocaleString('en-IN');
+  const baseDateLabel = eventDetails?.dateLabel || eventDetails?.date;
+  const scheduleLabel = baseDateLabel
+    ? `${baseDateLabel}${eventDetails.startTime ? ` | ${eventDetails.startTime}${eventDetails.endTime ? ` - ${eventDetails.endTime}` : ''}` : ''}`
+    : '';
+
+  const handleBooking = () => {
+    if (!eventDetails) {
+      return;
+    }
+    if (!buyerName.trim() || !buyerEmail.trim()) {
+      Alert.alert('Please fill in your name and email before booking.');
+      return;
+    }
+    // Mock payment success
+    safeNavigation({
+      pathname: '/screens/EventBookingSummary',
+      params: {
+        eventId: eventDetails.id,
+        attendees: String(ticketCount),
+        section: selectedSection,
+        total: String(totalPrice),
+        buyerName,
+        buyerEmail,
+      },
+    });
+  };
+
+  if (loading) {
+    return (
+      <View className="flex-1 justify-center items-center">
+        <ActivityIndicator size="large" color="#02757A" />
+        <Text className="mt-3 text-base font-outfit text-textsecondary">Loading event details...</Text>
+      </View>
+    );
+  }
+
+  if (!eventDetails) {
+    return (
+      <View className="flex-1 justify-center items-center">
+        <Text className="text-base font-outfit text-textsecondary mb-4">
+          {loadError ? 'We could not load this event. Please try again later.' : 'Event not found.'}
+        </Text>
+        <TouchableOpacity
+          className="bg-primary px-6 py-3 rounded-xl"
+          onPress={() => safeNavigation('/home/Events')}
+        >
+          <Text className="text-white font-outfit-bold">Back to Events</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
   return (
-    <View>
-      <Text>EventBooking</Text>
-    </View>
-  )
+    <KeyboardAvoidingView
+      className="flex-1"
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 80 : 0}
+    >
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+        <ScrollView
+          className="flex-1 bg-background"
+          keyboardShouldPersistTaps="handled"
+          contentContainerStyle={{
+            paddingBottom: 24 + keyboardOffset,
+            paddingHorizontal: 16,
+          }}
+        >
+          {/* Header Image */}
+          <ImageBackground
+            source={normalizeImageSource(eventDetails.bannerImage || eventDetails.image, placeholderImage)}
+            className="h-60 justify-end rounded-3xl overflow-hidden"
+            imageStyle={{ borderRadius: 24 }}
+          >
+            <View className="p-4 pb-6 bg-black bg-opacity-40">
+              <Text className="text-white text-2xl font-outfit-bold">{eventDetails.title}</Text>
+              <Text className="text-white text-base font-outfit">{scheduleLabel}</Text>
+            </View>
+          </ImageBackground>
+
+          {/* Booking Form */}
+          <View className="pt-6 pb-10">
+            <Text className="text-textprimary text-lg font-outfit-bold mb-3">
+              Booking Details
+            </Text>
+
+            {/* Ticket Section */}
+            <Text className="text-textsecondary font-outfit mb-1">Ticket Type</Text>
+            {['General Admission', 'VIP'].map((type) => (
+              <TouchableOpacity
+                key={type}
+                className={`py-3 px-4 border rounded-lg mb-2 ${
+                  selectedSection === type ? 'border-primary' : 'border-border'
+                }`}
+                onPress={() => setSelectedSection(type)}
+              >
+                <Text
+                  className={`font-outfit ${
+                    selectedSection === type ? 'text-primary' : 'text-textprimary'
+                  }`}
+                >
+                  {type} — ₹{type === 'VIP' ? pricing.vip : pricing.general}
+                </Text>
+              </TouchableOpacity>
+            ))}
+
+            {/* Ticket Count */}
+            <View className="mb-4 mt-4">
+              <Text className="text-textsecondary font-outfit mb-1">Tickets</Text>
+              <View className="flex-row items-center">
+                <TouchableOpacity
+                  className="px-4 py-2 border rounded-l-lg"
+                  onPress={() => setTicketCount((prev) => Math.max(1, prev - 1))}
+                >
+                  <Text className="text-lg">−</Text>
+                </TouchableOpacity>
+                <View className="px-6 py-2 border-t border-b">
+                  <Text className="text-lg">{ticketCount}</Text>
+                </View>
+                <TouchableOpacity
+                  className="px-4 py-2 border rounded-r-lg"
+                  onPress={() => setTicketCount((prev) => prev + 1)}
+                >
+                  <Text className="text-lg">+</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+
+            {/* Buyer Info */}
+            <View className="mb-6">
+              <Text className="text-textsecondary font-outfit mb-1">Full Name</Text>
+              <TextInput
+                className="border p-3 rounded-lg mb-3"
+                placeholder="Enter your name"
+                value={buyerName}
+                onChangeText={setBuyerName}
+              />
+              <Text className="text-textsecondary font-outfit mb-1">Email</Text>
+              <TextInput
+                className="border p-3 rounded-lg"
+                placeholder="Enter your email"
+                keyboardType="email-address"
+                value={buyerEmail}
+                onChangeText={setBuyerEmail}
+              />
+            </View>
+
+            {/* Summary */}
+            <View className="mb-6">
+              <Text className="text-textprimary font-outfit">Section: {selectedSection}</Text>
+              <Text className="text-textprimary font-outfit">Tickets: {ticketCount}</Text>
+              <Text className="text-primary font-outfit-bold text-lg mt-2">
+                Total: ₹{formattedTotal}
+              </Text>
+            </View>
+
+            {/* Book Button */}
+            <TouchableOpacity
+              className="bg-primary py-4 rounded-lg items-center"
+              onPress={handleBooking}
+            >
+              <Text className="text-white font-outfit-bold text-lg">Proceed to Pay</Text>
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
+      </TouchableWithoutFeedback>
+    </KeyboardAvoidingView>
+  );
 }

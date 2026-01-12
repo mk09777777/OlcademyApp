@@ -28,6 +28,7 @@ const InputBoxStyles = StyleSheet.create({
     },
     headingText:{
         fontSize:22,
+        fontFamily: "outfit-bold",
         fontWeight:"#600",
         color:"black"
     },
@@ -53,6 +54,7 @@ const InputBoxStyles = StyleSheet.create({
     ConfirmText:{
         fontSize: 16,
         color: "white",
+        fontFamily: "outfit-medium",
         fontWeight:"600",
     },
 });

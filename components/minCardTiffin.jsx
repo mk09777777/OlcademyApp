@@ -1,7 +1,7 @@
 import React from 'react';
 import {
   View,
-  StyleSheet,
+  // StyleSheet,
   Image,
   TouchableOpacity,
   Dimensions,
@@ -45,11 +45,11 @@ const MinTiffinCard = ({ firm, onPress,   onFavoriteToggle,
   };
   return (
     <TouchableOpacity onPress={onPress} activeOpacity={0.8}>
-      <View style={styles.card}>
-        <View style={styles.imageContainer}>
+      <View className="mx-1.5 bg-white rounded-[19px] overflow-hidden shadow-lg w-40 border border-gray-300 mb-0.5">
+        <View className="relative h-28">
           <ImageBackground
             source={typeof image === 'string' ? { uri: image } : image}
-            style={styles.image}
+            className="w-full h-full"
             resizeMode="cover"
           />
           {/* <LinearGradient
@@ -71,7 +71,7 @@ const MinTiffinCard = ({ firm, onPress,   onFavoriteToggle,
 
                <TouchableOpacity
           onPress={handleFavoritePress}
-          style={styles.bookmarkButton}
+          className="absolute top-4 right-4 w-8 h-8 rounded-full bg-black/40 justify-center items-center z-10"
           hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
           disabled={isLoading}
         >
@@ -87,17 +87,17 @@ const MinTiffinCard = ({ firm, onPress,   onFavoriteToggle,
         </TouchableOpacity>
         </View>
 
-        <View style={styles.content}>
-          <View style={styles.textContent}>
-            <Text style={styles.title} numberOfLines={1}>
+        <View className="p-3 flex-row justify-between items-start">
+          <View className="flex-1 mr-3">
+            <Text className="text-base font-extrabold text-gray-800 mb-1 mt-1.5" style={{fontFamily: 'outfit'}} numberOfLines={1}>
               {title}
             </Text>
-            <Text style={styles.distance}>$ {priceRange}</Text>
+            <Text className="text-sm text-gray-600 mb-3.5" style={{fontFamily: 'outfit-bold'}}>$ {priceRange}</Text>
           </View>
 
           {rating && (
-            <View style={styles.ratingBadge}>
-              <Text style={styles.ratingText}>{rating}</Text>
+            <View className="flex-row items-center bg-green-700 rounded-md px-1.5 py-0.5 mt-1.5">
+              <Text className="text-white text-sm font-semibold ml-0.5 mr-1.5" style={{fontFamily: 'outfit-bold'}}>{rating}</Text>
               <FontAwesome name="star" size={12} color={COLORS.STAR} />
             </View>
           )}
@@ -107,100 +107,100 @@ const MinTiffinCard = ({ firm, onPress,   onFavoriteToggle,
   );
 };
 
-const styles = StyleSheet.create({
-  card: {
-    marginHorizontal: 5,
-    backgroundColor: COLORS.SURFACE,
-    borderRadius: 19,
-    overflow: 'hidden',
-    shadowColor: '#b2babb',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 4,
-    width: 160,
-    borderWidth:1,
-    borderColor:'#d5d5d5ff',
-    marginBottom: 2,
-  },
-  imageContainer: {
-    position: 'relative',
-    height: 110,
-  },
-  image: {
-    width: '100%',
-    height: '100%',
-  },
-  badge: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    height: 25,
-    width: 140,
-    borderRadius: 0,
-    flexDirection: 'column',
-  },
-  badgeTitle: {
-    color: '#fff',
-    fontSize: 13,
-    fontFamily: 'outfit',
-    fontWeight: 'bold',
-    marginTop: 3,
-    marginLeft: 4,
-  },
-  content: {
-    padding: SPACING.MD,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-  },
-  textContent: {
-    flex: 1,
-    marginRight: SPACING.MD,
-  },
-  title: {
-        fontFamily: 'outfit',
-    fontSize: 16,
-    fontWeight: '800',
-    color: COLORS.TEXT_PRIMARY,
-    marginBottom: SPACING.XS,
-    marginTop: 5,
-  },
-  distance: {
-        fontFamily: 'outfit-bold',
-    fontSize: 14,
-    color: COLORS.TEXT_SECONDARY,
-    marginBottom: 14,
-  },
-  bookmarkButton: {
-    position: 'absolute',
-    top: SPACING.MD,
-    right: SPACING.MD,
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: 'rgba(0, 0, 0, 0.4)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    zIndex: 1,
-  },
-  ratingBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgb(4, 116, 19)',
-    borderRadius: 6,
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    marginTop: 5,
-  },
-  ratingText: {
-        fontFamily: 'outfit-bold',
-    color: 'white',
-    fontSize: 14,
-    fontWeight: '600',
-    marginLeft: 2,
-    marginRight: 5,
-  },
-});
+// const styles = StyleSheet.create({
+//   card: {
+//     marginHorizontal: 5,
+//     backgroundColor: COLORS.SURFACE,
+//     borderRadius: 19,
+//     overflow: 'hidden',
+//     shadowColor: '#b2babb',
+//     shadowOffset: { width: 0, height: 4 },
+//     shadowOpacity: 0.1,
+//     shadowRadius: 4,
+//     elevation: 4,
+//     width: 160,
+//     borderWidth:1,
+//     borderColor:'#d5d5d5ff',
+//     marginBottom: 2,
+//   },
+//   imageContainer: {
+//     position: 'relative',
+//     height: 110,
+//   },
+//   image: {
+//     width: '100%',
+//     height: '100%',
+//   },
+//   badge: {
+//     position: 'absolute',
+//     bottom: 0,
+//     left: 0,
+//     height: 25,
+//     width: 140,
+//     borderRadius: 0,
+//     flexDirection: 'column',
+//   },
+//   badgeTitle: {
+//     color: '#fff',
+//     fontSize: 13,
+//     fontFamily: 'outfit',
+//     fontWeight: 'bold',
+//     marginTop: 3,
+//     marginLeft: 4,
+//   },
+//   content: {
+//     padding: SPACING.MD,
+//     flexDirection: 'row',
+//     justifyContent: 'space-between',
+//     alignItems: 'flex-start',
+//   },
+//   textContent: {
+//     flex: 1,
+//     marginRight: SPACING.MD,
+//   },
+//   title: {
+//         fontFamily: 'outfit',
+//     fontSize: 16,
+//     fontWeight: '800',
+//     color: COLORS.TEXT_PRIMARY,
+//     marginBottom: SPACING.XS,
+//     marginTop: 5,
+//   },
+//   distance: {
+//         fontFamily: 'outfit-bold',
+//     fontSize: 14,
+//     color: COLORS.TEXT_SECONDARY,
+//     marginBottom: 14,
+//   },
+//   bookmarkButton: {
+//     position: 'absolute',
+//     top: SPACING.MD,
+//     right: SPACING.MD,
+//     width: 32,
+//     height: 32,
+//     borderRadius: 16,
+//     backgroundColor: 'rgba(0, 0, 0, 0.4)',
+//     justifyContent: 'center',
+//     alignItems: 'center',
+//     zIndex: 1,
+//   },
+//   ratingBadge: {
+//     flexDirection: 'row',
+//     alignItems: 'center',
+//     backgroundColor: 'rgb(4, 116, 19)',
+//     borderRadius: 6,
+//     paddingHorizontal: 6,
+//     paddingVertical: 2,
+//     marginTop: 5,
+//   },
+//   ratingText: {
+//         fontFamily: 'outfit-bold',
+//     color: 'white',
+//     fontSize: 14,
+//     fontWeight: '600',
+//     marginLeft: 2,
+//     marginRight: 5,
+//   },
+// });
 
 export default MinTiffinCard;

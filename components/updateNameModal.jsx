@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, TextInput, TouchableOpacity, Alert } from "react-native";
-import InputBoxStyles from "../styles/InputBox";
+// import InputBoxStyles from "../styles/InputBox";
 
 export default function InputModalEdit({ name2, contact2, update, toggle }) {
   const [name, setName] = useState(name2 || "");
@@ -22,29 +22,29 @@ export default function InputModalEdit({ name2, contact2, update, toggle }) {
   };
 
   return (
-    <View style={InputBoxStyles.background}>
-      <View style={InputBoxStyles.inputContainer}>
-        <View style={InputBoxStyles.headingContainer}>
-          <Text style={InputBoxStyles.headingText}>Enter your details</Text>
+    <View className="flex-1 bg-black/50 justify-center items-center">
+      <View className="bg-white rounded-lg p-6 mx-4 w-80">
+        <View className="mb-4">
+          <Text className="text-xl font-bold text-center">Enter your details</Text>
         </View>
 
         <TextInput
-          style={InputBoxStyles.inputBox}
+          className="border border-gray-300 rounded-lg p-3 mb-4 text-base"
           placeholder="Enter your name"
           value={name}
           onChangeText={setName}
         />
 
         <TextInput
-          style={InputBoxStyles.inputBox}
+          className="border border-gray-300 rounded-lg p-3 mb-4 text-base"
           placeholder="Enter your contact"
           keyboardType="numeric"
           value={contact}
           onChangeText={setContact}
         />
 
-        <TouchableOpacity onPress={handleSubmit} style={InputBoxStyles.ConfirmButton}>
-          <Text style={InputBoxStyles.ConfirmText}>Confirm</Text>
+        <TouchableOpacity onPress={handleSubmit} className="bg-blue-500 py-3 rounded-lg items-center">
+          <Text className="text-white font-semibold text-base">Confirm</Text>
         </TouchableOpacity>
       </View>
     </View>

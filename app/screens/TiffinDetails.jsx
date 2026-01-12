@@ -1,25 +1,19 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, ScrollView, TouchableOpacity, SafeAreaView, Alert, RefreshControl, ActivityIndicator, Share, Image, Dimensions, Animated } from 'react-native';
-import { Text, Button, IconButton, Chip } from 'react-native-paper';
+import { View, ScrollView, TouchableOpacity, Alert, RefreshControl, ActivityIndicator, Share, Image, Dimensions, Text } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { Button } from 'react-native-paper';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { MaterialCommunityIcons, Ionicons, AntDesign, FontAwesome } from '@expo/vector-icons';
+import { MaterialCommunityIcons, AntDesign, FontAwesome } from '@expo/vector-icons';
 import ImageGallery from '../../components/ImageGallery';
-// import MenuImage from '../../components/MenuImage';
 import { useCart } from '../../context/CartContext';
-import styles from '../../styles/tiffinDetailsStyle';
 import axios from 'axios';
 import { API_CONFIG } from '../../config/apiConfig';
+import { useSafeNavigation } from '@/hooks/navigationPage';
 
+const Api_url = API_CONFIG.BACKEND_URL;
 const { width } = Dimensions.get('window');
 
-const MENU_CATEGORIES = [
-  'All',
-  'Recommended',
-  'Thali',
-  'Meals',
-  'Combos',
-  'Specials'
-];
+const MENU_CATEGORIES = ['All', 'Recommended', 'Thali', 'Meals', 'Combos', 'Specials'];
 
 const FILTER_OPTIONS = {
   ALL: 'all',
@@ -56,8 +50,11 @@ const TiffinDetails = () => {
   const [error, setError] = useState(null);
   const [mainImage, setMainImage] = useState(null);
   const [localTaxes, setLocalTaxes] = useState([]);
+  const { safeNavigation } = useSafeNavigation();
+
   const [localCharges, setLocalCharges] = useState([]);
   const [localOffers, setLocalOffers] = useState([]);
+  const [isTermsExpanded, setIsTermsExpanded] = useState(false);
   const [menuState, setMenuState] = useState({
     cartItems: {},
     selectedCategory: 'All',
@@ -65,8 +62,31 @@ const TiffinDetails = () => {
     wishlistItems: {},
     foodFilter: FILTER_OPTIONS.ALL,
     showCustomization: false,
-    selectedMenuItem: null
+    selectedMenuItem: null,
   });
+
+  const UploadRecentlyViewd = useCallback(async () => {
+    try {
+      const restId = tiffinId;
+      if (!restId) {
+        console.warn('No restaurant ID available for recently viewed tracking');
+        return;
+      }
+
+      const response = await axios.post(`${Api_url}/firm/recently-viewed/${restId}`, {}, { withCredentials: true });
+
+      if (response.status !== 200 && response.status !== 201) {
+        throw new Error(`Unexpected status code: ${response.status}`);
+      }
+
+      console.log('Recently viewed uploaded successfully:', response.data);
+    } catch (err) {
+      console.error('Failed to upload recently viewed:', err);
+      if (err.response) {
+        console.error('Response data:', err.response.data);
+      }
+    }
+  }, [tiffinId]);
 
   const fetchServiceDetails = useCallback(async () => {
     if (!tiffinId) {
@@ -82,7 +102,7 @@ const TiffinDetails = () => {
       setRefreshing(true);
       setError(null);
 
-      const response = await axios.get(`${API_CONFIG.BACKEND_URL}/api/get-tiffin/${tiffinId}`);
+      const response = await axios.get(`${Api_url}/api/get-tiffin/${tiffinId}`);
       const { success, tiffin } = response.data;
 
       if (success && tiffin) {
@@ -125,7 +145,8 @@ const TiffinDetails = () => {
 
   useEffect(() => {
     fetchServiceDetails();
-  }, [fetchServiceDetails]);
+    UploadRecentlyViewd();
+  }, [fetchServiceDetails, UploadRecentlyViewd]);
 
   useEffect(() => {
     const items = getCartItems();
@@ -135,34 +156,32 @@ const TiffinDetails = () => {
   useEffect(() => {
     if (!service?.menu) return;
 
-    let filtered = menuState.selectedCategory === 'All'
-      ? service.menu
-      : service.menu.filter(item => item.category === menuState.selectedCategory);
+    let filtered = menuState.selectedCategory === 'All' ? service.menu : service.menu.filter((item) => item.category === menuState.selectedCategory);
 
     if (menuState.foodFilter !== FILTER_OPTIONS.ALL) {
-      filtered = filtered.filter(item => {
+      filtered = filtered.filter((item) => {
         if (menuState.foodFilter === FILTER_OPTIONS.VEG) return item.isVeg === true;
         if (menuState.foodFilter === FILTER_OPTIONS.NON_VEG) return item.isVeg === false;
         return true;
       });
     }
 
-    setMenuState(prev => ({ ...prev, filteredMenu: filtered }));
+    setMenuState((prev) => ({ ...prev, filteredMenu: filtered }));
   }, [service?.menu, menuState.selectedCategory, menuState.foodFilter]);
 
   const transformServiceData = (tiffinData) => {
     const planMap = {};
-    tiffinData.menu.plans.forEach(plan => {
+    tiffinData.menu.plans.forEach((plan) => {
       planMap[plan._id] = plan;
     });
 
     let allPlans = [...tiffinData.menu.plans];
     if (tiffinData.menu.isFlexibleDates) {
-      if (!allPlans.some(p => p.label === "Custom Date Range")) {
-        allPlans.push({ _id: "date-range", label: "Custom Date Range", duration: 0 });
+      if (!allPlans.some((p) => p.label === 'Custom Date Range')) {
+        allPlans.push({ _id: 'date-range', label: 'Custom Date Range', duration: 0 });
       }
-      if (!allPlans.some(p => p.label === "Flexible Dates")) {
-        allPlans.push({ _id: "flexi-dates", label: "Flexible Dates", duration: 0 });
+      if (!allPlans.some((p) => p.label === 'Flexible Dates')) {
+        allPlans.push({ _id: 'flexi-dates', label: 'Flexible Dates', duration: 0 });
       }
     }
 
@@ -172,21 +191,20 @@ const TiffinDetails = () => {
       rating: parseFloat(tiffinData.ratings) || 0,
       reviews: tiffinData.reviews || [],
       prices: transformPrices(tiffinData.menu.mealTypes, planMap),
-      mealTypes: tiffinData.menu.plans.map(plan => ({
+      mealTypes: tiffinData.menu.plans.map((plan) => ({
         id: plan._id,
         label: `${plan.label} ${plan.label === '1' ? 'Day' : 'Days'}`,
         value: `${plan.label}-day`,
         price: tiffinData.menu.mealTypes[0]?.prices?.[plan._id] || 0,
         discount: calculateDiscount(plan.label),
         discountText: getDiscountText(plan.label),
-        days: parseInt(plan.label)
+        days: parseInt(plan.label),
+        _id: plan._id,
       })),
       deliveryCities: tiffinData.deliveryCity || [],
-      images: tiffinData.images.length > 0
-        ? tiffinData.images
-        : [require('../../assets/images/food1.jpg')],
+      images: tiffinData.images.length > 0 ? tiffinData.images : [require('../../assets/images/food1.jpg')],
       menu: transformMenu(tiffinData, planMap),
-      termsAndConditions: tiffinData.menu.instructions?.map(i => `${i.title}: ${i.details}`).join('\n\n') || 'No terms available',
+      termsAndConditions: tiffinData.menu.instructions?.map((i) => `${i.title}: ${i.details}`).join('\n\n') || 'No terms available',
       isVerified: true,
       isPopular: parseFloat(tiffinData.ratings) >= 4.0,
       deliveryTime: tiffinData.deliveryTime || '30-45 mins',
@@ -199,21 +217,21 @@ const TiffinDetails = () => {
       address: tiffinData.address || '',
       taxes: localTaxes,
       charges: localCharges,
-      offers: localOffers
+      offers: localOffers,
     };
   };
 
   const transformPrices = (mealTypes, planMap) => {
     const prices = {};
-    mealTypes.forEach(meal => {
+    mealTypes.forEach((meal) => {
       if (meal.specificPlans && meal.specificPlans.length > 0) {
-        meal.specificPlans.forEach(planId => {
+        meal.specificPlans.forEach((planId) => {
           const planLabel = planMap[planId]?.label || planId;
           const priceValue = meal.prices[planId] || 0;
           prices[`${meal.label}-${planLabel}`] = {
             price: priceValue,
-            formatted: `$${priceValue.toFixed(2)}`,
-            planId: planId
+            formatted: `₹${priceValue.toFixed(2)}`,
+            planId,
           };
         });
       }
@@ -222,63 +240,62 @@ const TiffinDetails = () => {
   };
 
   const transformMenu = (tiffinData, planMap) => {
-    return tiffinData.menu.mealTypes.map(meal => {
+    return tiffinData.menu.mealTypes.map((meal) => {
       const availablePlans = tiffinData.menu.plans
-        .filter(plan => meal.specificPlans.includes(plan.label))
-        .map(plan => ({
+        .filter((plan) => meal.specificPlans.includes(plan.label))
+        .map((plan) => ({
           id: plan._id,
           label: `${plan.label} ${plan.label === '1' ? 'Day' : 'Days'}`,
           price: meal.prices?.[plan._id] || 0,
           days: parseInt(plan.label),
           discount: calculateDiscount(plan.label),
-          discountText: getDiscountText(plan.label)
+          discountText: getDiscountText(plan.label),
         }));
 
       if (tiffinData.menu.isFlexibleDates) {
         availablePlans.push({
           id: 'date-range',
           label: 'Custom Date Range',
-          price: meal.prices?.[tiffinData.menu.plans.find(p => p.label === '1')?._id] || 0,
+          price: meal.prices?.[tiffinData.menu.plans.find((p) => p.label === '1')?._id] || 0,
           days: 0,
           discount: 0,
-          discountText: 'No discount'
+          discountText: 'No discount',
         });
         availablePlans.push({
           id: 'flexi-dates',
           label: 'Flexible Dates',
-          price: meal.prices?.[tiffinData.menu.plans.find(p => p.label === '1')?._id] || 0,
+          price: meal.prices?.[tiffinData.menu.plans.find((p) => p.label === '1')?._id] || 0,
           days: 0,
           discount: 0,
-          discountText: 'No discount'
+          discountText: 'No discount',
         });
       }
 
-      const priceDisplay = availablePlans.map(plan =>
-        `${plan.label}: $${plan.price.toFixed(2)}${plan.discount > 0 ? ` (${plan.discount}% off)` : ''}`
-      ).join(' | ');
-      const mealImage = meal.images?.length > 0
-        ? { uri: meal.images[0] }
-        : require('../../assets/images/food1.jpg');
+      const priceDisplay = availablePlans
+        .map((plan) => `${plan.label}: ₹${plan.price.toFixed(2)}${plan.discount > 0 ? ` (${plan.discount}% off)` : ''}`)
+        .join(' | ');
+
+      const mealImage = meal.images?.length > 0 ? { uri: meal.images[0] } : require('../../assets/images/food1.jpg');
 
       return {
         id: meal.mealTypeId,
         name: meal.label,
         basePrice: availablePlans[0]?.price || 0,
         price: availablePlans[0]?.price || 0,
-        priceDisplay: priceDisplay,
+        priceDisplay,
         description: meal.description || 'No description available',
         isVeg: tiffinData.category?.includes('veg') || true,
         mealTypes: [meal.label],
         timeSlots: tiffinData.deliveryTimeSlots || [],
         customizable: true,
         isAddOn: meal.label.includes('Extra') || meal.label.includes('Add-On'),
-        category: (meal.label.includes('Extra') || meal.label.includes('Add-On')) ? 'Extras' : 'Meals',
+        category: meal.label.includes('Extra') || meal.label.includes('Add-On') ? 'Extras' : 'Meals',
         image: mealImage,
         rating: parseFloat(tiffinData.ratings) || 0,
-        availablePlans: availablePlans,
+        availablePlans,
         prices: meal.prices,
         availableAddons: meal.addons || [],
-        specificPlans: meal.specificPlans || []
+        specificPlans: meal.specificPlans || [],
       };
     });
   };
@@ -286,10 +303,11 @@ const TiffinDetails = () => {
   const handleOpenModal = (item) => {
     if (!item || !service) {
       console.error('No meal item or service provided', { item, service });
+      Alert.alert('Error', 'Unable to customize meal');
       return;
     }
     const firstImage = service.images.length > 0 ? service.images[0] : require('../../assets/images/food1.jpg');
-    router.push({
+    safeNavigation({
       pathname: '/screens/MealCustomizeScreen',
       params: {
         mealItem: JSON.stringify({
@@ -305,7 +323,7 @@ const TiffinDetails = () => {
           deliveryTimeSlots: service.deliveryTimeSlots || [],
           category: service.tags || [],
           description: item.description || '',
-          foodType: item.isVeg ? 'Vegetarian' : 'Non-Vegetarian'
+          foodType: item.isVeg ? 'Vegetarian' : 'Non-Vegetarian',
         }),
         planTypes: JSON.stringify(service.mealTypes || []),
         timeSlots: JSON.stringify(service.deliveryTimeSlots || []),
@@ -313,7 +331,7 @@ const TiffinDetails = () => {
         restaurantName: service.title,
         img: firstImage,
         returnScreen: router.pathname,
-      }
+      },
     });
   };
 
@@ -327,12 +345,12 @@ const TiffinDetails = () => {
 
     Share.share({
       message: `Check out ${service.title} on our app!`,
-      title: service.title
+      title: service.title,
     });
   };
 
   const toggleWishlist = useCallback((itemId) => {
-    setMenuState(prev => {
+    setMenuState((prev) => {
       const newItems = { ...prev.wishlistItems };
       const isAdded = !newItems[itemId];
 
@@ -346,103 +364,93 @@ const TiffinDetails = () => {
     });
   }, []);
 
-  const renderMenuItem = useCallback((item) => {
-    if (!item?.id || !item?.name) return null;
-    return (
-      <View key={item.id} style={styles.menuItem}>
-        <View style={styles.menuItemImageContainer}>
-          <Image
-            source={item.image}
-            style={styles.menuItemImage}
-            resizeMode="cover"
-            defaultSource={require('../../assets/images/food1.jpg')}
-          />
-
-          {item.bestseller && (
-            <View style={styles.bestsellerBadge}>
-              <MaterialCommunityIcons name="crown" size={12} color="#FFD700" />
-              <Text style={styles.bestsellerText}>Bestseller</Text>
-            </View>
-          )}
-
-          {item.isVeg !== undefined && (
-            <View style={styles.vegBadge}>
-              <MaterialCommunityIcons
-                name={item.isVeg ? 'circle' : 'triangle'}
-                size={12}
-                color={item.isVeg ? '#4CAF50' : '#FF4B3A'}
+  const renderMenuItem = useCallback(
+    (item) => {
+      if (!item?.id || !item?.name) return null;
+      
+      // Check if this item is in cart
+      const isInCart = cartItems.some(cartItem => 
+        cartItem.productId === item.id || 
+        cartItem.name === item.name
+      );
+      
+      const cartItem = cartItems.find(cartItem => 
+        cartItem.productId === item.id || 
+        cartItem.name === item.name
+      );
+      
+      return (
+        <View key={item.id} className="flex-row items-stretch bg-white border border-gray-300 rounded-xl mb-3 p-3 shadow-sm">
+          <View className="mr-3">
+            <View className="relative w-20 h-20 rounded-xl overflow-hidden border border-gray-300">
+              <Image 
+                source={item.image?.uri ? item.image : require('../../assets/images/food1.jpg')} 
+                resizeMode="cover" 
+                defaultSource={require('../../assets/images/food1.jpg')} 
+                className="w-full h-full"
+                onError={() => console.log('Image failed to load for item:', item.name)}
               />
+              {item.isVeg !== undefined && (
+                <View className="absolute top-1 left-1 bg-white rounded-full p-0.5">
+                  <MaterialCommunityIcons name={item.isVeg ? 'circle' : 'triangle'} size={10} color={item.isVeg ? '#4CAF50' : '#FF4B3A'} />
+                </View>
+              )}
+              {isInCart && (
+                <View className="absolute top-1 right-1 bg-primary rounded-full p-1">
+                  <MaterialCommunityIcons name="check" size={12} color="white" />
+                </View>
+              )}
             </View>
-          )}
-
-          <View style={styles.addButtonsContainer}>
-            <TouchableOpacity
-              style={[styles.addButton]}
-              onPress={() => handleOpenModal(item)}
-            >
-              <Text style={styles.addButtonLabel}>ADD</Text>
-            </TouchableOpacity>
           </View>
-        </View>
-
-        <View style={styles.menuItemContent}>
-          <View>
-            <View style={styles.menuItemHeader}>
-              <Text style={styles.menuItemTitle} numberOfLines={1}>
-                {item.name}
-              </Text>
-            </View>
-
-            
-
+          <View className="flex-1 justify-between">
+            <Text className="text-base font-bold text-gray-800 mb-1" numberOfLines={2}>
+              {item.name}
+            </Text>
             {item.description && (
-              <Text style={styles.menuItemDescription} numberOfLines={2}>
+              <Text className="text-xs text-gray-600 leading-4 mb-2" numberOfLines={2}>
                 {item.description}
-                {item.description.length > 60 && (
-                  <Text style={{ color: '#FF4B3A' }}>...more</Text>
-                )}
               </Text>
             )}
-            <Text style={styles.menuItemPrice}>
-              ${item.price || item.basePrice || 0}
-            </Text>
+            <View className="flex-row items-center justify-between mt-auto">
+              <Text className="text-base font-bold text-red-500">₹{item.price || item.basePrice || 0}</Text>
+              {isInCart ? (
+                <View className="flex-row items-center bg-light rounded-lg px-3 py-2">
+                  <MaterialCommunityIcons name="check-circle" size={16} color="#02757A" />
+                  <Text className="text-primary text-sm font-bold ml-1">ADDED</Text>
+                </View>
+              ) : (
+                <TouchableOpacity onPress={() => handleOpenModal(item)} className="bg-red-500 rounded-lg px-5 py-2" activeOpacity={0.7}>
+                  <Text className="text-white text-sm font-bold">ADD</Text>
+                </TouchableOpacity>
+              )}
+            </View>
           </View>
         </View>
-      </View>
-    );
-  }, [menuState.cartItems, menuState.wishlistItems, handleOpenModal, toggleWishlist]);
+      );
+    },
+    [cartItems, menuState.cartItems, menuState.wishlistItems, handleOpenModal, toggleWishlist],
+  );
 
   const DeliveryCitiesList = ({ cities }) => {
     const [showAll, setShowAll] = useState(false);
     const maxVisible = 3;
 
-    // Split the first item in the cities array (since it's a comma-separated string)
-    const allCities = cities.length > 0
-      ? cities[0].split(',').map(city => city.trim())
-      : [];
-
-    const toggleShowAll = () => {
-      setShowAll(!showAll);
-    };
-
+    const allCities = cities;
     const visibleCities = showAll ? allCities : allCities.slice(0, maxVisible);
     const hasMoreCities = allCities.length > maxVisible;
 
     return (
-      <View style={styles.deliveryCitiesContainer}>
-
-        <View style={styles.citiesWrapper}>
+      <View className="flex-1">
+        <View className="flex-row flex-wrap gap-2">
           {visibleCities.map((city, index) => (
-            <View key={index} style={styles.cityPill}>
-              <Text style={styles.cityText}>{city}</Text>
+            <View key={index} className="bg-pink-50 rounded-2xl py-2 px-3 mb-2">
+              <Text className="text-xs text-gray-800">{city}</Text>
             </View>
           ))}
           {hasMoreCities && (
-            <TouchableOpacity onPress={toggleShowAll} activeOpacity={0.7}>
-              <View style={styles.moreLessPill}>
-                <Text style={styles.moreLessText}>
-                  {showAll ? 'Show Less' : `+${allCities.length - maxVisible} More`}
-                </Text>
+            <TouchableOpacity onPress={() => setShowAll(!showAll)} activeOpacity={0.7}>
+              <View className="bg-blue-50 rounded-2xl py-2 px-3">
+                <Text className="text-xs text-blue-600 font-medium">{showAll ? 'Show Less' : `+${allCities.length - maxVisible} More`}</Text>
               </View>
             </TouchableOpacity>
           )}
@@ -450,25 +458,22 @@ const TiffinDetails = () => {
       </View>
     );
   };
+
   if (loading && !service) {
     return (
-      <SafeAreaView style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#4CAF50" />
-        <Text style={styles.loadingText}>Loading service details...</Text>
+      <SafeAreaView className="flex-1 justify-center items-center bg-[#F8F8F8]">
+        <ActivityIndicator size="large" color="#FF002E" />
+        <Text className="text-[#666666] mt-4">Loading service details...</Text>
       </SafeAreaView>
     );
   }
 
   if (error || !service) {
     return (
-      <SafeAreaView style={styles.errorContainer}>
-        <MaterialCommunityIcons name="alert-circle" size={48} color="#FF4500" />
-        <Text style={styles.errorText}>{error || 'Service not found'}</Text>
-        <Button
-          mode="contained"
-          onPress={fetchServiceDetails}
-          style={styles.retryButton}
-        >
+      <SafeAreaView className="flex-1 justify-center items-center bg-[#F8F8F8] p-6">
+        <MaterialCommunityIcons name="alert-circle" size={48} color="#FF002E" />
+        <Text className="text-[#FF002E] text-lg my-4 text-center">{error || 'Service not found'}</Text>
+        <Button mode="contained" onPress={fetchServiceDetails} buttonColor="#FF002E">
           Try Again
         </Button>
       </SafeAreaView>
@@ -476,7 +481,7 @@ const TiffinDetails = () => {
   }
 
   return (
-    <SafeAreaView>
+    <SafeAreaView edges={['bottom', 'left', 'right']} className="flex-1 bg-[#F8F8F8]">
       <ScrollView
         refreshControl={
           <RefreshControl
@@ -485,105 +490,23 @@ const TiffinDetails = () => {
           />
         }
       >
-        <View style={styles.header}>
-          <IconButton
-            icon="arrow-left"
-            size={26}
-            onPress={() => router.back()}
-            style={styles.backButton}
-          />
-          <View style={styles.headerActions}>
+        <View className="flex-row justify-between items-center px-5 pt-4 pb-2 bg-white">
+          <MaterialCommunityIcons name="arrow-left" size={26} color="black" onPress={() => router.back()} />
+          <View className="flex-row items-center space-x-3">
             <TouchableOpacity onPress={() => setIsFavorite(!isFavorite)}>
-              <MaterialCommunityIcons
-                name={isFavorite ? "bookmark" : "bookmark-outline"}
-                size={30}
-                color={isFavorite ? "rgba(222, 10, 10, 0.95)" : "rgba(0, 0, 0, 0.8)"}
-              />
+              <MaterialCommunityIcons name={isFavorite ? 'bookmark' : 'bookmark-outline'} size={30} color={isFavorite ? '#FF002E' : 'rgba(0, 0, 0, 0.8)'} />
             </TouchableOpacity>
-            <AntDesign
-              name='sharealt'
-              size={30}
-              color="rgba(0, 0, 0, 0.8)"
-              onPress={handleShare}
-            />
+            <AntDesign name="share-alt" size={30} color="rgba(0, 0, 0, 0.8)" onPress={handleShare} />
           </View>
         </View>
 
-        <View style={{ height: 200 }}>
-          <ImageGallery
-            images={service.images}
-            currentIndex={currentImageIndex}
-            onIndexChange={setCurrentImageIndex}
-            style={{ width: 412, height: 313, borderRadius: 12 }}
-          />
+        <View className="h-80 relative bg-black overflow-hidden">
+          <ImageGallery images={service.images} currentIndex={currentImageIndex} onIndexChange={setCurrentImageIndex} />
 
-          {/* Overlay Container for title + review box */}
-          <View style={styles.overlayContainer}>
-            {/* Title */}
+          <View className="absolute bottom-3 left-3 right-3 flex-row justify-between items-end z-10">
             <TouchableOpacity
               onPress={() =>
-                router.push({
-                  pathname: "/screens/TiffinDetailsScreen",
-                  params: {
-                    restaurant: JSON.stringify({
-                      ...service,
-                      kitchenName: service.title,
-                      ratings: service.rating,
-                      ownerPhoneNo: {
-                        fullNumber: service.phoneNumber,
-                      },
-                    }),
-                  },
-                })
-              }
-              style={styles.titleWrapper}
-            >
-              <Text
-                style={styles.titleText}
-                numberOfLines={3}
-                ellipsizeMode="tail"
-              >
-                {service.title}
-              </Text>
-            </TouchableOpacity>
-
-            {/* Review Box */}
-            <TouchableOpacity
-              onPress={() =>
-                router.push({
-                  pathname: "/screens/Reviewsall",
-                  params: {
-                    firmId: service.id,
-                    restaurantName: service.title,
-                    averageRating: service.rating.toFixed(1),
-                    reviewCount: service.reviews.length,
-                  },
-                })
-              }
-              style={styles.reviewBox}
-            >
-              <View style={styles.reviewBoxTopContainer}>
-                <View style={styles.reviewBoxUpperContainer}>
-                  <Text style={styles.reviewText}>
-                    {service.rating.toFixed(1)}
-                  </Text>
-                  <FontAwesome name="star" size={18} color="white" />
-                </View>
-              </View>
-              <View style={styles.reviewBoxBottomContainer}>
-                <Text style={styles.reviewCount}>{service.reviews.length}</Text>
-                <Text style={styles.reviewCount}>Reviews</Text>
-              </View>
-            </TouchableOpacity>
-          </View>
-        </View>
-
-
-        <View style={styles.contentContainer}>
-          <View style={styles.maincontainer}>
-            <View style={styles.headerContainer}>
-              <TouchableOpacity
-                onPress={() => router.push({
+                safeNavigation({
                   pathname: '/screens/TiffinDetailsScreen',
                   params: {
                     restaurant: JSON.stringify({
@@ -593,148 +516,182 @@ const TiffinDetails = () => {
                       menu: service.menu,
                       deliveryCity: service.deliveryCities,
                       category: service.tags,
-                      ownerPhoneNo: {
-                        fullNumber: service.phoneNumber
-                      }
-                    })
-                  }
-                })}
-                style={styles.titleButton}
-              >
-              </TouchableOpacity>
-            </View>
-            <View style={styles.detailsContainer}>
-              <View style={styles.infoRow}>
-                <DeliveryCitiesList cities={service.deliveryCities} />
-              </View>
-              <View style={styles.infoRow}>
-                <MaterialCommunityIcons name="phone" size={20} color="#FF69B4" />
-                <Text style={styles.infoText}>Contact: {service.phoneNumber}</Text>
-              </View>
-              <View style={styles.infoRow}>
-                <MaterialCommunityIcons
-                  name="truck-delivery"
-                  size={20}
-                  color="#FF69B4"
-                  style={styles.icon}
-                />                <Text style={styles.infoText}>Distance: {service.distance}</Text>
-              </View>
+                      ownerPhoneNo: { fullNumber: service.phoneNumber },
+                    }),
+                  },
+                })
+              }
+              className="flex-1 mr-3"
+            >
+              <View className="bg-black/40 rounded-xl p-3">
+                <View className="mb-2">
+                  <Text className="text-white text-base font-bold" numberOfLines={3}>
+                    {service.title}
+                  </Text>
+                </View>
 
-              <View style={styles.infoRow}>
-                <MaterialCommunityIcons name="map-marker" size={20} color="#FF69B4" />
-                <Text style={styles.infoText}>Address: {service.address}</Text>
+                <View className="flex-row items-center">
+                  <MaterialCommunityIcons name="phone" size={20} color="#078518" />
+                  <Text className="ml-2 text-white text-sm">Contact: {service.phoneNumber}</Text>
+                </View>
               </View>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              onPress={() =>
+                safeNavigation({
+                  pathname: '/screens/Reviewsall',
+                  params: {
+                    firmId: service.id,
+                    restaurantName: service.title,
+                    averageRating: service.rating.toFixed(1),
+                    reviewCount: service.reviews.length,
+                    reviewType: 'tiffin',
+                  },
+                })
+              }
+              className="mt-5 mb-5 min-w-[70px] rounded-xl border border-gray-300 overflow-hidden"
+            >
+              <View className="bg-green-600 p-2.5">
+                <View className="flex-row items-center">
+                  <Text className="text-white text-sm mr-1">{service.rating.toFixed(1)}</Text>
+                  <FontAwesome name="star" size={18} color="white" />
+                </View>
+              </View>
+              <View className="bg-white p-2.5 flex-row">
+                <Text className="text-gray-800 text-xs">{service.reviews.length}</Text>
+                <Text className="text-gray-800 text-xs ml-1">Reviews</Text>
+              </View>
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        <View className="px-5 py-4">
+
+          {/* UPDATED ADDRESS + DISTANCE CARD */}
+          <View className="bg-white rounded-2xl p-5 mb-5 shadow-lg">
+            <Text className="text-sm font-semibold text-gray-700 mb-3">
+              Available In
+            </Text>
+
+            <DeliveryCitiesList cities={service.deliveryCities} />
+
+            <View className="h-px bg-gray-200 my-4" />
+
+            <View className="flex-row items-center mb-3">
+              <View className="w-9 h-9 rounded-full bg-red-50 items-center justify-center">
+                <MaterialCommunityIcons
+                  name="map-marker-distance"
+                  size={20}
+                  color="#FF002E"
+                />
+              </View>
+              <Text className="ml-3 text-sm font-medium text-gray-800">
+                {service.distance} away
+              </Text>
+            </View>
+
+            <View className="flex-row items-start">
+              <View className="w-9 h-9 rounded-full bg-blue-50 items-center justify-center mt-1">
+                <MaterialCommunityIcons
+                  name="home-map-marker"
+                  size={20}
+                  color="#2563EB"
+                />
+              </View>
+              <Text
+                className="ml-3 text-sm text-gray-700 leading-5 flex-1"
+                numberOfLines={3}
+              >
+                {service.address}
+              </Text>
             </View>
           </View>
+
           {service.offers && service.offers.length > 0 && (
-            <View style={styles.offersContainer}>
-              <Text style={styles.sectionTitle}>Special Offers</Text>
+            <View className="bg-gray-50 rounded-xl p-4 shadow-md mb-4">
+              <Text className="text-lg font-semibold text-gray-800 mb-3 pb-1.5 border-b border-gray-300">Special Offers</Text>
               {service.offers.map((offer, index) => (
-                <View key={index} style={styles.offerItem}>
-                  <Text style={styles.offerTitle}>{offer.name}</Text>
-                  <Text style={styles.offerDescription}>{offer.description}</Text>
-                  <Text style={styles.offerCode}>Code: {offer.code}</Text>
+                <View key={index} className="bg-white rounded-lg p-3.5 mb-3 border-l-4 border-blue-500">
+                  <Text className="text-base font-semibold text-gray-800 mb-1">{offer.name}</Text>
+                  <Text className="text-sm text-gray-600 mb-2 leading-5">{offer.description}</Text>
+                  <Text className="text-sm font-bold text-green-600 bg-green-50 py-1 px-2 rounded self-start">Code: {offer.code}</Text>
                 </View>
               ))}
             </View>
           )}
-          {/* Menu Section */}
-          <View style={styles.menuSectionContainer}>
-            {/* <Text style={styles.sectionTitle}>Our Menu</Text> */}
-            {/* <View style={styles.filterContainer}>
-              <TouchableOpacity
-                style={[
-                  styles.filterButton,
-                  styles.vegFilterButton,
-                  menuState.foodFilter === FILTER_OPTIONS.VEG && styles.vegFilterButtonSelected
-                ]}
-                onPress={() => setMenuState(prev => ({ ...prev, foodFilter: FILTER_OPTIONS.VEG }))}
-              >
-                <MaterialCommunityIcons name="circle" size={16} color="#fff" />
-                <Text style={[styles.filterButtonText, styles.vegFilterText]}>Veg</Text>
-              </TouchableOpacity>
 
-              <TouchableOpacity
-                style={[
-                  styles.filterButton,
-                  styles.nonVegFilterButton,
-                  menuState.foodFilter === FILTER_OPTIONS.NON_VEG && styles.nonVegFilterButtonSelected
-                ]}
-                onPress={() => setMenuState(prev => ({ ...prev, foodFilter: FILTER_OPTIONS.NON_VEG }))}
-              >
-                <MaterialCommunityIcons name="triangle" size={16} color="#fff" />
-                <Text style={[styles.filterButtonText, styles.nonVegFilterText]}>Non-Veg</Text>
-              </TouchableOpacity>
-            </View>
-
-            <View style={styles.menuCategories}>
-              <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={styles.categoriesContainer}
-              >
-                {MENU_CATEGORIES.map((category) => (
-                  <TouchableOpacity
-                    key={category}
-                    style={[
-                      styles.categoryButton,
-                      menuState.selectedCategory === category && styles.categoryButtonSelected
-                    ]}
-                    onPress={() => setMenuState(prev => ({ ...prev, selectedCategory: category }))}
-                  >
-                    <Text style={[
-                      styles.categoryButtonText,
-                      menuState.selectedCategory === category && styles.categoryButtonTextSelected
-                    ]}>
-                      {category}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-              </ScrollView>
-            </View> */}
-            <View style={styles.separatorRow}>
-              <View style={styles.line} />
-              <Text style={styles.separatorText}>
-                 Meals
-              </Text>
-              <View style={styles.line} />
-            </View>
-            <ScrollView
-              showsVerticalScrollIndicator={false}
-              contentContainerStyle={styles.menuList}
+          {/*  TERMS & CONDITIONS — COLLAPSIBLE */}
+          <View className="bg-white rounded-2xl mb-4 shadow-lg overflow-hidden">
+            <TouchableOpacity
+              onPress={() => setIsTermsExpanded(!isTermsExpanded)}
+              className="flex-row items-center justify-between py-4 px-5"
+              activeOpacity={0.7}
             >
+              <Text className="text-lg font-bold text-gray-800">
+                Terms & Conditions
+              </Text>
+              <MaterialCommunityIcons
+                name={isTermsExpanded ? "chevron-up" : "chevron-down"}
+                size={24}
+                color="#374151"
+              />
+            </TouchableOpacity>
+            {isTermsExpanded && (
+              <View className="px-5 pb-5 bg-gray-50">
+                <Text className="text-sm text-gray-700 leading-6">
+                  {service.termsAndConditions}
+                </Text>
+              </View>
+            )}
+          </View>
+
+          {/* 🔴 TIFFIN MEALS — UNCHANGED */}
+          <View>
+            <View className="flex-row items-center my-4">
+              <View className="flex-1 h-px bg-gray-300" />
+              <Text className="text-gray-600 font-semibold mx-4 text-sm">
+                Tiffin Meals
+              </Text>
+              <View className="flex-1 h-px bg-gray-300" />
+            </View>
+
+            <View>
               {menuState.filteredMenu.length > 0 ? (
                 menuState.filteredMenu.map(renderMenuItem)
               ) : (
-                <View style={styles.emptyState}>
-                  <MaterialCommunityIcons name="food-off" size={48} color="#666" />
-                  <Text style={styles.emptyStateText}>No items found in this category</Text>
+                <View className="justify-center items-center py-8">
+                  <MaterialCommunityIcons
+                    name="food-off"
+                    size={48}
+                    color="#666"
+                  />
+                  <Text className="mt-2.5 text-gray-600">
+                    No items found in this category
+                  </Text>
                 </View>
               )}
-            </ScrollView>
-          </View>
-
-          <View style={styles.TermsContainer}>
-            <Text style={styles.sectionTitle}>Terms and Conditions</Text>
-            <Text style={styles.description}>{service.termsAndConditions}</Text>
+            </View>
           </View>
         </View>
       </ScrollView>
 
       {getTotalItems() > 0 && (
         <TouchableOpacity
-          style={styles.proceedToCartButton}
-          onPress={() => router.push({
-            pathname: '/home/Cart',
-            params: {
-              // offers: JSON.stringify(offers),
-              restaurantId: service.id,
-              restaurantName: service.title,
-            }
-          })}
+          className="absolute bottom-0 left-0 right-0 bg-primary p-4 m-4 rounded-lg"
+          onPress={() =>
+            safeNavigation({
+              pathname: '/screens/TakeAwayCart',
+              params: {
+                restaurantId: service.id,
+                restaurantName: service.title,
+              },
+            })
+          }
+          activeOpacity={0.9}
         >
-          <Text style={styles.proceedToCartText}>
-            {getTotalItems()} items | ${getSubtotal()} | Go to Cart
+          <Text className="text-white text-center font-bold text-base">
+            {getTotalItems()} items | ₹{getSubtotal()} | Go to Cart
           </Text>
         </TouchableOpacity>
       )}
@@ -743,3 +700,5 @@ const TiffinDetails = () => {
 };
 
 export default TiffinDetails;
+
+

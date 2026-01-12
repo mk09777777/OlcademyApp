@@ -29,15 +29,18 @@ const styles = StyleSheet.create({
     },
     itemName: {
       fontSize: 16,
+      fontFamily: 'outfit-medium',
       fontWeight: 'bold',
     },
     itemDescription: {
       fontSize: 14,
+      fontFamily: 'outfit',
       color: '#666',
       marginTop: 4,
     },
     itemPrice: {
       fontSize: 16,
+      fontFamily: 'outfit-medium',
       fontWeight: 'bold',
       color: '#4CAF50',
       marginTop: 4,
@@ -57,6 +60,7 @@ const styles = StyleSheet.create({
     },
     quantity: {
       fontSize: 16,
+      fontFamily: 'outfit-medium',
       marginHorizontal: 8,
     },
     removeButton: {
@@ -70,6 +74,7 @@ const styles = StyleSheet.create({
     },
     emptyCartText: {
       fontSize: 16,
+      fontFamily: 'outfit-medium',
       color: '#666',
       marginTop: 8,
     },
@@ -86,10 +91,12 @@ const styles = StyleSheet.create({
     },
     summaryLabel: {
       fontSize: 14,
+      fontFamily: 'outfit',
       color: '#666',
     },
     summaryValue: {
       fontSize: 14,
+      fontFamily: 'outfit',
       color: '#666',
     },
     totalRow: {
@@ -100,10 +107,12 @@ const styles = StyleSheet.create({
     },
     totalLabel: {
       fontSize: 18,
+      fontFamily: 'outfit-medium ',
       fontWeight: 'bold',
     },
     totalValue: {
       fontSize: 18,
+      fontFamily: 'outfit-medium ',
       fontWeight: 'bold',
       color: '#4CAF50',
     },
@@ -117,6 +126,7 @@ const styles = StyleSheet.create({
     checkoutButtonText: {
       color: '#fff',
       fontSize: 16,
+      fontFamily: 'outfit-medium ',
       fontWeight: 'bold',
     },
     cartButton: {
@@ -148,6 +158,7 @@ const styles = StyleSheet.create({
     cartBadgeText: {
       color: 'white',
       fontSize: 12,
+      fontFamily: 'outfit ',
       fontWeight: 'bold',
     },
     customizationDetails: {
@@ -158,6 +169,7 @@ const styles = StyleSheet.create({
     },
     customizationLabel: {
       fontSize: 12,
+      fontFamily: 'outfit ',
       color: '#666',
       marginBottom: 4,
     },

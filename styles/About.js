@@ -20,15 +20,18 @@ const styles = StyleSheet.create({
     borderBottomColor: '#eee',
   },
   itemText: {
+    fontFamily: 'outfit',
     fontSize: 16,
     color: '#111',
     fontWeight: '500',
   },
   subText: {
+    fontFamily: 'outfit',
     fontSize: 14,
     color: '#777',
   },
   versionText: {
+    fontFamily: 'outfit',
     fontSize: 16,
     color: '#000',
     marginTop: 2,

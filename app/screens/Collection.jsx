@@ -1,8 +1,5 @@
-import React, { useState } from 'react';
-import { ScrollView, View, TouchableOpacity, Text, Image } from 'react-native';
-import { router } from 'expo-router';
-import styles from '../../styles/Collection';
-import EventCollection from '@/components/EventCollection';
+import React, { useMemo, useState } from 'react';
+import { ScrollView, View, TouchableOpacity, Text } from 'react-native';
 import TiffinCollection from '@/components/TiffinCollection';
 import DiningCollection from '@/components/DiningCollection';
 import TakewayCollection from '@/components/TakewayCollection';
@@ -11,7 +8,16 @@ import BackRouting from '@/components/BackRouting';
 
 
 const Collection = () => {
-  const [currentScreen, setCurrentScreen] = useState('ManageTiffin');
+  const [currentScreen, setCurrentScreen] = useState('TakewayCollection');
+
+  const tabs = useMemo(
+    () => [
+      { key: 'TakewayCollection', label: 'Takeway Collection' },
+      { key: 'DiningCollection', label: 'Dining Collection' },
+      { key: 'TiffinCollection', label: 'Tiffin Collection' },
+    ],
+    []
+  );
 
   const renderScreen = () => {
     switch (currentScreen) {
@@ -31,76 +37,36 @@ const Collection = () => {
   };
 
   return (
-    <ScrollView style={styles.container}>
-         <BackRouting/>
-      <View style={styles.headerBackground}>
-{/*      
-        <Image source={require('../../../assets/images/tiffin.jpg')} style={styles.headerImage} /> */}
-        
+    <ScrollView className="flex-1 bg-white">
+      <BackRouting title={'Collection'} />
+      <View className="h-62.5 mb-5">
+        {/* Image placeholder */}
       </View>
         <ScrollView 
           horizontal 
           showsHorizontalScrollIndicator={false}
-          // contentContainerStyle={styles.offersTrack}
         >
-      <View style={styles.tabContainer}>
-        <TouchableOpacity
-          style={[
-            styles.tabButton,
-            currentScreen === '' && styles.activeTab
-          ]}
-          onPress={() => setCurrentScreen('TakewayCollection')}
-        >
-          <Text style={[
-            styles.tabText,
-            currentScreen === 'TakewayCollection' && styles.activeTabText
-          ]}>
-            TakewayCollection
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[
-            styles.tabButton,
-            currentScreen === 'DiningCollection' && styles.activeTab
-          ]}
-          onPress={() => setCurrentScreen('DiningCollection')}
-        >
-          <Text style={[
-            styles.tabText,
-            currentScreen === 'DiningCollection' && styles.activeTabText
-          ]}>
-            DiningCollection
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[
-            styles.tabButton,
-            currentScreen === 'TiffinCollection' && styles.activeTab
-          ]}
-          onPress={() => setCurrentScreen('TiffinCollection')}
-        >
-          <Text style={[
-            styles.tabText,
-            currentScreen === 'TiffinCollection' && styles.activeTabText
-          ]}>
-            TiffinCollection
-          </Text>
-        </TouchableOpacity>
-        {/* <TouchableOpacity
-          style={[
-            styles.tabButton,
-            currentScreen === 'EventCollection' && styles.activeTab
-          ]}
-          onPress={() => setCurrentScreen('EventCollection')}
-        >
-          <Text style={[
-            styles.tabText,
-            currentScreen === 'EventCollection' && styles.activeTabText
-          ]}>
-            EventCollection
-          </Text>
-        </TouchableOpacity> */}
-
+      <View className="flex-row py-3.75 px-2.5 bg-white">
+        {tabs.map((tab) => {
+          const isActive = currentScreen === tab.key;
+          return (
+            <TouchableOpacity
+              key={tab.key}
+              className={`px-4 py-2 mx-1 rounded-full ${
+                isActive ? 'bg-red-50 border border-primary' : 'bg-gray-100'
+              }`}
+              onPress={() => setCurrentScreen(tab.key)}
+            >
+              <Text
+                className={`text-sm ${
+                  isActive ? 'text-primary font-bold' : 'text-gray-600 font-medium'
+                }`}
+              >
+                {tab.label}
+              </Text>
+            </TouchableOpacity>
+          );
+        })}
       </View>
       </ScrollView>
       {renderScreen()}
@@ -109,3 +75,4 @@ const Collection = () => {
 };
 
 export default Collection;
+

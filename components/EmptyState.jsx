@@ -1,7 +1,6 @@
 import React from 'react';
 import { View, Image } from 'react-native';
 import { Text, Button } from 'react-native-paper';
-import styles from '../styles/tiffinstyle';
 
 export const EmptyState = ({
   image,
@@ -11,23 +10,23 @@ export const EmptyState = ({
   onButtonPress
 }) => {
   return (
-    <View style={styles.emptyStateContainer}>
+    <View className="flex-1 justify-center items-center p-8">
       {image && (
         <Image
           source={image}
-          style={styles.emptyStateImage}
+          className="w-32 h-32 mb-6"
           resizeMode="contain"
         />
       )}
-      <Text style={styles.emptyStateTitle}>{title}</Text>
-      <Text style={styles.emptyStateDescription}>{description}</Text>
+      <Text className="text-xl font-outfit-bold text-textprimary text-center mb-3">{title}</Text>
+      <Text className="text-base font-outfit text-textsecondary text-center mb-6">{description}</Text>
       {buttonText && onButtonPress && (
         <Button
           mode="contained"
           onPress={onButtonPress}
-          style={styles.emptyStateButton}
+          className="bg-primary"
         >
-          <Text style={styles.emptyStateButtonText}>{buttonText}</Text>
+          <Text className="text-white font-outfit-bold">{buttonText}</Text>
         </Button>
       )}
     </View>

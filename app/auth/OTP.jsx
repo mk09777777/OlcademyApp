@@ -1,14 +1,25 @@
 import { useState, useEffect, useRef } from "react";
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from "react-native";
+import { View, Text, TextInput, TouchableOpacity, Alert } from "react-native";
 import axios from "axios";
-import { useNavigation, useRoute } from "@react-navigation/native";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { Loader2 } from "lucide-react-native";
 import { API_CONFIG } from '../../config/apiConfig';
+import { useAuth } from "@/context/AuthContext";
 
 const OTP = () => {
-  const route = useRoute();
-  const { email, password, username } = route.params;
-  const navigation = useNavigation();
+  const router = useRouter();
+  const params = useLocalSearchParams();
+  const { login } = useAuth();
+
+  const emailParam = params.email ?? "";
+  const passwordParam = params.password ?? "";
+  const usernameParam = params.username ?? "";
+  const phoneParam = params.phone ?? "";
+
+  const email = Array.isArray(emailParam) ? emailParam[0] : emailParam;
+  const password = Array.isArray(passwordParam) ? passwordParam[0] : passwordParam;
+  const username = Array.isArray(usernameParam) ? usernameParam[0] : usernameParam;
+  const phone = Array.isArray(phoneParam) ? phoneParam[0] : phoneParam;
   
   const [otpArray, setOtpArray] = useState(Array(6).fill(""));
   const [error, setError] = useState("");
@@ -20,16 +31,36 @@ const OTP = () => {
   const otpRefs = useRef([]);
 
   useEffect(() => {
+    if (timer === 0) {
+      setResendDisabled(false);
+      return undefined;
+    }
+
     let intervalId;
     if (timer > 0) {
       intervalId = setInterval(() => {
-        setTimer((prevTimer) => prevTimer - 1);
-      }, 1010);
-    } else if (timer === 0) {
-      setResendDisabled(false);
+        setTimer((prevTimer) => {
+          if (prevTimer <= 1) {
+            setResendDisabled(false);
+            return 0;
+          }
+          return prevTimer - 1;
+        });
+      }, 1000);
     }
-    return () => clearInterval(intervalId);
+
+    return () => {
+      if (intervalId) {
+        clearInterval(intervalId);
+      }
+    };
   }, [timer]);
+
+  useEffect(() => {
+    if (!email) {
+      setError("Missing signup details. Please start again.");
+    }
+  }, [email]);
 
   const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60);
@@ -61,22 +92,63 @@ const verifyOtp = async () => {
     setError("Please enter the complete 6-digit OTP.");
     return;
   }
+  if (!email) {
+    setError("Missing signup details. Please start again.");
+    return;
+  }
+
   setOtpLoading(true);
   setError("");
+
+  const normalizedEmail = email.trim().toLowerCase();
 
   try {
     await axios.post(
       `${API_CONFIG.BACKEND_URL}/api/verify`,
       {
-        identifier: email.trim(),
+        identifier: normalizedEmail,
         otp: Number(enteredOtp),
-        password: password,
-        username: username,
+        password,
+        username,
+        phone,
       },
       { withCredentials: true }
     );
-    // Alert.alert("Success", "Signup Successful!");
-    navigation.navigate('home'); 
+
+    let autoLoggedIn = false;
+
+    if (password) {
+      try {
+        const loginResponse = await axios.post(
+          `${API_CONFIG.BACKEND_URL}/api/login`,
+          {
+            email: normalizedEmail,
+            password,
+            rememberMe: true,
+          },
+          {
+            withCredentials: true,
+            headers: {
+              Accept: 'application/json',
+              'Content-Type': 'application/json',
+            },
+          }
+        );
+
+        const userData = loginResponse.data?.user || loginResponse.data?.data;
+        if (userData) {
+          await login(userData);
+          autoLoggedIn = true;
+        }
+      } catch (loginError) {
+        console.error('Auto login after verification failed:', loginError.response?.data || loginError.message);
+      }
+    }
+
+    if (!autoLoggedIn) {
+      Alert.alert("Success", "Account verified! Please log in.");
+      router.replace('/auth/LoginScreen');
+    }
   } catch (err) {
     setError(err.response?.data?.error || "Invalid OTP. Please try again.");
   } finally {
@@ -90,10 +162,10 @@ const verifyOtp = async () => {
     try {
       await axios.post(
         `${API_CONFIG.BACKEND_URL}/api/send-email-otp`,
-        { email: email },
+        { email: email?.trim() },
         { withCredentials: true }
       );
-      setTimer(500);
+      setTimer(300);
       setResendDisabled(true);
       setOtpArray(Array(6).fill(""));
       otpRefs.current[0]?.focus();
@@ -105,23 +177,23 @@ const verifyOtp = async () => {
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Verify Email</Text>
+    <View className="flex-1 p-5 bg-white">
+      <View className="mb-5">
+        <Text className="text-2xl font-bold text-textprimary">Verify Email</Text>
       </View>
 
-      <Text style={styles.subtext}>
-        Enter the 6-digit code sent to <Text style={styles.emailText}>{email}</Text>.
+      <Text className="text-base mb-5 text-center text-textsecondary">
+        Enter the 6-digit code sent to <Text className="font-bold">{email}</Text>.
       </Text>
 
-      {error ? <Text style={styles.errorText}>{error}</Text> : null}
+      {error ? <Text className="text-red-500 mb-5 text-center">{error}</Text> : null}
 
-      <View style={styles.otpContainer}>
+      <View className="flex-row justify-between mb-8">
         {otpArray.map((digit, index) => (
           <TextInput
             key={index}
             ref={(el) => (otpRefs.current[index] = el)}
-            style={styles.otpInput}
+            className="w-11 h-12 border border-border rounded-2xl text-center text-lg"
             keyboardType="numeric"
             maxLength={1}
             value={digit}
@@ -133,26 +205,26 @@ const verifyOtp = async () => {
       </View>
 
       <TouchableOpacity
-        style={styles.verifyButton}
+        className="bg-primary p-4 rounded-2xl items-center mb-5"
         onPress={verifyOtp}
         disabled={otpLoading || otpArray.join("").length !== 6}
       >
         {otpLoading ? (
-          <Loader2 size={18} color="#fff" style={styles.spinner} />
+          <Loader2 size={18} color="#fff" />
         ) : (
-          <Text style={styles.buttonText}>Verify Account</Text>
+          <Text className="text-white text-base font-bold">Verify Account</Text>
         )}
       </TouchableOpacity>
 
-      <View style={styles.resendContainer}>
-        <Text>Didn't receive code?</Text>
+      <View className="flex-row justify-center items-center">
+        <Text className="text-textsecondary">Didn&apos;t receive code?</Text>
         <TouchableOpacity
           onPress={resendOtp}
           disabled={resendDisabled || loading}
         >
-          <Text style={[styles.resendText, (resendDisabled || loading) && styles.disabledResend]}>
+          <Text className={`ml-1 font-bold ${(resendDisabled || loading) ? 'text-gray-400' : 'text-primary'}`}>
             {loading && !resendDisabled ? (
-              <Loader2 size={16} color="#4f46e5" style={styles.spinner} />
+              <Loader2 size={16} color="#4f46e5" />
             ) : resendDisabled ? (
               `Resend in ${formatTime(timer)}`
             ) : (
@@ -165,81 +237,6 @@ const verifyOtp = async () => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 20,
-    backgroundColor: "#fff",
-  },
-  header: {
-    marginBottom: 20,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: "bold",
-  },
-  subtext: {
-    fontSize: 16,
-    marginBottom: 20,
-    textAlign: "center",
-  },
-  emailText: {
-    fontWeight: "bold",
-  },
-  errorText: {
-    color: "red",
-    marginBottom: 20,
-    textAlign: "center",
-  },
-  otpContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginBottom: 30,
-  },
-  otpInput: {
-    width: 45,
-    height: 50,
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 8,
-    textAlign: "center",
-    fontSize: 18,
-  },
-  verifyButton: {
-    backgroundColor: "#4f46e5",
-    padding: 15,
-    borderRadius: 8,
-    alignItems: "center",
-    marginBottom: 20,
-  },
-  buttonText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-spinner: {
-    animationDuration: "1s",
-    animationIterationCount: "infinite",
-    animationKeyframes: [
-        { 
-            from: { transform: [{ rotate: "0deg" }] }, 
-            to: { transform: [{ rotate: "360deg" }] } 
-        }
-    ]
-},
-  resendContainer: {
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  resendText: {
-    color: "#4f46e5",
-    marginLeft: 5,
-    fontWeight: "bold",
-  },
-  disabledResend: {
-    color: "#ccc",
-  },
-});
+
 
 export default OTP;

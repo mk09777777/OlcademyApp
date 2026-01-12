@@ -1,7 +1,7 @@
 import React from 'react';
 import { View } from 'react-native';
 import { Text, Button } from 'react-native-paper';
-import styles from '../styles/tiffinstyle';
+// import styles from '../styles/tiffinstyle';
 
 export const SectionHeader = ({
   title,
@@ -9,19 +9,19 @@ export const SectionHeader = ({
   onViewAll
 }) => {
   return (
-    <View style={styles.sectionHeaderContainer}>
-      <View style={styles.sectionHeaderLeft}>
-        <Text style={styles.sectionTitle}>{title}</Text>
+    <View className="flex-row justify-between items-center px-4 py-3">
+      <View className="flex-1">
+        <Text className="text-lg font-semibold text-gray-900">{title}</Text>
         {subtitle && (
-          <Text style={styles.sectionSubtitle}>{subtitle}</Text>
+          <Text className="text-sm text-gray-600 mt-1">{subtitle}</Text>
         )}
       </View>
       {onViewAll && (
         <Button
           onPress={onViewAll}
-          style={styles.viewAllButton}
+          className=""
         >
-          <Text style={styles.viewAllText}>View All</Text>
+          <Text className="text-blue-600 font-medium">View All</Text>
         </Button>
       )}
     </View>

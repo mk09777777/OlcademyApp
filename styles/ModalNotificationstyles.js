@@ -30,7 +30,8 @@ const NotificationModalStyles = StyleSheet.create({
     }
     ,
     NotifText:{
-        fontSize:16,
+        fontSize: 16,
+fontFamily: "outfit-medium",
         color:"#000",
         fontWeight:"600",
         marginLeft:10,
@@ -51,7 +52,8 @@ const NotificationModalStyles = StyleSheet.create({
     },
     NotifText2:{
         color:"white",
-        fontSize:16,
+        fontSize: 16,
+fontFamily: "outfit-medium",
         fontWeight:"600",
     },
     NotifButton2:{
@@ -69,7 +71,8 @@ const NotificationModalStyles = StyleSheet.create({
     },
     NotNowText:{
         color:"#ea4c5f",
-        fontSize:16,
+        fontSize: 16,
+fontFamily: "outfit-medium",
         fontWeight:"600",
     }
 });
