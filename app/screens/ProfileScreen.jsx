@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, ScrollView, Image } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, ScrollView, Image, Alert } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useAuth } from '../../context/AuthContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -11,7 +11,7 @@ import axios from 'axios';
 import { API_CONFIG } from '../../config/apiConfig';
 
 const ProfileScreen = () => {
-  const { user } = useAuth();
+  const { user, updateUser } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [showDobPicker, setShowDobPicker] = useState(false);
   const [showAnniversaryPicker, setShowAnniversaryPicker] = useState(false);
@@ -58,24 +58,32 @@ const ProfileScreen = () => {
   const handleUpdate = async () => {
     if (isEditing) {
       try {
-        const updatedProfile = {
-          ...user,
-          username: localProfile.name,
-          email: localProfile.email,
-          dob: localProfile.dob.toISOString(),
-          anniversary: localProfile.anniversary.toISOString(),
-          gender: localProfile.gender,
-          mobile: localProfile.mobile
-        };
+        const updatedProfile = {};
+        
+        if (localProfile.name?.trim()) updatedProfile.username = localProfile.name.trim();
+        if (localProfile.email?.trim()) updatedProfile.email = localProfile.email.trim();
+        if (localProfile.dob) updatedProfile.dob = localProfile.dob.toISOString();
+        if (localProfile.anniversary) updatedProfile.anniversary = localProfile.anniversary.toISOString();
+        if (localProfile.gender?.trim()) updatedProfile.gender = localProfile.gender.trim();
+        if (localProfile.mobile?.trim()) updatedProfile.mobile = localProfile.mobile.trim();
 
-        await axios.post(`${API_CONFIG.BACKEND_URL}/user/profileEdit`, updatedProfile, {
+        console.log('Sending to backend:', JSON.stringify(updatedProfile));
+
+        const response = await axios.put(`${API_CONFIG.BACKEND_URL}/profile/update`, updatedProfile, {
           withCredentials: true
         });
 
-        await AsyncStorage.setItem('userData', JSON.stringify(updatedProfile));
-        console.log('Profile updated successfully');
+        if (response.data.success) {
+          await updateUser(updatedProfile);
+          Alert.alert('Success', 'Profile updated successfully');
+        } else {
+          Alert.alert('Error', response.data.message || 'Failed to update profile');
+          return;
+        }
       } catch (error) {
-        console.error('Error updating profile:', error);
+        console.error('Error:', error.response?.data || error.message);
+        Alert.alert('Error', error.response?.data?.message || 'Failed to update profile');
+        return;
       }
     }
     setIsEditing(!isEditing);
