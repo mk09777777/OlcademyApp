@@ -1229,6 +1229,9 @@ export default function TakeAway() {
   const [isModalVisible, setIsModalVisible] = useState(false)
   const [isVegOnly, setIsVegOnly] = useState(false)
   const [collections, setCollections] = useState([])
+  const isFetchingRef = useRef(false)
+  const collectionsFetchedRef = useRef(false)
+
   const [userLocation, setUserLocation] = useState({
     latitude: "43.6534627",
     longitude: "-79.4276471",
@@ -1417,20 +1420,18 @@ export default function TakeAway() {
   }
 
   const fetchRestaurants = async (params = {}, isLoadMore = false) => {
-    if (isLoadMore && !hasMore) return [];
+    // 🚫 STOP duplicate calls
+    if (isFetchingRef.current) return []
+    if (isLoadMore && !hasMore) return []
 
-    const requestId = ++restaurantsRequestIdRef.current
-    if (restaurantsRequestRef.current) {
-      restaurantsRequestRef.current.abort()
-    }
-    const controller = new AbortController()
-    restaurantsRequestRef.current = controller
+    isFetchingRef.current = true
+    setLoading(true)
 
-    if (isMountedRef.current) {
-      setLoading(true)
+    if (isLoadMore) {
+      setIsLoadingMore(true)
+    } else {
       setShowProgress(true)
       setProgress(0)
-      setError(null)
     }
 
     const interval = setInterval(() => {
@@ -1445,77 +1446,42 @@ export default function TakeAway() {
         radius: 5,
         limit: 20,
         cursor: isLoadMore ? cursor : null,
-        features: 'Booking'
+        features: 'Booking',
       }
 
-      if (selectedCuisines.length > 0) {
-        baseParams.cuisines = selectedCuisines.join(',')
-      }
-      if (isVegOnly) {
-        baseParams.Dietary = 'vegetarian'
-      } else if (selectedDietary.length > 0) {
-        baseParams.Dietary = selectedDietary.join(',')
-      }
-      if (selectedFeatures.length > 0) {
-        baseParams.features = selectedFeatures.join(',')
-      }
-      if (minRatingFilter) {
-        baseParams.minRating = minRatingFilter
-      }
-      if (maxRatingFilter) {
-        baseParams.maxRating = maxRatingFilter
-      }
-      if (priceRangeFilter.length > 0) {
-        baseParams.priceRange = priceRangeFilter.join(',')
-      }
-      if (openNowFilter) {
-        baseParams.openNow = true
-      }
-      if (offersFilter) {
-        baseParams.offers = true
-      }
-      if (alcoholFilter !== null) {
-        baseParams.Alcohol = alcoholFilter
-      }
-      if (selectedSortOption) {
-        baseParams.sortBy = selectedSortOption.value
-      }
+      if (selectedCuisines.length) baseParams.cuisines = selectedCuisines.join(',')
+      if (isVegOnly) baseParams.Dietary = 'vegetarian'
+      else if (selectedDietary.length) baseParams.Dietary = selectedDietary.join(',')
+      if (selectedFeatures.length) baseParams.features = selectedFeatures.join(',')
+      if (minRatingFilter) baseParams.minRating = minRatingFilter
+      if (maxRatingFilter) baseParams.maxRating = maxRatingFilter
+      if (priceRangeFilter.length) baseParams.priceRange = priceRangeFilter.join(',')
+      if (openNowFilter) baseParams.openNow = true
+      if (offersFilter) baseParams.offers = true
+      if (alcoholFilter !== null) baseParams.Alcohol = alcoholFilter
+      if (selectedSortOption) baseParams.sortBy = selectedSortOption.value
 
-      const finalParams = { ...baseParams, ...params }
-      const response = await axios.get(`${Api_url}/firm/getnearbyrest?feature=Booking`, {
-        params: finalParams,
-        withCredentials: true,
-        signal: controller.signal,
-      })
+      const response = await axios.get(
+        `${Api_url}/firm/getnearbyrest?feature=Booking`,
+        { params: { ...baseParams, ...params }, withCredentials: true }
+      )
 
-      if (response.data.success) {
+      if (response.data?.success) {
         const newData = response.data.data || []
-        if (!isMountedRef.current || requestId !== restaurantsRequestIdRef.current) return []
+
         setRandomData(newData)
 
-        const restaurantsWithDistance = newData.map(restaurant => {
-          return { ...restaurant }
-        })
-
-        if (isLoadMore) {
-          setIsLoadingMore(false)
-          setFirms(prev => [...prev, ...restaurantsWithDistance])
-        } else {
-          setFirms(restaurantsWithDistance)
-        }
+        setFirms(prev =>
+          isLoadMore ? [...prev, ...newData] : newData
+        )
 
         setCursor(response.data.nextCursor)
-        setHasMore(response.data.nextCursor !== null && newData.length === 20)
+        setHasMore(Boolean(response.data.nextCursor))
         setNotFound(false)
-        return restaurantsWithDistance
+
+        return newData
       } else {
-        console.error('API error:', response.data.message)
-        if (!isLoadMore) {
-          if (isMountedRef.current) {
-            setNotFound(true)
-            removeNotFound()
-          }
-        }
+        if (!isLoadMore) setNotFound(true)
         return []
       }
     } catch (error) {
@@ -1523,31 +1489,18 @@ export default function TakeAway() {
         return []
       }
       console.error('Error fetching firms:', error)
-      if (!isLoadMore) {
-        if (isMountedRef.current) {
-          setNotFound(true)
-          removeNotFound()
-        }
-      }
-      if (isLoadMore) {
-        if (isMountedRef.current) {
-          setIsLoadingMore(false)
-        }
-      }
+      if (!isLoadMore) setNotFound(true)
       return []
     } finally {
       clearInterval(interval)
-      if (isMountedRef.current) {
-        setProgress(100)
-        safeTimeout(() => {
-          if (!isMountedRef.current || requestId !== restaurantsRequestIdRef.current) return
-          setLoading(false)
-          setShowProgress(false)
-          setRefreshing(false)
-        }, 300)
-      }
+      setLoading(false)
+      setShowProgress(false)
+      setRefreshing(false)
+      setIsLoadingMore(false)
+      isFetchingRef.current = false
     }
   }
+
 
   const removeNotFound = async () => {
     safeTimeout(async () => {
@@ -1558,11 +1511,14 @@ export default function TakeAway() {
   }
 
   const fetchCollections = useCallback(async () => {
+    if (collectionsFetchedRef.current) return
+
     try {
-      const response = await axios.get(`${Api_url}/api/marketing-dashboard/collections/active`)
-      if (isMountedRef.current) {
-        setCollections(response.data)
-      }
+      const response = await axios.get(
+        `${Api_url}/api/marketing-dashboard/collections/active`
+      )
+      setCollections(response.data)
+      collectionsFetchedRef.current = true
     } catch (error) {
       console.error('Error fetching collections:', error)
       if (isMountedRef.current) {
@@ -1570,68 +1526,28 @@ export default function TakeAway() {
       }
     }
   }, [])
+
   const fetchInitialData = async () => {
-    if (initialLoadRequestRef.current) {
-      initialLoadRequestRef.current.abort()
-    }
-    const controller = new AbortController()
-    initialLoadRequestRef.current = controller
+    setIsInitialLoading(true)
+    setCursor(null)
+    setHasMore(true)
 
-    if (isMountedRef.current) {
-      setIsInitialLoading(true)
-    }
     try {
-      const locationResponse = await axios.get(`${Api_url}/api/location`, { signal: controller.signal })
-      const { city, state, country, lat, lon } = locationResponse.data
-      if (isMountedRef.current) {
-        setLocation({
-          city: city || 'KIIT University',
-          state: state ? `${city}, ${state}` : 'Patia, Bhubaneshwar',
-          country,
-          lat,
-          lon
-        })
-      }
+      await fetchRestaurants({}, false)
 
-      const firmsData = await fetchRestaurants()
-      if (firmsData && firmsData.length > 0) {
-        const selectedItems = getRandomItems(firmsData, Math.min(25, firmsData.length))
-        if (isMountedRef.current) {
-          setRandomItems(selectedItems)
-        }
-      } else {
-        if (isMountedRef.current) {
-          setRandomItems([])
-        }
-      }
-      await fetchCollections()
-      await FetchRecentlyViewData()
-      await sortPopularData()
+      // 👇 ONLY ONCE
+      fetchCollections()
+
+      FetchRecentlyViewData()
     } catch (error) {
-      if (error?.name === 'CanceledError' || error?.name === 'AbortError' || error?.code === 'ERR_CANCELED') {
-        return
-      }
-      console.error('Error in initial data fetch:', error)
-      if (isMountedRef.current) {
-        setError('Failed to detect location.')
-        setLocation({
-          city: 'KIIT University',
-          state: 'Patia, Bhubaneshwar',
-          country: '',
-          lat: '',
-          lon: ''
-        })
-      }
-      await fetchRestaurants()
-      if (isMountedRef.current) {
-        setRandomItems([])
-      }
+      console.error('Initial load error:', error)
     } finally {
       if (isMountedRef.current) {
         setIsInitialLoading(false)
       }
     }
   }
+
 
   const onRefresh = useCallback(() => {
     if (isMountedRef.current) {
@@ -1642,9 +1558,33 @@ export default function TakeAway() {
     fetchInitialData()
   }, [])
 
+
   useEffect(() => {
     fetchInitialData()
   }, [])
+
+  useEffect(() => {
+    const debounce = setTimeout(() => {
+      setCursor(null)
+      setHasMore(true)
+      fetchRestaurants({}, false)
+    }, 300)
+
+    return () => clearTimeout(debounce)
+  }, [
+    selectedSortOption,
+    selectedCuisines,
+    selectedDietary,
+    selectedFeatures,
+    minRatingFilter,
+    maxRatingFilter,
+    priceRangeFilter,
+    openNowFilter,
+    offersFilter,
+    alcoholFilter,
+    isVegOnly,
+  ])
+
 
   const FetchRecentlyViewData = useCallback(async () => {
     try {
@@ -1872,13 +1812,18 @@ export default function TakeAway() {
   }
 
   const handleLoadMore = () => {
-    if (hasMore && !isLoadingMore && !isSearching && query.trim() === '') {
-      setIsLoadingMore(true)
-      fetchRestaurants({}, true)
-      FetchRecentlyViewData()
-      sortPopularData()
+    if (
+      !hasMore ||
+      isLoadingMore ||
+      isSearching ||
+      query.trim() !== ''
+    ) {
+      return
     }
+
+    fetchRestaurants({}, true)
   }
+
 
   const getItemKey = (item, index) => {
     return item?.id ? `${item.id}` : `item-${index}`
@@ -2139,7 +2084,7 @@ export default function TakeAway() {
                         <Image
                           source={require('@/assets/images/campaign.webp')}
                           className="h-32"
-                          style={{marginLeft: '-20', marginRight: 0, width: '100%'}}
+                          style={{ marginLeft: '-20', marginRight: 0, width: '100%' }}
                         />
                         <Text className="text-textprimary font-outfit">{item.title}</Text>
                       </TouchableOpacity>
