@@ -27,7 +27,8 @@ const RUNTIME_DIRS = [
   'hooks',
   'services',
   'config',
-  'utils'
+  'utils',
+  'scripts'
 ].map((p) => path.join(PROJECT_ROOT, p));
 
 const TEXT_EXTENSIONS = new Set(['.js', '.jsx', '.ts', '.tsx', '.json', '.xml', '.md']);

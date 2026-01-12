@@ -4,6 +4,7 @@ import { router } from 'expo-router';
 import { API_CONFIG } from '../config/apiConfig';
 import axios from 'axios';
 import { log, warn, error as logError } from '../utils/logger';
+import { shouldLogoutOnAuthFailure } from '../utils/authBootstrapDecision';
 const api = axios.create({
 
   baseURL: API_CONFIG.BACKEND_URL,
@@ -47,11 +48,19 @@ export const AuthProvider = ({ children }) => {
               throw new Error('User validation failed');
             }
           } catch (apiError) {
-            log('API validation failed, clearing auth:', apiError.message);
-            await AsyncStorage.removeItem('userData');
-            setIsAuthenticated(false);
-            setUser(null);
-            router.replace('/auth/LoginScreen'); 
+            const status = apiError?.response?.status;
+            if (shouldLogoutOnAuthFailure(status)) {
+              log('API auth rejected, clearing auth:', apiError.message);
+              await AsyncStorage.removeItem('userData');
+              setIsAuthenticated(false);
+              setUser(null);
+              router.replace('/auth/LoginScreen');
+            } else {
+              // Transient failure (offline, timeout, 5xx): do NOT force logout.
+              warn('API validation unavailable; keeping local auth:', apiError.message);
+              setIsAuthenticated(true);
+              setUser(parsedUser);
+            }
           }
         } else {
           log('No stored user data, redirecting to login');

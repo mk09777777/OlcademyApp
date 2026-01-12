@@ -1,6 +1,11 @@
 import { useState, useCallback } from 'react';
 import { tiffinApi } from '../services/api';
 
+/**
+ * @deprecated
+ * This hook overlaps with `context/OrdersContext.jsx` and does not appear to be used by current routes.
+ * Prefer clarifying ownership (context vs service-backed hook) before adding new usages.
+ */
 export const useOrders = () => {
   const [orders, setOrders] = useState([]);
   const [activeOrders, setActiveOrders] = useState([]);

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import {
   View,
   Text,
@@ -22,15 +22,40 @@ import BackRouting from "@/components/BackRouting";
 
 export default function SelectLocation({ placeholder = "Enter area, landmark ...", query, setQuery }) {
   const { safeNavigation } = useSafeNavigation();
-  const { updateLocation, recentlyAdds, setRecentlyAdds } = useLocationContext();
+  const { updateLocation, recentlyAdds, setRecentlyAdds, refreshLocation, locationMetadata, resetToGPS } = useLocationContext();
 
   const [localQuery, setLocalQuery] = useState(query || '');
   const [loading, setLoading] = useState(false);
   const [region, setRegion] = useState();
   const [suggestions, setSuggestions] = useState([]);
-  const [debounceTimer, setDebounceTimer] = useState(null);
+  const debounceTimerRef = useRef(null);
+  const isMountedRef = useRef(false);
+  const suggestionsRequestRef = useRef(null);
+  const suggestionsRequestIdRef = useRef(0);
+
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+        debounceTimerRef.current = null;
+      }
+      if (suggestionsRequestRef.current) {
+        suggestionsRequestRef.current.abort();
+        suggestionsRequestRef.current = null;
+      }
+    };
+  }, []);
 
   const fetchSuggestions = async (text) => {
+    const requestId = ++suggestionsRequestIdRef.current;
+    if (suggestionsRequestRef.current) {
+      suggestionsRequestRef.current.abort();
+    }
+    const controller = new AbortController();
+    suggestionsRequestRef.current = controller;
+
     try {
       const res = await axios.get(
         `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(text)}&format=json&addressdetails=1`,
@@ -38,15 +63,28 @@ export default function SelectLocation({ placeholder = "Enter area, landmark ...
           headers: {
             'User-Agent': 'tiffinuser/1.0.0 (mayurvicky01234@gmail.com)',
           },
+          signal: controller.signal,
         }
       );
+      if (!isMountedRef.current || requestId !== suggestionsRequestIdRef.current) return;
       setSuggestions(res.data);
     } catch (err) {
+      // Ignore aborts; they are expected during fast typing/navigation.
+      if (err?.name === 'CanceledError' || err?.name === 'AbortError' || err?.code === 'ERR_CANCELED') return;
       console.error('Error fetching suggestions', err);
     }
   };
 
   const handleSuggestionSelect = async (item) => {
+    if (suggestionsRequestRef.current) {
+      suggestionsRequestRef.current.abort();
+      suggestionsRequestRef.current = null;
+    }
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+      debounceTimerRef.current = null;
+    }
+
     const address = item.address || {};
     const { city, town, village, suburb, county, state, country } = address;
     const selectedCity = item.city || city || town || village || suburb || county || 'Unknown';
@@ -67,7 +105,7 @@ export default function SelectLocation({ placeholder = "Enter area, landmark ...
       houseNumber: '',
     };
 
-  await updateLocation(locationData);
+  await updateLocation(locationData, 'manual');
 
     try {
       const existing = await AsyncStorage.getItem('recentlyAddList');
@@ -108,72 +146,13 @@ export default function SelectLocation({ placeholder = "Enter area, landmark ...
   const getCurrentLocation = async () => {
     try {
       setLoading(true);
-      const { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== 'granted') {
-        Alert.alert('Permission Denied', 'Location permission is required to use this feature');
-        return;
+      // Use LocationContext instead of direct GPS call
+      const locationData = await refreshLocation(true);
+      if (locationData && locationData.lat) {
+        safeNavigation('/home');
+      } else {
+        Alert.alert('Error', 'Could not get current location. Please try again.');
       }
-
-      const { coords } = await Location.getCurrentPositionAsync({});
-      setRegion(coords);
-      
-      // Try to get detailed address information using reverse geocoding
-      try {
-        const reverseGeocode = await Location.reverseGeocodeAsync({
-          latitude: coords.latitude,
-          longitude: coords.longitude,
-        });
-        
-        if (reverseGeocode.length > 0) {
-          const location = reverseGeocode[0];
-          const locationData = {
-            city: location.city || '',
-            state: location.region || '',
-            country: location.country || '',
-            lat: coords.latitude.toString(),
-            lon: coords.longitude.toString(),
-            fullAddress: `${location.name || ''} ${location.street || ''}, ${location.city || ''}, ${location.region || ''}, ${location.country || ''}`.trim(),
-            area: location.district || '',
-            street: location.street || '',
-            houseNumber: location.name || '',
-            display_name: `${location.name || ''} ${location.street || ''}, ${location.city || ''}, ${location.region || ''}, ${location.country || ''}`.trim(),
-          };
-          
-          await updateLocation(locationData);
-          
-          // Save to recent locations
-          try {
-            const existing = await AsyncStorage.getItem('recentlyAddList');
-            let parsed = existing ? JSON.parse(existing) : [];
-            parsed = parsed.filter(i => i.fullAddress !== locationData.fullAddress);
-            parsed.unshift(locationData);
-            if (parsed.length > 5) parsed = parsed.slice(0, 5);
-            await AsyncStorage.setItem('recentlyAddList', JSON.stringify(parsed));
-            setRecentlyAdds(parsed);
-          } catch (err) {
-            console.error("Failed to update recent list", err);
-          }
-        }
-      } catch (reverseError) {
-        console.log('Reverse geocoding failed:', reverseError);
-        // Fallback: Use coordinates only
-        const locationData = {
-          city: '',
-          state: '',
-          country: '',
-          lat: coords.latitude.toString(),
-          lon: coords.longitude.toString(),
-          fullAddress: `Lat: ${coords.latitude.toFixed(6)}, Lon: ${coords.longitude.toFixed(6)}`,
-          area: '',
-          street: '',
-          houseNumber: '',
-          display_name: `Lat: ${coords.latitude.toFixed(6)}, Lon: ${coords.longitude.toFixed(6)}`,
-        };
-        
-        await updateLocation(locationData);
-      }
-      
-      safeNavigation('/home');
     } catch (err) {
       console.error('Location error:', err);
       Alert.alert('Error', 'Could not get current location. Please check your internet connection and try again.');
@@ -194,10 +173,20 @@ export default function SelectLocation({ placeholder = "Enter area, landmark ...
             value={localQuery}
             onChangeText={(text) => {
               setLocalQuery(text);
-              if (debounceTimer) clearTimeout(debounceTimer);
-              setDebounceTimer(setTimeout(() => {
-                text.length > 2 ? fetchSuggestions(text) : setSuggestions([]);
-              }, 500));
+              if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
+              debounceTimerRef.current = setTimeout(() => {
+                if (!isMountedRef.current) return;
+                if (text.length > 2) {
+                  fetchSuggestions(text);
+                } else {
+                  // Cancel in-flight requests and clear results.
+                  if (suggestionsRequestRef.current) {
+                    suggestionsRequestRef.current.abort();
+                    suggestionsRequestRef.current = null;
+                  }
+                  setSuggestions([]);
+                }
+              }, 500);
             }}
             className="bg-white"
             theme={{
@@ -252,6 +241,29 @@ export default function SelectLocation({ placeholder = "Enter area, landmark ...
           >
             <Text className="color-gray-800 font-outfit-bold text-base">{loading ? 'Fetching...' : '📍 Use Current Location'}</Text>
           </TouchableOpacity>
+          {locationMetadata?.source === 'manual' && (
+            <TouchableOpacity
+              className="bg-gray-100 p-3 mx-5 rounded-lg mb-2.5 items-center mt-1"
+              onPress={async () => {
+                setLoading(true);
+                try {
+                  const result = await resetToGPS();
+                  if (result) {
+                    Alert.alert('Success', 'Switched back to GPS location');
+                    safeNavigation('/home');
+                  } else {
+                    Alert.alert('Error', 'Could not get GPS location');
+                  }
+                } catch (err) {
+                  Alert.alert('Error', 'Failed to reset to GPS');
+                } finally {
+                  setLoading(false);
+                }
+              }}
+            >
+              <Text className="color-gray-600 font-outfit-bold text-sm">🔄 Reset to GPS Location</Text>
+            </TouchableOpacity>
+          )}
         </View>
 
         <View className="flex-row items-center mt-7.5 mb-2.5">

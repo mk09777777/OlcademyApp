@@ -1243,6 +1243,52 @@ export default function TakeAway() {
     lat: '',
     lon: ''
   })
+
+  const isMountedRef = useRef(false)
+  const pendingTimeoutsRef = useRef(new Set())
+  const restaurantsRequestRef = useRef(null)
+  const restaurantsRequestIdRef = useRef(0)
+  const searchRequestRef = useRef(null)
+  const searchRequestIdRef = useRef(0)
+  const vegRequestRef = useRef(null)
+  const vegRequestIdRef = useRef(0)
+  const initialLoadRequestRef = useRef(null)
+
+  const safeTimeout = useCallback((fn, ms) => {
+    const id = setTimeout(() => {
+      pendingTimeoutsRef.current.delete(id)
+      fn()
+    }, ms)
+    pendingTimeoutsRef.current.add(id)
+    return id
+  }, [])
+
+  useEffect(() => {
+    isMountedRef.current = true
+    return () => {
+      isMountedRef.current = false
+
+      pendingTimeoutsRef.current.forEach((id) => clearTimeout(id))
+      pendingTimeoutsRef.current.clear()
+
+      if (restaurantsRequestRef.current) {
+        restaurantsRequestRef.current.abort()
+        restaurantsRequestRef.current = null
+      }
+      if (searchRequestRef.current) {
+        searchRequestRef.current.abort()
+        searchRequestRef.current = null
+      }
+      if (vegRequestRef.current) {
+        vegRequestRef.current.abort()
+        vegRequestRef.current = null
+      }
+      if (initialLoadRequestRef.current) {
+        initialLoadRequestRef.current.abort()
+        initialLoadRequestRef.current = null
+      }
+    }
+  }, [safeTimeout])
   const campaigns = [
     { id: 1, title: 'Get $5 cashback on order $50' },
     { id: 2, title: 'Buy 1 Get 1 Free' },
@@ -1296,7 +1342,7 @@ export default function TakeAway() {
     const url = `${Api_url}/firm/fav/${firmId}`
     console.log("Fetching URL:", url)
 
-    const response = await axios.post(url, { withCredentials: true })
+    const response = await axios.post(url, {}, { withCredentials: true })
     alert("updated successfull")
     console.log("Response:", response.data)
   }
@@ -1315,7 +1361,7 @@ export default function TakeAway() {
   const removeFavorite = async (firmId) => {
     try {
       const url = `${Api_url}/firm/favRemove/${firmId}`
-      const response = await axios.post(url, { withCredentials: true })
+      const response = await axios.post(url, {}, { withCredentials: true })
       console.log("Response:", response.data)
       alert(response.data.message)
     } catch (error) {
@@ -1389,6 +1435,7 @@ export default function TakeAway() {
     }
 
     const interval = setInterval(() => {
+      if (!isMountedRef.current) return
       setProgress(prev => (prev >= 90 ? prev : prev + 10))
     }, 100)
 
@@ -1438,6 +1485,9 @@ export default function TakeAway() {
         return []
       }
     } catch (error) {
+      if (error?.name === 'CanceledError' || error?.name === 'AbortError' || error?.code === 'ERR_CANCELED') {
+        return []
+      }
       console.error('Error fetching firms:', error)
       if (!isLoadMore) setNotFound(true)
       return []
@@ -1453,7 +1503,8 @@ export default function TakeAway() {
 
 
   const removeNotFound = async () => {
-    setTimeout(async () => {
+    safeTimeout(async () => {
+      if (!isMountedRef.current) return
       setNotFound(false)
       await fetchRestaurants({}, false, false)
     }, 1500)
@@ -1470,7 +1521,9 @@ export default function TakeAway() {
       collectionsFetchedRef.current = true
     } catch (error) {
       console.error('Error fetching collections:', error)
-      setCollections([])
+      if (isMountedRef.current) {
+        setCollections([])
+      }
     }
   }, [])
 
@@ -1489,15 +1542,19 @@ export default function TakeAway() {
     } catch (error) {
       console.error('Initial load error:', error)
     } finally {
-      setIsInitialLoading(false)
+      if (isMountedRef.current) {
+        setIsInitialLoading(false)
+      }
     }
   }
 
 
   const onRefresh = useCallback(() => {
-    setRefreshing(true)
-    setCursor(null)
-    setHasMore(true)
+    if (isMountedRef.current) {
+      setRefreshing(true)
+      setCursor(null)
+      setHasMore(true)
+    }
     fetchInitialData()
   }, [])
 
@@ -1546,10 +1603,14 @@ export default function TakeAway() {
           }
         })) || []
 
-      setRecentlyViewdData(firmItems)
+      if (isMountedRef.current) {
+        setRecentlyViewdData(firmItems)
+      }
     } catch (error) {
       console.error('Error fetching recently viewed data:', error)
-      setRecentlyViewdData([])
+      if (isMountedRef.current) {
+        setRecentlyViewdData([])
+      }
     }
   }, [])
 
@@ -1557,7 +1618,9 @@ export default function TakeAway() {
     const sorted = randomData.filter(
       (item) => item.restaurantInfo?.ratings?.overall >= 4
     )
-    setPopularData(sorted)
+    if (isMountedRef.current) {
+      setPopularData(sorted)
+    }
   }, [randomData])
 
   const handleSearch = useCallback((text) => {
@@ -1567,16 +1630,27 @@ export default function TakeAway() {
   useEffect(() => {
     const searchRestaurants = async () => {
       if (query.trim() === '') {
+        if (searchRequestRef.current) {
+          searchRequestRef.current.abort()
+          searchRequestRef.current = null
+        }
         setSearchResults([])
         setIsSearching(false)
         return
       }
 
       setIsSearching(true)
+      const requestId = ++searchRequestIdRef.current
+      if (searchRequestRef.current) {
+        searchRequestRef.current.abort()
+      }
+      const controller = new AbortController()
+      searchRequestRef.current = controller
       try {
         const response = await axios.get(`${Api_url}/search`, {
           params: { query },
-          withCredentials: true
+          withCredentials: true,
+          signal: controller.signal,
         })
 
         let results = []
@@ -1622,21 +1696,32 @@ export default function TakeAway() {
           a.findIndex(t => (t._id === v._id)) === i
         )
 
+        if (!isMountedRef.current || requestId !== searchRequestIdRef.current) return
         setSearchResults(uniqueResults)
       } catch (error) {
+        if (error?.name === 'CanceledError' || error?.name === 'AbortError' || error?.code === 'ERR_CANCELED') return
         console.error('Error searching restaurants:', error)
+        if (!isMountedRef.current || requestId !== searchRequestIdRef.current) return
         setSearchResults([])
       } finally {
+        if (!isMountedRef.current || requestId !== searchRequestIdRef.current) return
         setIsSearching(false)
       }
     }
 
     const debounceTimer = setTimeout(searchRestaurants, 500)
-    return () => clearTimeout(debounceTimer)
+    return () => {
+      clearTimeout(debounceTimer)
+      if (searchRequestRef.current) {
+        searchRequestRef.current.abort()
+        searchRequestRef.current = null
+      }
+    }
   }, [query])
   useEffect(() => {
     const applyFilters = async () => {
       const firmsData = await fetchRestaurants()
+      if (!isMountedRef.current) return
       setFirms(firmsData)
     }
     const debounceTimer = setTimeout(applyFilters, 300)
@@ -1750,49 +1835,75 @@ export default function TakeAway() {
 
   const sortVegData = useCallback(async () => {
     if (isVegOnly) {
-      setLoadingVegData(true)
+      const requestId = ++vegRequestIdRef.current
+      if (vegRequestRef.current) {
+        vegRequestRef.current.abort()
+      }
+      const controller = new AbortController()
+      vegRequestRef.current = controller
+
+      if (isMountedRef.current) {
+        setLoadingVegData(true)
+      }
       const MIN_LOADING_TIME = 1000
       const startTime = Date.now()
 
       try {
         const response = await axios.get(`${Api_url}/firm/getnearbyrest?cuisines=Vegetarian`, {
-          withCredentials: true
+          withCredentials: true,
+          signal: controller.signal,
         })
 
+        if (!isMountedRef.current || requestId !== vegRequestIdRef.current) return
         setVegData(response.data.data)
 
         const elapsed = Date.now() - startTime
         const remaining = MIN_LOADING_TIME - elapsed
 
         if (remaining > 0) {
-          setTimeout(() => {
+          safeTimeout(() => {
+            if (!isMountedRef.current || requestId !== vegRequestIdRef.current) return
             setLoadingVegData(false)
           }, remaining)
         } else {
-          setLoadingVegData(false)
+          if (isMountedRef.current && requestId === vegRequestIdRef.current) {
+            setLoadingVegData(false)
+          }
         }
       } catch (error) {
+        if (error?.name === 'CanceledError' || error?.name === 'AbortError' || error?.code === 'ERR_CANCELED') {
+          return
+        }
         console.error('Error fetching vegetarian data:', error)
 
         const elapsed = Date.now() - startTime
         const remaining = MIN_LOADING_TIME - elapsed
 
         if (remaining > 0) {
-          setTimeout(() => {
+          safeTimeout(() => {
+            if (!isMountedRef.current || requestId !== vegRequestIdRef.current) return
             setLoadingVegData(false)
           }, remaining)
         } else {
-          setLoadingVegData(false)
+          if (isMountedRef.current && requestId === vegRequestIdRef.current) {
+            setLoadingVegData(false)
+          }
         }
       }
     }
     else {
-      setLoadingVegData(false)
-      setVegData([])
+      if (vegRequestRef.current) {
+        vegRequestRef.current.abort()
+        vegRequestRef.current = null
+      }
+      if (isMountedRef.current) {
+        setLoadingVegData(false)
+        setVegData([])
+      }
     }
 
 
-  }, [isVegOnly])
+  }, [isVegOnly, safeTimeout])
 
   const HandleUploadVegMode = async () => {
     try {
@@ -1811,7 +1922,9 @@ export default function TakeAway() {
         withCredentials: true
       })
 
-      setIsVegOnly(response.data.vegMode)
+      if (isMountedRef.current) {
+        setIsVegOnly(response.data.vegMode)
+      }
     } catch (error) {
       console.error("Error fetching vegMode", error)
     }
