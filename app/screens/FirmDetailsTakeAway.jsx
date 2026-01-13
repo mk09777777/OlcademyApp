@@ -387,10 +387,12 @@ export default function FirmDetailsTakeAway() {
                     pathname: '/screens/RestaurantDetailsScreen',
                     params: { restaurant: JSON.stringify(firmDetails) }
                   })}
+                  className="flex-row items-center"
                 >
                   <Text className="text-white font-outfit-bold text-xl mb-1">
                     {firmDetails?.restaurantInfo?.name || "Restaurant"}
                   </Text>
+                  <MaterialIcons name="info-outline" size={20} color="white" style={{ marginLeft: 8, marginBottom: 4 }} />
                 </TouchableOpacity>
                 <Text className="text-white/80 font-outfit text-sm mb-1">
                   {firmDetails?.restaurantInfo?.address}
