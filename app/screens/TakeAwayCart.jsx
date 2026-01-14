@@ -15,6 +15,7 @@ import {
   TouchableWithoutFeedback
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useFocusEffect } from '@react-navigation/native';
 import {
   MaterialIcons,
   Feather,
@@ -73,6 +74,7 @@ const TakeAwayCart = () => {
   const [specialInstructions, setSpecialInstructions] = useState('');
   const [showChargesModal, setShowChargesModal] = useState(false);
   const [pickupAddress, setPickupAddress] = useState('');
+  const [addressUpdateKey, setAddressUpdateKey] = useState(0);
   const [countryCode, setCountryCode] = useState('+91');
   const [isPromoOpen, setIsPromoOpen] = useState(false);
   const [manualPromoCode, setManualPromoCode] = useState('');
@@ -157,21 +159,22 @@ const TakeAwayCart = () => {
     setAppliedTaxes(calculatedTaxes);
   };
   const dateLabels = ['Today', 'Tomorrow', 'Day After'];
-  useEffect(() => {
-    const loadSavedAddress = async () => {
-      try {
+  useFocusEffect(
+    React.useCallback(() => {
+      const loadSavedAddress = async () => {
         const savedAddress = await AsyncStorage.getItem('selectedAddress');
         if (savedAddress) {
           const addressData = JSON.parse(savedAddress);
-          setPickupAddress(addressData.fullAddress || '');
+          const fullAddr = addressData.fullAddress || 
+                          (typeof addressData.address === 'string' ? addressData.address : addressData.address?.full) || 
+                          '';
+          setPickupAddress(fullAddr);
+          setAddressUpdateKey(prev => prev + 1);
         }
-      } catch (error) {
-        console.error('Error loading saved address:', error);
-      }
-    };
-
-    loadSavedAddress();
-  }, []);
+      };
+      loadSavedAddress();
+    }, [])
+  );
   console.log('select', pickupAddress)
   const fetchOffers = async () => {
     try {
@@ -870,28 +873,32 @@ const TakeAwayCart = () => {
                   />
                 </View>
 
-                <TouchableOpacity
-                  onPress={() => safeNavigation('/screens/DeliveryAddress')}
-                  className="mb-4"
-                >
-                  <TextInput
-                    placeholder="Delivery Address"
-                    value={pickupAddress}
-                    onChangeText={setPickupAddress}
-                    multiline
-                    className="border border-border rounded-lg p-3 text-textprimary font-outfit h-24"
-                    editable={false}
-                  />
-                  {pickupAddress ? (
-                    <TouchableOpacity
-                      onPress={async () => {
-                        setPickupAddress('');
-                        await AsyncStorage.removeItem('selectedAddress');
-                      }}
-                    >
-                    </TouchableOpacity>
-                  ) : null}
-                </TouchableOpacity>
+                <View className="mb-4 px-4">
+                  <Text className="text-textprimary font-outfit-bold text-sm mb-2">Delivery Address</Text>
+                  <TouchableOpacity
+                    key={`address-${addressUpdateKey}`}
+                    onPress={() => safeNavigation('/screens/DeliveryAddress')}
+                    className="border border-border rounded-lg p-4 bg-white min-h-24 justify-center"
+                  >
+                    {pickupAddress ? (
+                      <View className="flex-row justify-between items-start">
+                        <Text className="text-textprimary font-outfit text-sm flex-1 pr-2">{pickupAddress}</Text>
+                        <TouchableOpacity
+                          onPress={async (e) => {
+                            e.stopPropagation();
+                            setPickupAddress('');
+                            await AsyncStorage.removeItem('selectedAddress');
+                          }}
+                          className="p-1"
+                        >
+                          <Text className="text-red-500 font-outfit-bold text-xs">Clear</Text>
+                        </TouchableOpacity>
+                      </View>
+                    ) : (
+                      <Text className="text-textsecondary font-outfit text-sm">Tap to select delivery address</Text>
+                    )}
+                  </TouchableOpacity>
+                </View>
 
                 <TextInput
                   placeholder="Special Instructions"

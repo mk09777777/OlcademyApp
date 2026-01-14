@@ -12,6 +12,7 @@ import {
   StyleSheet
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useFocusEffect } from '@react-navigation/native';
 import { Ionicons, Feather, MaterialCommunityIcons, FontAwesome5 } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import axios from 'axios';
@@ -29,11 +30,15 @@ export default function AddressScreen() {
   const [isDeleting, setIsDeleting] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const { safeNavigation } = useSafeNavigation();
-  // Local input states for editing
   const [editingAddressText, setEditingAddressText] = useState('');
   const [editingAddressType, setEditingAddressType] = useState('');
   const [editingAddressId, setEditingAddressId] = useState(null);
   const [selectedAddress, setSelectedAddress] = useState(null);
+  const [manualAddressModalVisible, setManualAddressModalVisible] = useState(false);
+  const [manualAddressText, setManualAddressText] = useState('');
+  const [manualAddressType, setManualAddressType] = useState('Home');
+  const [refreshKey, setRefreshKey] = useState(0);
+  const [addressRefreshTrigger, setAddressRefreshTrigger] = useState(0);
 
   const API_BASE_URL = 'https://backend-0wyj.onrender.com';
 
@@ -50,15 +55,45 @@ export default function AddressScreen() {
       setAddresses(response.data.reverse()); // latest first
     } catch (error) {
       console.error("Error fetching addresses:", error);
-      Alert.alert("Error", "Failed to load addresses. Please try again.");
+      if (error.response?.status === 401) {
+        console.log("User not authenticated, showing empty address list");
+        setAddresses([]);
+      } else {
+        Alert.alert("Error", "Failed to load addresses. Please try again.");
+      }
     } finally {
       setIsLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchAddresses();
+    const loadData = async () => {
+      await fetchAddresses();
+      await loadSelectedAddress();
+    };
+    loadData();
   }, []);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      const loadData = async () => {
+        await loadSelectedAddress();
+        await fetchAddresses();
+        setRefreshKey(prev => prev + 1);
+        setAddressRefreshTrigger(prev => prev + 1);
+      };
+      loadData();
+    }, [])
+  );
+
+  const loadSelectedAddress = async () => {
+    const savedAddress = await AsyncStorage.getItem('selectedAddress');
+    if (savedAddress) {
+      const addressData = JSON.parse(savedAddress);
+      setSelectedAddress(addressData);
+      setAddressRefreshTrigger(prev => prev + 1);
+    }
+  };
 
   const handleMorePress = (id) => {
     setSelectedAddressId(prev => (prev === id ? null : id));
@@ -200,19 +235,23 @@ const handleSuggestionSelect = async (item) => {
     // Also save the selected address to be used in the cart
     await AsyncStorage.setItem('selectedAddress', JSON.stringify(locationData));
     
-    // Show success message
-    Alert.alert("Success", "Address selected successfully!");
-    
-    // Navigate to cart
-    safeNavigation('/screens/TakeAwayCart');
+    // Navigate back to cart
+    router.back();
   } catch (error) {
     console.error("Error selecting address:", error);
     Alert.alert("Error", "Failed to select address. Please try again.");
   }
 };
 
-const AddressCard = ({ address }) => (
-  <View className="relative mb-4">
+const AddressCard = ({ address }) => {
+  const addressText = typeof address.address === 'string' ? address.address : address.address?.full || 'Unknown';
+  const selectedAddressText = selectedAddress?.fullAddress || 
+                              (typeof selectedAddress?.address === 'string' ? selectedAddress.address : selectedAddress?.address?.full) || 
+                              '';
+  const isSelected = selectedAddressText && addressText === selectedAddressText;
+  
+  return (
+  <View className="relative mb-4" key={`${address._id}-${addressRefreshTrigger}`}>
     {selectedAddressId === address._id && (
       <View className="absolute right-0 top-0 bg-white rounded-lg shadow-lg z-10 w-35">
         <TouchableOpacity
@@ -230,8 +269,8 @@ const AddressCard = ({ address }) => (
       </View>
     )}
     <TouchableOpacity 
-      className={`bg-white rounded-xl p-4 border shadow-sm ${
-        selectedAddress?._id === address._id ? 'border-green-500' : 'border-gray-200'
+      className={`bg-white rounded-xl p-4 border-2 shadow-sm ${
+        isSelected ? 'border-green-500 bg-green-50' : 'border-gray-200'
       }`}
       activeOpacity={0.7}
       onPress={() => handleSuggestionSelect(address)}
@@ -246,14 +285,12 @@ const AddressCard = ({ address }) => (
               : address.service_area?.name || 'Unknown'}
           </Text>
         </View>
-        {selectedAddress?._id === address._id && (
+        {isSelected && (
           <Ionicons name="checkmark-circle" size={24} color="#4CAF50" />
         )}
       </View>
       <Text className="text-sm text-gray-600 leading-5 mb-2">
-        {typeof address.address === 'string'
-          ? address.address
-          : address.address?.full || 'Unknown'}
+        {addressText}
       </Text>
       <View className="flex-row justify-end mt-2">
         <TouchableOpacity
@@ -272,6 +309,7 @@ const AddressCard = ({ address }) => (
     </TouchableOpacity>
   </View>
 );
+};
 
   if (isLoading) {
     return (
@@ -287,20 +325,43 @@ const AddressCard = ({ address }) => (
       <BackRouting tittle="Your Address" />
       <TouchableOpacity
         className="flex-row items-center p-4 border-b border-gray-200"
-        onPress={() => safeNavigation('/MapPicker')}
+        onPress={() => safeNavigation('/screens/MapPicker')}
       >
         <Ionicons name="add" size={24} color="#f23e3e" />
         <Text className="ml-3 text-base text-red-500 font-medium flex-1">Add Address</Text>
         <Ionicons name="chevron-forward" size={20} color="#999" />
       </TouchableOpacity>
       <View className="h-2 bg-gray-100" />
-      <View className="flex-1 p-4">
+      <View className="flex-1 p-4" key={refreshKey}>
         <Text className="text-sm font-bold text-gray-600 mb-4 uppercase tracking-wide">SAVED ADDRESSES</Text>
+        
+        {/* Show currently selected address if it exists and is not in the list */}
+        {selectedAddress && !addresses.find(addr => {
+          const addrText = typeof addr.address === 'string' ? addr.address : addr.address?.full || '';
+          const selectedText = selectedAddress.fullAddress || selectedAddress.address || '';
+          return addrText === selectedText;
+        }) && (
+          <View className="mb-4">
+            <Text className="text-xs font-bold text-blue-600 mb-2 uppercase">Currently Selected</Text>
+            <AddressCard address={{
+              _id: selectedAddress._id || 'temp',
+              address: selectedAddress.fullAddress || selectedAddress.address,
+              service_area: selectedAddress.service_area || 'Other'
+            }} />
+          </View>
+        )}
+        
         {addresses.length === 0 ? (
           <View className="flex-1 justify-center items-center p-10">
             <Ionicons name="location-outline" size={48} color="#ccc" />
             <Text className="text-lg text-gray-800 mt-4 font-medium">No saved addresses yet</Text>
-            <Text className="text-sm text-gray-600 mt-2">Add your first address to get started</Text>
+            <Text className="text-sm text-gray-600 mt-2 text-center">Add your first address using the map picker above or enter manually below</Text>
+            <TouchableOpacity
+              className="mt-6 bg-red-500 px-6 py-3 rounded-lg"
+              onPress={() => setManualAddressModalVisible(true)}
+            >
+              <Text className="text-white font-semibold">Enter Address Manually</Text>
+            </TouchableOpacity>
           </View>
         ) : (
           <FlatList
@@ -313,6 +374,81 @@ const AddressCard = ({ address }) => (
           />
         )}
       </View>
+
+      {/* Manual Address Entry Modal */}
+      <Modal
+        visible={manualAddressModalVisible}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setManualAddressModalVisible(false)}
+      >
+        <View className="flex-1 justify-center bg-black/50 p-5">
+          <View className="bg-white rounded-xl p-6">
+            <Text className="text-xl font-semibold mb-6 text-gray-800 text-center">Enter Address Manually</Text>
+            <TextInput
+              className="border border-gray-300 rounded-lg p-3.5 mb-6 text-base bg-gray-50 min-h-[101px]"
+              style={{ textAlignVertical: 'top' }}
+              value={manualAddressText}
+              placeholder="Enter your complete delivery address"
+              onChangeText={setManualAddressText}
+              multiline
+            />
+            <Text className="text-base font-medium mb-3 text-gray-800">Address Type</Text>
+            <View className="flex-row flex-wrap justify-between mb-6">
+              {['Home', 'Work', 'Hotel', 'Other'].map((type) => (
+                <TouchableOpacity
+                  key={type}
+                  className={`w-[48%] flex-row items-center p-3 mb-3 border rounded-lg ${
+                    manualAddressType === type 
+                      ? 'border-red-500 bg-red-50' 
+                      : 'border-gray-300'
+                  }`}
+                  onPress={() => setManualAddressType(type)}
+                >
+                  <View className="mr-2">
+                    {getTypeIcon(type)}
+                  </View>
+                  <Text className="text-sm">{type}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+            <View className="flex-row gap-3">
+              <TouchableOpacity
+                className="flex-1 bg-gray-200 p-4 rounded-lg"
+                onPress={() => {
+                  setManualAddressModalVisible(false);
+                  setManualAddressText('');
+                  setManualAddressType('Home');
+                }}
+              >
+                <Text className="text-gray-800 font-semibold text-center">Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                className="flex-1 bg-red-500 p-4 rounded-lg"
+                onPress={async () => {
+                  if (manualAddressText.trim()) {
+                    const manualAddress = {
+                      fullAddress: manualAddressText.trim(),
+                      address: manualAddressText.trim(),
+                      service_area: manualAddressType,
+                      _id: Date.now().toString()
+                    };
+                    await AsyncStorage.setItem('selectedAddress', JSON.stringify(manualAddress));
+                    setManualAddressModalVisible(false);
+                    setManualAddressText('');
+                    setManualAddressType('Home');
+                    router.back();
+                  } else {
+                    Alert.alert('Error', 'Please enter an address');
+                  }
+                }}
+              >
+                <Text className="text-white font-semibold text-center">Save</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
 
       {/* Edit Address Modal */}
       <Modal
