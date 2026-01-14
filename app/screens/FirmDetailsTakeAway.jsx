@@ -363,7 +363,7 @@ export default function FirmDetailsTakeAway() {
         </View>
 
         <View
-          className="absolute bottom-3 left-0 right-0 h-[60%] flex-row justify-between items-center"
+          className="absolute bottom-3 left-0 right-0 h-[70%] flex-row justify-between items-center"
           style={{ zIndex: 20, elevation: 12 }}
         >
           <LinearGradient
@@ -377,36 +377,39 @@ export default function FirmDetailsTakeAway() {
               width: "100%",
               justifyContent: "space-between",
               zIndex: 20,
+              borderRadius: 0,
             }}
           >
-            <View className="w-[80%] px-6 mb-3 mt-14">
-
-              <View>
-                <TouchableOpacity
-                  onPress={() => safeNavigation({
-                    pathname: '/screens/RestaurantDetailsScreen',
-                    params: { restaurant: JSON.stringify(firmDetails) }
-                  })}
-                  className="flex-row items-center"
-                >
-                  <Text className="text-white font-outfit-bold text-xl mb-1">
-                    {firmDetails?.restaurantInfo?.name || "Restaurant"}
+            <TouchableOpacity
+              className="w-[80%] px-6 mb-3 mt-14 bg-black/10 rounded-xl py-3"
+              onPress={() => safeNavigation({
+                pathname: '/screens/RestaurantDetailsScreen',
+                params: { restaurant: JSON.stringify(firmDetails) }
+              })}
+              activeOpacity={0.7}
+            >
+              <View className="flex-row items-center justify-between">
+                <View className="flex-1">
+                  <View className="flex-row items-center mb-1">
+                    <Text className="text-white font-outfit-bold text-xl">
+                      {firmDetails?.restaurantInfo?.name || "Restaurant"}
+                    </Text>
+                    <MaterialIcons name="info-outline" size={20} color="white" style={{ marginLeft: 8 }} />
+                  </View>
+                  <Text className="text-white/80 font-outfit text-sm mb-1">
+                    {firmDetails?.restaurantInfo?.address}
                   </Text>
-                  <MaterialIcons name="info-outline" size={20} color="white" style={{ marginLeft: 8, marginBottom: 4 }} />
-                </TouchableOpacity>
-                <Text className="text-white/80 font-outfit text-sm mb-1">
-                  {firmDetails?.restaurantInfo?.address}
-                </Text>
-                <Text className="text-white/80 font-outfit text-sm mb-1">
-                  {Array.isArray(firmDetails?.restaurantInfo?.cuisines)
-                    ? firmDetails.restaurantInfo.cuisines.join(' • ')
-                    : firmDetails?.restaurantInfo?.cuisines || 'Italian • Dessert'}
-                </Text>
-                <Text className="text-white/80 font-outfit text-sm">
-                  {firmDetails?.restaurantInfo?.priceRange || '₹1010 for Two'}
-                </Text>
+                  <Text className="text-white/80 font-outfit text-sm mb-1">
+                    {Array.isArray(firmDetails?.restaurantInfo?.cuisines)
+                      ? firmDetails.restaurantInfo.cuisines.join(' • ')
+                      : firmDetails?.restaurantInfo?.cuisines || 'Italian • Dessert'}
+                  </Text>
+                  <Text className="text-white/80 font-outfit text-sm">
+                    {firmDetails?.restaurantInfo?.priceRange || '₹1010 for Two'}
+                  </Text>
+                </View>
               </View>
-            </View>
+            </TouchableOpacity>
 
             <TouchableOpacity
               // Kept your margins, changed rounding, and added shadow for depth
