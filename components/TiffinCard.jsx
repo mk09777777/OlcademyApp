@@ -65,7 +65,7 @@ const TiffinCard = ({ firm, onPress, onFavoriteToggle, isFavorite, horizontal = 
           <View className="items-end justify-end min-w-20">
             <View className="flex-row items-center bg-green-700 rounded-1.5 px-2.5 py-1">
               <FontAwesome name='star' size={14} color="white" />
-              <Text className="text-white font-outfit text-sm font-semibold ml-1">{rating}</Text>
+              <Text className="text-white font-outfit text-sm font-semibold ml-1">{typeof rating === 'number' ? rating.toFixed(1) : rating}</Text>
             </View>
             <Text className="font-outfit text-base font-bold text-primary mb-1">${priceRange}</Text>
           </View>

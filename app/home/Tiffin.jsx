@@ -291,7 +291,10 @@ export default function Tiffin() {
       }
       if (minRatingFilter) baseParams.minRating = minRatingFilter;
       if (maxRatingFilter) baseParams.maxRating = maxRatingFilter;
-      if (priceRangeFilter.length > 0) baseParams.priceRange = priceRangeFilter.join(',');
+      if (priceRangeFilter.length === 2) {
+        baseParams.minPrice = priceRangeFilter[0];
+        baseParams.maxPrice = priceRangeFilter[1];
+      }
       if (openNowFilter) baseParams.openNow = true;
       if (offersFilter) baseParams.offers = true;
       if (isVegOnly) baseParams.category = 'veg';
@@ -1159,6 +1162,9 @@ export default function Tiffin() {
           }
           if (filters.minRating) {
             setMinRatingFilter(filters.minRating);
+          }
+          if (filters.priceRange) {
+            setPriceRangeFilter(filters.priceRange);
           }
         }}
       />

@@ -711,13 +711,25 @@ const FilterModal = ({
   special: null,
 };
 
-const [localFilters, setLocalFilters] = useState(activeFilters || defaultFilters);
+const [localFilters, setLocalFilters] = useState(() => ({
+  ...defaultFilters,
+  ...(activeFilters || {}),
+  priceRange: activeFilters?.priceRange || [1, 100],
+}));
+  const [minPriceInput, setMinPriceInput] = useState(String(activeFilters?.priceRange?.[0] || 1));
+  const [maxPriceInput, setMaxPriceInput] = useState(String(activeFilters?.priceRange?.[1] || 100));
   const [cuisineSearch, setCuisineSearch] = useState("");
   const [openSection, setOpenSection] = useState("sortBy"); // Set initial open section
 
   useEffect(() => {
     if (isOpen) {
-      setLocalFilters(activeFilters);
+      setLocalFilters({
+        ...defaultFilters,
+        ...(activeFilters || {}),
+        priceRange: activeFilters?.priceRange || [1, 100],
+      });
+      setMinPriceInput(String(activeFilters?.priceRange?.[0] || 1));
+      setMaxPriceInput(String(activeFilters?.priceRange?.[1] || 100));
     }
   }, [isOpen, activeFilters]);
 
@@ -750,9 +762,13 @@ const [localFilters, setLocalFilters] = useState(activeFilters || defaultFilters
   };
 
   const handleApply = () => {
-    setActiveFilters(localFilters);
+    const finalFilters = {
+      ...localFilters,
+      priceRange: [parseInt(minPriceInput) || 1, parseInt(maxPriceInput) || 100]
+    };
+    setActiveFilters(finalFilters);
     if (onApplyFilters) {
-      onApplyFilters(localFilters);
+      onApplyFilters(finalFilters);
     }
     setIsOpen(false);
   };
@@ -774,7 +790,7 @@ const [localFilters, setLocalFilters] = useState(activeFilters || defaultFilters
   const handlePriceChange = (value) => {
     setLocalFilters((prev) => ({
       ...prev,
-      priceRange: [value, prev.priceRange[1]],
+      priceRange: [value, prev?.priceRange?.[1] || 100],
     }));
   };
 
@@ -895,33 +911,40 @@ const [localFilters, setLocalFilters] = useState(activeFilters || defaultFilters
     </View>
   );
 
-  const renderPriceOptions = () => (
-    <View className="p-4">
-      <Text className="text-base font-outfit-bold color-gray-900 mb-4 text-center">
-        Price Range: ${localFilters.priceRange[0]} - ${localFilters.priceRange[1]}
-      </Text>
-      <View className="relative h-8 bg-gray-200 rounded-full mb-6">
-        <View
-          className="absolute h-full bg-primary rounded-full"
-          style={{
-            width: `${(localFilters.priceRange[0] / 100) * 100}%`,
-          }}
-        />
-        <TouchableOpacity
-          className="absolute w-6 h-6 rounded-full bg-primary border-2 border-white -mt-1"
-          style={{
-            left: `${(localFilters.priceRange[0] / 100) * 100}%`,
-            marginLeft: -12,
-          }}
-          onPress={() => handlePriceChange(localFilters.priceRange[0])}
-        />
+  const renderPriceOptions = () => {
+    const minVal = parseInt(minPriceInput) || 1;
+    const maxVal = parseInt(maxPriceInput) || 100;
+
+    return (
+      <View className="p-4">
+        <Text className="text-base font-outfit-bold color-gray-900 mb-4 text-center">
+          Price Range: ${minVal} - ${maxVal}
+        </Text>
+        <View className="flex-row gap-4 mb-4">
+          <View className="flex-1">
+            <Text className="text-xs color-gray-500 font-outfit mb-2">Min: ${minVal}</Text>
+            <TextInput
+              className="border border-gray-300 rounded-lg px-3 py-2 text-sm font-outfit"
+              keyboardType="numeric"
+              value={minPriceInput}
+              onChangeText={setMinPriceInput}
+              placeholder="1"
+            />
+          </View>
+          <View className="flex-1">
+            <Text className="text-xs color-gray-500 font-outfit mb-2">Max: ${maxVal}</Text>
+            <TextInput
+              className="border border-gray-300 rounded-lg px-3 py-2 text-sm font-outfit"
+              keyboardType="numeric"
+              value={maxPriceInput}
+              onChangeText={setMaxPriceInput}
+              placeholder="100"
+            />
+          </View>
+        </View>
       </View>
-      <View className="flex-row justify-between">
-        <Text className="text-xs color-gray-500 font-outfit">${minPrice}</Text>
-        <Text className="text-xs color-gray-500 font-outfit">${maxPrice}</Text>
-      </View>
-    </View>
-  );
+    );
+  };
 
   const renderSpecialOptions = () => (
     <View>
