@@ -895,33 +895,41 @@ const [localFilters, setLocalFilters] = useState(activeFilters || defaultFilters
     </View>
   );
 
-  const renderPriceOptions = () => (
-    <View className="p-4">
-      <Text className="text-base font-outfit-bold color-gray-900 mb-4 text-center">
-        Price Range: ${localFilters.priceRange[0]} - ${localFilters.priceRange[1]}
-      </Text>
-      <View className="relative h-8 bg-gray-200 rounded-full mb-6">
-        <View
-          className="absolute h-full bg-primary rounded-full"
-          style={{
-            width: `${(localFilters.priceRange[0] / 100) * 100}%`,
-          }}
-        />
-        <TouchableOpacity
-          className="absolute w-6 h-6 rounded-full bg-primary border-2 border-white -mt-1"
-          style={{
-            left: `${(localFilters.priceRange[0] / 100) * 100}%`,
-            marginLeft: -12,
-          }}
-          onPress={() => handlePriceChange(localFilters.priceRange[0])}
-        />
+  const renderPriceOptions = () => {
+    const priceSteps = [20, 40, 60, 80, 100];
+    return (
+      <View className="p-4">
+        <Text className="text-base font-outfit-bold color-gray-900 mb-4 text-center">
+          Cost for two: CAN${localFilters.priceRange[0]} - CAN${localFilters.priceRange[1]}
+        </Text>
+        {/* Quick select buttons */}
+        <View className="flex-row flex-wrap justify-center gap-2 mb-4">
+          {priceSteps.map((val) => (
+            <TouchableOpacity
+              key={val}
+              className={`px-4 py-2 rounded-full border ${
+                localFilters.priceRange[0] === val 
+                  ? 'bg-primary border-primary' 
+                  : 'bg-white border-gray-300'
+              }`}
+              onPress={() => handlePriceChange(val)}
+            >
+              <Text className={`text-sm font-outfit ${
+                localFilters.priceRange[0] === val ? 'text-white' : 'color-gray-700'
+              }`}>
+                CAN${val}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+        {/* Price range labels */}
+        <View className="flex-row justify-between mt-2">
+          <Text className="text-xs color-gray-500 font-outfit">CAN${minPrice}</Text>
+          <Text className="text-xs color-gray-500 font-outfit">CAN${maxPrice}</Text>
+        </View>
       </View>
-      <View className="flex-row justify-between">
-        <Text className="text-xs color-gray-500 font-outfit">${minPrice}</Text>
-        <Text className="text-xs color-gray-500 font-outfit">${maxPrice}</Text>
-      </View>
-    </View>
-  );
+    );
+  };
 
   const renderSpecialOptions = () => (
     <View>

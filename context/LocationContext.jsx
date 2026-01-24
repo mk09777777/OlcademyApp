@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import * as Location from 'expo-location';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { AppState } from 'react-native';
+import { API_CONFIG } from '@config/apiConfig';
 
 const LocationContext = createContext();
 
@@ -17,339 +17,316 @@ const EMPTY_LOCATION = {
   fullAddress: '',
 };
 
-// Freshness thresholds (in minutes)
-const FRESHNESS_SKIP = 5;
-const FRESHNESS_BACKGROUND = 30;
-const DISTANCE_THRESHOLD = 75; // meters
-const GPS_TIMEOUT = 10000; // 10 seconds
-const MAX_RETRIES = 2;
+const CACHE_KEY = 'currentLocation';
+const CACHE_METADATA_KEY = 'locationMetadata';
+const RECENT_LOCATIONS_KEY = 'recentlyAddList';
 
 export const LocationProvider = ({ children }) => {
   const [location, setLocation] = useState(EMPTY_LOCATION);
   const [recentlyAdds, setRecentlyAdds] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [locationMetadata, setLocationMetadata] = useState({
     timestamp: null,
     source: 'cached',
     accuracy: null,
   });
+  
   const initRef = useRef(false);
 
-  const updateLocation = useCallback(async (newLocation, source = 'manual') => {
-    const metadata = {
-      timestamp: Date.now(),
-      source,
-      accuracy: newLocation.accuracy || null,
-    };
-    
-    setLocation(newLocation);
-    setLocationMetadata(metadata);
-    
-    try {
-      await AsyncStorage.setItem('currentLocation', JSON.stringify(newLocation));
-      await AsyncStorage.setItem('locationMetadata', JSON.stringify(metadata));
-      
-      if (__DEV__) {
-        console.log('[Location] Updated:', source, '- Age: 0 mins');
-      }
-
-    } catch (error) {
-      console.error('Error saving location to storage:', error);
-    }
+  // Get Google Maps API key
+  const getGoogleApiKey = useCallback(() => {
+    return API_CONFIG?.GOOGLE_MAPS_API_KEY || '';
   }, []);
 
-  const resolveCoordinatesToLocation = useCallback(async (latitude, longitude) => {
-    const fallbackLabel = `Lat: ${latitude.toFixed(6)}, Lon: ${longitude.toFixed(6)}`;
+  // Search places using Google Places Autocomplete
+  const searchPlaces = useCallback(async (query) => {
+    const apiKey = getGoogleApiKey();
+    
+    if (!apiKey) {
+      console.warn('[Location] Google Maps API key not configured');
+      return [];
+    }
+
+    if (!query || query.length < 2) {
+      return [];
+    }
 
     try {
-      const deviceAddress = await Location.reverseGeocodeAsync({ latitude, longitude });
-      if (deviceAddress?.length) {
-        const [{
-          city,
-          region,
-          subregion,
-          district,
-          street,
-          name,
-          country,
-        }] = deviceAddress;
+      const response = await fetch(
+        `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${encodeURIComponent(query)}&key=${apiKey}&components=country:in&types=geocode`
+      );
+      
+      const data = await response.json();
+      
+      if (data.status === 'OK' && data.predictions) {
+        return data.predictions.map(p => ({
+          placeId: p.place_id,
+          description: p.description,
+          mainText: p.structured_formatting?.main_text || '',
+          secondaryText: p.structured_formatting?.secondary_text || '',
+        }));
+      }
+      
+      return [];
+    } catch (error) {
+      console.error('[Location] Places search error:', error);
+      return [];
+    }
+  }, [getGoogleApiKey]);
 
-        const addressParts = [name, street, city, region, country].filter(Boolean);
-        const fullAddress = addressParts.join(', ') || fallbackLabel;
+  // Get place details by place_id
+  const getPlaceDetails = useCallback(async (placeId) => {
+    const apiKey = getGoogleApiKey();
+    
+    if (!apiKey || !placeId) {
+      return null;
+    }
+
+    try {
+      const response = await fetch(
+        `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&key=${apiKey}&fields=geometry,formatted_address,address_components,name`
+      );
+      
+      const data = await response.json();
+      
+      if (data.status === 'OK' && data.result) {
+        const result = data.result;
+        const components = result.address_components || [];
+        
+        // Extract address components
+        const getComponent = (type) => {
+          const comp = components.find(c => c.types.includes(type));
+          return comp?.long_name || '';
+        };
 
         return {
-          city: city || subregion || district || '',
-          area: district || subregion || '',
-          street: street || '',
-          houseNumber: name || '',
-          state: region || '',
-          country: country || '',
+          city: getComponent('locality') || getComponent('administrative_area_level_2') || '',
+          area: getComponent('sublocality_level_1') || getComponent('sublocality') || '',
+          street: getComponent('route') || '',
+          houseNumber: getComponent('street_number') || '',
+          state: getComponent('administrative_area_level_1') || '',
+          country: getComponent('country') || '',
+          lat: result.geometry?.location?.lat?.toString() || '',
+          lon: result.geometry?.location?.lng?.toString() || '',
+          fullAddress: result.formatted_address || result.name || '',
+        };
+      }
+      
+      return null;
+    } catch (error) {
+      console.error('[Location] Place details error:', error);
+      return null;
+    }
+  }, [getGoogleApiKey]);
+
+  // Select a place from search results
+  const selectPlace = useCallback(async (place) => {
+    if (!place?.placeId) {
+      return null;
+    }
+
+    setIsLoading(true);
+    
+    try {
+      const details = await getPlaceDetails(place.placeId);
+      
+      if (details) {
+        await updateLocation(details, 'manual');
+        
+        if (__DEV__) {
+          console.log('[Location] Selected:', details.fullAddress);
+        }
+        
+        return details;
+      }
+      
+      return null;
+    } catch (error) {
+      console.error('[Location] Select place error:', error);
+      return null;
+    } finally {
+      setIsLoading(false);
+    }
+  }, [getPlaceDetails]);
+
+  // Reverse geocode coordinates to address
+  const resolveCoordinatesToLocation = useCallback(async (latitude, longitude) => {
+    const fallbackLabel = `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`;
+
+    try {
+      const results = await Location.reverseGeocodeAsync({ latitude, longitude });
+      
+      if (results?.length) {
+        const addr = results[0];
+        const parts = [addr.name, addr.street, addr.city, addr.region, addr.country].filter(Boolean);
+        
+        return {
+          city: addr.city || addr.subregion || addr.district || '',
+          area: addr.district || addr.subregion || '',
+          street: addr.street || '',
+          houseNumber: addr.name || '',
+          state: addr.region || '',
+          country: addr.country || '',
           lat: latitude.toString(),
           lon: longitude.toString(),
-          fullAddress,
+          fullAddress: parts.join(', ') || fallbackLabel,
         };
       }
     } catch (error) {
-      if (__DEV__) {
-        console.log('[Location] Reverse geocoding failed (offline?), using coordinates');
-      }
+      // Geocoding failed
     }
 
-    // Fallback: return coordinates with minimal info
     return {
       ...EMPTY_LOCATION,
       lat: latitude.toString(),
       lon: longitude.toString(),
       fullAddress: fallbackLabel,
-      city: 'Unknown',
+      city: 'Current Location',
     };
   }, []);
 
-  const calculateDistance = useCallback((lat1, lon1, lat2, lon2) => {
-    const R = 6371e3; // Earth radius in meters
-    const φ1 = (lat1 * Math.PI) / 180;
-    const φ2 = (lat2 * Math.PI) / 180;
-    const Δφ = ((lat2 - lat1) * Math.PI) / 180;
-    const Δλ = ((lon2 - lon1) * Math.PI) / 180;
-
-    const a = Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
-              Math.cos(φ1) * Math.cos(φ2) *
-              Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-
-    return R * c; // Distance in meters
+  // Save location to cache
+  const saveToCache = useCallback(async (loc, source = 'gps') => {
+    const metadata = {
+      timestamp: Date.now(),
+      source,
+      accuracy: loc.accuracy || null,
+    };
+    
+    try {
+      await AsyncStorage.setItem(CACHE_KEY, JSON.stringify(loc));
+      await AsyncStorage.setItem(CACHE_METADATA_KEY, JSON.stringify(metadata));
+    } catch (error) {
+      console.error('[Location] Cache save failed:', error);
+    }
+    
+    return metadata;
   }, []);
 
-  const getLocationAge = useCallback(() => {
-    if (!locationMetadata.timestamp) return Infinity;
-    return (Date.now() - locationMetadata.timestamp) / 60000; // minutes
-  }, [locationMetadata.timestamp]);
-
-  const shouldRefreshLocation = useCallback(() => {
-    const age = getLocationAge();
+  // Update location state and cache
+  const updateLocation = useCallback(async (newLocation, source = 'manual') => {
+    setLocation(newLocation);
+    const metadata = await saveToCache(newLocation, source);
+    setLocationMetadata(metadata);
     
-    // Manual selection never auto-refreshes
-    if (locationMetadata.source === 'manual') {
-      if (__DEV__) {
-        console.log('[Location] Manual selection - GPS disabled');
+    // Add to recent locations
+    if (newLocation.fullAddress) {
+      try {
+        const existing = await AsyncStorage.getItem(RECENT_LOCATIONS_KEY);
+        let recent = existing ? JSON.parse(existing) : [];
+        recent = recent.filter(r => r.fullAddress !== newLocation.fullAddress);
+        recent.unshift(newLocation);
+        if (recent.length > 5) recent = recent.slice(0, 5);
+        await AsyncStorage.setItem(RECENT_LOCATIONS_KEY, JSON.stringify(recent));
+        setRecentlyAdds(recent);
+      } catch (e) {
+        // Ignore recent locations error
       }
-      return { shouldRefresh: false, reason: 'manual' };
     }
-
-    // No cached location
-    if (!locationMetadata.timestamp) {
-      return { shouldRefresh: true, reason: 'no-cache', priority: 'force' };
-    }
-
-    // Fresh location (< 5 min)
-    if (age < FRESHNESS_SKIP) {
-      if (__DEV__) {
-        console.log(`[Location] Age: ${age.toFixed(1)} mins - SKIP refresh`);
-      }
-      return { shouldRefresh: false, reason: 'fresh' };
-    }
-
-    // Stale location (> 30 min)
-    if (age > FRESHNESS_BACKGROUND) {
-      if (__DEV__) {
-        console.log(`[Location] Age: ${age.toFixed(1)} mins - FORCE refresh`);
-      }
-      return { shouldRefresh: true, reason: 'stale', priority: 'force' };
-    }
-
-    // Medium age (5-30 min)
+    
     if (__DEV__) {
-      console.log(`[Location] Age: ${age.toFixed(1)} mins - BACKGROUND refresh`);
+      console.log('[Location] Updated:', source);
     }
-    return { shouldRefresh: true, reason: 'medium', priority: 'background' };
-  }, [locationMetadata, getLocationAge]);
+  }, [saveToCache]);
 
-  const getDeviceLocation = useCallback(async (accuracyLevel = 'balanced', timeout = GPS_TIMEOUT) => {
+  // Get current GPS location
+  const getDeviceLocation = useCallback(async () => {
     try {
       const { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== 'granted') {
-        console.warn('Permission to access location was denied');
+        console.warn('[Location] Permission denied');
         return null;
       }
 
-      const accuracy = accuracyLevel === 'low' 
-        ? Location.Accuracy.Low 
-        : Location.Accuracy.Balanced;
-
-      // Create timeout promise
-      const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('GPS_TIMEOUT')), timeout)
-      );
-
-      // Create GPS promise
-      const gpsPromise = Location.getCurrentPositionAsync({ 
-        accuracy,
-        maximumAge: 5000,
+      const position = await Location.getCurrentPositionAsync({
+        accuracy: Location.Accuracy.Balanced,
+        maximumAge: 10000,
       });
-
-      try {
-        // Race between GPS and timeout
-        const currentPosition = await Promise.race([gpsPromise, timeoutPromise]);
-        return currentPosition.coords;
-      } catch (raceError) {
-        if (__DEV__) {
-          console.log('[Location] GPS timeout or failed, trying fallbacks...');
-        }
-
-        // Fallback 1: Try network-based location
-        try {
-          const networkPosition = await Promise.race([
-            Location.getCurrentPositionAsync({ 
-              accuracy: Location.Accuracy.Low,
-              maximumAge: 10000,
-            }),
-            new Promise((_, reject) => setTimeout(() => reject(new Error('NETWORK_TIMEOUT')), 5000))
-          ]);
-          
-          if (__DEV__) {
-            console.log('[Location] Network-based location successful');
-          }
-          return networkPosition.coords;
-        } catch (networkError) {
-          // Fallback 2: Last known location
-          if (__DEV__) {
-            console.log('[Location] Trying last known location...');
-          }
-          
-          const lastKnown = await Location.getLastKnownPositionAsync();
-          if (lastKnown?.coords) {
-            if (__DEV__) {
-              console.log('[Location] Using last known location');
-            }
-            return lastKnown.coords;
-          }
-          throw raceError;
-        }
-      }
+      
+      return position.coords;
     } catch (error) {
-      console.error('Error getting device location:', error);
+      console.error('[Location] GPS failed:', error.message);
       return null;
     }
   }, []);
 
-  const refreshLocation = useCallback(async (forceRefresh = false, retryCount = 0) => {
+  // Refresh location from GPS
+  const refreshLocation = useCallback(async (force = false) => {
     if (__DEV__) {
-      console.log('[Location] refreshLocation called, forceRefresh:', forceRefresh, 'retry:', retryCount);
+      console.log('[Location] Refresh requested');
     }
     
+    setIsLoading(true);
+    
     try {
-      if (!forceRefresh) {
-        const { shouldRefresh, reason } = shouldRefreshLocation();
-        if (!shouldRefresh) {
-          if (__DEV__) {
-            console.log('[Location] Refresh not needed, reason:', reason);
-          }
-          return location;
-        }
-      }
-
-      const coords = await getDeviceLocation('balanced');
-      if (!coords) {
-        if (__DEV__) {
-          console.log('[Location] GPS failed - using cached');
-        }
-        
-        if (retryCount < MAX_RETRIES) {
-          const delay = Math.pow(2, retryCount) * 1000;
-          if (__DEV__) {
-            console.log(`[Location] Retrying in ${delay}ms...`);
-          }
-          await new Promise(resolve => setTimeout(resolve, delay));
-          return refreshLocation(forceRefresh, retryCount + 1);
-        }
-        return location;
-      }
-
-      if (__DEV__) {
-        console.log('[Location] GPS coords received:', coords.latitude, coords.longitude);
-      }
-
-      // Distance gating
-      if (location.lat && location.lon && !forceRefresh) {
-        const distance = calculateDistance(
-          parseFloat(location.lat),
-          parseFloat(location.lon),
-          coords.latitude,
-          coords.longitude
-        );
-
-        if (distance < DISTANCE_THRESHOLD) {
-          if (__DEV__) {
-            console.log(`[Location] Distance: ${distance.toFixed(0)}m - SKIP update`);
-          }
-          setLocationMetadata(prev => ({ ...prev, timestamp: Date.now() }));
-          return location;
-        }
-
-        if (__DEV__) {
-          console.log(`[Location] Distance: ${distance.toFixed(0)}m - UPDATE`);
-        }
-      }
-
-      const locationData = await resolveCoordinatesToLocation(coords.latitude, coords.longitude);
-      await updateLocation({ ...locationData, accuracy: coords.accuracy }, 'gps');
-      return locationData;
-    } catch (error) {
-      console.error('Error refreshing location:', error);
+      const coords = await getDeviceLocation();
       
-      if (retryCount < MAX_RETRIES) {
-        const delay = Math.pow(2, retryCount) * 1000;
-        if (__DEV__) {
-          console.log(`[Location] Error occurred, retrying in ${delay}ms...`);
-        }
-        await new Promise(resolve => setTimeout(resolve, delay));
-        return refreshLocation(forceRefresh, retryCount + 1);
+      if (coords) {
+        const locationData = await resolveCoordinatesToLocation(coords.latitude, coords.longitude);
+        await updateLocation({ ...locationData, accuracy: coords.accuracy }, 'gps');
+        return locationData;
       }
+      
       return location;
+    } catch (error) {
+      console.error('[Location] Refresh error:', error);
+      return location;
+    } finally {
+      setIsLoading(false);
     }
-  }, [location, shouldRefreshLocation, getDeviceLocation, calculateDistance, resolveCoordinatesToLocation, updateLocation]);
+  }, [getDeviceLocation, resolveCoordinatesToLocation, updateLocation, location]);
 
+  // Get age of current location in minutes
+  const getLocationAge = useCallback(() => {
+    if (!locationMetadata.timestamp) return Infinity;
+    return (Date.now() - locationMetadata.timestamp) / 60000;
+  }, [locationMetadata.timestamp]);
+
+  // Reset to GPS mode
+  const resetToGPS = useCallback(async () => {
+    if (__DEV__) {
+      console.log('[Location] Resetting to GPS');
+    }
+    return refreshLocation(true);
+  }, [refreshLocation]);
+
+  // Initialize on mount
   useEffect(() => {
     if (initRef.current) return;
     initRef.current = true;
 
-    const initializeLocation = async () => {
+    const initialize = async () => {
       try {
-        AsyncStorage.getItem('recentlyAddList')
-          .then(storedRecent => {
-            if (storedRecent) {
-              const recentList = JSON.parse(storedRecent);
-              if (Array.isArray(recentList)) setRecentlyAdds(recentList);
-            }
-          })
-          .catch(err => console.error('Error loading recent locations:', err));
-        
-        const savedLocation = await AsyncStorage.getItem('currentLocation');
-        const savedMetadata = await AsyncStorage.getItem('locationMetadata');
-        
-        if (savedLocation) {
-          const parsedLocation = JSON.parse(savedLocation);
-          const parsedMetadata = savedMetadata ? JSON.parse(savedMetadata) : {
+        // Load recent locations
+        const storedRecent = await AsyncStorage.getItem(RECENT_LOCATIONS_KEY);
+        if (storedRecent) {
+          const parsed = JSON.parse(storedRecent);
+          if (Array.isArray(parsed)) setRecentlyAdds(parsed);
+        }
+
+        // Load cached location
+        const cachedLocation = await AsyncStorage.getItem(CACHE_KEY);
+        const cachedMetadata = await AsyncStorage.getItem(CACHE_METADATA_KEY);
+
+        if (cachedLocation) {
+          const loc = JSON.parse(cachedLocation);
+          const meta = cachedMetadata ? JSON.parse(cachedMetadata) : {
             timestamp: Date.now(),
             source: 'cached',
-            accuracy: null,
           };
-          
-          setLocation(parsedLocation);
-          setLocationMetadata(parsedMetadata);
+
+          setLocation(loc);
+          setLocationMetadata(meta);
           setIsLoading(false);
-          
+
           if (__DEV__) {
-            const age = (Date.now() - parsedMetadata.timestamp) / 60000;
-            console.log(`[Location] ✓ Instant load from cache (${age.toFixed(1)} mins old)`);
+            console.log('[Location] Loaded from cache');
           }
-          
-          setTimeout(() => refreshLocation(false), 500);
           return;
         }
 
-        if (__DEV__) console.log('[Location] No cache - fetching GPS...');
-        const coords = await getDeviceLocation('balanced');
+        // No cache - get fresh location
+        const coords = await getDeviceLocation();
         if (coords) {
           const locationData = await resolveCoordinatesToLocation(coords.latitude, coords.longitude);
           await updateLocation({ ...locationData, accuracy: coords.accuracy }, 'gps');
@@ -357,63 +334,32 @@ export const LocationProvider = ({ children }) => {
           setLocation(EMPTY_LOCATION);
         }
       } catch (error) {
-        console.error('Error initializing location:', error);
+        console.error('[Location] Init error:', error);
         setLocation(EMPTY_LOCATION);
       } finally {
         setIsLoading(false);
       }
     };
 
-    initializeLocation();
+    initialize();
   }, []);
 
-  useEffect(() => {
-    const handleAppStateChange = (nextAppState) => {
-      if (nextAppState === 'active') {
-        const age = locationMetadata.timestamp ? (Date.now() - locationMetadata.timestamp) / 60000 : Infinity;
-        const isManual = locationMetadata.source === 'manual';
-        
-        if (!isManual && age >= FRESHNESS_SKIP && age <= FRESHNESS_BACKGROUND) {
-          if (__DEV__) {
-            console.log(`[Location] App foregrounded - Age: ${age.toFixed(1)} mins - triggering background refresh`);
-          }
-          refreshLocation(false);
-        }
-      }
-    };
-
-    const subscription = AppState.addEventListener('change', handleAppStateChange);
-    return () => subscription?.remove();
-  }, [locationMetadata.timestamp, locationMetadata.source, refreshLocation]);
-
   return (
-    <LocationContext.Provider value={{ 
-      location, 
-      setLocation, 
-      updateLocation, 
-      recentlyAdds, 
-      setRecentlyAdds, 
+    <LocationContext.Provider value={{
+      location,
+      setLocation,
+      updateLocation,
+      recentlyAdds,
+      setRecentlyAdds,
       isLoading,
       refreshLocation,
       locationMetadata,
       getLocationAge,
-      resetToGPS: useCallback(async () => {
-        if (__DEV__) {
-          console.log('[Location] Resetting to GPS mode');
-        }
-        try {
-          const coords = await getDeviceLocation('balanced');
-          if (coords) {
-            const locationData = await resolveCoordinatesToLocation(coords.latitude, coords.longitude);
-            await updateLocation({ ...locationData, accuracy: coords.accuracy }, 'gps');
-            return locationData;
-          }
-          return null;
-        } catch (error) {
-          console.error('Error resetting to GPS:', error);
-          return null;
-        }
-      }, [getDeviceLocation, resolveCoordinatesToLocation, updateLocation]),
+      resetToGPS,
+      // Google Places
+      searchPlaces,
+      getPlaceDetails,
+      selectPlace,
     }}>
       {children}
     </LocationContext.Provider>

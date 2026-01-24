@@ -18,6 +18,7 @@ import axios from 'axios';
 import { useSafeNavigation } from '@/hooks/navigationPage';
 import BackRouting from '@/components/BackRouting';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { API_CONFIG } from '../../config/apiConfig';
 
 export default function AddressScreen() {
   const [selectedAddressId, setSelectedAddressId] = useState(null);
@@ -35,7 +36,7 @@ export default function AddressScreen() {
   const [editingAddressId, setEditingAddressId] = useState(null);
   const [selectedAddress, setSelectedAddress] = useState(null);
 
-  const API_BASE_URL = 'https://backend-0wyj.onrender.com';
+  const API_BASE_URL = String(API_CONFIG.BACKEND_URL).replace(/\/+$/, '');
 
   const fetchAddresses = async () => {
     setIsLoading(true);

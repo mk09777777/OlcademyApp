@@ -4,7 +4,6 @@
     "name": "projectz",
     "slug": "projectz",
     "version": "1.0.0",
-    "sdkVersion": "54.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "myapp",
@@ -14,7 +13,8 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.mayurk0523.projectz",
       "infoPlist": {
-        "ITSAppUsesNonExemptEncryption": false
+        "ITSAppUsesNonExemptEncryption": false,
+        "NSMicrophoneUsageDescription": "Allow $(PRODUCT_NAME) to access your microphone for voice search."
       }
     },
     "android": {
@@ -23,11 +23,12 @@
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.mayurk0523.projectz",
+      "package": "com.mayurk0523.Frontend",
       "softwareKeyboardLayoutMode": "resize",
       "permissions": [
         "ACCESS_FINE_LOCATION",
-        "ACCESS_COARSE_LOCATION"
+        "ACCESS_COARSE_LOCATION",
+        "RECORD_AUDIO"
       ]
     },
     "updates": {
@@ -40,6 +41,13 @@
     },
     "plugins": [
       "expo-router",
+      "@react-native-voice/voice",
+      [
+        "expo-av",
+        {
+          "microphonePermission": "Allow $(PRODUCT_NAME) to access your microphone for voice search."
+        }
+      ],
       [
         "expo-splash-screen",
         {
@@ -48,7 +56,8 @@
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"
         }
-      ]
+      ],
+      "./config/withAppComponentFactory"
     ],
     "experiments": {
       "typedRoutes": true

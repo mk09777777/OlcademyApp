@@ -51,9 +51,9 @@ const CustomPicker = ({ items, selectedValue, onValueChange, placeholder }) => {
 
             {/* Options List */}
             <ScrollView className="max-h-96">
-              {items.map((item) => (
+              {items.map((item, index) => (
                 <TouchableOpacity
-                  key={item.value}
+                  key={`${item.value}-${index}`}
                   className={`p-4 border-b border-gray-100 ${
                     selectedValue === item.value ? 'bg-green-50' : 'bg-white'
                   }`}

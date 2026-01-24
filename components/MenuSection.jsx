@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { Text, Button } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
+import { usePathname, useRouter } from 'expo-router';
 import PropTypes from 'prop-types';
 import { useSafeNavigation } from '@/hooks/navigationPage';
 const { width } = Dimensions.get('window');
@@ -43,6 +43,7 @@ const MenuSection = ({
 }) => {
   const { safeNavigation } = useSafeNavigation();
   const router = useRouter();
+  const pathname = usePathname();
   const [state, setState] = useState({
     cartItems: {},
     selectedCategory: 'All',
@@ -282,7 +283,9 @@ const MenuSection = ({
         <Button
           mode="contained"
           className="mt-4"
-          onPress={() => window.location.reload()}
+          onPress={() => {
+            if (pathname) router.replace(pathname);
+          }}
         >
           Try Again
         </Button>

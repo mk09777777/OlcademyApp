@@ -3,10 +3,12 @@ import { View, Text, FlatList, ImageBackground, TouchableOpacity, Image, Activit
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import SearchBar from '@/components/SearchBar';
 import FilterShow from '@/components/FilterShow';
+import { EmptyState } from '@/components/EmptyState';
 import { useSafeNavigation } from '@/hooks/navigationPage';
 import { eventCategories } from '@/Data/EventData';
 import { fetchEvents } from '@/services/eventService';
 import { normalizeImageSource } from '@/utils/eventUtils';
+import { useVoiceSearch } from '@/hooks/useVoiceSearch';
 
 const placeholderImage = require('@/assets/images/placeholder.png');
 
@@ -37,6 +39,31 @@ const isSameDay = (dateA, dateB) =>
   dateA.getMonth() === dateB.getMonth() &&
   dateA.getDate() === dateB.getDate();
 
+const toDisplayText = (value) => {
+  if (value == null) return '';
+  if (typeof value === 'string') return value;
+  if (typeof value === 'number' || typeof value === 'boolean') return String(value);
+  return '';
+};
+
+const formatVenueText = (venue, fallbackLocation) => {
+  const locationText = toDisplayText(fallbackLocation);
+  if (locationText) return locationText;
+
+  if (!venue) return '';
+  if (typeof venue === 'string') return venue;
+  if (typeof venue === 'object') {
+    const name = toDisplayText(venue.name);
+    const address = toDisplayText(venue.address || venue.addressLine);
+    const city = toDisplayText(venue.city);
+    const state = toDisplayText(venue.state);
+    const segments = [name, address, city, state].filter((segment) => segment && segment.trim().length);
+    return segments.length ? segments.join(', ') : '';
+  }
+
+  return '';
+};
+
 const getUpcomingWeekendRange = (fromDate) => {
   const base = new Date(fromDate);
   base.setHours(0, 0, 0, 0);
@@ -62,6 +89,7 @@ export default function Events() {
   const [appliedFilters, setAppliedFilters] = useState({ ...DEFAULT_FILTERS });
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const voiceSearch = useVoiceSearch({ onTranscript: setSearchQuery });
   const [events, setEvents] = useState([]);
   const [loadingEvents, setLoadingEvents] = useState(true);
   const [eventsError, setEventsError] = useState(null);
@@ -225,8 +253,10 @@ export default function Events() {
           query={searchQuery}
           setQuery={setSearchQuery}
           placeholder="Search events..."
-          widthClass="100%"
-          onVoicePress={() => {}}
+          fullWidth
+          onVoicePress={voiceSearch.toggleRecording}
+          isLoading={voiceSearch.isBusy}
+          isListening={voiceSearch.isRecording}
         />
       </View>
 
@@ -398,21 +428,21 @@ export default function Events() {
         />
         <View className="flex-1 ml-4 justify-center">
           <Text className="text-xs font-outfit text-primary mb-1">
-            {item.category.toUpperCase()}
+            {toDisplayText(item.category).toUpperCase()}
           </Text>
           <Text className="text-lg font-outfit-bold text-textprimary mb-1">
             {item.title}
           </Text>
           <Text className="text-sm font-outfit text-textsecondary">
-            {item.date} • {item.startTime}
+            {[toDisplayText(item.date), toDisplayText(item.startTime)].filter(Boolean).join(' • ')}
           </Text>
           <Text className="text-xs font-outfit text-textsecondary mt-1" numberOfLines={1}>
-            {item.venue}
+            {formatVenueText(item.venue, item.location)}
           </Text>
           <View className="flex-row items-center mt-2">
             <MaterialCommunityIcons name="star" size={14} color="#F59E0B" />
             <Text className="ml-1 text-xs font-outfit text-textsecondary">
-              {item.rating ? item.rating.toFixed(1) : '4.5'} • {item.attendees || '—'} attending
+              {item.rating && !isNaN(item.rating) ? Number(item.rating).toFixed(1) : '4.5'} • {item.attendees || '—'} attending
             </Text>
           </View>
         </View>
@@ -433,10 +463,11 @@ export default function Events() {
               <ActivityIndicator size="large" color="#02757A" />
             ) : (
               <>
-                <MaterialCommunityIcons name="calendar-remove" size={32} color="#9CA3AF" />
-                <Text className="mt-3 text-sm font-outfit text-textsecondary text-center">
-                  No events match your filters yet.
-                </Text>
+                <EmptyState
+                  image={require('@/assets/images/nodata.png')}
+                  title="No data found"
+                  description="No events match your filters yet."
+                />
                 {eventsError ? (
                   <Text className="mt-2 text-xs font-outfit text-textsecondary text-center">
                     Unable to reach the server. Showing cached data if available.

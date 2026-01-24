@@ -7,8 +7,10 @@ import { Ionicons, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-ic
 import SearchBar from '@/components/SearchBar'
 import FirmCard from '@/components/FirmCard'
 import MiniRecommendedCard from '@/components/MiniRecommendedCard';
+import { EmptyState } from '@/components/EmptyState';
 import RadioButtonRN from 'radio-buttons-react-native'
 import { useSafeNavigation } from "@/hooks/navigationPage";
+import { useVoiceSearch } from '@/hooks/useVoiceSearch';
 
 // import { useBookmarkManager } from '../../hooks/BookMarkmanger';
 
@@ -152,6 +154,7 @@ export default function TakeAway() {
 
   const router = useRouter();
   const [query, setQuery] = useState('');
+  const voiceSearch = useVoiceSearch({ onTranscript: setQuery });
   const [randomItems, setRandomItems] = useState([]);
   const [activeQuickFilters, setActiveQuickFilters] = useState([]);
   const [filterboxFilters, setFilterboxFilters] = useState({
@@ -498,6 +501,13 @@ export default function TakeAway() {
       if (error?.name === 'CanceledError' || error?.name === 'AbortError' || error?.code === 'ERR_CANCELED') {
         return;
       }
+      if (error?.response?.status === 404) {
+        console.log('Location/Initial data not found (404), continuing with defaults.');
+        if (isMountedRef.current) {
+          setIsInitialLoading(false);
+        }
+        return;
+      }
       console.error('Error in initial data fetch:', error);
       console.error('Location fetch error details:', error.response?.data || error.message);
       
@@ -563,6 +573,11 @@ export default function TakeAway() {
 
       setRecentlyViewdData(firmItems);
     } catch (error) {
+      if (error?.response?.status === 404) {
+        console.log('No recently viewed data found (404)');
+        setRecentlyViewdData([]);
+        return;
+      }
       console.error('Error fetching recently viewed data:', error);
       setRecentlyViewdData([]);
     }
@@ -872,6 +887,10 @@ export default function TakeAway() {
       //   ToastAndroid.show('Veg Mode updated', ToastAndroid.SHORT);
       // }
     } catch (error) {
+       // Suppress 500 errors effectively
+       if (error?.response?.status === 500) {
+        return;
+       }
       console.error("Error updating vegMode", error);
     }
   };
@@ -883,6 +902,11 @@ export default function TakeAway() {
 
       setIsVegOnly(response.data.vegMode); // response is { vegMode: true/false }
     } catch (error) {
+      if (error?.response?.status === 500) {
+        // Silently fail for server errors on this optional feature
+        console.log('VegMode fetch failed (500), using default.');
+        return;
+      }
       console.error("Error fetching vegMode", error);
     }
   };
@@ -937,6 +961,9 @@ export default function TakeAway() {
               query={query} 
               setQuery={setQuery}
               onSearch={handleSearch}
+              onVoicePress={voiceSearch.toggleRecording}
+              isLoading={voiceSearch.isBusy}
+              isListening={voiceSearch.isRecording}
             />
             <View className="flex-col items-center justify-start ml-2.5">
               <Text className="text-base font-outfit-medium text-textsecondary text-center">Veg</Text>
@@ -1038,16 +1065,20 @@ export default function TakeAway() {
               />
             }
             ListEmptyComponent={
-              <View style={styles.emptyContainer}>
-                {/* <Text style={styles.emptyText}>
-              {isInitialLoading
-                ? 'Loading restaurants...'
-                : isSearching
-                  ? 'Searching...'
-                  : firms.length === 0
-                    ? 'No restaurants found in your area'
-                    : 'No restaurants match your filters'}
-            </Text> */}
+              <View className="py-10 items-center">
+                {isInitialLoading || isSearching ? (
+                  <ActivityIndicator size="large" color="#02757A" />
+                ) : (
+                  <EmptyState
+                    image={require('@/assets/images/nodata.png')}
+                    title="No data found"
+                    description={
+                      selectedFeatures?.length
+                        ? 'No restaurants found for the selected features.'
+                        : 'No restaurants found in your area.'
+                    }
+                  />
+                )}
               </View>
             }
             ListHeaderComponent={
@@ -1276,7 +1307,15 @@ export default function TakeAway() {
                 />
               );
             }}
-            keyExtractor={(item) => item._id}
+            keyExtractor={(item) => {
+              const key =
+                item?._id ??
+                item?.id ??
+                item?.restaurantInfo?._id ??
+                item?.restaurantInfo?.id ??
+                item?.restaurantInfo?.name;
+              return String(key ?? 'firm');
+            }}
             onEndReached={handleLoadMore}
             onEndReachedThreshold={0.5}
             ListFooterComponent={

@@ -10,7 +10,7 @@ const cartEventEmitter = new EventEmitter();
 
 const CartContext = createContext();
 
-const CartProvider = ({ children }) => {
+const CartProvider = ({ children, isAuthenticated = false }) => {
   const [cart, setCart] = useState({});
     const [carts, setCarts] = useState({});
   const [cartCount, setCartCount] = useState(0);
@@ -278,9 +278,18 @@ const CartProvider = ({ children }) => {
     });
   }, [getSubtotal, getDiscount, taxDetails, deliveryFee, platformFee]);
 
+  // Only fetch cart when user is authenticated
   useEffect(() => {
-    fetchCart();
-  }, [fetchCart]);
+    if (isAuthenticated) {
+      fetchCart();
+    } else {
+      // Clear cart state when not authenticated
+      setCart({});
+      setCarts({});
+      setCartCount(0);
+      setInitialLoad(false);
+    }
+  }, [isAuthenticated]);
 
   const clearCart = useCallback(() => {
     // Keep `cart` as the same productId-keyed map shape used everywhere else.

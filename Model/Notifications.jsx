@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
 import axios from "axios";
-import * as Notifications from 'expo-notifications';
 import Constants from 'expo-constants';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { API_CONFIG } from '../config/apiConfig';
@@ -10,14 +9,20 @@ import { API_ENDPOINTS } from '../config/api';
 const isExpoGo = Constants.appOwnership === 'expo';
 const STORAGE_KEY = 'notified_bookings';
 
+let Notifications;
 if (!isExpoGo) {
-  Notifications.setNotificationHandler({
-    handleNotification: async () => ({
-      shouldShowAlert: true,
-      shouldPlaySound: true,
-      shouldSetBadge: false,
-    }),
-  });
+  try {
+    Notifications = require('expo-notifications');
+    Notifications.setNotificationHandler({
+      handleNotification: async () => ({
+        shouldShowAlert: true,
+        shouldPlaySound: true,
+        shouldSetBadge: false,
+      }),
+    });
+  } catch (error) {
+    console.warn("Failed to set notification handler:", error);
+  }
 }
 
 export default function BookingNotifications() {
@@ -79,7 +84,7 @@ export default function BookingNotifications() {
       const notificationId = response?.data?.notifications?._id || Date.now().toString();
 
       // Only schedule notifications in development builds, not Expo Go
-      if (!isExpoGo) {
+      if (!isExpoGo && Notifications) {
         await Notifications.scheduleNotificationAsync({
           content: {
             title: uploadData.title,

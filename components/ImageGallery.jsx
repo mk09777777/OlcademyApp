@@ -17,13 +17,14 @@ const ImageGallery = ({
   images = [], 
   currentIndex = 0, 
   onIndexChange = () => {},
-  autoScrollInterval = 500,
-  showIndicators = true
+  autoScrollInterval = 3000, // Increased from 500ms to 3 seconds
+  showIndicators = true,
+  enableAutoScroll = false // Disabled by default for listing cards
 }) => {
   const [selectedImageIndex, setSelectedImageIndex] = useState(null);
   const [loadingStates, setLoadingStates] = useState({});
   const [errorStates, setErrorStates] = useState({});
-  const [isAutoScrolling, setIsAutoScrolling] = useState(true);
+  const [isAutoScrolling, setIsAutoScrolling] = useState(enableAutoScroll);
   const flatListRef = useRef(null);
   const autoScrollTimerRef = useRef(null);
   const touchStartTimeRef = useRef(0);

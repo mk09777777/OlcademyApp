@@ -99,10 +99,12 @@ export const normalizeImageSource = (source, fallback = null) => {
 
   if (typeof source === 'object' && source !== null) {
     if (source.uri) {
-      return { uri: source.uri };
+      const trimmed = String(source.uri).trim();
+      return trimmed ? { uri: trimmed } : fallback;
     }
     if (source.url) {
-      return { uri: source.url };
+      const trimmed = String(source.url).trim();
+      return trimmed ? { uri: trimmed } : fallback;
     }
     if (source.cover || source.banner) {
       return normalizeImageSource(source.cover || source.banner, fallback);
