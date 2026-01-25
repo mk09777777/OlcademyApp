@@ -5,7 +5,6 @@ import Colors from '../components/constants/Colors';
 import { router } from 'expo-router';
 import { useSafeNavigation } from "@/hooks/navigationPage";
 
-
 const FoodSection = () => {
 const { safeNavigation } = useSafeNavigation();
   const FoodItem = ({ icon, title, chevron, onPress }) => (
@@ -14,7 +13,7 @@ const { safeNavigation } = useSafeNavigation();
         <MaterialCommunityIcons name={icon} size={24} color={Colors.textLight} />
       </View>
       <View className="flex-1">
-        <Text className="text-base font-outfit-medium color-gray-800">{title}</Text>
+        <Text className="text-base font-medium text-gray-800">{title}</Text>
       </View>
       {chevron && (
         <MaterialCommunityIcons
@@ -28,8 +27,8 @@ const { safeNavigation } = useSafeNavigation();
 
   return (
     <View className="bg-white rounded-lg mx-4 my-2 overflow-hidden shadow-sm">
-      <View className="px-4 py-3 border-b border-gray-100">
-        <Text className="text-lg font-outfit-bold color-gray-800">Food Orders</Text>
+      <View className="px-4 py-3 border-b border-gray-100 border-l-4 border-l-red-500">
+        <Text className="text-lg font-bold text-gray-800">Food Orders</Text>
       </View>
 
       <FoodItem

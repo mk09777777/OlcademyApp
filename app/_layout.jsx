@@ -122,6 +122,7 @@ export default function RootLayout() {
                       <Stack.Screen name="screens/DeleteAccount" options={{ headerShown: false }} />
                       <Stack.Screen name="screens/FQA" options={{ headerShown: false }} />
                       <Stack.Screen name="screens/SendFeedback" options={{ headerShown: false }} />
+                      <Stack.Screen name="screens/CouponScreen" options={{ headerShown: false }} />
 
                       {/* Miscellaneous Screens */}
                       <Stack.Screen name="screens/Activity" options={{ headerShown: false, title: 'Activity' }}                      />

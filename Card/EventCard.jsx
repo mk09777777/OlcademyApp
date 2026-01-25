@@ -38,7 +38,9 @@ const EventCard = ({ event, onPress }) => {
 
         <View className="flex-row items-center mb-4">
           <MaterialIcons name="location-on" size={16} color="#666" />
-          <Text className="ml-2 text-sm text-textsecondary">{event.location || "Location not specified"}</Text>
+          <Text className="ml-2 text-sm text-textsecondary">
+            {typeof event.location === 'string' ? event.location : event.location?.name || event.venue?.name || "Location not specified"}
+          </Text>
         </View>
 
         <View className="flex-row justify-between items-center">
