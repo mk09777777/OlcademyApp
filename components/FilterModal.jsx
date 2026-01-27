@@ -711,13 +711,25 @@ const FilterModal = ({
   special: null,
 };
 
-const [localFilters, setLocalFilters] = useState(activeFilters || defaultFilters);
+const [localFilters, setLocalFilters] = useState(() => ({
+  ...defaultFilters,
+  ...(activeFilters || {}),
+  priceRange: activeFilters?.priceRange || [1, 100],
+}));
+  const [minPriceInput, setMinPriceInput] = useState(String(activeFilters?.priceRange?.[0] || 1));
+  const [maxPriceInput, setMaxPriceInput] = useState(String(activeFilters?.priceRange?.[1] || 100));
   const [cuisineSearch, setCuisineSearch] = useState("");
   const [openSection, setOpenSection] = useState("sortBy"); // Set initial open section
 
   useEffect(() => {
     if (isOpen) {
-      setLocalFilters(activeFilters);
+      setLocalFilters({
+        ...defaultFilters,
+        ...(activeFilters || {}),
+        priceRange: activeFilters?.priceRange || [1, 100],
+      });
+      setMinPriceInput(String(activeFilters?.priceRange?.[0] || 1));
+      setMaxPriceInput(String(activeFilters?.priceRange?.[1] || 100));
     }
   }, [isOpen, activeFilters]);
 
@@ -750,9 +762,13 @@ const [localFilters, setLocalFilters] = useState(activeFilters || defaultFilters
   };
 
   const handleApply = () => {
-    setActiveFilters(localFilters);
+    const finalFilters = {
+      ...localFilters,
+      priceRange: [parseInt(minPriceInput) || 1, parseInt(maxPriceInput) || 100]
+    };
+    setActiveFilters(finalFilters);
     if (onApplyFilters) {
-      onApplyFilters(localFilters);
+      onApplyFilters(finalFilters);
     }
     setIsOpen(false);
   };
@@ -774,7 +790,7 @@ const [localFilters, setLocalFilters] = useState(activeFilters || defaultFilters
   const handlePriceChange = (value) => {
     setLocalFilters((prev) => ({
       ...prev,
-      priceRange: [value, prev.priceRange[1]],
+      priceRange: [value, prev?.priceRange?.[1] || 100],
     }));
   };
 
@@ -896,36 +912,35 @@ const [localFilters, setLocalFilters] = useState(activeFilters || defaultFilters
   );
 
   const renderPriceOptions = () => {
-    const priceSteps = [20, 40, 60, 80, 100];
+    const minVal = parseInt(minPriceInput) || 1;
+    const maxVal = parseInt(maxPriceInput) || 100;
+
     return (
       <View className="p-4">
         <Text className="text-base font-outfit-bold color-gray-900 mb-4 text-center">
-          Cost for two: CAN${localFilters.priceRange[0]} - CAN${localFilters.priceRange[1]}
+          Price Range: ${minVal} - ${maxVal}
         </Text>
-        {/* Quick select buttons */}
-        <View className="flex-row flex-wrap justify-center gap-2 mb-4">
-          {priceSteps.map((val) => (
-            <TouchableOpacity
-              key={val}
-              className={`px-4 py-2 rounded-full border ${
-                localFilters.priceRange[0] === val 
-                  ? 'bg-primary border-primary' 
-                  : 'bg-white border-gray-300'
-              }`}
-              onPress={() => handlePriceChange(val)}
-            >
-              <Text className={`text-sm font-outfit ${
-                localFilters.priceRange[0] === val ? 'text-white' : 'color-gray-700'
-              }`}>
-                CAN${val}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-        {/* Price range labels */}
-        <View className="flex-row justify-between mt-2">
-          <Text className="text-xs color-gray-500 font-outfit">CAN${minPrice}</Text>
-          <Text className="text-xs color-gray-500 font-outfit">CAN${maxPrice}</Text>
+        <View className="flex-row gap-4 mb-4">
+          <View className="flex-1">
+            <Text className="text-xs color-gray-500 font-outfit mb-2">Min: ${minVal}</Text>
+            <TextInput
+              className="border border-gray-300 rounded-lg px-3 py-2 text-sm font-outfit"
+              keyboardType="numeric"
+              value={minPriceInput}
+              onChangeText={setMinPriceInput}
+              placeholder="1"
+            />
+          </View>
+          <View className="flex-1">
+            <Text className="text-xs color-gray-500 font-outfit mb-2">Max: ${maxVal}</Text>
+            <TextInput
+              className="border border-gray-300 rounded-lg px-3 py-2 text-sm font-outfit"
+              keyboardType="numeric"
+              value={maxPriceInput}
+              onChangeText={setMaxPriceInput}
+              placeholder="100"
+            />
+          </View>
         </View>
       </View>
     );

@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, Alert, FlatList, ScrollView, TextInput, Modal } from 'react-native';
+import { View, Text, TouchableOpacity, Alert, FlatList, ScrollView, TextInput, Modal, ActivityIndicator } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import { useGlobalSearchParams, useRouter } from 'expo-router';
@@ -22,6 +22,7 @@ export default function SelectDateTime() {
   const [contact, setcontact] = useState('');
   const [lunchSlots, setLunchSlots] = useState([]);
   const [dinnerSlots, setDinnerSlots] = useState([]);
+  const [isLoadingSlots, setIsLoadingSlots] = useState(false);
   const router = useRouter();
   const { safeNavigation } = useSafeNavigation();
   const [scheduleModalVisible, setScheduleModalVisible] = useState(false);
@@ -29,22 +30,42 @@ export default function SelectDateTime() {
 
   useEffect(() => {
     const fetchSlots = async () => {
+      setIsLoadingSlots(true);
       try {
+        console.log('Fetching slots for firmId:', firmId);
+        console.log('Selected date:', dayjs(date).format('dddd'));
+        
         const response = await fetch(
-          `${API_CONFIG.BACKEND_URL}/api/operating-hours/formatted-with-offers-only/${firmId}`
+          `${API_CONFIG.BACKEND_URL}/api/operating-hours/formatted-with-offers-only/${firmId}`,
+          { timeout: 15000 }
         );
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
         const result = await response.json();
+        console.log('API Response:', JSON.stringify(result, null, 2));
+        
         const offers = Array.isArray(result.availableOffers) ? result.availableOffers : [];
+        console.log('Available offers:', offers.length);
+        
         const today = dayjs(date).format('dddd');
+        console.log('Looking for day:', today);
+        
         const todayOffer = offers.find((item) => item.day === today);
+        console.log('Today offer found:', todayOffer ? 'Yes' : 'No');
 
         if (!todayOffer || !Array.isArray(todayOffer.timeSlots)) {
+          console.log('No slots available for today');
           setLunchSlots([]);
           setDinnerSlots([]);
           return;
         }
 
         const slotsForToday = todayOffer.timeSlots;
+        console.log('Total slots for today:', slotsForToday.length);
+        
         const lunch = [];
         const dinner = [];
 
@@ -64,16 +85,25 @@ export default function SelectDateTime() {
           }
         }
 
+        console.log('Lunch slots:', lunch.length);
+        console.log('Dinner slots:', dinner.length);
+        
         setLunchSlots(lunch);
         setDinnerSlots(dinner);
       } catch (error) {
+        console.error('Error fetching slots:', error);
+        console.error('Error details:', error.message);
         setLunchSlots([]);
         setDinnerSlots([]);
+      } finally {
+        setIsLoadingSlots(false);
       }
     };
 
-    fetchSlots();
-  }, [date]);
+    if (firmId) {
+      fetchSlots();
+    }
+  }, [date, firmId]);
 
   const toggleInputModal = () => {
     setInputModal(!inputModal);
@@ -177,7 +207,12 @@ export default function SelectDateTime() {
         </TouchableOpacity>
       </View>
 
-      {currentSlots.length > 0 ? (
+      {isLoadingSlots ? (
+        <View className="flex-1 justify-center items-center py-10">
+          <ActivityIndicator size="large" color="#02757A" />
+          <Text className="text-gray-600 text-base mt-3" style={{ fontFamily: 'outfit-medium' }}>Loading time slots...</Text>
+        </View>
+      ) : currentSlots.length > 0 ? (
         <FlatList
           data={currentSlots}
           keyExtractor={(item, index) => index.toString()}

@@ -151,6 +151,7 @@ const FilterModal = ({
               ))}
             </View>
           </View>
+          
 
           <Divider className="bg-gray-200" />
 

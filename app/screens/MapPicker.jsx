@@ -787,28 +787,46 @@ export default function MapPicker() {
     setIsSaving(true);
     try {
       const addressUpload = additionalDetails ? `${address}, ${additionalDetails}` : address;
-      await axios.post(
-        `${API_BASE_URL}/api/createUserAddress`,
-        [
+      
+      // Save to AsyncStorage for immediate use
+      const locationData = {
+        fullAddress: addressUpload,
+        address: addressUpload,
+        service_area: addressType,
+        _id: Date.now().toString(),
+        lat: selectedCoordinate.latitude,
+        lng: selectedCoordinate.longitude
+      };
+      await AsyncStorage.setItem('selectedAddress', JSON.stringify(locationData));
+      
+      // Try to save to backend, but don't fail if it doesn't work
+      try {
+        await axios.post(
+          `${API_BASE_URL}/api/createUserAddress`,
+          [
+            {
+              address: addressUpload,
+              service_area: addressType,
+              latitude: selectedCoordinate.latitude,
+              longitude: selectedCoordinate.longitude,
+            }
+          ],
           {
-            address: addressUpload,
-            service_area: addressType,
-            latitude: selectedCoordinate.latitude,
-            longitude: selectedCoordinate.longitude,
+            headers: {
+              "Content-Type": "application/json"
+            },
+            withCredentials: true
           }
-        ],
-        {
-          headers: {
-            "Content-Type": "application/json"
-          },
-          withCredentials: true
-        }
-      );
+        );
+      } catch (backendError) {
+        console.log('Backend save failed (non-critical):', backendError.message);
+      }
+      
       Alert.alert('Success', 'Address saved successfully');
-      router.push('/screens/Address');
+      router.back();
     } catch (error) {
       console.error('Error saving address:', error);
-      Alert.alert('Error', error.response?.data?.message || 'Failed to save address');
+      Alert.alert('Error', 'Failed to save address. Please try again.');
     } finally {
       setIsSaving(false);
     }

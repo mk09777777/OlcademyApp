@@ -39,8 +39,8 @@ const sortOptions = [
   { id: 1, label: 'Default', value: 'default' },
   { id: 2, label: 'Rating: High to Low', value: 'rating-desc' },
   { id: 3, label: 'Rating: Low to High', value: 'rating-asc' },
-  { id: 4, label: 'Price: Low to High', value: 'costLowToHigh' },
-  { id: 5, label: 'Price: High to Low', value: 'costHighToLow' },
+  { id: 4, label: 'Price: Low to High', value: 'cost-desc' },
+  { id: 5, label: 'Price: High to Low', value: 'cost-asc' },
 ];
 
 // Quick filters
@@ -295,7 +295,10 @@ export default function Tiffin() {
       }
       if (minRatingFilter) baseParams.minRating = minRatingFilter;
       if (maxRatingFilter) baseParams.maxRating = maxRatingFilter;
-      if (priceRangeFilter.length > 0) baseParams.priceRange = priceRangeFilter.join(',');
+      if (priceRangeFilter.length === 2) {
+        baseParams.minPrice = priceRangeFilter[0];
+        baseParams.maxPrice = priceRangeFilter[1];
+      }
       if (openNowFilter) baseParams.openNow = true;
       if (offersFilter) baseParams.offers = true;
       if (isVegOnly) baseParams.category = 'veg';
@@ -1160,15 +1163,15 @@ export default function Tiffin() {
         setIsOpen={setShowFilters}
         activeFilters={activeFilters}
         setActiveFilters={setActiveFilters}
-        onApplyFilters={async () => {
-          try {
-            setLoading(true);
-            await fetchTiffinData(activeFilters);
-          } catch (error) {
-            console.error('Error applying filters:', error);
-            Alert.alert('Error', 'Failed to apply filters. Please try again.');
-          } finally {
-            setLoading(false);
+        onApplyFilters={async (filters) => {
+          if (filters.sortBy) {
+            setSelectedSortOption({ value: filters.sortBy });
+          }
+          if (filters.minRating) {
+            setMinRatingFilter(filters.minRating);
+          }
+          if (filters.priceRange) {
+            setPriceRangeFilter(filters.priceRange);
           }
         }}
       />

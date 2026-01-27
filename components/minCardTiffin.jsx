@@ -97,7 +97,7 @@ const MinTiffinCard = ({ firm, onPress,   onFavoriteToggle,
 
           {rating && (
             <View className="flex-row items-center bg-green-700 rounded-md px-1.5 py-0.5 mt-1.5">
-              <Text className="text-white text-sm font-semibold ml-0.5 mr-1.5" style={{fontFamily: 'outfit-bold'}}>{rating}</Text>
+              <Text className="text-white text-sm font-semibold ml-0.5 mr-1.5" style={{fontFamily: 'outfit-bold'}}>{typeof rating === 'number' ? rating.toFixed(1) : rating}</Text>
               <FontAwesome name="star" size={12} color={COLORS.STAR} />
             </View>
           )}
