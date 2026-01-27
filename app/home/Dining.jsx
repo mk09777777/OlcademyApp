@@ -1183,8 +1183,10 @@ import RadioButtonRN from 'radio-buttons-react-native'
 import Filterbox from '@/components/Filterbox'
 import LocationHeader from '@/components/HomeHeader'
 import DiningCard from '@/components/DaningCard'
+import { EmptyState } from '@/components/EmptyState'
 import { API_CONFIG } from '../../config/apiConfig'
 import { useSafeNavigation } from "@/hooks/navigationPage";
+import { useVoiceSearch } from '@/hooks/useVoiceSearch';
 
 
 const Api_url = API_CONFIG.BACKEND_URL;
@@ -1229,6 +1231,9 @@ export default function TakeAway() {
   const [isModalVisible, setIsModalVisible] = useState(false)
   const [isVegOnly, setIsVegOnly] = useState(false)
   const [collections, setCollections] = useState([])
+  const isFetchingRef = useRef(false)
+  const collectionsFetchedRef = useRef(false)
+
   const [userLocation, setUserLocation] = useState({
     latitude: "43.6534627",
     longitude: "-79.4276471",
@@ -1240,6 +1245,52 @@ export default function TakeAway() {
     lat: '',
     lon: ''
   })
+
+  const isMountedRef = useRef(false)
+  const pendingTimeoutsRef = useRef(new Set())
+  const restaurantsRequestRef = useRef(null)
+  const restaurantsRequestIdRef = useRef(0)
+  const searchRequestRef = useRef(null)
+  const searchRequestIdRef = useRef(0)
+  const vegRequestRef = useRef(null)
+  const vegRequestIdRef = useRef(0)
+  const initialLoadRequestRef = useRef(null)
+
+  const safeTimeout = useCallback((fn, ms) => {
+    const id = setTimeout(() => {
+      pendingTimeoutsRef.current.delete(id)
+      fn()
+    }, ms)
+    pendingTimeoutsRef.current.add(id)
+    return id
+  }, [])
+
+  useEffect(() => {
+    isMountedRef.current = true
+    return () => {
+      isMountedRef.current = false
+
+      pendingTimeoutsRef.current.forEach((id) => clearTimeout(id))
+      pendingTimeoutsRef.current.clear()
+
+      if (restaurantsRequestRef.current) {
+        restaurantsRequestRef.current.abort()
+        restaurantsRequestRef.current = null
+      }
+      if (searchRequestRef.current) {
+        searchRequestRef.current.abort()
+        searchRequestRef.current = null
+      }
+      if (vegRequestRef.current) {
+        vegRequestRef.current.abort()
+        vegRequestRef.current = null
+      }
+      if (initialLoadRequestRef.current) {
+        initialLoadRequestRef.current.abort()
+        initialLoadRequestRef.current = null
+      }
+    }
+  }, [safeTimeout])
   const campaigns = [
     { id: 1, title: 'Get $5 cashback on order $50' },
     { id: 2, title: 'Buy 1 Get 1 Free' },
@@ -1262,6 +1313,7 @@ export default function TakeAway() {
 
   const router = useRouter()
   const [query, setQuery] = useState('')
+  const voiceSearch = useVoiceSearch({ onTranscript: setQuery })
   const [randomItems, setRandomItems] = useState([])
   const [activeQuickFilters, setActiveQuickFilters] = useState([])
   const [filterboxFilters, setFilterboxFilters] = useState({
@@ -1293,7 +1345,7 @@ export default function TakeAway() {
     const url = `${Api_url}/firm/fav/${firmId}`
     console.log("Fetching URL:", url)
 
-    const response = await axios.post(url, { withCredentials: true })
+    const response = await axios.post(url, {}, { withCredentials: true })
     alert("updated successfull")
     console.log("Response:", response.data)
   }
@@ -1312,7 +1364,7 @@ export default function TakeAway() {
   const removeFavorite = async (firmId) => {
     try {
       const url = `${Api_url}/firm/favRemove/${firmId}`
-      const response = await axios.post(url, { withCredentials: true })
+      const response = await axios.post(url, {}, { withCredentials: true })
       console.log("Response:", response.data)
       alert(response.data.message)
     } catch (error) {
@@ -1371,14 +1423,22 @@ export default function TakeAway() {
   }
 
   const fetchRestaurants = async (params = {}, isLoadMore = false) => {
-    if (!location.lat || !location.lon || (isLoadMore && !hasMore)) return []
+    // 🚫 STOP duplicate calls
+    if (isFetchingRef.current) return []
+    if (isLoadMore && !hasMore) return []
 
+    isFetchingRef.current = true
     setLoading(true)
-    setShowProgress(true)
-    setProgress(0)
-    setError(null)
+
+    if (isLoadMore) {
+      setIsLoadingMore(true)
+    } else {
+      setShowProgress(true)
+      setProgress(0)
+    }
 
     const interval = setInterval(() => {
+      if (!isMountedRef.current) return
       setProgress(prev => (prev >= 90 ? prev : prev + 10))
     }, 100)
 
@@ -1389,162 +1449,159 @@ export default function TakeAway() {
         radius: 5,
         limit: 20,
         cursor: isLoadMore ? cursor : null,
-        features: 'Takeaway'
+        features: 'Booking',
       }
 
-      if (selectedCuisines.length > 0) {
-        baseParams.cuisines = selectedCuisines.join(',')
-      }
-      if (isVegOnly) {
-        baseParams.Dietary = 'vegetarian'
-      } else if (selectedDietary.length > 0) {
-        baseParams.Dietary = selectedDietary.join(',')
-      }
-      if (selectedFeatures.length > 0) {
-        baseParams.features = selectedFeatures.join(',')
-      }
-      if (minRatingFilter) {
-        baseParams.minRating = minRatingFilter
-      }
-      if (maxRatingFilter) {
-        baseParams.maxRating = maxRatingFilter
-      }
-      if (priceRangeFilter.length > 0) {
-        baseParams.priceRange = priceRangeFilter.join(',')
-      }
-      if (openNowFilter) {
-        baseParams.openNow = true
-      }
-      if (offersFilter) {
-        baseParams.offers = true
-      }
-      if (alcoholFilter !== null) {
-        baseParams.Alcohol = alcoholFilter
-      }
-      if (selectedSortOption) {
-        baseParams.sortBy = selectedSortOption.value
-      }
+      if (selectedCuisines.length) baseParams.cuisines = selectedCuisines.join(',')
+      if (isVegOnly) baseParams.Dietary = 'vegetarian'
+      else if (selectedDietary.length) baseParams.Dietary = selectedDietary.join(',')
+      if (selectedFeatures.length) baseParams.features = selectedFeatures.join(',')
+      if (minRatingFilter) baseParams.minRating = minRatingFilter
+      if (maxRatingFilter) baseParams.maxRating = maxRatingFilter
+      if (priceRangeFilter.length) baseParams.priceRange = priceRangeFilter.join(',')
+      if (openNowFilter) baseParams.openNow = true
+      if (offersFilter) baseParams.offers = true
+      if (alcoholFilter !== null) baseParams.Alcohol = alcoholFilter
+      if (selectedSortOption) baseParams.sortBy = selectedSortOption.value
 
-      const finalParams = { ...baseParams, ...params }
-      const response = await axios.get(`${Api_url}/firm/getnearbyrest?feature=Booking`, {
-        params: finalParams,
-        withCredentials: true
-      })
+      const response = await axios.get(
+        `${Api_url}/firm/getnearbyrest?feature=Booking`,
+        { params: { ...baseParams, ...params }, withCredentials: true }
+      )
 
-      if (response.data.success) {
+      if (response.data?.success) {
         const newData = response.data.data || []
+
         setRandomData(newData)
 
-        const restaurantsWithDistance = newData.map(restaurant => {
-          return { ...restaurant }
-        })
-
-        if (isLoadMore) {
-          setIsLoadingMore(false)
-          setFirms(prev => [...prev, ...restaurantsWithDistance])
-        } else {
-          setFirms(restaurantsWithDistance)
-        }
+        setFirms(prev =>
+          isLoadMore ? [...prev, ...newData] : newData
+        )
 
         setCursor(response.data.nextCursor)
-        setHasMore(response.data.nextCursor !== null && newData.length === 20)
+        setHasMore(Boolean(response.data.nextCursor))
         setNotFound(false)
-        return restaurantsWithDistance
+
+        return newData
       } else {
-        console.error('API error:', response.data.message)
-        if (!isLoadMore) {
-          setNotFound(true)
-          removeNotFound()
-        }
+        if (!isLoadMore) setNotFound(true)
         return []
       }
     } catch (error) {
+      if (error?.name === 'CanceledError' || error?.name === 'AbortError' || error?.code === 'ERR_CANCELED') {
+        return []
+      }
+      if (error?.response?.status === 404) {
+        // If 404, it means no restaurants found for this criteria. 
+        // We handle this as a valid 'empty' state, not an error.
+        if (!isLoadMore) {
+          if (isMountedRef.current) {
+            setNotFound(true)
+            removeNotFound()
+          }
+        }
+        if (isLoadMore && isMountedRef.current) {
+           setIsLoadingMore(false)
+        }
+        return []
+      }
       console.error('Error fetching firms:', error)
-      if (!isLoadMore) {
-        setNotFound(true)
-        removeNotFound()
-      }
-      if (isLoadMore) {
-        setIsLoadingMore(false)
-      }
+      if (!isLoadMore) setNotFound(true)
       return []
     } finally {
       clearInterval(interval)
-      setProgress(100)
-      setTimeout(() => {
-        setLoading(false)
-        setShowProgress(false)
-        setRefreshing(false)
-      }, 300)
+      setLoading(false)
+      setShowProgress(false)
+      setRefreshing(false)
+      setIsLoadingMore(false)
+      isFetchingRef.current = false
     }
   }
 
+
   const removeNotFound = async () => {
-    setTimeout(async () => {
+    safeTimeout(async () => {
+      if (!isMountedRef.current) return
       setNotFound(false)
       await fetchRestaurants({}, false, false)
     }, 1500)
   }
 
   const fetchCollections = useCallback(async () => {
+    if (collectionsFetchedRef.current) return
+
     try {
-      const response = await axios.get(`${Api_url}/api/marketing-dashboard/collections/active`)
+      const response = await axios.get(
+        `${Api_url}/api/marketing-dashboard/collections/active`
+      )
       setCollections(response.data)
+      collectionsFetchedRef.current = true
     } catch (error) {
       console.error('Error fetching collections:', error)
-      setCollections([])
+      if (isMountedRef.current) {
+        setCollections([])
+      }
     }
   }, [])
+
   const fetchInitialData = async () => {
     setIsInitialLoading(true)
-    try {
-      const locationResponse = await axios.get(`${Api_url}/api/location`)
-      const { city, state, country, lat, lon } = locationResponse.data
-      setLocation({
-        city: city || 'KIIT University',
-        state: state ? `${city}, ${state}` : 'Patia, Bhubaneshwar',
-        country,
-        lat,
-        lon
-      })
+    setCursor(null)
+    setHasMore(true)
 
-      const firmsData = await fetchRestaurants()
-      if (firmsData && firmsData.length > 0) {
-        const selectedItems = getRandomItems(firmsData, Math.min(25, firmsData.length))
-        setRandomItems(selectedItems)
-      } else {
-        setRandomItems([])
-      }
-      await fetchCollections()
-      await FetchRecentlyViewData()
-      await sortPopularData()
+    try {
+      await fetchRestaurants({}, false)
+
+      // 👇 ONLY ONCE
+      fetchCollections()
+
+      FetchRecentlyViewData()
     } catch (error) {
-      console.error('Error in initial data fetch:', error)
-      setError('Failed to detect location.')
-      setLocation({
-        city: 'KIIT University',
-        state: 'Patia, Bhubaneshwar',
-        country: '',
-        lat: '',
-        lon: ''
-      })
-      await fetchRestaurants()
-      setRandomItems([])
+      console.error('Initial load error:', error)
     } finally {
-      setIsInitialLoading(false)
+      if (isMountedRef.current) {
+        setIsInitialLoading(false)
+      }
     }
   }
 
+
   const onRefresh = useCallback(() => {
-    setRefreshing(true)
-    setCursor(null)
-    setHasMore(true)
+    if (isMountedRef.current) {
+      setRefreshing(true)
+      setCursor(null)
+      setHasMore(true)
+    }
     fetchInitialData()
   }, [])
+
 
   useEffect(() => {
     fetchInitialData()
   }, [])
+
+  useEffect(() => {
+    const debounce = setTimeout(() => {
+      setCursor(null)
+      setHasMore(true)
+      fetchRestaurants({}, false)
+    }, 300)
+
+    return () => clearTimeout(debounce)
+  }, [
+    selectedSortOption,
+    selectedCuisines,
+    selectedDietary,
+    selectedFeatures,
+    minRatingFilter,
+    maxRatingFilter,
+    priceRangeFilter,
+    openNowFilter,
+    offersFilter,
+    alcoholFilter,
+    isVegOnly,
+  ])
+
 
   const FetchRecentlyViewData = useCallback(async () => {
     try {
@@ -1563,10 +1620,20 @@ export default function TakeAway() {
           }
         })) || []
 
-      setRecentlyViewdData(firmItems)
+      if (isMountedRef.current) {
+        setRecentlyViewdData(firmItems)
+      }
     } catch (error) {
+      if (error?.response?.status === 404) {
+        if (isMountedRef.current) {
+          setRecentlyViewdData([]);
+        }
+        return;
+      }
       console.error('Error fetching recently viewed data:', error)
-      setRecentlyViewdData([])
+      if (isMountedRef.current) {
+        setRecentlyViewdData([])
+      }
     }
   }, [])
 
@@ -1574,7 +1641,9 @@ export default function TakeAway() {
     const sorted = randomData.filter(
       (item) => item.restaurantInfo?.ratings?.overall >= 4
     )
-    setPopularData(sorted)
+    if (isMountedRef.current) {
+      setPopularData(sorted)
+    }
   }, [randomData])
 
   const handleSearch = useCallback((text) => {
@@ -1584,16 +1653,27 @@ export default function TakeAway() {
   useEffect(() => {
     const searchRestaurants = async () => {
       if (query.trim() === '') {
+        if (searchRequestRef.current) {
+          searchRequestRef.current.abort()
+          searchRequestRef.current = null
+        }
         setSearchResults([])
         setIsSearching(false)
         return
       }
 
       setIsSearching(true)
+      const requestId = ++searchRequestIdRef.current
+      if (searchRequestRef.current) {
+        searchRequestRef.current.abort()
+      }
+      const controller = new AbortController()
+      searchRequestRef.current = controller
       try {
         const response = await axios.get(`${Api_url}/search`, {
           params: { query },
-          withCredentials: true
+          withCredentials: true,
+          signal: controller.signal,
         })
 
         let results = []
@@ -1639,21 +1719,32 @@ export default function TakeAway() {
           a.findIndex(t => (t._id === v._id)) === i
         )
 
+        if (!isMountedRef.current || requestId !== searchRequestIdRef.current) return
         setSearchResults(uniqueResults)
       } catch (error) {
+        if (error?.name === 'CanceledError' || error?.name === 'AbortError' || error?.code === 'ERR_CANCELED') return
         console.error('Error searching restaurants:', error)
+        if (!isMountedRef.current || requestId !== searchRequestIdRef.current) return
         setSearchResults([])
       } finally {
+        if (!isMountedRef.current || requestId !== searchRequestIdRef.current) return
         setIsSearching(false)
       }
     }
 
     const debounceTimer = setTimeout(searchRestaurants, 500)
-    return () => clearTimeout(debounceTimer)
+    return () => {
+      clearTimeout(debounceTimer)
+      if (searchRequestRef.current) {
+        searchRequestRef.current.abort()
+        searchRequestRef.current = null
+      }
+    }
   }, [query])
   useEffect(() => {
     const applyFilters = async () => {
       const firmsData = await fetchRestaurants()
+      if (!isMountedRef.current) return
       setFirms(firmsData)
     }
     const debounceTimer = setTimeout(applyFilters, 300)
@@ -1744,13 +1835,18 @@ export default function TakeAway() {
   }
 
   const handleLoadMore = () => {
-    if (hasMore && !isLoadingMore && !isSearching && query.trim() === '') {
-      setIsLoadingMore(true)
-      fetchRestaurants({}, true)
-      FetchRecentlyViewData()
-      sortPopularData()
+    if (
+      !hasMore ||
+      isLoadingMore ||
+      isSearching ||
+      query.trim() !== ''
+    ) {
+      return
     }
+
+    fetchRestaurants({}, true)
   }
+
 
   const getItemKey = (item, index) => {
     return item?.id ? `${item.id}` : `item-${index}`
@@ -1762,49 +1858,75 @@ export default function TakeAway() {
 
   const sortVegData = useCallback(async () => {
     if (isVegOnly) {
-      setLoadingVegData(true)
+      const requestId = ++vegRequestIdRef.current
+      if (vegRequestRef.current) {
+        vegRequestRef.current.abort()
+      }
+      const controller = new AbortController()
+      vegRequestRef.current = controller
+
+      if (isMountedRef.current) {
+        setLoadingVegData(true)
+      }
       const MIN_LOADING_TIME = 1000
       const startTime = Date.now()
 
       try {
         const response = await axios.get(`${Api_url}/firm/getnearbyrest?cuisines=Vegetarian`, {
-          withCredentials: true
+          withCredentials: true,
+          signal: controller.signal,
         })
 
+        if (!isMountedRef.current || requestId !== vegRequestIdRef.current) return
         setVegData(response.data.data)
 
         const elapsed = Date.now() - startTime
         const remaining = MIN_LOADING_TIME - elapsed
 
         if (remaining > 0) {
-          setTimeout(() => {
+          safeTimeout(() => {
+            if (!isMountedRef.current || requestId !== vegRequestIdRef.current) return
             setLoadingVegData(false)
           }, remaining)
         } else {
-          setLoadingVegData(false)
+          if (isMountedRef.current && requestId === vegRequestIdRef.current) {
+            setLoadingVegData(false)
+          }
         }
       } catch (error) {
+        if (error?.name === 'CanceledError' || error?.name === 'AbortError' || error?.code === 'ERR_CANCELED') {
+          return
+        }
         console.error('Error fetching vegetarian data:', error)
 
         const elapsed = Date.now() - startTime
         const remaining = MIN_LOADING_TIME - elapsed
 
         if (remaining > 0) {
-          setTimeout(() => {
+          safeTimeout(() => {
+            if (!isMountedRef.current || requestId !== vegRequestIdRef.current) return
             setLoadingVegData(false)
           }, remaining)
         } else {
-          setLoadingVegData(false)
+          if (isMountedRef.current && requestId === vegRequestIdRef.current) {
+            setLoadingVegData(false)
+          }
         }
       }
     }
     else {
-      setLoadingVegData(false)
-      setVegData([])
+      if (vegRequestRef.current) {
+        vegRequestRef.current.abort()
+        vegRequestRef.current = null
+      }
+      if (isMountedRef.current) {
+        setLoadingVegData(false)
+        setVegData([])
+      }
     }
 
 
-  }, [isVegOnly])
+  }, [isVegOnly, safeTimeout])
 
   const HandleUploadVegMode = async () => {
     try {
@@ -1823,7 +1945,9 @@ export default function TakeAway() {
         withCredentials: true
       })
 
-      setIsVegOnly(response.data.vegMode)
+      if (isMountedRef.current) {
+        setIsVegOnly(response.data.vegMode)
+      }
     } catch (error) {
       console.error("Error fetching vegMode", error)
     }
@@ -1877,6 +2001,9 @@ export default function TakeAway() {
               query={query}
               setQuery={setQuery}
               onSearch={handleSearch}
+              onVoicePress={voiceSearch.toggleRecording}
+              isLoading={voiceSearch.isBusy}
+              isListening={voiceSearch.isRecording}
             />
             <View className="flex-col items-center justify-start ml-2.5">
               <Text className="text-base font-outfit-medium text-textsecondary text-center">Veg</Text>
@@ -1963,7 +2090,20 @@ export default function TakeAway() {
               />
             }
             ListEmptyComponent={
-              <View className="flex-1 justify-center items-center p-4">
+              <View className="py-10 items-center">
+                {isInitialLoading || isSearching ? (
+                  <ActivityIndicator size="large" color="#02757A" />
+                ) : (
+                  <EmptyState
+                    image={require('@/assets/images/nodata.png')}
+                    title="No data found"
+                    description={
+                      selectedFeatures?.length
+                        ? 'No restaurants found for the selected features.'
+                        : 'No restaurants found in your area.'
+                    }
+                  />
+                )}
               </View>
             }
             ListHeaderComponent={
@@ -1983,7 +2123,7 @@ export default function TakeAway() {
                         <Image
                           source={require('@/assets/images/campaign.webp')}
                           className="h-32"
-                          style={{marginLeft: '-20', marginRight: 0, width: '100%'}}
+                          style={{ marginLeft: '-20', marginRight: 0, width: '100%' }}
                         />
                         <Text className="text-textprimary font-outfit">{item.title}</Text>
                       </TouchableOpacity>

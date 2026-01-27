@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { COLORS, SPACING } from './constants/index';
+import { reportError } from '../utils/errorReporting';
 
 class ErrorBoundary extends React.Component {
   constructor(props) {
@@ -13,8 +14,13 @@ class ErrorBoundary extends React.Component {
   }
 
   componentDidCatch(error, errorInfo) {
-    // Log error to your error reporting service
-    console.error('Error caught by boundary:', error, errorInfo);
+    reportError({
+      domain: 'ui',
+      error,
+      extra: {
+        componentStack: errorInfo?.componentStack || '',
+      },
+    });
   }
 
   handleRetry = () => {

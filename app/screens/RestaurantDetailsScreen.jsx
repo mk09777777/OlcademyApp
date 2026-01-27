@@ -494,6 +494,262 @@
 
 // export default RestaurantDetailsScreen; 
 
+// import React from 'react';
+// import { View, Text, TouchableOpacity, Linking, ScrollView, Image } from 'react-native';
+// import { SafeAreaView } from 'react-native-safe-area-context';
+// import { Ionicons, MaterialIcons, FontAwesome, MaterialCommunityIcons, Entypo, FontAwesome5 } from '@expo/vector-icons';
+// import { useLocalSearchParams, useRouter } from 'expo-router';
+
+// const RestaurantDetailsScreen = () => {
+//   const params = useLocalSearchParams();
+//   const router = useRouter(); // Added router
+  
+//   // Parse the restaurant data passed from FirmDetailsTakeAway
+//   const restaurant = params.restaurant ? JSON.parse(params.restaurant) : {
+//     restaurantInfo: {
+//       name: "The Spice Garden",
+//       ratings: {
+//         overall: 4.5,
+//         totalReviews: 1200
+//       },
+//       cuisines: ["Indian, Chinese, Continental"],
+//       priceRange: "CAN$31 to CAN$50",
+//       address: "123 Food Street, Bangalore, Karnataka 560001",
+//       phoneNo: "+919876543210",
+//       website: "http://example.com",
+//       additionalInfo: {
+//         parking: "Available",
+//         diningStyle: "Casual Dining",
+//         dressCode: "Casual",
+//         publicTransit: "Nearby station"
+//       },
+//       overview: "A wonderful dining experience with authentic flavors and excellent service. Our chefs bring decades of experience to create memorable dishes."
+//     },
+//     opening_hours: {
+//       MondayMon: "11:30AM-10PM",
+//       TuesdayTue: "11:30AM-10PM",
+//       WednesdayWed: "11:30AM-10:30PM",
+//       ThursdayThu: "11:30AM-11PM",
+//       FridayFri: "11:30AM-11PM",
+//       SaturdaySat: "10:30AM-11PM",
+//       SundaySun: "10:30AM-10PM"
+//     },
+//     features: ["Outdoor seating", "Takeaway", "Сredit cards accepted", "Full Bar", "Free Wifi"],
+//     image_urls: []
+//   };
+
+  
+
+//   const renderHours = () => {
+//     if (!restaurant.opening_hours) return null;
+    
+//     return Object.entries(restaurant.opening_hours).map(([day, hours]) => (
+//       <View key={day} className="flex-row justify-between mb-2 pr-4">
+//         {/* FIX: Use slice(0, -3) to remove the last 3 chars (e.g., "Mon") */}
+//         <Text className="font-medium text-gray-800">{day.slice(0, -3)}:</Text>
+//         <Text className="text-gray-600">{hours}</Text>
+//       </View>
+//     ));
+//   };
+
+//   const renderFeatures = () => {
+//     if (!restaurant.features) return null;
+    
+//     return (
+//       <View className="flex-row flex-wrap mb-4 gap-2">
+//         {restaurant.features.slice(0, 5).map((feature, index) => (
+//           <View key={index} className="bg-gray-100 rounded-full px-3 py-1.5">
+//             <Text className="text-gray-600 text-xs">{feature}</Text>
+//           </View>
+//         ))}
+//       </View>
+//     );
+//   };
+
+//   return (
+//     // Use SafeAreaView for the container
+//     <>
+//       {/* Header with back button */}
+//       <View className="flex-row items-center p-4 bg-white border-b border-gray-200">
+//         <TouchableOpacity onPress={() => router.back()} className="mr-4">
+//           <Ionicons name="chevron-back" size={24} color="#000" />
+//         </TouchableOpacity>
+//         <Text className="text-lg font-semibold text-black">Restaurant Details</Text>
+//       </View>
+
+// <ScrollView
+//   contentContainerClassName="pb-20"
+//   contentContainerStyle={{ paddingBottom: 140 }}
+// >        {/* Restaurant Image */}
+//         {restaurant.image_urls?.length > 0 ? (
+//           <Image 
+//             source={{ uri: restaurant.image_urls[0] }} 
+//             className="h-56 w-full resize-cover" // resize-cover is a NativeWind class
+//           />
+//         ) : (
+//           <View className="h-56 bg-red-500 justify-center items-center">
+//             <FontAwesome name="cutlery" size={50} color="#fff" />
+//           </View>
+//         )}
+
+//         <View className="px-4 pt-4">
+//           <Text className="text-2xl font-bold mt-2 text-gray-800">{restaurant.restaurantInfo?.name}</Text>
+          
+//           <View className="flex-row items-center mt-2 mb-2">
+//             <View className="flex-row items-center bg-green-500 rounded px-1.5 py-0.5 mr-2">
+//               <FontAwesome name="star" size={14} color="#fff" />
+//               <Text className="ml-1 font-bold text-white text-xs">{restaurant.restaurantInfo?.ratings?.overall || '4.2'}</Text>
+//             </View>
+//             <Text className="text-gray-600 text-xs">({restaurant.restaurantInfo?.ratings?.totalReviews || '500+'} reviews)</Text>
+//           </View>
+
+//           {restaurant.restaurantInfo?.cuisines && (
+//             <Text className="text-gray-600 mt-1 text-sm">
+//               <MaterialCommunityIcons name="silverware-fork-knife" size={14} color="#666" /> 
+//               {' '}
+//               {Array.isArray(restaurant.restaurantInfo.cuisines) 
+//                 ? restaurant.restaurantInfo.cuisines.join(", ") 
+//                 : restaurant.restaurantInfo.cuisines}
+//             </Text>
+//           )}
+          
+//           {restaurant.restaurantInfo?.priceRange && (
+//             <Text className="text-gray-600 mt-1 text-sm">
+//               <Entypo name="price-tag" size={14} color="#666" /> 
+//               {' '}
+//               {restaurant.restaurantInfo.priceRange}
+//             </Text>
+//           )}
+
+//           <View className="flex-row mt-3 mb-4">
+//             <MaterialIcons name="location-on" size={16} color="#666" />
+//             <Text className="text-gray-600 ml-1 text-sm flex-1">{restaurant.restaurantInfo?.address}</Text>
+//           </View>
+
+//           {/* Features */}
+//           {renderFeatures()}
+//         </View>
+
+//         {/* Action Icons */}
+//         <View className="flex-row justify-around mx-4 my-3 px-2">
+//           {restaurant.restaurantInfo?.phoneNo && (
+//             <TouchableOpacity 
+//               className="items-center p-2 min-w-[60px]" 
+//               onPress={() => Linking.openURL(`tel:${restaurant.restaurantInfo.phoneNo}`)}
+//             >
+//               <Ionicons name="call-outline" size={20} color="#E03546" />
+//               <Text className="text-red-500 mt-1 text-xs font-medium">Call</Text>
+//             </TouchableOpacity>
+//           )}
+          
+//           {restaurant.restaurantInfo?.address && (
+//             <TouchableOpacity 
+//               className="items-center p-2 min-w-[60px]"
+//               onPress={() => Linking.openURL(`https://maps.google.com/?q=${encodeURIComponent(restaurant.restaurantInfo.address)}`)}
+//             >
+//               <MaterialIcons name="directions" size={20} color="#E03546" />
+//               <Text className="text-red-500 mt-1 text-xs font-medium">Directions</Text>
+//             </TouchableOpacity>
+//           )}
+          
+//           <TouchableOpacity className="items-center p-2 min-w-[60px]">
+//             <Ionicons name="share-social-outline" size={20} color="#E03546" />
+//             <Text className="text-red-500 mt-1 text-xs font-medium">Share</Text>
+//           </TouchableOpacity>
+          
+//           {restaurant.restaurantInfo?.website && (
+//             <TouchableOpacity 
+//               className="items-center p-2 min-w-[60px]"
+//               onPress={() => Linking.openURL(restaurant.restaurantInfo.website)}
+//             >
+//               <MaterialCommunityIcons name="web" size={20} color="#E03546" />
+//               <Text className="text-red-500 mt-1 text-xs font-medium">Website</Text>
+//             </TouchableOpacity>
+//           )}
+//         </View>
+
+//         {/* Divider */}
+//         <View className="h-2 bg-gray-100 my-3" />
+
+//         {/* Restaurant Overview */}
+//         {restaurant.restaurantInfo?.overview && (
+//           <View className="px-4 mb-4">
+//             <Text className="font-semibold text-lg mb-3 text-gray-800">About</Text>
+//             <Text className="text-gray-600 text-sm flex-1">{restaurant.restaurantInfo.overview}</Text>
+//           </View>
+//         )}
+
+//         {/* Additional Info */}
+//         {restaurant.restaurantInfo?.additionalInfo && (
+//           <View className="px-4 mb-4">
+//             <Text className="font-semibold text-lg mb-3 text-gray-800">Details</Text>
+//             {restaurant.restaurantInfo.additionalInfo.diningStyle && (
+//               <View className="flex-row mt-2.5 items-start">
+//                 <FontAwesome5 name="utensils" size={16} color="#666" />
+//                 <Text className="text-gray-600 ml-2 text-sm flex-1"> {restaurant.restaurantInfo.additionalInfo.diningStyle}</Text>
+//               </View>
+//             )}
+//             {restaurant.restaurantInfo.additionalInfo.dressCode && (
+//               <View className="flex-row mt-2.5 items-start">
+//                 <MaterialCommunityIcons name="tshirt-crew-outline" size={16} color="#666" />
+//                 <Text className="text-gray-600 ml-2 text-sm flex-1"> {restaurant.restaurantInfo.additionalInfo.dressCode}</Text>
+//               </View>
+//             )}
+//             {restaurant.restaurantInfo.additionalInfo.parking && (
+//               <View className="flex-row mt-2.5 items-start">
+//                 <MaterialCommunityIcons name="parking" size={16} color="#666" />
+//                 <Text className="text-gray-600 ml-2 text-sm flex-1"> {restaurant.restaurantInfo.additionalInfo.parking}</Text>
+//               </View>
+//             )}
+//             {restaurant.restaurantInfo.additionalInfo.publicTransit && (
+//               <View className="flex-row mt-2.5 items-start">
+//                 <MaterialCommunityIcons name="train-car" size={16} color="#666" />
+//                 <Text className="text-gray-600 ml-2 text-sm flex-1"> {restaurant.restaurantInfo.additionalInfo.publicTransit}</Text>
+//               </View>
+//             )}
+//           </View>
+//         )}
+
+//         {/* Hours */}
+//         {restaurant.opening_hours && (
+//           <View className="px-4 mb-4">
+//             <Text className="font-semibold text-lg mb-3 text-gray-800">Hours</Text>
+//             {renderHours()}
+//           </View>
+//         )}
+
+//         {/* Divider */}
+//         <View className="h-2 bg-gray-100 my-3" />
+
+//         {/* Feedback */}
+//         <View className="px-4 mb-4">
+//           <Text className="font-semibold text-lg mb-3 text-gray-800">Feedback</Text>
+//           <Text className="text-gray-600 mb-2">Had a bad experience here?</Text>
+//           <TouchableOpacity className="bg-white border border-red-500 rounded-md p-3 items-center">
+//             <Text className="text-red-500 font-medium">Report an issue</Text>
+//           </TouchableOpacity>
+//         </View>
+//       </ScrollView>
+
+//       {/* Footer */}
+//       <View className="absolute bottom-0 left-0 right-0 bg-white p-4 border-t border-gray-200 shadow-lg">
+//         <TouchableOpacity 
+//           className="bg-red-500 py-3.5 items-center rounded-lg" 
+//           onPress={() => router.back()}
+//         >
+//           <Text className="text-white text-base font-bold">Back to Menu</Text>
+//         </TouchableOpacity>
+//       </View>
+//     </>
+//   );
+// };
+
+
+
+// export default RestaurantDetailsScreen;
+
+
+
 import React from 'react';
 import { View, Text, TouchableOpacity, Linking, ScrollView, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -502,7 +758,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 
 const RestaurantDetailsScreen = () => {
   const params = useLocalSearchParams();
-  const router = useRouter(); // Added router
+  const router = useRouter(); 
   
   // Parse the restaurant data passed from FirmDetailsTakeAway
   const restaurant = params.restaurant ? JSON.parse(params.restaurant) : {
@@ -543,7 +799,7 @@ const RestaurantDetailsScreen = () => {
     
     return Object.entries(restaurant.opening_hours).map(([day, hours]) => (
       <View key={day} className="flex-row justify-between mb-2 pr-4">
-        {/* FIX: Use slice(0, -3) to remove the last 3 chars (e.g., "Mon") */}
+        {/* slice(0, -3) removes the redundant suffix like "Mon" from "MondayMon" */}
         <Text className="font-medium text-gray-800">{day.slice(0, -3)}:</Text>
         <Text className="text-gray-600">{hours}</Text>
       </View>
@@ -565,24 +821,25 @@ const RestaurantDetailsScreen = () => {
   };
 
   return (
-    // Use SafeAreaView for the container
     <>
       {/* Header with back button */}
-      <View className="flex-row items-center p-4 bg-white border-b border-gray-200">
+      <View className="flex-row items-center p-4 bg-white border-b border-gray-200 pt-12">
         <TouchableOpacity onPress={() => router.back()} className="mr-4">
           <Ionicons name="chevron-back" size={24} color="#000" />
         </TouchableOpacity>
         <Text className="text-lg font-semibold text-black">Restaurant Details</Text>
       </View>
 
-<ScrollView
-  contentContainerClassName="pb-20"
-  contentContainerStyle={{ paddingBottom: 140 }}
->        {/* Restaurant Image */}
+      <ScrollView
+        contentContainerClassName="pb-20"
+        contentContainerStyle={{ paddingBottom: 140 }}
+        showsVerticalScrollIndicator={false}
+      >       
+        {/* Restaurant Image */}
         {restaurant.image_urls?.length > 0 ? (
           <Image 
             source={{ uri: restaurant.image_urls[0] }} 
-            className="h-56 w-full resize-cover" // resize-cover is a NativeWind class
+            className="h-56 w-full resize-cover" 
           />
         ) : (
           <View className="h-56 bg-red-500 justify-center items-center">
@@ -643,7 +900,7 @@ const RestaurantDetailsScreen = () => {
           {restaurant.restaurantInfo?.address && (
             <TouchableOpacity 
               className="items-center p-2 min-w-[60px]"
-              onPress={() => Linking.openURL(`https://maps.google.com/?q=${encodeURIComponent(restaurant.restaurantInfo.address)}`)}
+              onPress={() => Linking.openURL(`http://googleusercontent.com/maps.google.com/search?q=${encodeURIComponent(restaurant.restaurantInfo.address)}`)}
             >
               <MaterialIcons name="directions" size={20} color="#E03546" />
               <Text className="text-red-500 mt-1 text-xs font-medium">Directions</Text>
@@ -719,11 +976,17 @@ const RestaurantDetailsScreen = () => {
         {/* Divider */}
         <View className="h-2 bg-gray-100 my-3" />
 
-        {/* Feedback */}
+        {/* Feedback / Report Issue */}
         <View className="px-4 mb-4">
           <Text className="font-semibold text-lg mb-3 text-gray-800">Feedback</Text>
-          <Text className="text-gray-600 mb-2">Had a bad experience here?</Text>
-          <TouchableOpacity className="bg-white border border-red-500 rounded-md p-3 items-center">
+          <Text className="text-gray-600 mb-2">Found incorrect information?</Text>
+          <TouchableOpacity 
+            className="bg-white border border-red-500 rounded-md p-3 items-center"
+            onPress={() => router.push({
+              pathname: '/screens/ReportIssueScreen',
+              params: { restaurantName: restaurant.restaurantInfo?.name }
+            })}
+          >
             <Text className="text-red-500 font-medium">Report an issue</Text>
           </TouchableOpacity>
         </View>
@@ -742,7 +1005,4 @@ const RestaurantDetailsScreen = () => {
   );
 };
 
-
-
 export default RestaurantDetailsScreen;
-

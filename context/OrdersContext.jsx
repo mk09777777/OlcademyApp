@@ -1,6 +1,12 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+/**
+ * @deprecated
+ * This Orders context appears unused by current routes/providers and overlaps with `hooks/useOrders.js`.
+ * Kept for compatibility. Prefer clarifying a single Orders source of truth before adding new usages.
+ */
+
 const OrdersContext = createContext(null);
 
 const OrdersProvider = ({ children }) => {

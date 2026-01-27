@@ -30,8 +30,6 @@ export const OffersProvider = ({ children }) => {
   // Handlers
   const handleAddOffer = async (newOffer) => {
     try {
-      // const response = await fetch('http://localhost:5000/offers', {
-
       const response = await fetch(`${API_CONFIG.BACKEND_URL}/offers`, {
         method: "POST",
         headers: {
@@ -54,7 +52,6 @@ export const OffersProvider = ({ children }) => {
 
   const handleRemoveOffer = async (offerId) => {
     try {
-      // await fetch(`http://localhost:5000/offers/${offerId}`, {
       await fetch(`${API_CONFIG.BACKEND_URL}/delete/offers/${offerId}`, {
         method: "PUT",
       });

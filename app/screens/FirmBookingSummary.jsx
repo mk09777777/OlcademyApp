@@ -14,6 +14,7 @@ import Constants from 'expo-constants';
 import { API_CONFIG } from '../../config/apiConfig';
 import { api } from '../../config/httpClient'; 
 import { API_ENDPOINTS } from '../../config/api';
+import { useSafeNavigation } from '@/hooks/navigationPage';
 
 // Check if running in development build or Expo Go
 const isExpoGo = Constants.appOwnership === 'expo';
@@ -53,8 +54,7 @@ export default function FirmBookingSummary() {
           ordersPush: false,
           ordersWhatsapp: false,
       });
-  //http://localhost:3000/api/bookings?id=685c0b9d76ea9cadb4dbfd65
-  //  http://192.168.0.107:3000/api/saveOrders
+  // Dev note: do not hardcode hosts here; always use API_CONFIG + API_ENDPOINTS.
   const handleRequestData = (data, item) => {
     setReqestData({ data, item });
     if (data || item) {
@@ -111,8 +111,8 @@ export default function FirmBookingSummary() {
 
   useEffect(()=>{
     console.log("offer details are",parsedOffer,firmId,firmName,date,guestCount,time,name,email,contact,selectedTab,offerId);
-fetchInitialSettings()
-  },[enableAll,promosPush,promosWhatsapp,socialPush,ordersPush,ordersWhatsapp])
+    fetchInitialSettings();
+  },[]); // Only run once on mount
 
   const handleSubmit = async () => {
     const orderData = {

@@ -18,6 +18,7 @@ import useTiffinHome from '../../hooks/useTiffinHome';
 import SearchBar from '../../components/SearchBar';
 import tiffinData from '../../Data/tiffin.json';
 import { useSafeNavigation } from '@/hooks/navigationPage';
+import { useVoiceSearch } from '@/hooks/useVoiceSearch';
 const NearbyService = () => {
   /* Original CSS Reference:
    * container: { flex: 1, backgroundColor: '#fff' }
@@ -37,6 +38,7 @@ const NearbyService = () => {
   const router = useRouter();
   const [localTiffinData, setLocalTiffinData] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const voiceSearch = useVoiceSearch({ onTranscript: setSearchQuery });
   const { safeNavigation } = useSafeNavigation();
   const {
     isLoading,
@@ -177,10 +179,13 @@ const NearbyService = () => {
           <MaterialCommunityIcons name="arrow-left" size={24} color="#333" />
         </TouchableOpacity>
         <SearchBar
-          value={searchQuery}
-          onChangeText={setSearchQuery}
+          query={searchQuery}
+          setQuery={setSearchQuery}
           placeholder="Search nearby services..."
-          style={{flex: 1, marginHorizontal: 10}}
+          widthClass="flex-1 mx-2.5"
+          onVoicePress={voiceSearch.toggleRecording}
+          isLoading={voiceSearch.isBusy}
+          isListening={voiceSearch.isRecording}
         />
         <TouchableOpacity onPress={() => setShowFilterModal(true)}>
           <MaterialCommunityIcons name="tune" size={24} color="#333" />

@@ -31,6 +31,7 @@ import * as Notifications from 'expo-notifications';
 import { Picker } from '@react-native-picker/picker';
 import { Schedule } from '@/components/Schedule';
 import { useSafeNavigation } from "@/hooks/navigationPage";
+import { API_CONFIG } from '../../config/apiConfig';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 Notifications.setNotificationHandler({
@@ -245,9 +246,8 @@ const TakeAwayCart = () => {
   };
 
   useEffect(() => {
-
-    fetchInitialSettings()
-  }, [enableAll, promosPush, promosWhatsapp, socialPush, ordersPush, ordersWhatsapp])
+    fetchInitialSettings();
+  }, []); // Only run once on mount
 
   const isCouponExpired = (endDate) => {
     if (!endDate) return true;
@@ -588,7 +588,8 @@ const TakeAwayCart = () => {
         description: `Your order from ${restaurantName} ($${order.totalPrice.toFixed(2)}) is confirmed. Expected ${deliveryType} at ${scheduledTime}`,
         time: formattedTime,
       };
-      const response = await axios.post("http://192.168.0.100:3000/api/postNotificationsInfo", uploadData, {
+      const baseUrl = String(API_CONFIG.BACKEND_URL).replace(/\/+$/, '');
+      const response = await axios.post(`${baseUrl}/api/postNotificationsInfo`, uploadData, {
         headers: { "Content-Type": "application/json" },
         withCredentials: true
       });
@@ -742,7 +743,7 @@ const TakeAwayCart = () => {
 
   return (
     <SafeAreaView className="flex-1 bg-background">
-      <View className="flex-row items-center justify-center w-full mt-5">
+      <View className="flex-row items-center justify-center w-full">
         <TouchableOpacity onPress={() => router.back()} className="absolute left-4 bottom-4">
           <Entypo name="chevron-left" size={24} color="black" />
         </TouchableOpacity>

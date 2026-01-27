@@ -4,11 +4,13 @@ import axios from 'axios';
 // import { NativeEventEmitter } from 'react-native';
 import { API_CONFIG } from '../config/apiConfig';
 import EventEmitter from 'eventemitter3';
+import { log, error as logError } from '../utils/logger';
+import { calculateDiscount, calculateSubtotal, calculateTotal } from '../utils/cartMath';
 const cartEventEmitter = new EventEmitter();
 
 const CartContext = createContext();
 
-const CartProvider = ({ children }) => {
+const CartProvider = ({ children, isAuthenticated = false }) => {
   const [cart, setCart] = useState({});
     const [carts, setCarts] = useState({});
   const [cartCount, setCartCount] = useState(0);
@@ -37,23 +39,23 @@ const CartProvider = ({ children }) => {
     });
 
     instance.interceptors.request.use(config => {
-      console.log('Request:', config.method?.toUpperCase(), config.url, config.data);
+      log('Request:', config.method?.toUpperCase(), config.url);
       return config;
     }, error => {
-      console.error('Request Error:', error);
+      logError('Request Error:', error);
       return Promise.reject(error);
     });
 
     instance.interceptors.response.use(response => {
-      console.log('Response:', response.data);
+      log('Response:', response.status, response.config?.url);
       return response;
     }, error => {
       if (error.response) {
-        console.error('Response Error:', error.response.status, error.response.data);
+        logError('Response Error:', error.response.status);
       } else if (error.request) {
-        console.error('No Response Received:', error.request);
+        logError('No Response Received');
       } else {
-        console.error('Request Setup Error:', error.message);
+        logError('Request Setup Error:', error.message);
       }
       return Promise.reject(error);
     });
@@ -92,7 +94,7 @@ const CartProvider = ({ children }) => {
           };
           return acc;
         }, {}) || {};
-console.log('caet',response.data)
+  log('Cart response received');
         setCart(cartItems);
         setCarts(response.data);
         setCartCount(response.data.items?.reduce((sum, item) => sum + item.quantity, 0) || 0);
@@ -119,7 +121,7 @@ console.log('caet',response.data)
         }
       }
     } catch (error) {
-      console.error("Error fetching cart:", error);
+      logError("Error fetching cart:", error);
       setError(error);
     } finally {
       setLoading(false);
@@ -134,7 +136,7 @@ console.log('caet',response.data)
         setCartCount(response.data.count);
       }
     } catch (error) {
-      console.error("Error calculating cart count:", error);
+      logError("Error calculating cart count:", error);
       setError(error);
     }
   }, [api]);
@@ -260,44 +262,63 @@ console.log('caet',response.data)
   }, [getCartItems]);
 
   const getSubtotal = useCallback(() => {
-    return getCartItems().reduce(
-      (sum, item) => sum + (item.price * item.quantity),
-      0
-    ).toFixed(2);
+    return calculateSubtotal(getCartItems());
   }, [getCartItems]);
 
   const getDiscount = useCallback(() => {
-    const discount = getCartItems().reduce((sum, item) => {
-      return sum + (item.discount || 0) * item.quantity;
-    }, 0);
-    return discount.toFixed(2);
+    return calculateDiscount(getCartItems());
   }, [getCartItems]);
 
   const getTotal = useCallback(() => {
-    const subtotal = parseFloat(getSubtotal());
-    const discount = parseFloat(getDiscount());
-    const gst = taxDetails.reduce((sum, tax) => sum + (tax.gstAmount || 0), 0);
-    return (subtotal - discount + gst + deliveryFee + platformFee).toFixed(2);
+    return calculateTotal({
+      items: getCartItems(),
+      taxDetails,
+      deliveryFee,
+      platformFee,
+    });
   }, [getSubtotal, getDiscount, taxDetails, deliveryFee, platformFee]);
 
+  // Only fetch cart when user is authenticated
   useEffect(() => {
-    fetchCart();
-  }, [fetchCart]);
-  const clearCart = useCallback(() => {
-    setCart({
-      items: [],
-      subtotal: 0,
-      deliveryFee: 0,
-      platformFee: 0,
-      gstCharges: 0,
-      totalPrice: 0,
-    })
-    try {
-      api.get('/cart/clear');
-    } catch (error) {
-      console.error("Error clearing cart on backend:", error);
+    if (isAuthenticated) {
+      fetchCart();
+    } else {
+      // Clear cart state when not authenticated
+      setCart({});
+      setCarts({});
+      setCartCount(0);
+      setInitialLoad(false);
     }
-  }, []);
+  }, [isAuthenticated]);
+
+  const clearCart = useCallback(() => {
+    // Keep `cart` as the same productId-keyed map shape used everywhere else.
+    setCart({});
+    setCartCount(0);
+
+    // Reset derived fee/tax state so totals are consistent immediately after clear.
+    setTaxDetails([]);
+    setGstAmount([]);
+    setDeliveryFee(0);
+    setPlatformFee(0);
+
+    // Keep `carts` shape safe for consumers that read totals from the raw payload.
+    setCarts({
+      items: [],
+      deliveryFee: 0,
+      overallPlatformFee: 0,
+      overallOtherTaxes: 0,
+      overallOtherCharges: 0,
+      allOtherChargesDetails: [],
+      taxDetails: [],
+    });
+
+    setRestaurantInfo({ id: '', name: '', address: '', image: '' });
+
+    api.get('/cart/clear').catch((err) => {
+      console.error("Error clearing cart on backend:", err);
+    });
+  }, [api]);
 
   const contextValue = useMemo(() => ({
     cart,

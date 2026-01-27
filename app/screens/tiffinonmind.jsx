@@ -6,6 +6,7 @@ import { useNavigation } from 'expo-router';
 import { useSafeNavigation } from '@/hooks/navigationPage';
 import BackRouting from "@/components/BackRouting";
 import TiffinCard from '@/components/TiffinCard';
+import { API_CONFIG } from '../../config/apiConfig';
 
 export default function OnMindScreens() {
     const route = useRoute();
@@ -26,7 +27,10 @@ export default function OnMindScreens() {
     const fetchFirms = async () => {
         setIsLoading(true);
         try {
-            const response = await axios.get(`http://10.34.125.16:3000/api/tiffin/tiffins/filter?kitchenName=${name}`);
+            const response = await axios.get(`${API_CONFIG.BACKEND_URL}/api/tiffin/tiffins/filter`, {
+                params: { kitchenName: name },
+                withCredentials: true,
+            });
 
             if (!response.data || (!Array.isArray(response.data) && !Array.isArray(response.data.tiffins))) {
                 throw new Error('Invalid data format from API');

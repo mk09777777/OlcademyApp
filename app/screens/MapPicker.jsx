@@ -302,7 +302,7 @@ export default function MapPicker() {
         `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&addressdetails=1`,
         {
           headers: {
-            'User-Agent': 'ProjectZ/1.0.0 (mayurvicky01234@gmail.com)',
+            'User-Agent': 'OlcademyApp/1.0.0',
           },
         }
       );
@@ -384,7 +384,7 @@ export default function MapPicker() {
           `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=18&addressdetails=1`,
           {
             headers: {
-              'User-Agent': 'ProjectZ/1.0.0 (mayurvicky01234@gmail.com)',
+              'User-Agent': 'OlcademyApp/1.0.0',
             },
           }
         );
@@ -726,7 +726,7 @@ export default function MapPicker() {
         `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json&addressdetails=1`,
         {
           headers: {
-            'User-Agent': 'ProjectZ/1.0.0 (mayurvicky01234@gmail.com)',
+            'User-Agent': 'OlcademyApp/1.0.0',
           },
         }
       );

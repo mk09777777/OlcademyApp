@@ -7,8 +7,10 @@ import { Ionicons, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-ic
 import SearchBar from '@/components/SearchBar'
 import FirmCard from '@/components/FirmCard'
 import MiniRecommendedCard from '@/components/MiniRecommendedCard';
+import { EmptyState } from '@/components/EmptyState';
 import RadioButtonRN from 'radio-buttons-react-native'
 import { useSafeNavigation } from "@/hooks/navigationPage";
+import { useVoiceSearch } from '@/hooks/useVoiceSearch';
 
 // import { useBookmarkManager } from '../../hooks/BookMarkmanger';
 
@@ -48,6 +50,58 @@ export default function TakeAway() {
   const [profileData, setProfileData] = useState("");
   const [randomData, setRandomData] = useState([])
   const { safeNavigation } = useSafeNavigation();
+
+  const isMountedRef = useRef(false);
+  const pendingTimeoutsRef = useRef(new Set());
+  const restaurantsControllerRef = useRef(null);
+  const restaurantsRequestIdRef = useRef(0);
+  const loadMoreControllerRef = useRef(null);
+  const loadMoreRequestIdRef = useRef(0);
+  const searchControllerRef = useRef(null);
+  const searchRequestIdRef = useRef(0);
+  const vegControllerRef = useRef(null);
+  const vegRequestIdRef = useRef(0);
+  const initialLoadControllerRef = useRef(null);
+
+  const safeTimeout = useCallback((fn, ms) => {
+    const id = setTimeout(() => {
+      pendingTimeoutsRef.current.delete(id);
+      fn();
+    }, ms);
+    pendingTimeoutsRef.current.add(id);
+    return id;
+  }, []);
+
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+
+      pendingTimeoutsRef.current.forEach((id) => clearTimeout(id));
+      pendingTimeoutsRef.current.clear();
+
+      if (restaurantsControllerRef.current) {
+        restaurantsControllerRef.current.abort();
+        restaurantsControllerRef.current = null;
+      }
+      if (loadMoreControllerRef.current) {
+        loadMoreControllerRef.current.abort();
+        loadMoreControllerRef.current = null;
+      }
+      if (searchControllerRef.current) {
+        searchControllerRef.current.abort();
+        searchControllerRef.current = null;
+      }
+      if (vegControllerRef.current) {
+        vegControllerRef.current.abort();
+        vegControllerRef.current = null;
+      }
+      if (initialLoadControllerRef.current) {
+        initialLoadControllerRef.current.abort();
+        initialLoadControllerRef.current = null;
+      }
+    };
+  }, [safeTimeout]);
 
   const [favoriteServices, setFavoriteServices] = useState([]);
   const [recentlyViewData, setRecentlyViewdData] = useState([])
@@ -100,6 +154,7 @@ export default function TakeAway() {
 
   const router = useRouter();
   const [query, setQuery] = useState('');
+  const voiceSearch = useVoiceSearch({ onTranscript: setQuery });
   const [randomItems, setRandomItems] = useState([]);
   const [activeQuickFilters, setActiveQuickFilters] = useState([]);
   const [filterboxFilters, setFilterboxFilters] = useState({
@@ -131,7 +186,7 @@ export default function TakeAway() {
     const url = `${Api_url}/firm/fav/${firmId}`;
     console.log("Fetching URL:", url);
 
-    const response = await axios.post(url, { withCredentials: true });
+    const response = await axios.post(url, {}, { withCredentials: true });
     alert("updated successfull");
     console.log("Response:", response.data);
   };
@@ -150,7 +205,7 @@ export default function TakeAway() {
   const removeFavorite = async (firmId) => {
     try {
       const url = `${Api_url}/firm/favRemove/${firmId}`;
-      const response = await axios.post(url, { withCredentials: true });
+      const response = await axios.post(url, {}, { withCredentials: true });
       console.log("Response:", response.data);
       alert(response.data.message);
     } catch (error) {
@@ -210,26 +265,54 @@ export default function TakeAway() {
   };
 
   const fetchRestaurants = async (params = {}, isLoadMore = false) => {
-    if (!location.lat || !location.lon || (isLoadMore && !hasMore)) return [];
+    // Use userLocation as fallback if location is not properly set
+    const lat = location.lat || userLocation.latitude;
+    const lon = location.lon || userLocation.longitude;
 
-    setLoading(true);
-    setShowProgress(true);
-    setProgress(0);
-    setError(null);
+    // if (!lat || !lon || (isLoadMore && !hasMore)) {
+    //   console.log('Missing location data:', { lat, lon, location, userLocation });
+    //   setError('Location not available. Please enable location services.');
+    //   return [];
+    
+    console.log('Location check:', { lat, lon, location, userLocation });
+    
+    if (isLoadMore && !hasMore) {
+      return [];
+    }
+
+    const requestId = isLoadMore ? ++loadMoreRequestIdRef.current : ++restaurantsRequestIdRef.current;
+    const controller = new AbortController();
+    if (isLoadMore) {
+      if (loadMoreControllerRef.current) loadMoreControllerRef.current.abort();
+      loadMoreControllerRef.current = controller;
+    } else {
+      if (restaurantsControllerRef.current) restaurantsControllerRef.current.abort();
+      restaurantsControllerRef.current = controller;
+    }
+
+    if (isMountedRef.current) {
+      setLoading(true);
+      setShowProgress(true);
+      setProgress(0);
+      setError(null);
+    }
 
     const interval = setInterval(() => {
+      if (!isMountedRef.current) return;
       setProgress(prev => (prev >= 90 ? prev : prev + 10));
     }, 100);
 
     try {
       const baseParams = {
-        lat: userLocation.latitude,
-        lon: userLocation.longitude,
+        lat: lat,
+        lon: lon,
         radius: 5,
         limit: 20,
         cursor: isLoadMore ? cursor : null,
         features: 'Takeaway'
       };
+      
+      console.log('Fetching restaurants with params:', baseParams);
 
       if (selectedCuisines.length > 0) {
         baseParams.cuisines = selectedCuisines.join(',');
@@ -265,13 +348,25 @@ export default function TakeAway() {
       }
 
       const finalParams = { ...baseParams, ...params };
+      console.log('Final API params:', finalParams);
+      console.log('API URL:', `${Api_url}/firm/getnearbyrest?feature=Takeaway`);
+      
       const response = await axios.get(`${Api_url}/firm/getnearbyrest?feature=Takeaway`, {
         params: finalParams,
-        withCredentials: true
+        withCredentials: true,
+        signal: controller.signal,
+        timeout: 15000 // 15 second timeout
       });
 
       if (response.data.success) {
         const newData = response.data.data || [];
+        if (!isMountedRef.current) return [];
+        if (isLoadMore) {
+          if (requestId !== loadMoreRequestIdRef.current) return [];
+        } else {
+          if (requestId !== restaurantsRequestIdRef.current) return [];
+        }
+
         setRandomData(newData);
 
         const restaurantsWithDistance = newData.map(restaurant => {
@@ -292,51 +387,106 @@ export default function TakeAway() {
       } else {
         console.error('API error:', response.data.message);
         if (!isLoadMore) {
-          setNotFound(true);
-          removeNotFound();
+          if (isMountedRef.current) {
+            setNotFound(true);
+            removeNotFound();
+          }
         }
         return [];
       }
     } catch (error) {
+      if (error?.name === 'CanceledError' || error?.name === 'AbortError' || error?.code === 'ERR_CANCELED') {
+        return [];
+      }
+
       console.error('Error fetching firms:', error);
+      console.error('Error details:', error.response?.data || error.message);
+      
+      let errorMessage = 'Failed to load restaurants';
+      if (error.code === 'ECONNABORTED') {
+        errorMessage = 'Request timed out. Please check your internet connection.';
+      } else if (error.response?.status === 404) {
+        errorMessage = 'No restaurants found in your area';
+      } else if (error.response?.status >= 500) {
+        errorMessage = 'Server error. Please try again later.';
+      } else if (!error.response) {
+        errorMessage = 'Network error. Please check your internet connection.';
+      }
+      
+      if (isMountedRef.current) {
+        setError(errorMessage);
+      }
+      
       if (!isLoadMore) {
-        setNotFound(true);
-        removeNotFound();
+        if (isMountedRef.current) {
+          setNotFound(true);
+          removeNotFound();
+        }
       }
       if (isLoadMore) {
-        setIsLoadingMore(false);
+        if (isMountedRef.current) {
+          setIsLoadingMore(false);
+        }
       }
       return [];
     } finally {
       clearInterval(interval);
-      setProgress(100);
-      setTimeout(() => {
-        setLoading(false);
-        setShowProgress(false);
-        setRefreshing(false);
-      }, 300);
+      if (isMountedRef.current) {
+        setProgress(100);
+        safeTimeout(() => {
+          if (!isMountedRef.current) return;
+
+          // Only let the latest request flip loading flags.
+          if (isLoadMore) {
+            if (requestId !== loadMoreRequestIdRef.current) return;
+          } else {
+            if (requestId !== restaurantsRequestIdRef.current) return;
+          }
+
+          setLoading(false);
+          setShowProgress(false);
+          setRefreshing(false);
+        }, 300);
+      }
     }
   };
 
   const removeNotFound = async () => {
-    setTimeout(async () => {
+    safeTimeout(async () => {
+      if (!isMountedRef.current) return;
       setNotFound(false);
       await fetchRestaurants({}, false, false);
     }, 1500);
   };
 
   const fetchInitialData = async () => {
-    setIsInitialLoading(true);
+    if (initialLoadControllerRef.current) {
+      initialLoadControllerRef.current.abort();
+    }
+    const controller = new AbortController();
+    initialLoadControllerRef.current = controller;
+
+    if (isMountedRef.current) {
+      setIsInitialLoading(true);
+    }
     try {
-      const locationResponse = await axios.get(`${Api_url}/api/location`);
-      const { city, state, country, lat, lon } = locationResponse.data;
-      setLocation({
-        city: city || 'KIIT University',
-        state: state ? `${city}, ${state}` : 'Patia, Bhubaneshwar',
-        country,
-        lat,
-        lon
+      console.log('Fetching initial location data...');
+      const locationResponse = await axios.get(`${Api_url}/api/location`, {
+        timeout: 10000,
+        signal: controller.signal,
       });
+      console.log('Location response:', locationResponse.data);
+      
+      const { city, state, country, lat, lon } = locationResponse.data;
+      if (isMountedRef.current) {
+        setLocation({
+          city: city || 'KIIT University',
+          state: state ? `${city}, ${state}` : 'Patia, Bhubaneshwar',
+          country,
+          lat: lat || userLocation.latitude,
+          lon: lon || userLocation.longitude
+        });
+      }
 
       const firmsData = await fetchRestaurants();
       if (firmsData && firmsData.length > 0) {
@@ -348,19 +498,46 @@ export default function TakeAway() {
       await FetchRecentlyViewData();
       await sortPopularData();
     } catch (error) {
+      if (error?.name === 'CanceledError' || error?.name === 'AbortError' || error?.code === 'ERR_CANCELED') {
+        return;
+      }
+      if (error?.response?.status === 404) {
+        console.log('Location/Initial data not found (404), continuing with defaults.');
+        if (isMountedRef.current) {
+          setIsInitialLoading(false);
+        }
+        return;
+      }
       console.error('Error in initial data fetch:', error);
-      setError('Failed to detect location.');
-      setLocation({
-        city: 'KIIT University',
-        state: 'Patia, Bhubaneshwar',
-        country: '',
-        lat: '',
-        lon: ''
-      });
-      await fetchRestaurants();
-      setRandomItems([]);
+      console.error('Location fetch error details:', error.response?.data || error.message);
+      
+      // Use fallback location with userLocation coordinates
+      if (isMountedRef.current) {
+        setLocation({
+          city: 'KIIT University',
+          state: 'Patia, Bhubaneshwar',
+          country: '',
+          lat: userLocation.latitude,
+          lon: userLocation.longitude
+        });
+      }
+      
+      // Try to fetch restaurants with fallback location
+      try {
+        await fetchRestaurants();
+      } catch (fetchError) {
+        console.error('Failed to fetch restaurants with fallback location:', fetchError);
+        if (isMountedRef.current) {
+          setError('Unable to load restaurants. Please check your internet connection and try again.');
+        }
+      }
+      if (isMountedRef.current) {
+        setRandomItems([]);
+      }
     } finally {
-      setIsInitialLoading(false);
+      if (isMountedRef.current) {
+        setIsInitialLoading(false);
+      }
     }
   };
 
@@ -396,6 +573,11 @@ export default function TakeAway() {
 
       setRecentlyViewdData(firmItems);
     } catch (error) {
+      if (error?.response?.status === 404) {
+        console.log('No recently viewed data found (404)');
+        setRecentlyViewdData([]);
+        return;
+      }
       console.error('Error fetching recently viewed data:', error);
       setRecentlyViewdData([]);
     }
@@ -415,16 +597,28 @@ export default function TakeAway() {
   useEffect(() => {
     const searchRestaurants = async () => {
       if (query.trim() === '') {
+        if (searchControllerRef.current) {
+          searchControllerRef.current.abort();
+          searchControllerRef.current = null;
+        }
         setSearchResults([]);
         setIsSearching(false);
         return;
       }
 
       setIsSearching(true);
+      const requestId = ++searchRequestIdRef.current;
+
+      if (searchControllerRef.current) {
+        searchControllerRef.current.abort();
+      }
+      const controller = new AbortController();
+      searchControllerRef.current = controller;
       try {
         const response = await axios.get(`${Api_url}/search`, {
           params: { query },
-          withCredentials: true
+          withCredentials: true,
+          signal: controller.signal,
         });
 
         // Handle both direct search results and recommended restaurants
@@ -472,17 +666,27 @@ export default function TakeAway() {
           a.findIndex(t => (t._id === v._id)) === i
         );
 
+        if (!isMountedRef.current || requestId !== searchRequestIdRef.current) return;
         setSearchResults(uniqueResults);
       } catch (error) {
+        if (error?.name === 'CanceledError' || error?.name === 'AbortError' || error?.code === 'ERR_CANCELED') return;
         console.error('Error searching restaurants:', error);
+        if (!isMountedRef.current || requestId !== searchRequestIdRef.current) return;
         setSearchResults([]);
       } finally {
+        if (!isMountedRef.current || requestId !== searchRequestIdRef.current) return;
         setIsSearching(false);
       }
     };
 
     const debounceTimer = setTimeout(searchRestaurants, 500);
-    return () => clearTimeout(debounceTimer);
+    return () => {
+      clearTimeout(debounceTimer);
+      if (searchControllerRef.current) {
+        searchControllerRef.current.abort();
+        searchControllerRef.current = null;
+      }
+    };
   }, [query]);
 
   useEffect(() => {
@@ -599,15 +803,26 @@ export default function TakeAway() {
 
   const sortVegData = useCallback(async () => {
     if (isVegOnly) {
-      setLoadingVegData(true);
+      const requestId = ++vegRequestIdRef.current;
+      if (vegControllerRef.current) {
+        vegControllerRef.current.abort();
+      }
+      const controller = new AbortController();
+      vegControllerRef.current = controller;
+
+      if (isMountedRef.current) {
+        setLoadingVegData(true);
+      }
       const MIN_LOADING_TIME = 1000; // 3 seconds
       const startTime = Date.now();
 
       try {
         const response = await axios.get(`${Api_url}/firm/getnearbyrest?cuisines=Vegetarian`, {
-          withCredentials: true
+          withCredentials: true,
+          signal: controller.signal,
         });
 
+        if (!isMountedRef.current || requestId !== vegRequestIdRef.current) return;
         setVegData(response.data.data);
 
         // Calculate elapsed time
@@ -616,34 +831,49 @@ export default function TakeAway() {
 
         if (remaining > 0) {
           // Wait remaining time before hiding loading
-          setTimeout(() => {
+          safeTimeout(() => {
+            if (!isMountedRef.current || requestId !== vegRequestIdRef.current) return;
             setLoadingVegData(false);
           }, remaining);
         } else {
-          setLoadingVegData(false);
+          if (isMountedRef.current && requestId === vegRequestIdRef.current) {
+            setLoadingVegData(false);
+          }
         }
       } catch (error) {
+        if (error?.name === 'CanceledError' || error?.name === 'AbortError' || error?.code === 'ERR_CANCELED') {
+          return;
+        }
         console.error('Error fetching vegetarian data:', error);
 
         const elapsed = Date.now() - startTime;
         const remaining = MIN_LOADING_TIME - elapsed;
 
         if (remaining > 0) {
-          setTimeout(() => {
+          safeTimeout(() => {
+            if (!isMountedRef.current || requestId !== vegRequestIdRef.current) return;
             setLoadingVegData(false);
           }, remaining);
         } else {
-          setLoadingVegData(false);
+          if (isMountedRef.current && requestId === vegRequestIdRef.current) {
+            setLoadingVegData(false);
+          }
         }
       }
     }
     else {
-      setLoadingVegData(false);
-      setVegData([])
+      if (vegControllerRef.current) {
+        vegControllerRef.current.abort();
+        vegControllerRef.current = null;
+      }
+      if (isMountedRef.current) {
+        setLoadingVegData(false);
+        setVegData([])
+      }
     }
 
 
-  }, [isVegOnly]);
+  }, [isVegOnly, safeTimeout]);
 
   const HandleUploadVegMode = async () => {
     try {
@@ -657,6 +887,10 @@ export default function TakeAway() {
       //   ToastAndroid.show('Veg Mode updated', ToastAndroid.SHORT);
       // }
     } catch (error) {
+       // Suppress 500 errors effectively
+       if (error?.response?.status === 500) {
+        return;
+       }
       console.error("Error updating vegMode", error);
     }
   };
@@ -668,6 +902,11 @@ export default function TakeAway() {
 
       setIsVegOnly(response.data.vegMode); // response is { vegMode: true/false }
     } catch (error) {
+      if (error?.response?.status === 500) {
+        // Silently fail for server errors on this optional feature
+        console.log('VegMode fetch failed (500), using default.');
+        return;
+      }
       console.error("Error fetching vegMode", error);
     }
   };
@@ -722,6 +961,9 @@ export default function TakeAway() {
               query={query} 
               setQuery={setQuery}
               onSearch={handleSearch}
+              onVoicePress={voiceSearch.toggleRecording}
+              isLoading={voiceSearch.isBusy}
+              isListening={voiceSearch.isRecording}
             />
             <View className="flex-col items-center justify-start ml-2.5">
               <Text className="text-base font-outfit-medium text-textsecondary text-center">Veg</Text>
@@ -784,6 +1026,21 @@ export default function TakeAway() {
             </Modal>
           </View>
 
+          {error && (
+            <View className="p-4 bg-red-50 border border-red-200 rounded-lg mx-4 mb-4">
+              <Text className="text-red-600 text-sm font-outfit-medium text-center">{error}</Text>
+              <TouchableOpacity 
+                className="mt-2 bg-red-600 py-2 px-4 rounded-lg"
+                onPress={() => {
+                  setError(null);
+                  fetchInitialData();
+                }}
+              >
+                <Text className="text-white text-sm font-outfit-medium text-center">Retry</Text>
+              </TouchableOpacity>
+            </View>
+          )}
+
           {showProgress && (
             <View className="h-1 bg-gray-200 rounded-full overflow-hidden">
               <View className="h-full bg-primary rounded-full" style={{ width: `${progress}%` }} />
@@ -808,16 +1065,20 @@ export default function TakeAway() {
               />
             }
             ListEmptyComponent={
-              <View style={styles.emptyContainer}>
-                {/* <Text style={styles.emptyText}>
-              {isInitialLoading
-                ? 'Loading restaurants...'
-                : isSearching
-                  ? 'Searching...'
-                  : firms.length === 0
-                    ? 'No restaurants found in your area'
-                    : 'No restaurants match your filters'}
-            </Text> */}
+              <View className="py-10 items-center">
+                {isInitialLoading || isSearching ? (
+                  <ActivityIndicator size="large" color="#02757A" />
+                ) : (
+                  <EmptyState
+                    image={require('@/assets/images/nodata.png')}
+                    title="No data found"
+                    description={
+                      selectedFeatures?.length
+                        ? 'No restaurants found for the selected features.'
+                        : 'No restaurants found in your area.'
+                    }
+                  />
+                )}
               </View>
             }
             ListHeaderComponent={
@@ -1046,7 +1307,15 @@ export default function TakeAway() {
                 />
               );
             }}
-            keyExtractor={(item) => item._id}
+            keyExtractor={(item) => {
+              const key =
+                item?._id ??
+                item?.id ??
+                item?.restaurantInfo?._id ??
+                item?.restaurantInfo?.id ??
+                item?.restaurantInfo?.name;
+              return String(key ?? 'firm');
+            }}
             onEndReached={handleLoadMore}
             onEndReachedThreshold={0.5}
             ListFooterComponent={

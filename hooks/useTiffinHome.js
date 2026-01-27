@@ -1,12 +1,13 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Animated } from 'react-native';
 import { Alert } from 'react-native';
+import { api, normalizeApiError } from '../config/httpClient';
 // import { tiffinService } from '../services/tiffinService';
 // // import { useLocation } from '../utils/useLocation';
 // import { calculateDistance } from '../utils/helpers';
 // import { usePreferences } from '../context/PreferencesContext';
 // import { useFavorites } from '../context/FavoritesContext';
-import { API_SORT, API_ERRORS } from '../config/api';
+import { API_ERRORS } from '../config/api';
 
 const useTiffinHome = () => {
   // Search and Filters
@@ -39,7 +40,7 @@ const useTiffinHome = () => {
   });
 
   // Animation States
-  const scrollY = new Animated.Value(0);
+  const scrollY = useRef(new Animated.Value(0)).current;
   const headerHeight = scrollY.interpolate({
     inputRange: [0, 100],
     outputRange: [120, 70],
@@ -59,41 +60,49 @@ const useTiffinHome = () => {
     try {
       setIsLoading(true);
       setError(null);
-      // Load tiffins from API
-      const response = await fetch('http://localhost:8000/api/firms');
-      if (!response.ok) {
-        throw new Error('Failed to fetch tiffins');
-      }
-      const tiffins = await response.json();
 
-      // Load user preferences
-      const preferencesResponse = await fetch('http://localhost:8000/api/user/preferences');
-      if (preferencesResponse.ok) {
-        const preferences = await preferencesResponse.json();
+      // Parallelize requests using Promise.allSettled
+      const [firmsResult, preferencesResult, favoritesResult] = await Promise.allSettled([
+        api.get('/api/firms'),
+        api.get('/api/user/preferences'),
+        api.get('/api/user/favorites'),
+      ]);
+
+      // Handle Firms (Critical)
+      if (firmsResult.status === 'fulfilled') {
+        const tiffins = firmsResult.value.data;
+        const categorizedTiffins = {
+          featured: tiffins.slice(0, 5),
+          popular: tiffins.slice(5, 10),
+          nearby: tiffins.slice(10, 15),
+          recommended: tiffins.slice(15, 20),
+          all: tiffins
+        };
+        setFilteredServices(categorizedTiffins);
+      } else {
+        throw firmsResult.reason; // Re-throw critical error
+      }
+
+      // Handle Preferences (Non-critical)
+      if (preferencesResult.status === 'fulfilled') {
+        const preferences = preferencesResult.value.data;
         setLocalDietaryPreferencesOptions(preferences.dietaryPreferences || []);
         setLocalCuisines(preferences.favoriteCuisines || []);
         setPriceRange(preferences.priceRange || [0, 1000]);
+      } else {
+        console.warn('Failed to load preferences:', preferencesResult.reason);
       }
 
-      // Load favorites
-      const favoritesResponse = await fetch('http://localhost:8000/api/user/favorites');
-      if (favoritesResponse.ok) {
-        const favorites = await favoritesResponse.json();
-        setFavoriteServices(favorites);
+      // Handle Favorites (Non-critical)
+      if (favoritesResult.status === 'fulfilled') {
+        setFavoriteServices(favoritesResult.value.data);
+      } else {
+        console.warn('Failed to load favorites:', favoritesResult.reason);
       }
 
-      // Categorize tiffins
-      const categorizedTiffins = {
-        featured: tiffins.slice(0, 5),
-        popular: tiffins.slice(5, 10),
-        nearby: tiffins.slice(10, 15),
-        recommended: tiffins.slice(15, 20),
-        all: tiffins
-      };
-
-      setFilteredServices(categorizedTiffins);
     } catch (err) {
-      setError('Failed to fetch tiffin services. Please try again.');
+      const normalizedError = normalizeApiError(err);
+      setError(normalizedError.message || 'Failed to fetch tiffin services.');
       Alert.alert(
         'Error',
         'Failed to fetch tiffin services. Please check your internet connection and try again.',
@@ -121,12 +130,8 @@ const useTiffinHome = () => {
     setSearchQuery(query);
     if (query.length > 0) {
       try {
-        const results = await fetch(`http://localhost:8000/api/tiffins?search=${query}`);
-        if (!results.ok) {
-          throw new Error('Failed to fetch search results');
-        }
-        const searchResults = await results.json();
-        setSearchResults(searchResults);
+        const { data } = await api.get(`/api/tiffins`, { params: { search: query } });
+        setSearchResults(data);
         setShowSearchResults(true);
         if (!recentSearches.includes(query)) {
           setRecentSearches(prev => [query, ...prev].slice(0, 5));
@@ -134,7 +139,8 @@ const useTiffinHome = () => {
       } catch (error) {
         console.error('Search error:', error);
         setSearchResults([]);
-        setError(error.message || API_ERRORS.UNKNOWN);
+        const normalized = normalizeApiError(error);
+        setError(normalized.message || API_ERRORS.UNKNOWN);
       }
     } else {
       setShowSearchResults(false);
@@ -148,7 +154,7 @@ const useTiffinHome = () => {
   };
 
   const toggleFilter = useCallback((filter) => {
-    setSelectedFilters(prev => 
+    setSelectedFilters(prev =>
       prev.includes(filter)
         ? prev.filter(f => f !== filter)
         : [...prev, filter]
@@ -157,19 +163,14 @@ const useTiffinHome = () => {
 
   const toggleFavorite = useCallback(async (id) => {
     try {
-      const response = await fetch(`http://localhost:8000/api/user/favorites/${id}`, {
-        method: 'POST'
-      });
-      if (!response.ok) {
-        throw new Error('Failed to toggle favorite');
-      }
-      const newFavorites = await response.json();
+      const { data: newFavorites } = await api.post(`/api/user/favorites/${encodeURIComponent(String(id))}`);
       if (newFavorites) {
         setFavoriteServices(newFavorites);
       }
     } catch (error) {
       console.error('Error toggling favorite:', error);
-      setError(error.message || API_ERRORS.UNKNOWN);
+      const normalized = normalizeApiError(error);
+      setError(normalized.message || API_ERRORS.UNKNOWN);
     }
   }, []);
 
@@ -200,19 +201,11 @@ const useTiffinHome = () => {
 
   const saveUserPreferences = useCallback(async (preferences) => {
     try {
-      const response = await fetch('http://localhost:8000/api/user/preferences', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(preferences)
-      });
-      if (!response.ok) {
-        throw new Error('Failed to save preferences');
-      }
+      await api.post('/api/user/preferences', preferences);
     } catch (error) {
       console.error('Error saving preferences:', error);
-      setError(error.message || API_ERRORS.UNKNOWN);
+      const normalized = normalizeApiError(error);
+      setError(normalized.message || API_ERRORS.UNKNOWN);
     }
   }, []);
 
@@ -259,5 +252,5 @@ const useTiffinHome = () => {
     handleRefresh,
     retryFetch
   };
-}; 
+};
 export default useTiffinHome; 

@@ -7,6 +7,7 @@ export default function SearchBar({
   query,
   setQuery,
   isLoading,
+  isListening,
   placeholder,
   onVoicePress,
   fullWidth = false,
@@ -48,7 +49,9 @@ export default function SearchBar({
           onPress={onVoicePress}
           className="p-1"
         >
-          {isLoading ? (
+          {isListening ? (
+            <Feather name="mic" size={20} color="#3B82F6" />
+          ) : isLoading ? (
             <ActivityIndicator size="small" color="#3B82F6" />
           ) : (
             <Feather name="mic" size={20} color="black" />

@@ -18,9 +18,18 @@ const cliOverrides = process.argv.slice(2).reduce((acc, arg) => {
   return acc;
 }, {});
 
+function requireValue(name, value) {
+  if (!value) {
+    throw new Error(
+      `Missing required ${name}. Provide --${name.toLowerCase().replace(/_/g, '-')}=... or set ${name} in the environment.`
+    );
+  }
+  return value;
+}
+
 const BASE_URL = process.env.API_BASE_URL || 'https://project-z-583w.onrender.com';
-const TEST_EMAIL = cliOverrides.email || process.env.TEST_EMAIL || 'sushantkumaryadav912@gmail.com';
-const TEST_PASSWORD = cliOverrides.password || process.env.TEST_PASSWORD || 'Sushant@123';
+const TEST_EMAIL = requireValue('TEST_EMAIL', cliOverrides.email || process.env.TEST_EMAIL);
+const TEST_PASSWORD = requireValue('TEST_PASSWORD', cliOverrides.password || process.env.TEST_PASSWORD);
 
 const cookieJar = new CookieJar();
 const http = wrapper(

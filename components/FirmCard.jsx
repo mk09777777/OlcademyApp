@@ -48,6 +48,12 @@ useEffect(() => {
 }, [firmId]);
 
   const handleClick = async () => {
+    if (typeof addtoFavorite !== 'function') {
+      console.warn('FirmCard: addtoFavorite prop is not a function');
+      setIsFavorited((prev) => !prev);
+      return;
+    }
+    
     try {
       await addtoFavorite(firmId);
       setIsFavorited((prev) => !prev);
@@ -65,7 +71,8 @@ useEffect(() => {
   const displayPrice = price || restaurantInfo?.priceRange || 'N/A';
   const displaydistance = distance || restaurantInfo?.distance;
   const displayCuisines = cuisines || restaurantInfo?.cuisines || [];
-  const displayTime = time || restaurantInfo?.deliveryTime || 'N/A';
+  // Show time if available, otherwise show nothing (distance is shown separately)
+  const displayTime = time || restaurantInfo?.deliveryTime || null;
   const displayImages = (() => {
     if (typeof image === 'string') {
       return [{ uri: image }];
@@ -119,10 +126,14 @@ useEffect(() => {
           )}
         </View>
 
-        {/* Delivery Time */}
-        <View className="absolute bottom-2.5 right-2.5 bg-black/70 px-2 py-1 rounded z-10">
-          <Text className="text-white text-xs font-bold">{displayTime} min</Text>
-        </View>
+        {/* Delivery Time / Distance Badge */}
+        {(displayTime || displaydistance) && (
+          <View className="absolute bottom-2.5 right-2.5 bg-black/70 px-2 py-1 rounded z-10">
+            <Text className="text-white text-xs font-bold">
+              {displayTime ? `${displayTime} min` : displaydistance ? `${parseFloat(displaydistance).toFixed(1)} km` : ''}
+            </Text>
+          </View>
+        )}
       </View>
 
       {/* Bookmark Button */}

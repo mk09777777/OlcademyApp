@@ -265,46 +265,48 @@ export default function FirmDetailsTakeAway() {
     };
 
     return (
-      <View className="flex-row p-4 bg-white mb-1 ml-3 mr-3 rounded-lg shadow-sm">
-        <View className="w-32 h-40 mr-4">
-          <Image
-            source={item?.image_urls?.[0]
-              ? { uri: item.image_urls[0] }
-              : require('@/assets/images/food_placeholder.jpg')}
-            className="w-full h-full rounded-lg"
-          />
-        </View>
+      <View className="mx-3 mb-3 p-3 bg-gray-50 border border-gray-200 rounded-xl">
+        <View className="flex-row p-4 bg-white rounded-lg shadow-sm">
+          <View className="w-32 h-40 mr-4">
+            <Image
+              source={item?.image_urls?.[0]
+                ? { uri: item.image_urls[0] }
+                : require('@/assets/images/food_placeholder.jpg')}
+              className="w-full h-full rounded-lg"
+            />
+          </View>
 
-        <View className="flex-1">
-          <Text className="text-textprimary font-outfit-bold text-base mb-1">{item?.productName || item?.name || 'Unnamed Item'}</Text>
-          <Text className="text-textprimary font-outfit-bold text-md mb-1">{item?.price || 'Price not available'}</Text>
-          <Text className="text-textsecondary font-outfit text-sm mb-2">{item?.description || ''}</Text>
+          <View className="flex-1">
+            <Text className="text-textprimary font-outfit-bold text-base mb-1">{item?.productName || item?.name || 'Unnamed Item'}</Text>
+            <Text className="text-textprimary font-outfit-bold text-md mb-1">{item?.price || 'Price not available'}</Text>
+            <Text className="text-textsecondary font-outfit text-sm mb-2">{item?.description || ''}</Text>
 
-          {item.variations?.length > 0 && (
-            <View className="mb-2">
-              {item.variations.map((variation, index) => (
-                <Text key={index} className="text-textsecondary font-outfit text-xs">
-                  {variation.name}: {variation.price}
-                </Text>
-              ))}
-            </View>
-          )}
+            {item.variations?.length > 0 && (
+              <View className="mb-2">
+                {item.variations.map((variation, index) => (
+                  <Text key={index} className="text-textsecondary font-outfit text-xs">
+                    {variation.name}: {variation.price}
+                  </Text>
+                ))}
+              </View>
+            )}
 
-          {quantity > 0 ? (
-            <View className="bg-light border-primary flex-row border-2 rounded-lg justify-center items-center">
-              <TouchableOpacity onPress={handleDecrement}>
-                <Text className="text-primary font-outfit-bold text-lg px-3 py-1">-</Text>
+            {quantity > 0 ? (
+              <View className="bg-light border-primary flex-row border-2 rounded-lg justify-center items-center">
+                <TouchableOpacity onPress={handleDecrement}>
+                  <Text className="text-primary font-outfit-bold text-lg px-3 py-1">-</Text>
+                </TouchableOpacity>
+                <Text className="text-primary font-outfit-bold text-base px-3">{quantity}</Text>
+                <TouchableOpacity onPress={handleIncrement}>
+                  <Text className="text-primary font-outfit-bold text-lg px-3 py-1">+</Text>
+                </TouchableOpacity>
+              </View>
+            ) : (
+              <TouchableOpacity className="bg-light border-primary border-2 px-4 py-2 rounded-lg items-center" onPress={handleAdd} activeOpacity={1.0}>
+                <Text className="text-primary font-outfit-bold text-sm">ADD</Text>
               </TouchableOpacity>
-              <Text className="text-primary font-outfit-bold text-base px-3">{quantity}</Text>
-              <TouchableOpacity onPress={handleIncrement}>
-                <Text className="text-primary font-outfit-bold text-lg px-3 py-1">+</Text>
-              </TouchableOpacity>
-            </View>
-          ) : (
-            <TouchableOpacity className="bg-light border-primary border-2 px-4 py-2 rounded-lg items-center" onPress={handleAdd} activeOpacity={1.0}>
-              <Text className="text-primary font-outfit-bold text-sm">ADD</Text>
-            </TouchableOpacity>
-          )}
+            )}
+          </View>
         </View>
       </View>
     );
@@ -447,21 +449,64 @@ export default function FirmDetailsTakeAway() {
       </View>
 
       <ScrollView className="flex-1" style={{ zIndex: 1 }}>
-        <View className="flex-row items-center my-4">
-          <View className="flex-1 h-px bg-border" />
-          <Text className="text-textsecondary font-outfit-bold mx-4 text-sm">Offers</Text>
-          <View className="flex-1 h-px bg-border" />
+  <View className="flex-row items-center my-4">
+    <View className="flex-1 h-px bg-border" />
+    <Text className="text-textsecondary font-outfit-bold mx-4 text-sm">
+      Offers
+    </Text>
+    <View className="flex-1 h-px bg-border" />
+  </View>
+
+  <View className="mb-5">
+    <FlatList
+      data={offers}
+      horizontal
+      showsHorizontalScrollIndicator={false}
+      keyExtractor={item => item.id.toString()}
+      contentContainerStyle={{ paddingHorizontal: 10 }}
+      renderItem={({ item }) => (
+        <View
+          className="
+            bg-[#6A00D4]
+            rounded-xl
+            px-5
+            py-4
+            mr-3
+            w-[300px]
+            justify-center
+          "
+        >
+          {/* First line */}
+          <Text
+            className="
+              text-white
+              font-outfit-bold
+              text-base
+              py-1
+            "
+            numberOfLines={1}
+            ellipsizeMode="tail"
+          >
+            {item.title}
+          </Text>
+
+          {/* Second line */}
+          <Text
+            className="
+              text-white/90
+              font-outfit-regular
+              text-sm
+              py-1
+            "
+            numberOfLines={1}
+          >
+            {item.validity}
+          </Text>
         </View>
-        <View className="mb-5">
-          <FlatList
-            data={offers}
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            keyExtractor={item => item.id.toString()}
-            renderItem={({ item }) => <OffersCard offerTitle={item.title} offerValidity={item.validity} />}
-            contentContainerStyle={{ paddingHorizontal: 10 }}
-          />
-        </View>
+      )}
+    />
+  </View>
+
 
         <View className="flex-row items-center my-4">
           <View className="flex-1 h-px bg-border" />
@@ -478,11 +523,13 @@ export default function FirmDetailsTakeAway() {
                 <Feather name={collapsed[category] ? "chevron-down" : "chevron-up"} size={20} color="#333333" />
               </TouchableOpacity>
               {!collapsed[category] && (
-                <FlatList
-                  data={groupedProducts[category]}
-                  keyExtractor={(item) => item._id}
-                  renderItem={renderItem}
-                />
+                <View className="pt-3">
+                  <FlatList
+                    data={groupedProducts[category]}
+                    keyExtractor={(item) => item._id}
+                    renderItem={renderItem}
+                  />
+                </View>
               )}
             </View>
           )}
