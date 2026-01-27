@@ -28,8 +28,11 @@ import { useAuth } from '@/context/AuthContext';
 import FilterModal from '@/components/FilterModal';
 import BannerCarousel from '@/components/Banner';
 import MiniRecommendedCard from '@/components/MiniRecommendedCard';
+import { useVoiceSearch } from '@/hooks/useVoiceSearch';
 
-const Api_url = process.env.API_BASE_URL || 'https://project-z-backend-apis.onrender.com';
+import { API_CONFIG } from '../../config/apiConfig';
+
+const Api_url = String(API_CONFIG.BACKEND_URL).replace(/\/+$/, '');
 
 // Sort options
 const sortOptions = [
@@ -118,6 +121,7 @@ export default function Tiffin() {
 
   // Search states
   const [query, setQuery] = useState('');
+  const voiceSearch = useVoiceSearch({ onTranscript: setQuery });
   const [searchResults, setSearchResults] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -869,6 +873,9 @@ export default function Tiffin() {
           query={query}
           setQuery={setQuery}
           onSearch={setSearchQuery}
+          onVoicePress={voiceSearch.toggleRecording}
+          isLoading={voiceSearch.isBusy}
+          isListening={voiceSearch.isRecording}
         />
         <View className="flex-col items-center justify-start ml-2.5">
           <Text className="text-base font-outfit-medium text-textsecondary text-center">Veg</Text>

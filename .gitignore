@@ -52,3 +52,12 @@ app-example
 
 /android
 /ios
+
+
+.github
+.vscode
+.idea
+.envrc
+.history
+
+docs

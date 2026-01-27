@@ -249,9 +249,8 @@ const TakeAwayCart = () => {
   };
 
   useEffect(() => {
-
-    fetchInitialSettings()
-  }, [enableAll, promosPush, promosWhatsapp, socialPush, ordersPush, ordersWhatsapp])
+    fetchInitialSettings();
+  }, []); // Only run once on mount
 
   const isCouponExpired = (endDate) => {
     if (!endDate) return true;

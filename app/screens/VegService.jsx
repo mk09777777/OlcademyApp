@@ -13,6 +13,7 @@ import TiffinCard from '../../components/TiffinCard';
 import tiffinData from '../../Data/tiffin.json';
 import SearchBar from '../../components/SearchBar';
 import { useSafeNavigation } from '@/hooks/navigationPage';
+import { useVoiceSearch } from '@/hooks/useVoiceSearch';
 
 /*
 === ORIGINAL CSS REFERENCE ===
@@ -98,6 +99,8 @@ export default function VegService() {
     }
   };
 
+  const voiceSearch = useVoiceSearch({ onTranscript: handleSearch });
+
   return (
     <SafeAreaView className="flex-1 bg-white">
       <StatusBar backgroundColor="#fff" barStyle="dark-content" />
@@ -116,6 +119,9 @@ export default function VegService() {
         query={query}
         setQuery={handleSearch}
         placeholder="Search vegetarian tiffins..."
+        onVoicePress={voiceSearch.toggleRecording}
+        isLoading={voiceSearch.isBusy}
+        isListening={voiceSearch.isRecording}
       />
 
       <ScrollView 
