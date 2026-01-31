@@ -276,39 +276,41 @@ const ProfileScreen = () => {
   // Load profile data with proper sequencing to avoid race conditions
   useEffect(() => {
     const loadProfile = async () => {
-      // Step 1: Load user data first
-      if (user) {
-        setLocalProfile(prev => ({
-          ...prev,
-          name: user.username || user.displayName || '',
-          email: user.email || '',
-          profileImage: user.profilePic || null,
-          dob: user.dob ? new Date(user.dob) : prev.dob,
-          anniversary: user.anniversary ? new Date(user.anniversary) : prev.anniversary,
-          gender: user.gender || prev.gender,
-          mobile: user.mobile || prev.mobile
-        }));
+      if (!user) return;
 
-        // Step 2: Then load AsyncStorage overrides after user data is set
-        try {
-          const saved = await AsyncStorage.getItem(STORAGE_KEY);
-          if (saved) {
-            const data = JSON.parse(saved);
+      // Step 1: Prepare user data
+      const userProfile = {
+        name: user.username || user.displayName || '',
+        email: user.email || '',
+        profileImage: user.profilePic || null,
+        dob: user.dob ? new Date(user.dob) : null,
+        anniversary: user.anniversary ? new Date(user.anniversary) : null,
+        gender: user.gender || 'Male',
+        mobile: user.mobile || ''
+      };
 
-            setLocalProfile(prev => ({
-              ...prev,
-              name: data.username ?? prev.name,
-              email: data.email ?? prev.email,
-              dob: data.dob ? new Date(data.dob) : prev.dob,
-              anniversary: data.anniversary ? new Date(data.anniversary) : prev.anniversary,
-              gender: data.gender ?? prev.gender,
-              mobile: data.mobile ?? prev.mobile
-            }));
-          }
-        } catch (e) {
-          console.log('Failed to load static profile:', e);
+      // Step 2: Load AsyncStorage overrides
+      let savedProfile = null;
+      try {
+        const saved = await AsyncStorage.getItem(STORAGE_KEY);
+        if (saved) {
+          savedProfile = JSON.parse(saved);
         }
+      } catch (e) {
+        console.log('Failed to load static profile:', e);
       }
+
+      // Step 3: Merge both data sources in a single state update
+      setLocalProfile(prev => ({
+        ...prev,
+        name: savedProfile?.username ?? userProfile.name,
+        email: savedProfile?.email ?? userProfile.email,
+        profileImage: userProfile.profileImage,
+        dob: savedProfile?.dob ? new Date(savedProfile.dob) : (userProfile.dob || prev.dob),
+        anniversary: savedProfile?.anniversary ? new Date(savedProfile.anniversary) : (userProfile.anniversary || prev.anniversary),
+        gender: savedProfile?.gender ?? userProfile.gender,
+        mobile: savedProfile?.mobile ?? userProfile.mobile
+      }));
     };
 
     loadProfile();
