@@ -69,3 +69,18 @@ High-level ownership guidelines:
 - Pure helpers (unit-test friendly): `utils/`
 
 Maintainability notes and known duplicate component areas are documented in `docs/MAINTAINABILITY_AND_OWNERSHIP.md`.
+
+## Network Layer Architecture
+
+The application uses a unified HTTP client abstraction located in `config/httpClient.js` to handle platform-specific networking behavior:
+
+*   **Abstraction**: All network requests should use the `api` object exported from `config/httpClient.js`.
+*   **Expo Go**: Uses a `fetch` wrapper. Session cookies are handled automatically by the underlying OS network stack using `credentials: 'include'`.
+*   **Native Builds**: Uses `axios` configured with an interceptor to manually inject cookies retrieved via `@react-native-cookies/cookies`. This is necessary for reliable session management in standalone native builds.
+
+### Best Practices
+
+1.  **Always use `api`**: Do not import `axios` or use `fetch` directly in UI components.
+2.  **Parallelization**: Use `Promise.allSettled` when fetching multiple resources.
+3.  **Error Handling**: Use `normalizeApiError` to consistently handle errors.
+For more details, see `docs/NETWORK_LAYER.md`.

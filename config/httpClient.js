@@ -1,34 +1,14 @@
-// import axios from 'axios';
-// import CookieManager from '@react-native-cookies/cookies';
-// import { API_CONFIG } from './apiConfig';
-
-// const BASE = API_CONFIG.BACKEND_URL.replace(/\/+$/, ''); 
-
-// export const api = axios.create({
-//   baseURL: BASE,           
-//   timeout: 30000,
-//   withCredentials: true,
-// });
-
-// api.interceptors.request.use(async (config) => {
-//   const cookies = await CookieManager.get(BASE);
-//   const cookieHeader = Object.entries(cookies).map(([k, v]) => `${k}=${v.value}`).join('; ');
-//   if (cookieHeader) {
-//     config.headers = { ...(config.headers || {}), Cookie: cookieHeader };
-//   }
-//   console.log('[httpClient] baseURL:', config.baseURL, 'url:', config.url);
-//   return config;
-// });
-
-
-
-
 import Constants from 'expo-constants';
 import axios from 'axios';
 import { API_CONFIG } from './apiConfig';
 
 const BASE = String(API_CONFIG.BACKEND_URL).replace(/\/+$/, '');
-const isExpoGo = Constants.appOwnership === 'expo';
+
+// Better Expo Go detection - check multiple conditions
+const isExpoGo =
+  Constants.appOwnership === 'expo' ||
+  Constants.executionEnvironment === 'storeClient' ||
+  !Constants.isDevice;
 
 class ApiError extends Error {
   constructor(message, { kind, response, url, method, cause } = {}) {
@@ -161,9 +141,34 @@ const fetchJson = async (url, { method, headers, body, signal } = {}) => {
   }
 };
 
+/**
+ * HTTP Client Abstraction
+ * 
+ * This module unifies the network stack for the application, handling platform-specific differences
+ * between Expo Go (development) and Native builds (production/EAS).
+ * 
+ * Architecture:
+ * - Expo Go: Uses `fetch` wrapper. Authentication relies on standard browser/OS cookie handling via `credentials: 'include'`.
+ * - Native: Uses `axios` + `@react-native-cookies/cookies`. Requires manual cookie injection into headers
+ *   because standard `axios` in React Native does not automatically attach cookies from the native CookieStore.
+ * 
+ * Usage:
+ * Import `api` from this file and use `api.get`, `api.post`, etc.
+ */
 let api;
 
-if (isExpoGo) {
+// Check if CookieManager is available (only in native builds)
+let CookieManager = null;
+if (!isExpoGo) {
+  try {
+    CookieManager = require("@react-native-cookies/cookies").default;
+  } catch (e) {
+    // CookieManager not available, fallback to fetch-based API
+  }
+}
+
+if (isExpoGo || !CookieManager) {
+  // Use fetch-based API for Expo Go or when CookieManager is not available
   api = {
     get: async (path, options = {}) => {
       const url = buildUrl(BASE, path, options.params);
@@ -188,14 +193,20 @@ if (isExpoGo) {
     },
   };
 } else {
+  // Use axios with CookieManager for native builds
   const client = axios.create({ baseURL: BASE, timeout: 30000, withCredentials: true });
   client.interceptors.request.use(async (config) => {
-  const CookieManager = require("@react-native-cookies/cookies").default;
-    const cookies = await CookieManager.get(BASE);
-    const cookieHeader = Object.entries(cookies).map(([k, v]) => `${k}=${v.value}`).join('; ');
-    if (cookieHeader) config.headers = { ...(config.headers || {}), Cookie: cookieHeader };
+    try {
+      const cookies = await CookieManager.get(BASE);
+      const cookieHeader = Object.entries(cookies).map(([k, v]) => `${k}=${v.value}`).join('; ');
+      if (cookieHeader) config.headers = { ...(config.headers || {}), Cookie: cookieHeader };
+    } catch (e) {
+      // Silently fail if cookie retrieval fails
+    }
     return config;
   });
   api = client;
 }
+
 export { api };
+

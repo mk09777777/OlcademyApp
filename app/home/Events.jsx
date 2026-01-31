@@ -45,6 +45,31 @@ const isSameDay = (dateA, dateB) =>
   dateA.getMonth() === dateB.getMonth() &&
   dateA.getDate() === dateB.getDate();
 
+const toDisplayText = (value) => {
+  if (value == null) return '';
+  if (typeof value === 'string') return value;
+  if (typeof value === 'number' || typeof value === 'boolean') return String(value);
+  return '';
+};
+
+const formatVenueText = (venue, fallbackLocation) => {
+  const locationText = toDisplayText(fallbackLocation);
+  if (locationText) return locationText;
+
+  if (!venue) return '';
+  if (typeof venue === 'string') return venue;
+  if (typeof venue === 'object') {
+    const name = toDisplayText(venue.name);
+    const address = toDisplayText(venue.address || venue.addressLine);
+    const city = toDisplayText(venue.city);
+    const state = toDisplayText(venue.state);
+    const segments = [name, address, city, state].filter((segment) => segment && segment.trim().length);
+    return segments.length ? segments.join(', ') : '';
+  }
+
+  return '';
+};
+
 const getUpcomingWeekendRange = (fromDate) => {
   const base = new Date(fromDate);
   base.setHours(0, 0, 0, 0);
@@ -64,25 +89,161 @@ const getUpcomingWeekendRange = (fromDate) => {
   return { saturday, sunday };
 };
 
-/**
- * Header extracted into a memoized component:
- * prevents re-mount of TextInput (SearchBar) while typing,
- * which stops the keyboard glitch / focus loss.
- */
-const EventsHeader = memo(function EventsHeader({
-  safeNavigation,
-  searchQuery,
-  setSearchQuery,
-  featuredEvents,
-  categoriesWithCounts,
-  selectedCategory,
-  handleCategoryPress,
-  filteredCount,
-  getMonth,
-  getDay,
-  setFilterVisible,
-}) {
-  return (
+export default function Events() {
+  const { safeNavigation } = useSafeNavigation();
+  const [filterVisible, setFilterVisible] = useState(false);
+  const [appliedFilters, setAppliedFilters] = useState({ ...DEFAULT_FILTERS });
+  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [searchQuery, setSearchQuery] = useState('');
+  const voiceSearch = useVoiceSearch({ onTranscript: setSearchQuery });
+  const [events, setEvents] = useState([]);
+  const [loadingEvents, setLoadingEvents] = useState(true);
+  const [eventsError, setEventsError] = useState(null);
+
+  useEffect(() => {
+    let isMounted = true;
+    setLoadingEvents(true);
+
+    fetchEvents()
+      .then((fetched) => {
+        if (isMounted) {
+          setEvents(fetched || []);
+          setEventsError(null);
+        }
+      })
+      .catch((error) => {
+        if (isMounted) {
+          setEventsError(error);
+        }
+      })
+      .finally(() => {
+        if (isMounted) {
+          setLoadingEvents(false);
+        }
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const featuredEvents = useMemo(
+    () => events.filter((event) => event.featured),
+    [events]
+  );
+
+  const categoriesWithCounts = useMemo(() => {
+    const counts = events.reduce((acc, event) => {
+      acc[event.category] = (acc[event.category] || 0) + 1;
+      return acc;
+    }, {});
+
+    return eventCategories
+      .filter((category) => category.key === 'all' || counts[category.key])
+      .map((category) => ({
+        ...category,
+        count: category.key === 'all' ? events.length : counts[category.key] || 0,
+      }));
+  }, [events, eventCategories]);
+
+  const filteredEvents = useMemo(() => {
+    const filters = appliedFilters || DEFAULT_FILTERS;
+    let result = [...events];
+
+    const query = searchQuery.trim().toLowerCase();
+    if (query) {
+      result = result.filter((event) => {
+        const haystack = [event.title, event.city, event.venue, event.location]
+          .filter(Boolean)
+          .map((value) => value.toLowerCase());
+        return haystack.some((value) => value.includes(query));
+      });
+    }
+
+    if (filters.location) {
+      const targetCity = filters.location.toLowerCase();
+      result = result.filter((event) => (event.city || '').toLowerCase() === targetCity);
+    }
+
+    if (filters.typesOfShow && filters.typesOfShow.length) {
+      const allowedCategories = filters.typesOfShow
+        .map((type) => typeToCategoryMap[type])
+        .filter(Boolean);
+
+      if (allowedCategories.length) {
+        result = result.filter((event) => allowedCategories.includes(event.category));
+      }
+    }
+
+    if (filters.timing && filters.timing !== 'anytime') {
+      const now = new Date();
+      if (filters.timing === 'today') {
+        result = result.filter((event) => {
+          const eventDate = parseDate(event.dateTime);
+          return eventDate ? isSameDay(eventDate, now) : false;
+        });
+      } else if (filters.timing === 'thisWeekend') {
+        const { saturday, sunday } = getUpcomingWeekendRange(now);
+        result = result.filter((event) => {
+          const eventDate = parseDate(event.dateTime);
+          return eventDate ? eventDate >= saturday && eventDate <= sunday : false;
+        });
+      } else if (filters.timing === 'custom' && filters.customDate) {
+        const custom = new Date(filters.customDate);
+        custom.setHours(0, 0, 0, 0);
+        result = result.filter((event) => {
+          const eventDate = parseDate(event.dateTime);
+          return eventDate ? isSameDay(eventDate, custom) : false;
+        });
+      }
+    }
+
+    const sorted = [...result];
+    switch (filters.sortBy) {
+      case 'newest':
+        sorted.sort((a, b) => {
+          const dateA = parseDate(a.dateTime);
+          const dateB = parseDate(b.dateTime);
+
+          if (!dateA || !dateB) return 0;
+          return dateB.getTime() - dateA.getTime();
+        });
+        break;
+      case 'highestRated':
+        sorted.sort((a, b) => (b.rating || 0) - (a.rating || 0));
+        break;
+      case 'mostPopular':
+      default:
+        sorted.sort((a, b) => (b.attendees || 0) - (a.attendees || 0));
+        break;
+    }
+
+    return sorted;
+  }, [appliedFilters, searchQuery, events]);
+
+  const filteredCount = filteredEvents.length;
+
+  const getMonth = useCallback((isoString) => {
+    const date = parseDate(isoString);
+    if (!date) return '';
+    const monthNames = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
+    return monthNames[date.getMonth()];
+  }, []);
+
+  const getDay = useCallback((isoString) => {
+    const date = parseDate(isoString);
+    return date ? date.getDate() : '';
+  }, []);
+
+  const handleCategoryPress = useCallback((categoryKey) => {
+    setSelectedCategory(categoryKey);
+    safeNavigation({
+      pathname: 'screens/LiveEventPage',
+      params: categoryKey && categoryKey !== 'all' ? { focusCategory: categoryKey } : {},
+    });
+  }, [safeNavigation]);
+
+  const renderListHeader = useCallback(() => (
     <View className="pb-6">
       <View className="pt-4">
         <View className="flex-row justify-between items-center mb-4">
@@ -383,117 +544,31 @@ export default function Events() {
           const eventDate = parseDate(event.dateTime);
           return eventDate ? isSameDay(eventDate, now) : false;
         });
-      } else if (filters.timing === "thisWeekend") {
-        const { saturday, sunday } = getUpcomingWeekendRange(now);
-        result = result.filter((event) => {
-          const eventDate = parseDate(event.dateTime);
-          return eventDate ? eventDate >= saturday && eventDate <= sunday : false;
-        });
-      } else if (filters.timing === "custom" && filters.customDate) {
-        const custom = new Date(filters.customDate);
-        custom.setHours(0, 0, 0, 0);
-
-        result = result.filter((event) => {
-          const eventDate = parseDate(event.dateTime);
-          return eventDate ? isSameDay(eventDate, custom) : false;
-        });
-      }
-    }
-
-    // Sort
-    const sorted = [...result];
-    switch (filters.sortBy) {
-      case "newest":
-        sorted.sort((a, b) => {
-          const dateA = parseDate(a.dateTime);
-          const dateB = parseDate(b.dateTime);
-          if (!dateA || !dateB) return 0;
-          return dateB.getTime() - dateA.getTime();
-        });
-        break;
-
-      case "highestRated":
-        sorted.sort((a, b) => (b.rating || 0) - (a.rating || 0));
-        break;
-
-      case "mostPopular":
-      default:
-        sorted.sort((a, b) => (b.attendees || 0) - (a.attendees || 0));
-        break;
-    }
-
-    return sorted;
-  }, [appliedFilters, searchQuery, events]);
-
-  const filteredCount = filteredEvents.length;
-
-  const getMonth = useCallback((isoString) => {
-    const date = parseDate(isoString);
-    if (!date) return "";
-    const monthNames = [
-      "JAN",
-      "FEB",
-      "MAR",
-      "APR",
-      "MAY",
-      "JUN",
-      "JUL",
-      "AUG",
-      "SEP",
-      "OCT",
-      "NOV",
-      "DEC",
-    ];
-    return monthNames[date.getMonth()];
-  }, []);
-
-  const getDay = useCallback((isoString) => {
-    const date = parseDate(isoString);
-    return date ? date.getDate() : "";
-  }, []);
-
-  const handleCategoryPress = useCallback(
-    (categoryKey) => {
-      setSelectedCategory(categoryKey);
-      safeNavigation({
-        pathname: "screens/LiveEventPage",
-        params:
-          categoryKey && categoryKey !== "all"
-            ? { focusCategory: categoryKey }
-            : {},
-      });
-    },
-    [safeNavigation]
-  );
-
-  const renderEventCard = useCallback(
-    ({ item }) => (
-      <TouchableOpacity
-        className="bg-white rounded-3xl mb-4 shadow-sm"
-        onPress={() => {
-          safeNavigation({
-            pathname: "screens/EventDetails",
-            params: { eventId: item.id },
-          });
-        }}
-        activeOpacity={0.85}
-      >
-        <View className="flex-row items-center border border-primary/40 rounded-3xl p-4">
-          <Image
-            source={normalizeImageSource(item.image, placeholderImage)}
-            className="w-20 h-20 rounded-2xl"
-          />
-          <View className="flex-1 ml-4 justify-center">
-            <Text className="text-xs font-outfit text-primary mb-1">
-              {(item.category || "").toUpperCase()}
-            </Text>
-
-            <Text className="text-lg font-outfit-bold text-textprimary mb-1">
-              {item.title}
-            </Text>
-
-            <Text className="text-sm font-outfit text-textsecondary">
-              {item.date} • {item.startTime}
+      }}
+      activeOpacity={0.85}
+    >
+  <View className="flex-row items-center border border-primary/40 rounded-3xl p-4">
+        <Image
+          source={normalizeImageSource(item.image, placeholderImage)}
+          className="w-20 h-20 rounded-2xl"
+        />
+        <View className="flex-1 ml-4 justify-center">
+          <Text className="text-xs font-outfit text-primary mb-1">
+            {toDisplayText(item.category).toUpperCase()}
+          </Text>
+          <Text className="text-lg font-outfit-bold text-textprimary mb-1">
+            {item.title}
+          </Text>
+          <Text className="text-sm font-outfit text-textsecondary">
+            {[toDisplayText(item.date), toDisplayText(item.startTime)].filter(Boolean).join(' • ')}
+          </Text>
+          <Text className="text-xs font-outfit text-textsecondary mt-1" numberOfLines={1}>
+            {formatVenueText(item.venue, item.location)}
+          </Text>
+          <View className="flex-row items-center mt-2">
+            <MaterialCommunityIcons name="star" size={14} color="#F59E0B" />
+            <Text className="ml-1 text-xs font-outfit text-textsecondary">
+              {item.rating && !isNaN(item.rating) ? Number(item.rating).toFixed(1) : '4.5'} • {item.attendees || '—'} attending
             </Text>
 
             <Text
@@ -548,14 +623,11 @@ export default function Events() {
               <ActivityIndicator size="large" color="#02757A" />
             ) : (
               <>
-                <MaterialCommunityIcons
-                  name="calendar-remove"
-                  size={32}
-                  color="#9CA3AF"
+                <EmptyState
+                  image={require('@/assets/images/nodata.png')}
+                  title="No data found"
+                  description="No events match your filters yet."
                 />
-                <Text className="mt-3 text-sm font-outfit text-textsecondary text-center">
-                  No events match your filters yet.
-                </Text>
                 {eventsError ? (
                   <Text className="mt-2 text-xs font-outfit text-textsecondary text-center">
                     Unable to reach the server. Showing cached data if available.

@@ -8,9 +8,12 @@ import {
   ActivityIndicator,
   Text
 } from "react-native";
-import axios from "axios";
+// import axios from "axios";
+import { api } from "../config/httpClient";
 
-const API = 'https://backend-0wyj.onrender.com';
+// import { API_CONFIG } from "../config/apiConfig";
+
+// const API = String(API_CONFIG.BACKEND_URL).replace(/\/+$/, '');
 
 const BannerCarousel = ({ page }) => {
   const [banners, setBanners] = useState([]);
@@ -25,13 +28,10 @@ const BannerCarousel = ({ page }) => {
     const fetchBanners = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(
-          `${API}/banners/active`,
-          { withCredentials: true }
-        );
+        const { data } = await api.get('/banners/active');
         
         // Process banners to fix malformed arrays and filter by page
-        const processedBanners = response.data.map(banner => {
+        const processedBanners = data.map(banner => {
           // Fix malformed arrays in cities and pages
           const fixArray = (field) => {
             if (!banner[field]) return [];
@@ -102,7 +102,7 @@ const BannerCarousel = ({ page }) => {
   const handleClick = async (banner) => {
     if (!banner?._id) return;
     try {
-      await axios.post(`${API}/banners/banner-click/${banner._id}`);
+      await api.post(`/banners/banner-click/${banner._id}`);
     } catch (err) {
       console.log("Error counting click:", err);
     }

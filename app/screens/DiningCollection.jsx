@@ -9,6 +9,7 @@ import FirmCard from '@/components/FirmCard';
 import SearchBar from '@/components/SearchBar';
 import BackRouting from '@/components/BackRouting';
 import { useSafeNavigation } from '@/hooks/navigationPage';
+import { useVoiceSearch } from '@/hooks/useVoiceSearch';
 
 export default function DiningCollection() {
 
@@ -43,6 +44,7 @@ const styles = StyleSheet.create({
   const router = useRouter();
   const { firms, loading: firmsLoading } = useFirm();
   const [searchQuery, setSearchQuery] = useState('');
+  const voiceSearch = useVoiceSearch({ onTranscript: setSearchQuery });
   const [filteredFirms, setFilteredFirms] = useState([]);
   const { safeNavigation } = useSafeNavigation();
   const collection = collections.find(c => c.id === collectionId);
@@ -108,9 +110,12 @@ const styles = StyleSheet.create({
       </View>
 
       <SearchBar
-        value={searchQuery}
-        onChangeText={setSearchQuery}
+        query={searchQuery}
+        setQuery={setSearchQuery}
         placeholder="Search restaurants..."
+        onVoicePress={voiceSearch.toggleRecording}
+        isLoading={voiceSearch.isBusy}
+        isListening={voiceSearch.isRecording}
       />
 
       {filteredFirms.length === 0 ? (
