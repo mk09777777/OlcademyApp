@@ -1,4 +1,4 @@
-import React, { useState, useCallback, memo } from "react";
+import React, { useState, useCallback, memo, useEffect } from "react";
 import { View, Text, FlatList, TouchableOpacity, Alert } from "react-native";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import * as Clipboard from "expo-clipboard";
@@ -83,6 +83,16 @@ export default function CouponScreen() {
   const { safeNavigation } = useSafeNavigation();
 
   const [copiedCode, setCopiedCode] = useState(null);
+
+  useEffect(() => {
+    if (copiedCode) {
+      const timer = setTimeout(() => {
+        setCopiedCode(null);
+      }, 3000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [copiedCode]);
 
   const copyCode = useCallback(async (code) => {
     try {
