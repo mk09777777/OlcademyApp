@@ -273,47 +273,46 @@ const ProfileScreen = () => {
 
   const profileInitial = user?.username?.charAt(0).toUpperCase() || 'U';
 
-  // Load from auth user first
+  // Load profile data with proper sequencing to avoid race conditions
   useEffect(() => {
-    if (user) {
-      setLocalProfile(prev => ({
-        ...prev,
-        name: user.username || user.displayName || '',
-        email: user.email || '',
-        profileImage: user.profilePic || null,
-        dob: user.dob ? new Date(user.dob) : prev.dob,
-        anniversary: user.anniversary ? new Date(user.anniversary) : prev.anniversary,
-        gender: user.gender || prev.gender,
-        mobile: user.mobile || prev.mobile
-      }));
-    }
-  }, [user]);
-
-  // ✅ Load static saved edits (overrides) on screen open
-  useEffect(() => {
-    const loadStaticProfile = async () => {
-      try {
-        const saved = await AsyncStorage.getItem(STORAGE_KEY);
-        if (!saved) return;
-
-        const data = JSON.parse(saved);
-
+    const loadProfile = async () => {
+      // Step 1: Load user data first
+      if (user) {
         setLocalProfile(prev => ({
           ...prev,
-          name: data.username ?? prev.name,
-          email: data.email ?? prev.email,
-          dob: data.dob ? new Date(data.dob) : prev.dob,
-          anniversary: data.anniversary ? new Date(data.anniversary) : prev.anniversary,
-          gender: data.gender ?? prev.gender,
-          mobile: data.mobile ?? prev.mobile
+          name: user.username || user.displayName || '',
+          email: user.email || '',
+          profileImage: user.profilePic || null,
+          dob: user.dob ? new Date(user.dob) : prev.dob,
+          anniversary: user.anniversary ? new Date(user.anniversary) : prev.anniversary,
+          gender: user.gender || prev.gender,
+          mobile: user.mobile || prev.mobile
         }));
-      } catch (e) {
-        console.log('Failed to load static profile:', e);
+
+        // Step 2: Then load AsyncStorage overrides after user data is set
+        try {
+          const saved = await AsyncStorage.getItem(STORAGE_KEY);
+          if (saved) {
+            const data = JSON.parse(saved);
+
+            setLocalProfile(prev => ({
+              ...prev,
+              name: data.username ?? prev.name,
+              email: data.email ?? prev.email,
+              dob: data.dob ? new Date(data.dob) : prev.dob,
+              anniversary: data.anniversary ? new Date(data.anniversary) : prev.anniversary,
+              gender: data.gender ?? prev.gender,
+              mobile: data.mobile ?? prev.mobile
+            }));
+          }
+        } catch (e) {
+          console.log('Failed to load static profile:', e);
+        }
       }
     };
 
-    loadStaticProfile();
-  }, []);
+    loadProfile();
+  }, [user]);
 
   const handleChange = (field, value) => {
     setLocalProfile(prev => ({ ...prev, [field]: value }));
