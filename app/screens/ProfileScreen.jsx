@@ -283,8 +283,8 @@ const ProfileScreen = () => {
         name: user.username || user.displayName || '',
         email: user.email || '',
         profileImage: user.profilePic || null,
-        dob: user.dob ? new Date(user.dob) : null,
-        anniversary: user.anniversary ? new Date(user.anniversary) : null,
+        dob: user.dob ? new Date(user.dob) : new Date(),
+        anniversary: user.anniversary ? new Date(user.anniversary) : new Date(),
         gender: user.gender || 'Male',
         mobile: user.mobile || ''
       };
@@ -306,8 +306,8 @@ const ProfileScreen = () => {
         name: savedProfile?.username ?? userProfile.name,
         email: savedProfile?.email ?? userProfile.email,
         profileImage: userProfile.profileImage,
-        dob: savedProfile?.dob ? new Date(savedProfile.dob) : (userProfile.dob || prev.dob),
-        anniversary: savedProfile?.anniversary ? new Date(savedProfile.anniversary) : (userProfile.anniversary || prev.anniversary),
+        dob: savedProfile?.dob ? new Date(savedProfile.dob) : userProfile.dob,
+        anniversary: savedProfile?.anniversary ? new Date(savedProfile.anniversary) : userProfile.anniversary,
         gender: savedProfile?.gender ?? userProfile.gender,
         mobile: savedProfile?.mobile ?? userProfile.mobile
       }));
