@@ -270,6 +270,9 @@ import { useSafeNavigation } from '@/hooks/navigationPage';
 
 const placeholderImage = require('@/assets/images/placeholder.png');
 
+// Check platform once at module level for performance optimization
+const isWeb = Platform.OS === 'web';
+
 const EventDetailsModal = ({ event, visible, onClose }) => {
   const [liked, setLiked] = useState(false);
   const { safeNavigation } = useSafeNavigation();
@@ -338,12 +341,13 @@ const EventDetailsModal = ({ event, visible, onClose }) => {
   };
 
   const handleShare = async () => {
-    try {
-      if (Platform.OS === "web") {
-        Alert.alert("Share not supported on web");
-        return;
-      }
+    // Early return if on web platform (checked at module level)
+    if (isWeb) {
+      Alert.alert("Share not supported on web");
+      return;
+    }
 
+    try {
       const message =
 `🎟️ ${event.title}
 
