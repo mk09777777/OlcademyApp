@@ -118,7 +118,7 @@ const EventsHeader = memo(function EventsHeader({
           nestedScrollEnabled
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={{ paddingRight: 8 }}
-          keyExtractor={(item) => String(item.id)}
+          keyExtractor={(item, index) => String(item?.id ?? index)}
           data={featuredEvents}
           keyboardShouldPersistTaps="always"
           keyboardDismissMode="none"
