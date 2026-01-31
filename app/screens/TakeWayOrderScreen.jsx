@@ -136,14 +136,14 @@ export default function TakeawayOrdersScreen() {
     return (
       <View className="py-4 items-center">
         <ActivityIndicator size="small" color="#02757A" />
-        <Text className="text-sm font-outfit color-gray-600 mt-2">Loading more orders...</Text>
+        <Text className="text-sm font-outfit text-gray-600 mt-2">Loading more orders...</Text>
       </View>
     );
   };
 
   const renderError = () => (
     <View className="flex-1 items-center justify-center p-4">
-      <Text className="text-base font-outfit color-red-600 text-center mb-4">{error}</Text>
+      <Text className="text-base font-outfit text-red-600 text-center mb-4">{error}</Text>
       <TouchableOpacity
         className="bg-primary px-6 py-3 rounded-lg"
         onPress={() => fetchOrders(1)}
@@ -194,7 +194,7 @@ export default function TakeawayOrdersScreen() {
       <View className="flex-row items-center bg-gray-50 mx-4 my-2 px-3 py-2 rounded-lg">
         <Ionicons name="search" size={20} color="#666" className="mr-2" />
         <TextInput
-          className="flex-1 text-base font-outfit color-gray-800"
+          className="flex-1 text-base font-outfit text-gray-800"
           placeholder="Search orders..."
           value={searchQuery}
           onChangeText={setSearchQuery}
@@ -207,7 +207,7 @@ export default function TakeawayOrdersScreen() {
           className={`flex-1 py-3 items-center ${activeTab === 'all' ? 'border-b-2 border-primary' : ''}`}
           onPress={() => setActiveTab('all')}
         >
-          <Text className={`text-sm font-outfit-medium ${activeTab === 'all' ? 'color-primary' : 'color-gray-600'}`}>
+          <Text className={`text-sm font-outfit-medium ${activeTab === 'all' ? 'text-primary' : 'text-gray-600'}`}>
             All Orders
           </Text>
         </TouchableOpacity>
@@ -215,7 +215,7 @@ export default function TakeawayOrdersScreen() {
           className={`flex-1 py-3 items-center ${activeTab === 'active' ? 'border-b-2 border-primary' : ''}`}
           onPress={() => setActiveTab('active')}
         >
-          <Text className={`text-sm font-outfit-medium ${activeTab === 'active' ? 'color-primary' : 'color-gray-600'}`}>
+          <Text className={`text-sm font-outfit-medium ${activeTab === 'active' ? 'text-primary' : 'text-gray-600'}`}>
             Active
           </Text>
         </TouchableOpacity>
@@ -223,7 +223,7 @@ export default function TakeawayOrdersScreen() {
           className={`flex-1 py-3 items-center ${activeTab === 'past' ? 'border-b-2 border-primary' : ''}`}
           onPress={() => setActiveTab('past')}
         >
-          <Text className={`text-sm font-outfit-medium ${activeTab === 'past' ? 'color-primary' : 'color-gray-600'}`}>
+          <Text className={`text-sm font-outfit-medium ${activeTab === 'past' ? 'text-primary' : 'text-gray-600'}`}>
             Past Orders
           </Text>
         </TouchableOpacity>
@@ -236,7 +236,7 @@ export default function TakeawayOrdersScreen() {
       {loading && orders.length === 0 ? (
         <View className="flex-1 items-center justify-center">
           <ActivityIndicator size="large" color="#02757A" />
-          <Text className="text-base font-outfit color-gray-600 mt-4">Loading your orders...</Text>
+          <Text className="text-base font-outfit text-gray-600 mt-4">Loading your orders...</Text>
         </View>
       ) : (
         <FlatList
@@ -252,7 +252,7 @@ export default function TakeawayOrdersScreen() {
                   className="w-24 h-24 mb-4"
                   resizeMode="contain"
                 />
-                <Text className="text-lg font-outfit-medium color-gray-600 text-center">
+                <Text className="text-lg font-outfit-medium text-gray-600 text-center">
                   {activeTab === 'all'
                     ? 'No orders found'
                     : activeTab === 'active'

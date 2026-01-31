@@ -1,31 +1,37 @@
-import React, { useMemo, useState, useCallback, useEffect } from 'react';
-import { View, Text, FlatList, ImageBackground, TouchableOpacity, Image, ActivityIndicator } from 'react-native';
-import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-import SearchBar from '@/components/SearchBar';
-import FilterShow from '@/components/FilterShow';
-import { EmptyState } from '@/components/EmptyState';
-import { useSafeNavigation } from '@/hooks/navigationPage';
-import { eventCategories } from '@/Data/EventData';
-import { fetchEvents } from '@/services/eventService';
-import { normalizeImageSource } from '@/utils/eventUtils';
-import { useVoiceSearch } from '@/hooks/useVoiceSearch';
+import React, { useMemo, useState, useCallback, useEffect, memo } from "react";
+import {
+  View,
+  Text,
+  FlatList,
+  ImageBackground,
+  TouchableOpacity,
+  Image,
+  ActivityIndicator,
+} from "react-native";
+import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
+import SearchBar from "@/components/SearchBar";
+import FilterShow from "@/components/FilterShow";
+import { useSafeNavigation } from "@/hooks/navigationPage";
+import { eventCategories } from "@/Data/EventData";
+import { fetchEvents } from "@/services/eventService";
+import { normalizeImageSource } from "@/utils/eventUtils";
 
-const placeholderImage = require('@/assets/images/placeholder.png');
+const placeholderImage = require("@/assets/images/placeholder.png");
 
 const DEFAULT_FILTERS = {
-  sortBy: 'mostPopular',
+  sortBy: "mostPopular",
   location: null,
   typesOfShow: [],
-  timing: 'anytime',
+  timing: "anytime",
   customDate: null,
 };
 
 const typeToCategoryMap = {
-  Concert: 'concert',
-  'Stand-up': 'comedy',
-  Drama: 'drama',
-  Workshop: 'workshop',
-  Festival: 'festival',
+  Concert: "concert",
+  "Stand-up": "comedy",
+  Drama: "drama",
+  Workshop: "workshop",
+  Festival: "festival",
 };
 
 const parseDate = (value) => {
@@ -244,7 +250,8 @@ export default function Events() {
           <Text className="text-2xl font-outfit-bold text-textprimary">
             Explore Events
           </Text>
-          <TouchableOpacity onPress={() => safeNavigation('/screens/User')}>
+
+          <TouchableOpacity onPress={() => safeNavigation("/screens/User")}>
             <Ionicons name="person-circle-outline" size={40} color="#02757A" />
           </TouchableOpacity>
         </View>
@@ -253,10 +260,8 @@ export default function Events() {
           query={searchQuery}
           setQuery={setSearchQuery}
           placeholder="Search events..."
-          fullWidth
-          onVoicePress={voiceSearch.toggleRecording}
-          isLoading={voiceSearch.isBusy}
-          isListening={voiceSearch.isRecording}
+          widthClass="w-full" // ✅ IMPORTANT: Tailwind valid class
+          onVoicePress={() => {}}
         />
       </View>
 
@@ -271,23 +276,29 @@ export default function Events() {
 
         <FlatList
           horizontal
+          nestedScrollEnabled
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={{ paddingRight: 8 }}
-          keyExtractor={(item) => item.id}
+          keyExtractor={(item, index) => String(item?.id ?? index)}
           data={featuredEvents}
+          keyboardShouldPersistTaps="always"
+          keyboardDismissMode="none"
           renderItem={({ item }) => (
             <TouchableOpacity
               className="w-72 h-48 mr-3"
               onPress={() => {
                 safeNavigation({
-                  pathname: 'screens/EventDetails',
+                  pathname: "screens/EventDetails",
                   params: { eventId: item.id },
                 });
               }}
               activeOpacity={0.85}
             >
               <ImageBackground
-                source={normalizeImageSource(item.bannerImage || item.image, placeholderImage)}
+                source={normalizeImageSource(
+                  item.bannerImage || item.image,
+                  placeholderImage
+                )}
                 className="w-full h-full rounded-5xl overflow-hidden"
                 borderRadius={20}
               >
@@ -301,9 +312,10 @@ export default function Events() {
                     </Text>
                   </View>
                 </View>
+
                 <View className="absolute bottom-4 left-4 right-4">
                   <Text className="text-xs font-outfit text-white mb-1">
-                    {item.category.toUpperCase()}
+                    {(item.category || "").toUpperCase()}
                   </Text>
                   <Text className="text-xl font-outfit-bold text-white">
                     {item.title}
@@ -326,13 +338,17 @@ export default function Events() {
 
         <FlatList
           horizontal
+          nestedScrollEnabled
           data={categoriesWithCounts}
-          keyExtractor={(item) => item.key}
+          keyExtractor={(item) => String(item.key)}
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={{ paddingRight: 16, paddingBottom: 8 }}
+          keyboardShouldPersistTaps="always"
+          keyboardDismissMode="none"
           renderItem={({ item }) => {
             const isSelected = selectedCategory === item.key;
             const hasImage = Boolean(item.image);
+
             return (
               <TouchableOpacity
                 className="items-center mr-5"
@@ -341,7 +357,7 @@ export default function Events() {
               >
                 <View
                   className={`w-16 h-16 rounded-full items-center justify-center border ${
-                    isSelected ? 'border-primary' : 'border-gray-200'
+                    isSelected ? "border-primary" : "border-gray-200"
                   } bg-white overflow-hidden`}
                 >
                   {hasImage ? (
@@ -354,23 +370,25 @@ export default function Events() {
                     <MaterialCommunityIcons
                       name={item.icon}
                       size={28}
-                      color={isSelected ? '#02757A' : '#6B7280'}
+                      color={isSelected ? "#02757A" : "#6B7280"}
                     />
                   )}
                 </View>
+
                 <Text
                   className={`mt-2 text-xs font-outfit text-center ${
-                    isSelected ? 'text-primary' : 'text-textprimary'
+                    isSelected ? "text-primary" : "text-textprimary"
                   }`}
                   numberOfLines={2}
                 >
                   {item.title}
                 </Text>
+
                 <Text
                   className="font-outfit text-textsecondary mt-1"
                   style={{ fontSize: 10 }}
                 >
-                  {item.count} event{item.count === 1 ? '' : 's'}
+                  {item.count} event{item.count === 1 ? "" : "s"}
                 </Text>
               </TouchableOpacity>
             );
@@ -386,6 +404,7 @@ export default function Events() {
           </Text>
           <View className="flex-1 h-px bg-primary" />
         </View>
+
         <View className="flex-row items-center justify-between mt-4">
           <View>
             <Text className="text-sm font-outfit-bold text-textprimary">
@@ -395,28 +414,135 @@ export default function Events() {
               Browse everything in one scroll
             </Text>
           </View>
+
           <TouchableOpacity
             onPress={() => setFilterVisible(true)}
             className="flex-row items-center px-3 py-2 rounded-full border border-primary bg-primary"
             activeOpacity={0.8}
           >
-            <MaterialCommunityIcons name="filter" size={16} color="#FFFFFF" style={{ marginRight: 6 }} />
-            <Text className="text-sm font-outfit-medium text-white">
-              Filter
-            </Text>
+            <MaterialCommunityIcons
+              name="filter"
+              size={16}
+              color="#FFFFFF"
+              style={{ marginRight: 6 }}
+            />
+            <Text className="text-sm font-outfit-medium text-white">Filter</Text>
           </TouchableOpacity>
         </View>
       </View>
     </View>
-  ), [categoriesWithCounts, featuredEvents, filteredCount, getDay, getMonth, handleCategoryPress, safeNavigation, searchQuery, selectedCategory]);
+  );
+});
 
-  const renderEventCard = useCallback(({ item }) => (
-    <TouchableOpacity
-      className="bg-white rounded-3xl mb-4 shadow-sm"
-      onPress={() => {
-        safeNavigation({
-          pathname: 'screens/EventDetails',
-          params: { eventId: item.id },
+export default function Events() {
+  const { safeNavigation } = useSafeNavigation();
+
+  const [filterVisible, setFilterVisible] = useState(false);
+  const [appliedFilters, setAppliedFilters] = useState({ ...DEFAULT_FILTERS });
+  const [selectedCategory, setSelectedCategory] = useState("all");
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const [events, setEvents] = useState([]);
+  const [loadingEvents, setLoadingEvents] = useState(true);
+  const [eventsError, setEventsError] = useState(null);
+
+  useEffect(() => {
+    let isMounted = true;
+    setLoadingEvents(true);
+
+    fetchEvents()
+      .then((fetched) => {
+        if (isMounted) {
+          setEvents(fetched || []);
+          setEventsError(null);
+        }
+      })
+      .catch((error) => {
+        if (isMounted) setEventsError(error);
+      })
+      .finally(() => {
+        if (isMounted) setLoadingEvents(false);
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const featuredEvents = useMemo(
+    () => events.filter((event) => event.featured),
+    [events]
+  );
+
+  const categoriesWithCounts = useMemo(() => {
+    const counts = events.reduce((acc, event) => {
+      const key = event.category;
+      if (key) acc[key] = (acc[key] || 0) + 1;
+      return acc;
+    }, {});
+
+    return eventCategories
+      .filter((category) => category.key === "all" || counts[category.key])
+      .map((category) => ({
+        ...category,
+        count: category.key === "all" ? events.length : counts[category.key] || 0,
+      }));
+  }, [events]);
+
+  const filteredEvents = useMemo(() => {
+    const filters = appliedFilters || DEFAULT_FILTERS;
+    let result = [...events];
+
+    // Search
+    const query = searchQuery.trim().toLowerCase();
+    if (query) {
+      result = result.filter((event) => {
+        const title = event.title || "";
+        const city = event.city || "";
+        const venueName =
+          typeof event.venue === "string" ? event.venue : event.venue?.name || "";
+        const locationName =
+          typeof event.location === "string"
+            ? event.location
+            : event.location?.name || "";
+
+        const haystack = [title, city, venueName, locationName]
+          .filter(Boolean)
+          .map((value) => String(value).toLowerCase());
+
+        return haystack.some((value) => value.includes(query));
+      });
+    }
+
+    // Location filter
+    if (filters.location) {
+      const targetCity = String(filters.location).toLowerCase();
+      result = result.filter(
+        (event) => String(event.city || "").toLowerCase() === targetCity
+      );
+    }
+
+    // Types filter
+    if (filters.typesOfShow && filters.typesOfShow.length) {
+      const allowedCategories = filters.typesOfShow
+        .map((type) => typeToCategoryMap[type])
+        .filter(Boolean);
+
+      if (allowedCategories.length) {
+        result = result.filter((event) =>
+          allowedCategories.includes(event.category)
+        );
+      }
+    }
+
+    // Timing filter
+    if (filters.timing && filters.timing !== "anytime") {
+      const now = new Date();
+
+      if (filters.timing === "today") {
+        result = result.filter((event) => {
+          const eventDate = parseDate(event.dateTime);
+          return eventDate ? isSameDay(eventDate, now) : false;
         });
       }}
       activeOpacity={0.85}
@@ -444,19 +570,53 @@ export default function Events() {
             <Text className="ml-1 text-xs font-outfit text-textsecondary">
               {item.rating && !isNaN(item.rating) ? Number(item.rating).toFixed(1) : '4.5'} • {item.attendees || '—'} attending
             </Text>
+
+            <Text
+              className="text-xs font-outfit text-textsecondary mt-1"
+              numberOfLines={1}
+            >
+              {typeof item.venue === "string"
+                ? item.venue
+                : item.venue?.name || "Venue TBA"}
+            </Text>
+
+            <View className="flex-row items-center mt-2">
+              <MaterialCommunityIcons name="star" size={14} color="#F59E0B" />
+              <Text className="ml-1 text-xs font-outfit text-textsecondary">
+                {typeof item.rating === "number" ? item.rating.toFixed(1) : "4.5"} •{" "}
+                {item.attendees || "—"} attending
+              </Text>
+            </View>
           </View>
         </View>
-      </View>
-    </TouchableOpacity>
-  ), [safeNavigation]);
+      </TouchableOpacity>
+    ),
+    [safeNavigation]
+  );
 
   return (
     <View className="flex-1 bg-white">
       <FlatList
         data={filteredEvents}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item) => String(item.id)}
         renderItem={renderEventCard}
-        ListHeaderComponent={renderListHeader}
+        ListHeaderComponent={
+          <EventsHeader
+            safeNavigation={safeNavigation}
+            searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
+            featuredEvents={featuredEvents}
+            categoriesWithCounts={categoriesWithCounts}
+            selectedCategory={selectedCategory}
+            handleCategoryPress={handleCategoryPress}
+            filteredCount={filteredCount}
+            getMonth={getMonth}
+            getDay={getDay}
+            setFilterVisible={setFilterVisible}
+          />
+        }
+        keyboardShouldPersistTaps="always"  // ✅ important
+        keyboardDismissMode="on-drag"
         ListEmptyComponent={() => (
           <View className="py-10 items-center">
             {loadingEvents ? (
@@ -494,5 +654,5 @@ export default function Events() {
         initialFilters={appliedFilters}
       />
     </View>
-  )
+  );
 }
