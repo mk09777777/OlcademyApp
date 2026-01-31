@@ -402,7 +402,7 @@ const ProfileScreen = () => {
               </View>
 
               <View className="border border-border rounded-lg px-3 py-2">
-                {isEditing ? (
+                {isEditing && key !== 'email' ? (
                   <TextInput
                     value={localProfile[key]}
                     onChangeText={text => handleChange(key, text)}
