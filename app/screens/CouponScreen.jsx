@@ -1,7 +1,6 @@
-import React, { useState, useCallback, memo, useEffect } from "react";
-import { View, Text, FlatList, TouchableOpacity, Alert } from "react-native";
+import React, { useState, useCallback, memo } from "react";
+import { View, Text, FlatList, TouchableOpacity } from "react-native";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
-import * as Clipboard from "expo-clipboard";
 import { useSafeNavigation } from "@/hooks/navigationPage";
 
 const COUPONS = [
@@ -69,7 +68,7 @@ export const CouponSectionCard = memo(function CouponSectionCard({
           <Text className="text-xs font-outfit text-textsecondary mt-1">
             {appliedCouponCode
               ? `Applied: ${appliedCouponCode}`
-              : "Tap to view and copy coupon codes"}
+              : "Tap to view coupon codes"}
           </Text>
         </View>
 
@@ -82,32 +81,8 @@ export const CouponSectionCard = memo(function CouponSectionCard({
 export default function CouponScreen() {
   const { safeNavigation } = useSafeNavigation();
 
-  const [copiedCode, setCopiedCode] = useState(null);
-
-  useEffect(() => {
-    if (copiedCode) {
-      const timer = setTimeout(() => {
-        setCopiedCode(null);
-      }, 3000);
-
-      return () => clearTimeout(timer);
-    }
-  }, [copiedCode]);
-
-  const copyCode = useCallback(async (code) => {
-    try {
-      await Clipboard.setStringAsync(code);
-      setCopiedCode(code);
-      Alert.alert("Copied ✅", `${code} copied to clipboard`);
-    } catch (e) {
-      Alert.alert("Copy failed", "Unable to copy right now.");
-    }
-  }, []);
-
   const renderCoupon = useCallback(
     ({ item }) => {
-      const isCopied = copiedCode === item.code;
-
       return (
         <View className="bg-white rounded-3xl border border-primary/25 p-4 mb-4">
           <View className="flex-row items-start justify-between">
@@ -131,27 +106,6 @@ export default function CouponScreen() {
                 {item.description}
               </Text>
             </View>
-
-            {/* ✅ Copy Button */}
-            <TouchableOpacity
-              onPress={() => copyCode(item.code)}
-              activeOpacity={0.85}
-              className={`px-4 py-2 rounded-full border ${
-                isCopied ? "bg-primary/15 border-primary" : "bg-white border-primary"
-              }`}
-            >
-              <View className="flex-row items-center">
-                <Ionicons
-                  name={isCopied ? "checkmark" : "copy-outline"}
-                  size={16}
-                  color="#02757A"
-                  style={{ marginRight: 6 }}
-                />
-                <Text className="text-sm font-outfit-bold text-primary">
-                  {isCopied ? "Copied" : "Copy"}
-                </Text>
-              </View>
-            </TouchableOpacity>
           </View>
 
           <View className="mt-4">
@@ -172,7 +126,7 @@ export default function CouponScreen() {
         </View>
       );
     },
-    [copiedCode, copyCode]
+    []
   );
 
   return (
@@ -192,17 +146,9 @@ export default function CouponScreen() {
             Coupons
           </Text>
           <Text className="text-xs font-outfit text-textsecondary mt-1">
-            Tap Copy to copy coupon code to clipboard
+            View available coupon codes
           </Text>
         </View>
-
-        {copiedCode ? (
-          <View className="px-3 py-2 rounded-full bg-primary/10 border border-primary/30">
-            <Text className="text-xs font-outfit-bold text-primary">
-              Copied: {copiedCode}
-            </Text>
-          </View>
-        ) : null}
       </View>
 
       {/* List */}
@@ -222,8 +168,7 @@ export default function CouponScreen() {
                 color="#02757A"
               />
               <Text className="text-xs font-outfit text-textsecondary ml-2 flex-1">
-                Press <Text className="font-outfit-bold">Copy</Text> to copy the
-                coupon code. Then paste it during checkout.
+                Use these coupon codes during checkout to get discounts.
               </Text>
             </View>
           </View>
