@@ -250,7 +250,7 @@
 
 // export default EventDetailsModal;
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Modal,
@@ -270,18 +270,17 @@ import { useSafeNavigation } from '@/hooks/navigationPage';
 
 const placeholderImage = require('@/assets/images/placeholder.png');
 
-// Check platform once at module level for performance optimization
 const isWeb = Platform.OS === 'web';
 
 const EventDetailsModal = ({ event, visible, onClose }) => {
   const [liked, setLiked] = useState(false);
   const { safeNavigation } = useSafeNavigation();
 
-  if (!event) return null;
+  useEffect(() => {
+    setLiked(false);
+  }, [event?.id]);
 
-  // -------------------------
-  // derived values
-  // -------------------------
+  if (!event) return null;
 
   const heroImage = normalizeImageSource(
     event.bannerImage || event.image,
@@ -313,10 +312,6 @@ const EventDetailsModal = ({ event, visible, onClose }) => {
   const getInitials = (name = '') =>
     name.split(' ').map(w => w[0]).join('').toUpperCase();
 
-  // -------------------------
-  // actions
-  // -------------------------
-
   const handleBook = () => {
     if (!event?.id) return;
 
@@ -341,7 +336,6 @@ const EventDetailsModal = ({ event, visible, onClose }) => {
   };
 
   const handleShare = async () => {
-    // Early return if on web platform (checked at module level)
     if (isWeb) {
       Alert.alert("Share not supported on web");
       return;
@@ -369,10 +363,6 @@ ${event.description || ''}`;
     }
   };
 
-  // -------------------------
-  // UI
-  // -------------------------
-
   return (
     <Modal
       animationType="slide"
@@ -382,7 +372,6 @@ ${event.description || ''}`;
     >
       <View style={styles.modalContainer}>
 
-        {/* Header */}
         <View style={styles.modalHeader}>
           <TouchableOpacity onPress={onClose} style={styles.closeButton}>
             <MaterialIcons name="close" size={24} color="#333" />
@@ -391,7 +380,6 @@ ${event.description || ''}`;
 
         <ScrollView style={styles.scrollContainer}>
 
-          {/* Banner */}
           <View style={styles.bannerContainer}>
             <Image source={heroImage} style={styles.bannerImage} />
 
@@ -418,7 +406,6 @@ ${event.description || ''}`;
             </View>
           </View>
 
-          {/* Buttons Row */}
           <View style={styles.actionContainer}>
 
             <TouchableOpacity
@@ -450,7 +437,6 @@ ${event.description || ''}`;
 
           </View>
 
-          {/* Details */}
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Event Details</Text>
             <Text style={styles.sectionText}>
@@ -458,7 +444,6 @@ ${event.description || ''}`;
             </Text>
           </View>
 
-          {/* Location */}
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Location</Text>
 
@@ -479,7 +464,6 @@ ${event.description || ''}`;
             </TouchableOpacity>
           </View>
 
-          {/* Performers */}
           {!!event.performers?.length && (
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Performers</Text>
@@ -507,7 +491,6 @@ ${event.description || ''}`;
             </View>
           )}
 
-          {/* Extra Info */}
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>
               Additional Information

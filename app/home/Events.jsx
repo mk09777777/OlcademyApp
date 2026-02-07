@@ -15,7 +15,7 @@ import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 // Internal Components & Data
 import SearchBar from "@/components/SearchBar";
 import FilterShow from "@/components/FilterShow";
-import EventDetailsModal from "../../Model/EventModal"; 
+import EventDetailsModal from "../../Model/EventModal";
 
 // Hooks & Services
 import { useSafeNavigation } from "@/hooks/navigationPage";
@@ -85,17 +85,17 @@ const formatVenueText = (venue, fallbackLocation) => {
 // ------------------------------------------------------------------
 // 3. EventsHeader Sub-Component
 // ------------------------------------------------------------------
-const EventsHeader = memo(({ 
-  safeNavigation, 
-  searchQuery, 
-  setSearchQuery, 
-  featuredEvents, 
-  categoriesWithCounts, 
-  selectedCategory, 
-  handleCategoryPress, 
-  filteredCount, 
-  getMonth, 
-  getDay, 
+const EventsHeader = memo(({
+  safeNavigation,
+  searchQuery,
+  setSearchQuery,
+  featuredEvents,
+  categoriesWithCounts,
+  selectedCategory,
+  handleCategoryPress,
+  filteredCount,
+  getMonth,
+  getDay,
   setFilterVisible,
   onEventClick // NEW: For opening the modal
 }) => {
@@ -115,7 +115,7 @@ const EventsHeader = memo(({
           setQuery={setSearchQuery}
           placeholder="Search events..."
           widthClass="w-full"
-          onVoicePress={() => {}}
+          onVoicePress={() => { }}
         />
       </View>
 
@@ -132,16 +132,16 @@ const EventsHeader = memo(({
           data={featuredEvents}
           keyExtractor={(item, index) => String(item?.id ?? index)}
           renderItem={({ item }) => (
-            <TouchableOpacity 
-              className="w-72 h-48 mr-3" 
+            <TouchableOpacity
+              className="w-72 h-48 mr-3"
               onPress={() => safeNavigation({
-              pathname: "/screens/EventDetails",
-              params: { eventId: item.id }
-            })} // Navigate to EventDetails screen
+                pathname: "/screens/EventDetails",
+                params: { eventId: item.id }
+              })} // Navigate to EventDetails screen
             >
-              <ImageBackground 
-                source={normalizeImageSource(item.bannerImage || item.image, placeholderImage)} 
-                className="w-full h-full rounded-5xl overflow-hidden" 
+              <ImageBackground
+                source={normalizeImageSource(item.bannerImage || item.image, placeholderImage)}
+                className="w-full h-full rounded-5xl overflow-hidden"
                 borderRadius={20}
               >
                 <View className="absolute top-4 left-4">
@@ -203,8 +203,8 @@ const EventsHeader = memo(({
             <Text className="text-sm font-outfit-bold text-textprimary">{filteredCount} events found</Text>
             <Text className="text-xs font-outfit text-textsecondary mt-1">Scroll to explore the lineup</Text>
           </View>
-          <TouchableOpacity 
-            onPress={() => setFilterVisible(true)} 
+          <TouchableOpacity
+            onPress={() => setFilterVisible(true)}
             className="flex-row items-center px-4 py-2 rounded-full border border-primary bg-primary shadow-sm"
           >
             <MaterialCommunityIcons name="filter" size={16} color="#FFFFFF" style={{ marginRight: 6 }} />
@@ -218,11 +218,11 @@ const EventsHeader = memo(({
 
 export default function Events() {
   const { safeNavigation } = useSafeNavigation();
-  
+
   // State: Modals and Visibility
   const [filterVisible, setFilterVisible] = useState(false);
   const [eventModalVisible, setEventModalVisible] = useState(false);
-  
+
   // State: Filtering and Search
   const [appliedFilters, setAppliedFilters] = useState({ ...DEFAULT_FILTERS });
   const [selectedCategory, setSelectedCategory] = useState('all');
@@ -397,7 +397,7 @@ export default function Events() {
         data={filteredEvents}
         keyExtractor={(item) => String(item.id)}
         renderItem={renderEventCard}
-        ListHeaderComponent={() => (
+        ListHeaderComponent={
           <EventsHeader
             safeNavigation={safeNavigation}
             searchQuery={searchQuery}
@@ -412,7 +412,7 @@ export default function Events() {
             setFilterVisible={setFilterVisible}
             onEventClick={handleOpenEventDetails}
           />
-        )}
+        }
         keyboardShouldPersistTaps="always"
         keyboardDismissMode="on-drag"
         ListEmptyComponent={() => (
@@ -437,7 +437,7 @@ export default function Events() {
       />
 
       {/* 5. Modals Container */}
-      
+
       {/* Search Filter Modal */}
       <FilterShow
         visible={filterVisible}
@@ -450,12 +450,12 @@ export default function Events() {
       />
 
       {/* Main Event Details Modal (Triggered by any event click) */}
-      <EventDetailsModal 
-        event={selectedEventData} 
-        visible={eventModalVisible} 
-        onClose={handleCloseEventDetails} 
+      <EventDetailsModal
+        event={selectedEventData}
+        visible={eventModalVisible}
+        onClose={handleCloseEventDetails}
       />
-      
+
     </View>
   );
 }
