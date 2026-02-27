@@ -266,7 +266,6 @@ export const LocationProvider = ({ children }) => {
         await updateLocation({ ...locationData, accuracy: coords.accuracy }, 'gps');
         return locationData;
       }
-      
       return location;
     } catch (error) {
       console.error('[Location] Refresh error:', error);
@@ -322,6 +321,8 @@ export const LocationProvider = ({ children }) => {
           if (__DEV__) {
             console.log('[Location] Loaded from cache');
           }
+          
+          setTimeout(() => refreshLocation(false), 500);
           return;
         }
 
