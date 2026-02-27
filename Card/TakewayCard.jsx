@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import {
-  // StyleSheet,
+
   View,
   Text,
   Image,
@@ -177,48 +177,48 @@ const TakeawayOrderCard = ({ order, onToggleFavorite, onOrderCancelled }) => {
           <View className="mb-5 pt-4 border-t border-gray-200">
             <Text className="font-bold text-lg text-gray-900 mb-2.5">Payment Summary:</Text>
             <View className="mt-2.5">
-              <View style={styles.paymentRow}>
-                <Text>Subtotal:</Text>
-                <Text>${order.subtotal?.toFixed(2)}</Text>
+              <View className="flex-row justify-between items-center">
+                <Text className="text-gray-700">Subtotal:</Text>
+                <Text className="text-gray-700">${order.subtotal?.toFixed(2)}</Text>
               </View>
 
               {order.deliveryFee > 0 && (
-                <View style={styles.paymentRow}>
-                  <Text>Delivery Fee:</Text>
-                  <Text>+ ${order.deliveryFee?.toFixed(2)}</Text>
+                <View className="flex-row justify-between items-center">
+                  <Text className="text-gray-700">Delivery Fee:</Text>
+                  <Text className="text-gray-700">+ ${order.deliveryFee?.toFixed(2)}</Text>
                 </View>
               )}
-              <View style={styles.paymentRow}>
-                <Text>Platform Fee:</Text>
-                <Text>+ ${order.platformFee?.toFixed(2)}</Text>
+              <View className="flex-row justify-between items-center">
+                <Text className="text-gray-700">Platform Fee:</Text>
+                <Text className="text-gray-700">+ ${order.platformFee?.toFixed(2)}</Text>
               </View>
               {order.gstCharges > 0 && (
-                <View style={styles.paymentRow}>
-                  <Text>GST Charges:</Text>
-                  <Text>+ ${order.gstCharges?.toFixed(2)}</Text>
+                <View className="flex-row justify-between items-center">
+                  <Text className="text-gray-700">GST Charges:</Text>
+                  <Text className="text-gray-700">+ ${order.gstCharges?.toFixed(2)}</Text>
                 </View>
               )}
 
               {Array.isArray(order?.totalOtherCharges) && order.totalOtherCharges.length > 0 && (
                 <View>
                   {order.totalOtherCharges.map((charge, idx) => (
-                    <View key={idx} style={styles.paymentRow}>
-                      <Text style={styles.paymentLabel}>{charge.name || 'Additional Charge'}:</Text>
-                      <Text style={styles.paymentValue}>${charge.amount}</Text>
+                    <View key={idx} className="flex-row justify-between items-center">
+                      <Text className="text-gray-700">{charge.name || 'Additional Charge'}:</Text>
+                      <Text className="text-gray-700">${charge.amount}</Text>
                     </View>
                   ))}
                 </View>
               )}
               {order.discount > 0 && (
-                <View style={[styles.paymentRow, styles.discountRow]}>
-                  <Text>Discount:</Text>
-                  <Text>- ${order.discount?.toFixed(2)}</Text>
+                <View className="flex-row justify-between items-center bg-green-50 p-2 rounded">
+                  <Text className="text-green-700">Discount:</Text>
+                  <Text className="text-green-700">- ${order.discount?.toFixed(2)}</Text>
                 </View>
               )}
 
-              <View style={styles.totalRow}>
-                <Text style={styles.totalLabel}>Total Paid:</Text>
-                <Text style={styles.totalAmount}>${order.amount?.toFixed(2)}</Text>
+              <View className="flex-row justify-between items-center border-t border-gray-200 pt-2 mt-2">
+                <Text className="font-bold text-lg text-gray-900">Total Paid:</Text>
+                <Text className="font-bold text-lg text-teal-600">${order.amount?.toFixed(2)}</Text>
               </View>
             </View>
           </View>
