@@ -103,7 +103,7 @@ export default function EventDetails() {
 
   return (
     <ScrollView className="flex-1 bg-background">
-      <ImageBackground 
+      <ImageBackground
         source={heroImage}
         className="h-80 justify-end"
       >
@@ -129,39 +129,38 @@ export default function EventDetails() {
         <TouchableOpacity
           className="bg-primary px-6 py-3 rounded-lg"
           onPress={() => {
-            safeNavigation(
-              {
-                pathname: '/screens/EventBooking',
-                params: { eventId: eventDetails.id },
-              }
-            );
+            safeNavigation({
+              pathname: "/screens/EventBooking",
+              params: { eventId: eventDetails.id },
+            });
           }}
-
         >
+
           <Text className="text-white font-outfit-bold">
             Book
           </Text>
         </TouchableOpacity>
       </View>
       <View className="flex-row items-center p-4 bg-white border-b border-border">
-        <Ionicons 
-          name='location-outline' 
-          size={25} 
+        <Ionicons
+          name='location-outline'
+          size={25}
           color='#FF002E'
         />
-        <Text className="flex-1 ml-3 text-textprimary font-outfit"> 
-          {eventDetails.location}
+        <Text className="flex-1 ml-3 text-textprimary font-outfit">
+          {typeof eventDetails.location === 'string' ? eventDetails.location : eventDetails.location?.name || 'Location not available'}
         </Text>
         <TouchableOpacity
           className="p-2"
           onPress={() => {
             if (eventDetails.location) {
-              const encoded = encodeURIComponent(eventDetails.location);
+              const locationString = typeof eventDetails.location === 'string' ? eventDetails.location : eventDetails.location?.name || '';
+              const encoded = encodeURIComponent(locationString);
               Linking.openURL(`https://www.google.com/maps/search/?api=1&query=${encoded}`)
             }
           }}
         >
-        <FontAwesome5 name='directions' size={24} color='#FF002E'/>
+          <FontAwesome5 name='directions' size={24} color='#FF002E' />
         </TouchableOpacity>
       </View>
       <Text
@@ -178,8 +177,8 @@ export default function EventDetails() {
         </TouchableOpacity>
       )}
       <View className="flex-row items-center p-4 bg-white border-b border-border">
-        <MaterialCommunityIcons 
-          name='clock-outline' 
+        <MaterialCommunityIcons
+          name='clock-outline'
           size={30}
           color='#FF002E'
         />
@@ -193,8 +192,8 @@ export default function EventDetails() {
         </View>
       </View>
       <View className="flex-row items-center p-4 bg-white border-b border-border">
-        <Ionicons 
-          name='language' 
+        <Ionicons
+          name='language'
           size={30}
           color='#FF002E'
         />
@@ -208,8 +207,8 @@ export default function EventDetails() {
         </View>
       </View>
       <View className="flex-row items-center p-4 bg-white border-b border-border">
-        <MaterialCommunityIcons 
-          name='clock-outline' 
+        <MaterialCommunityIcons
+          name='clock-outline'
           size={30}
           color='#FF002E'
         />
@@ -223,8 +222,8 @@ export default function EventDetails() {
         </View>
       </View>
       <View className="flex-row items-center p-4 bg-white border-b border-border">
-        <Ionicons 
-          name='information-circle-outline' 
+        <Ionicons
+          name='information-circle-outline'
           size={30}
           color='#FF002E'
         />
@@ -238,8 +237,8 @@ export default function EventDetails() {
         </View>
       </View>
       <View className="flex-row items-center p-4 bg-white border-b border-border">
-        <Ionicons 
-          name='information-circle-outline'  
+        <Ionicons
+          name='information-circle-outline'
           size={30}
           color='#FF002E'
         />
@@ -253,8 +252,8 @@ export default function EventDetails() {
         </View>
       </View>
       <View className="flex-row items-center p-4 bg-white border-b border-border">
-        <MaterialCommunityIcons 
-          name='seat' 
+        <MaterialCommunityIcons
+          name='seat'
           size={30}
           color='#FF002E'
         />
@@ -268,8 +267,8 @@ export default function EventDetails() {
         </View>
       </View>
       <View className="flex-row items-center p-4 bg-white border-b border-border">
-        <Ionicons 
-          name='information-circle-outline' 
+        <Ionicons
+          name='information-circle-outline'
           size={30}
           color='#FF002E'
         />
@@ -283,8 +282,8 @@ export default function EventDetails() {
         </View>
       </View>
       <View className="flex-row items-center p-4 bg-white border-b border-border">
-        <Ionicons 
-          name='information-circle-outline' 
+        <Ionicons
+          name='information-circle-outline'
           size={30}
           color='#FF002E'
         />
@@ -302,13 +301,13 @@ export default function EventDetails() {
       </Text>
       <View className="p-4">
         {eventDetails.performers?.length ? (
-          eventDetails.performers.map((artist) => (
-            <View key={artist.id} className="mb-4 bg-white rounded-2xl p-4 border border-border">
+          eventDetails.performers.map((artist, index) => (
+            <View key={artist.id || index} className="mb-4 bg-white rounded-2xl p-4 border border-border">
               <Text className="text-base font-outfit-bold text-textprimary">
-                {artist.name}
+                {typeof artist === 'string' ? artist : artist.name || 'Artist'}
               </Text>
               <Text className="text-xs font-outfit text-textsecondary mt-1">
-                {artist.genre}
+                {typeof artist === 'object' ? artist.genre || 'Genre not specified' : ''}
               </Text>
             </View>
           ))

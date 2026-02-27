@@ -14,9 +14,8 @@ const Cart = () => {
   const navigation = useNavigation();
   const {
     getCartItems,
-    incrementQuantity,
-    decrementQuantity,
-    removeFromCart,
+    handleQuantityChange,
+    handleRemove,
     getSubtotal,
     getDiscount,
     getTotal,
@@ -72,21 +71,21 @@ const renderCustomizationDetails = (item) => {
       <View className="flex-row items-center bg-gray-100 rounded-lg px-2 py-1 ml-2">
         <TouchableOpacity
           className="p-1"
-          onPress={() => decrementQuantity(item.id)}
+          onPress={() => handleQuantityChange(item.productId, -1)}
         >
           <Ionicons name="remove" size={20} color="#4CAF50" />
         </TouchableOpacity>
         <Text className="text-base font-outfit-bold mx-3 color-gray-900">{item.quantity}</Text>
         <TouchableOpacity
           className="p-1"
-          onPress={() => incrementQuantity(item.id)}
+          onPress={() => handleQuantityChange(item.productId, 1)}
         >
           <Ionicons name="add" size={20} color="#4CAF50" />
         </TouchableOpacity>
       </View>
       <TouchableOpacity
         className="p-2 ml-2"
-        onPress={() => removeFromCart(item.id)}
+        onPress={() => handleRemove(item.productId)}
       >
         <Ionicons name="trash-outline" size={20} color="#F44336" />
       </TouchableOpacity>
@@ -113,7 +112,7 @@ const renderCustomizationDetails = (item) => {
       <FlatList
         data={cartItems}
         renderItem={renderCartItem}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item) => item.productId}
         contentContainerClassName="p-4 pb-32"
       />
       <View className="bg-white p-4 border-t border-gray-200">

@@ -828,7 +828,7 @@ const [localFilters, setLocalFilters] = useState(() => ({
           onPress={() => handleFilterChange("sortBy", option.value)}
         >
           <Text className="text-base font-outfit color-gray-900">{option.label}</Text>
-          <View className="w-5 h-5 rounded-full border-2 border-gray-300 items-center justify-center">
+          <View className="w-6 h-6 rounded-full border-2 border-primary items-center justify-center">
             {localFilters.sortBy === option.value && (
               <View className="w-3 h-3 rounded-full bg-primary" />
             )}

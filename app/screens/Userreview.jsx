@@ -244,7 +244,7 @@ export default function WriteReview() {
   const [selectedOptions, setSelectedOptions] = useState([]);
   const [answers, setAnswers] = useState({});
   const [review, setReview] = useState("");
-  const [image, setImage] = useState(null);
+  const [images, setImages] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
 
@@ -271,13 +271,13 @@ export default function WriteReview() {
     });
 
     if (!result.canceled) {
-      setImage(result.assets[0].uri);
+    setImages(prev => [...prev, ...result.assets.map(asset => asset.uri)]);
     }
   };
 
-  const removeImage = () => {
-    setImage(null);
-  };
+  const removeImage = (index) => {
+  setImages(prev => prev.filter((_, i) => i !== index));
+};
 
 const handleSubmit = async () => {
   if (!user?.email) {
@@ -318,55 +318,37 @@ const handleSubmit = async () => {
       tiffin: null
     };
 
-    let response;
+    const endpoint = reviewType === "tiffin" 
+      ? `/api/reviews/${firmId}`
+      : `/api/reviews/firm/${firmId}`;
     
-    if (image) {
+    if (images.length > 0) {
       const formData = new FormData();
-      const filename = image.split('/').pop();
-      const match = /\.(\w+)$/.exec(filename);
-      const type = match ? `image/${match[1]}` : 'image';
-      
-      formData.append('image', {
-        uri: image,
-        name: filename,
-        type
+      images.forEach((image) => {
+        const filename = image.split('/').pop();
+        const match = /\.(\w+)$/.exec(filename);
+        const type = match ? `image/${match[1]}` : 'image/jpeg';
+        
+        formData.append('image', {
+          uri: image,
+          name: filename,
+          type
+        });
       });
       
-      formData.append('data', JSON.stringify({
-        newReview: reviewData
-      }));
+      formData.append('data', JSON.stringify({ newReview: reviewData }));
 
-      // Use different endpoints based on review type
-      const endpoint = reviewType === "tiffin" 
-        ? `/api/reviews/${firmId}`
-        : `/api/reviews/firm/${firmId}`;
-      
-
-      response = await api.post(`${API_CONFIG.BACKEND_URL}${endpoint}`, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
+      await api.post(endpoint, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
       });
     } else {
-      // Use different endpoints based on review type
-      const endpoint = reviewType === 'tiffin' 
-        ? `/api/reviews/${firmId}`
-        : `/api/reviews/firm/${firmId}`;
-      
-      response = await api.post(`${API_CONFIG.BACKEND_URL}${endpoint}`, {
-        newReview: reviewData
-      });
+      await api.post(endpoint, { newReview: reviewData });
     }
 
     Alert.alert(
       "Thank You!", 
       `Your ${ratingFromRoute} star review has been submitted.`,
-      [
-        {
-          text: "OK",
-          onPress: () => router.back()
-        }
-      ]
+      [{ text: "OK", onPress: () => router.back() }]
     );
   } catch (error) {
     console.error("Review submission error:", error);
@@ -471,19 +453,23 @@ const handleSubmit = async () => {
             <Text className="text-blue-600 text-base font-medium">Add photo</Text>
           </View>
         </TouchableOpacity>
-        {image && (
-          <View className="relative">
+        {images.length>0 && (
+          <View className="flex-row flex-wrap gap-2 mt-2">
+    {images.map((img, index) => (
+      <View key={index} className="relative w-[48%] mb-2">
             <Image
-              source={{ uri: image }}
-              className="w-full h-50 rounded-lg mt-2"
+              source={{ uri: img }}
+              className="w-full h-[120px] rounded-lg "
             />
             <TouchableOpacity 
               className="absolute top-5 right-2 bg-black/50 rounded-full w-7 h-7 items-center justify-center" 
-              onPress={removeImage}
-            >
+              onPress={() => removeImage(index)} >
+            
               <MaterialIcons name="close" size={20} color="#fff" />
             </TouchableOpacity>
           </View>
+    ))}
+      </View>
         )}
       </View>
 

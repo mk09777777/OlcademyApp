@@ -419,7 +419,7 @@ const TiffinDetails = () => {
                   <Text className="text-primary text-sm font-bold ml-1">ADDED</Text>
                 </View>
               ) : (
-                <TouchableOpacity onPress={() => handleOpenModal(item)} className="bg-red-500 rounded-lg px-5 py-2" activeOpacity={0.7}>
+                <TouchableOpacity onPress={() => handleOpenModal(item)} className="bg-primary rounded-lg px-5 py-2" activeOpacity={0.7}>
                   <Text className="text-white text-sm font-bold">ADD</Text>
                 </TouchableOpacity>
               )}

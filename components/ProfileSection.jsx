@@ -95,11 +95,11 @@ const ProfileSection = () => {
         <View className="w-10 h-10 rounded-full bg-gray-50 items-center justify-center mr-3">
           <MaterialCommunityIcons name={icon} size={22} color="#000000" />
         </View>
-        <Text className="text-base font-outfit-medium color-gray-800">{title}</Text>
+        <Text className="text-base font-outfit-medium text-gray-800">{title}</Text>
       </View>
       <View className="flex-row items-center">
         {value && (
-          <Text className="text-sm font-outfit color-gray-600 mr-2">
+          <Text className="text-sm font-outfit text-gray-600 mr-2">
             {value}
           </Text>
         )}
@@ -145,7 +145,7 @@ const ProfileSection = () => {
           title="Coupon"
           value="3 coupons"
           chevron
-          onPress={() => console.log('Coupon pressed')}
+          onPress={() => safeNavigation('/screens/CouponScreen')}
         />
         <ProfileItem
           icon="star-outline"
