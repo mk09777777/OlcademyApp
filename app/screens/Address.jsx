@@ -30,7 +30,7 @@
 //   const [editingAddressType, setEditingAddressType] = useState('');
 //   const [editingAddressId, setEditingAddressId] = useState(null);
 
-//   const API_BASE_URL = 'https://backend-0wyj.onrender.com';
+//   const API_BASE_URL = String(API_CONFIG.BACKEND_URL).replace(/\/+$/, '');
 
 //   const fetchAddresses = async () => {
 //     setIsLoading(true);
@@ -357,6 +357,7 @@ import { Ionicons, Feather, MaterialCommunityIcons, FontAwesome5 } from '@expo/v
 import { router } from 'expo-router';
 import BackRouting from '@/components/BackRouting';
 import axios from 'axios';
+import { API_CONFIG } from '../../config/apiConfig';
 
 export default function AddressScreen() {
   const [selectedAddressId, setSelectedAddressId] = useState(null);
@@ -371,7 +372,7 @@ export default function AddressScreen() {
   const [editingAddressType, setEditingAddressType] = useState('');
   const [editingAddressId, setEditingAddressId] = useState(null);
 
-  const API_BASE_URL = 'https://backend-0wyj.onrender.com';
+  const API_BASE_URL = String(API_CONFIG.BACKEND_URL).replace(/\/+$/, '');
 
   const fetchAddresses = async () => {
     setIsLoading(true);

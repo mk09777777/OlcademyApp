@@ -254,6 +254,7 @@ export default function FirmDetailsDining() {
     { id: 'Prebook', value: 'Offers' },
     { id: 'Photos', value: 'Photos' },
     { id: 'Reviews', value: 'Reviews' },
+    { id: 'About', value: 'About' },
   ]
 
   const handleActive = (filter) => {
@@ -275,15 +276,31 @@ export default function FirmDetailsDining() {
     }))
   }
 
+  const isAnyFilterActive = Object.values(filtersActive).some(val => val === true)
+
   const renderContent = () => {
-    if (filtersActive.Prebook && offers.length > 0) {
+    if (filtersActive.Menu) {
       return (
-        <View>
-          <View className="flex-row items-center mt-6 mb-2.5 px-2.5">
-            <View className="flex-1 h-px bg-primary" />
-            <Text className="text-sm text-gray-700 mx-2 font-bold" style={{ fontFamily: 'outfit' }}>OFFERS</Text>
-            <View className="flex-1 h-px bg-primary" />
-          </View>
+        <View className="px-5 py-2">
+          <TouchableOpacity
+            onPress={() => router.navigate({
+              pathname: 'screens/PhotoGallery',
+              params: {
+                image_urls: require("../../assets/images/menu.jpeg"),
+                firmName: firmDetails?.restaurantInfo?.name || "Restaurant",
+                price: firmDetails?.restaurantInfo?.priceRange || '₹1010 for Two'
+              }
+            })}
+          >
+            <Image className="rounded-lg" style={{ width: 90, height: 110 }} source={require("../../assets/images/menu.jpeg")} />
+          </TouchableOpacity>
+        </View>
+      )
+    }
+
+    if (filtersActive.Prebook) {
+      return (
+        <View className="py-2">
           <FlatList
             data={offers}
             horizontal
@@ -295,16 +312,11 @@ export default function FirmDetailsDining() {
       )
     }
 
-    if (filtersActive.Photos && firmDetails?.restaurantInfo?.image_urls?.length > 0) {
-      const previewImages = firmDetails.restaurantInfo.image_urls.slice(0, 5)
-      const totalImages = firmDetails.restaurantInfo.image_urls.length
+    if (filtersActive.Photos) {
+      const previewImages = firmDetails?.restaurantInfo?.image_urls?.slice(0, 5) || []
+      const totalImages = firmDetails?.restaurantInfo?.image_urls?.length || 0
       return (
-        <View>
-          <View className="flex-row items-center mt-6 mb-2.5 px-2.5">
-            <View className="flex-1 h-px bg-primary" />
-            <Text className="text-sm text-gray-700 mx-2 font-bold" style={{ fontFamily: 'outfit' }}>Photos</Text>
-            <View className="flex-1 h-px bg-primary" />
-          </View>
+        <View className="px-5 py-2">
           <FlatList
             data={[...previewImages, 'last']}
             numColumns={3}
@@ -312,7 +324,7 @@ export default function FirmDetailsDining() {
               if (item === 'last') {
                 return (
                   <TouchableOpacity
-                    className="relative w-1/3 m-1"
+                    className="relative m-1"
                     onPress={() => router.navigate({
                       pathname: 'screens/PhotoGallery',
                       params: {
@@ -322,9 +334,9 @@ export default function FirmDetailsDining() {
                       }
                     })}
                   >
-                    <Image source={{ uri: previewImages[previewImages.length - 2] }} className="rounded-lg" style={{ width: 100, height: 100 }} />
+                    <Image source={{ uri: previewImages[previewImages.length - 1] }} className="rounded-lg" style={{ width: 100, height: 100 }} />
                     <View className="absolute inset-0 bg-black/50 justify-center items-center rounded-lg">
-                      <Text className="text-white text-base font-outfit-bold">+{totalImages - 6} More</Text>
+                      <Text className="text-white text-base font-outfit-bold">+{totalImages - 5} More</Text>
                     </View>
                   </TouchableOpacity>
                 )
@@ -337,14 +349,9 @@ export default function FirmDetailsDining() {
       )
     }
 
-    if (filtersActive.Reviews && firmDetails?.reviews?.length > 0) {
+    if (filtersActive.Reviews) {
       return (
-        <View>
-          <View className="flex-row items-center mt-6 mb-2.5 px-2.5">
-            <View className="flex-1 h-px bg-primary" />
-            <Text className="text-sm text-gray-700 mx-2 font-bold" style={{ fontFamily: 'outfit' }}>REVIEWS</Text>
-            <View className="flex-1 h-px bg-primary" />
-          </View>
+        <View className="py-2">
           <FlatList
             data={firmDetails.reviews}
             horizontal
@@ -366,17 +373,79 @@ export default function FirmDetailsDining() {
       )
     }
 
-    if (filtersActive.Menu) {
+    if (filtersActive.About) {
       return (
-        <View>
-          <View className="flex-row items-center mt-6 mb-2.5 px-2.5">
-            <View className="flex-1 h-px bg-primary" />
-            <Text className="text-sm text-gray-700 mx-2 font-bold" style={{ fontFamily: 'outfit' }}>MENU</Text>
-            <View className="flex-1 h-px bg-primary" />
+        <View className="px-5 py-2">
+          <View style={{
+            backgroundColor: '#FFFFFF',
+            borderRadius: 10,
+            padding: 16,
+            marginBottom: 20,
+            borderWidth: 1,
+            borderColor: "#D9D9D9"
+          }}>
+            <Text style={{ fontSize: 14, color: '#444444', fontWeight: '700', marginBottom: 12 }}>
+              {firmDetails?.restaurantInfo?.overview || "Experience authentic Italian-inspired cuisine crafted with passion, combining traditional flavors and modern presentation in a stylishly elegant setting."}
+            </Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
+              <FontAwesome5 name="rupee-sign" size={16} color="#02757A" />
+              <Text style={{ fontSize: 12, marginLeft: 10, color: '#444444' }}>
+                {firmDetails?.restaurantInfo?.priceRange || '₹1010 for Two'}
+              </Text>
+            </View>
+            <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
+              <MaterialIcons name="restaurant" size={16} color="#02757A" />
+              <Text style={{ fontSize: 12, marginLeft: 10, color: '#444444' }}>
+                {Array.isArray(firmDetails?.restaurantInfo?.cuisines)
+                  ? firmDetails.restaurantInfo.cuisines.join(', ')
+                  : firmDetails?.restaurantInfo?.cuisines || 'Italian, Dessert'}
+              </Text>
+            </View>
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <MaterialIcons name="access-time" size={16} color="#02757A" />
+              <Text style={{ fontSize: 12, marginLeft: 10, color: '#444444' }}>
+                {firmDetails?.restaurantInfo?.timings || '11:00 AM - 11:00 PM'}
+              </Text>
+            </View>
           </View>
-          <View className="mt-2.5 mx-5 rounded-2xl flex">
-            <Image className="rounded-lg" style={{ width: 70, height: 50 }} source={require("../../assets/images/menu.jpeg")} />
+          <View style={{
+            backgroundColor: '#FFFFFF',
+            borderRadius: 10,
+            padding: 16,
+            marginBottom: 20,
+            borderWidth: 1,
+            borderColor: "#D9D9D9"
+          }}>
+            <Text style={{ fontSize: 14, fontWeight: 600, color: '#444444', marginBottom: 12 }}>Facilities</Text>
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
+              {firmDetails?.features?.map((item, index) => (
+                <View key={index} style={{ flexDirection: 'row', alignItems: 'center', width: '50%', marginBottom: 10, paddingRight: 34 }}>
+                  <AntDesign name="check-circle" size={16} color="#048520" style={{ marginRight: 12 }} />
+                  <Text style={{ fontSize: 12, color: '#444444' }}>{item}</Text>
+                </View>
+              ))}
+            </View>
           </View>
+          {similar?.length > 0 && (
+            <View>
+              <Text className="text-base font-outfit-bold mb-3">Explore other restaurants</Text>
+              <FlatList
+                data={similar}
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                keyExtractor={item => item.id}
+                renderItem={({ item }) => (
+                  <MiniRecommendedCard
+                    name={item.restaurant_name}
+                    address={item.address}
+                    image={item.image_url}
+                    rating={item.rating}
+                    onPress={() => safeNavigation({ pathname: '/screens/FirmDetailsDining', params: { firmId: item.id } })}
+                  />
+                )}
+              />
+            </View>
+          )}
         </View>
       )
     }
@@ -533,44 +602,60 @@ export default function FirmDetailsDining() {
                 </TouchableOpacity>
                 <View></View>
               </View>
-              <View className="absolute bottom-0 left-0 right-0 h-[60%] flex-row justify-between items-center">
+              <View className="absolute bottom-0 left-0 right-0 h-[70%] flex-row justify-between items-center">
                 <LinearGradient
                   colors={["#18181800", "#18181866", "#181818CC"]}
                   start={{ x: 0, y: 0 }}
                   end={{ x: 0, y: 1 }}
-                  className="flex-row w-full justify-between mr-10"
+                  className="flex-row w-full justify-between"
+                  style={{ borderRadius: 0 }}
                 >
-                  <View className="w-[80%] p-1">
-                    <View>
-                      <Text className="text-xl text-white font-outfit-bold">
-                        {firmDetails?.restaurantInfo?.name || "Restaurant"}
-                      </Text>
-                      <Text className="text-base text-gray-200 mt-1 font-outfit" style={{ width: 250, textShadowColor: 'rgba(0, 0, 0, 0.63)', textShadowOffset: { width: 1, height: 1 }, textShadowRadius: 2 }}>
-                        {firmDetails?.restaurantInfo?.address || ""}
-                      </Text>
-                      <Text className="text-lg text-white font-outfit" style={{ width: 250 }}>
-                        {Array.isArray(firmDetails?.restaurantInfo?.cuisines)
-                          ? firmDetails.restaurantInfo.cuisines.join(' • ')
-                          : firmDetails?.restaurantInfo?.cuisines || 'Italian • Dessert'}
-                      </Text>
-                      <Text className="text-base text-white font-outfit">
-                        {firmDetails?.restaurantInfo?.priceRange || '₹1010 for Two'}
-                      </Text>
-                      <TouchableOpacity
-                        className="mt-3 mb-5 px-3.5 py-2 rounded-2xl flex-row items-center self-start"
-                        style={{ backgroundColor: "rgba(0, 0, 0, 0.71)" }}
-                        onPress={() => setOpeningHrsVisible(true)}
-                      >
-                        <View className="bg-white rounded-full mr-2.5 w-5 h-5 justify-center items-center">
-                          <AntDesign name="check-circle" size={18} color="#048520" />
+                  <TouchableOpacity
+                    className="w-[80%] px-6 py-3 bg-black/10"
+                    onPress={() => safeNavigation({
+                      pathname: '/screens/RestaurantDetailsScreen',
+                      params: { restaurant: JSON.stringify(firmDetails) }
+                    })}
+                    activeOpacity={0.7}
+                  >
+                    <View className="flex-row items-center justify-between">
+                      <View className="flex-1">
+                        <View className="flex-row items-center mb-1">
+                          <Text className="text-xl text-white font-outfit-bold">
+                            {firmDetails?.restaurantInfo?.name || "Restaurant"}
+                          </Text>
+                          <MaterialIcons name="info-outline" size={20} color="white" style={{ marginLeft: 8 }} />
                         </View>
-                        <Text className="text-white text-base font-outfit-medium">Open From | </Text>
-                        <Text className="text-white text-base font-outfit">
-                          {Object.values(firmDetails?.opening_hours || {})[0] || 'Opening hrs 12:00 to 23:00'}
+                        <Text className="text-base text-gray-200 mt-1 font-outfit" style={{ width: 250, textShadowColor: 'rgba(0, 0, 0, 0.63)', textShadowOffset: { width: 1, height: 1 }, textShadowRadius: 2 }}>
+                          {firmDetails?.restaurantInfo?.address || ""}
                         </Text>
-                      </TouchableOpacity>
+                        <Text className="text-lg text-white font-outfit" style={{ width: 250 }}>
+                          {Array.isArray(firmDetails?.restaurantInfo?.cuisines)
+                            ? firmDetails.restaurantInfo.cuisines.join(' • ')
+                            : firmDetails?.restaurantInfo?.cuisines || 'Italian • Dessert'}
+                        </Text>
+                        <Text className="text-base text-white font-outfit">
+                          {firmDetails?.restaurantInfo?.priceRange || '₹1010 for Two'}
+                        </Text>
+                      </View>
                     </View>
-                  </View>
+                    <TouchableOpacity
+                      className="mt-3 mb-2 px-3.5 py-2 rounded-2xl flex-row items-center self-start"
+                      style={{ backgroundColor: "rgba(0, 0, 0, 0.71)" }}
+                      onPress={(e) => {
+                        e.stopPropagation();
+                        setOpeningHrsVisible(true);
+                      }}
+                    >
+                      <View className="bg-white rounded-full mr-2.5 w-5 h-5 justify-center items-center">
+                        <AntDesign name="check-circle" size={18} color="#048520" />
+                      </View>
+                      <Text className="text-white text-base font-outfit-medium">Open From | </Text>
+                      <Text className="text-white text-base font-outfit">
+                        {Object.values(firmDetails?.opening_hours || {})[0] || 'Opening hrs 12:00 to 23:00'}
+                      </Text>
+                    </TouchableOpacity>
+                  </TouchableOpacity>
 
                   <TouchableOpacity
                     className="rounded-lg mt-28 mr-2.5"
@@ -649,12 +734,15 @@ export default function FirmDetailsDining() {
             </View>
 
             {renderContent()}
-            <View className="flex-row items-center mt-6 mb-2.5 px-2.5">
-              <View className="flex-1 h-px bg-primary" />
-              <Text className="text-sm text-gray-700 mx-2 font-bold" style={{ fontFamily: 'outfit' }}>About</Text>
-              <View className="flex-1 h-px bg-primary" />
-            </View>
-            <View style={{ padding: 20 }}>
+
+            {!isAnyFilterActive && (
+              <View>
+                <View className="flex-row items-center mt-6 mb-2.5 px-2.5">
+                  <View className="flex-1 h-px bg-primary" />
+                  <Text className="text-sm text-gray-700 mx-2 font-bold" style={{ fontFamily: 'outfit' }}>About</Text>
+                  <View className="flex-1 h-px bg-primary" />
+                </View>
+                <View style={{ padding: 20 }}>
               <View style={{
                 backgroundColor: '#FFFFFF',
                 borderRadius: 10,
@@ -735,6 +823,8 @@ export default function FirmDetailsDining() {
                 </View>
               ) : null}
             </View>
+              </View>
+            )}
           </View>
         }
         keyExtractor={category => category}

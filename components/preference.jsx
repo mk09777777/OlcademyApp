@@ -21,9 +21,11 @@ export default function Preference({ togglepref,senddatatoparent , message , sor
         setapplyactive(value !== message);
     };
     const handleSendtoParent=()=>{
-        senddatatoparent(selectedOption)
-        sorting()
-        togglepref()
+        senddatatoparent(selectedOption);
+        if (typeof sorting === 'function') {
+            sorting();
+        }
+        togglepref();
     }
 
     return (

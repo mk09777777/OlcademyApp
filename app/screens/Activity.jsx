@@ -206,7 +206,7 @@
 //             likes: review.likes || 0,
 //             date: review.createdAt || review.date || new Date(),
 //             comments: review.usercomments || review.comments || [],
-//             _id: review._id || Math.random().toString(),
+//             _id: String(review._id),
 //             authorName: typeof review.author_name === 'string' 
 //               ? review.author_name 
 //               : (review.authorId?.username || 'User'),
@@ -602,7 +602,7 @@
 //           <Text style={styles.errorText}>{error}</Text>
 //           <TouchableOpacity
 //             style={styles.retryButton}
-//             onPress={() => window.location.reload()}
+//             onPress={fetchUserActivity}
 //             activeOpacity={0.8}
 //           >
 //             <Text style={styles.retryButtonText}>Retry</Text>
@@ -624,7 +624,7 @@
 //               <FlatList
 //                 data={reviews}
 //                 renderItem={renderReviewItem}
-//                 keyExtractor={(item) => item._id || Math.random().toString()}
+//                 keyExtractor={(item) => item._id}
 //                 contentContainerStyle={styles.listContainer}
 //                 showsVerticalScrollIndicator={false}
 //                 ListEmptyComponent={
@@ -655,7 +655,7 @@
 //                 key={`photos-${activeTab}`} 
 //                 data={photos}
 //                 renderItem={renderPhotoItem}
-//                 keyExtractor={(item) => item._id || Math.random().toString()}
+//                 keyExtractor={(item) => item._id}
 //                 numColumns={1}
 //                 contentContainerStyle={styles.photoGrid}
 //                 showsVerticalScrollIndicator={false}
@@ -691,7 +691,7 @@
 //               <FlatList
 //                 data={blogs}
 //                 renderItem={renderBlogItem}
-//                 keyExtractor={(item) => item._id || Math.random().toString()}
+//                 keyExtractor={(item) => item._id}
 //                 contentContainerStyle={styles.listContainer}
 //                 showsVerticalScrollIndicator={false}
 //               />
@@ -1282,7 +1282,7 @@
 
 // export default ActivityPage;
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Text,
   View,
@@ -1449,100 +1449,99 @@ const ActivityPage = () => {
     }
   };
 
-  useEffect(() => {
-    const fetchUserActivity = async () => {
-      setIsLoading(true);
-      setError(null);
-      try {
-        if (!authUser?.id) {
-          throw new Error('User not authenticated');
-        }
-
-        console.log('Fetching reviews for user profile');
-        const reviewsResponse = await api.get('/api/reviews/user/profile');
-
-        console.log('Reviews API Response:', {
-          status: reviewsResponse.status,
-          data: reviewsResponse.data,
-          config: reviewsResponse.config
-        });
-
-        const reviewsData = Array.isArray(reviewsResponse.data)
-          ? reviewsResponse.data
-          : reviewsResponse.data?.reviews || [];
-
-        console.log('Processed reviews data:', JSON.stringify(reviewsData));
-
-        if (!Array.isArray(reviewsData)) {
-          throw new Error('Invalid reviews data format');
-        }
-
-        const reviewsWithLikeStatus = reviewsData.map(review => {
-          if (!review) return null;
-
-          const firmDetails = review.firmDetails || {};
-          const firmType = review.firmType || 'restaurant';
-
-          return {
-            imgSrc: firmDetails.imageUrl || require('../../assets/images/food.jpg'),
-            title: firmDetails.name || 'General Review',
-            address: firmDetails.address || '',
-            rating: review.rating || 0,
-            reviewText: review.comments || '',
-            reviewType: review.reviewType || 'N/A',
-            likes: review.likes || 0,
-            date: review.createdAt || review.date || new Date(),
-            comments: review.usercomments || review.comments || [],
-            _id: review._id || Math.random().toString(),
-            authorName: typeof review.author_name === 'string'
-              ? review.author_name
-              : (review.authorId?.username || 'User'),
-            isLiked: Array.isArray(review.likedBy)
-              ? review.likedBy.includes(authUser.id) || review.likedBy.includes(authUser.email)
-              : false,
-            likedBy: Array.isArray(review.likedBy) ? review.likedBy : []
-          };
-        }).filter(Boolean);
-
-        setReviews(reviewsWithLikeStatus);
-
-        setPhotos([
-          { _id: '1', imageUrl: require('../../assets/images/food.jpg') },
-          { _id: '2', imageUrl: require('../../assets/images/food1.jpg') }
-        ]);
-
-        setBlogs([
-          {
-            _id: '1',
-            title: 'Sample Blog',
-            content: 'This is a sample blog post content...',
-            createdAt: new Date()
-          }
-        ]);
-
-      } catch (error) {
-        console.error('Error fetching activity:', error);
-        setError(error.message);
-
-        let errorMessage = 'Failed to fetch user activity';
-        if (error.response) {
-          errorMessage = error.response.data?.message || errorMessage;
-          console.error('Error response data:', error.response.data);
-        } else if (error.request) {
-          errorMessage = 'No response received from server';
-          console.error('No response received:', error.request);
-        } else {
-          console.error('Error config:', error.config);
-        }
-
-        Alert.alert('Error', errorMessage);
-      } finally {
-        setIsLoading(false);
+  const fetchUserActivity = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      if (!authUser?.id) {
+        throw new Error('User not authenticated');
       }
-    };
 
-    fetchUserActivity();
+      console.log('Fetching reviews for user profile');
+      const reviewsResponse = await api.get('/api/reviews/user/profile');
+
+      console.log('Reviews API Response:', {
+        status: reviewsResponse.status,
+        data: reviewsResponse.data,
+        config: reviewsResponse.config
+      });
+
+      const reviewsData = Array.isArray(reviewsResponse.data)
+        ? reviewsResponse.data
+        : reviewsResponse.data?.reviews || [];
+
+      console.log('Processed reviews data:', JSON.stringify(reviewsData));
+
+      if (!Array.isArray(reviewsData)) {
+        throw new Error('Invalid reviews data format');
+      }
+
+      const reviewsWithLikeStatus = reviewsData.map((review) => {
+        if (!review?._id) return null;
+
+        const firmDetails = review.firmDetails || {};
+
+        return {
+          imgSrc: firmDetails.imageUrl || require('../../assets/images/food.jpg'),
+          title: firmDetails.name || 'General Review',
+          address: firmDetails.address || '',
+          rating: review.rating || 0,
+          reviewText: review.comments || '',
+          reviewType: review.reviewType || 'N/A',
+          likes: review.likes || 0,
+          date: review.createdAt || review.date || new Date(),
+          comments: review.usercomments || review.comments || [],
+          _id: String(review._id),
+          authorName: typeof review.author_name === 'string'
+            ? review.author_name
+            : (review.authorId?.username || 'User'),
+          isLiked: Array.isArray(review.likedBy)
+            ? review.likedBy.includes(authUser.id) || review.likedBy.includes(authUser.email)
+            : false,
+          likedBy: Array.isArray(review.likedBy) ? review.likedBy : []
+        };
+      }).filter(Boolean);
+
+      setReviews(reviewsWithLikeStatus);
+
+      setPhotos([
+        { _id: '1', imageUrl: require('../../assets/images/food.jpg') },
+        { _id: '2', imageUrl: require('../../assets/images/food1.jpg') }
+      ]);
+
+      setBlogs([
+        {
+          _id: '1',
+          title: 'Sample Blog',
+          content: 'This is a sample blog post content...',
+          createdAt: new Date()
+        }
+      ]);
+
+    } catch (error) {
+      console.error('Error fetching activity:', error);
+      setError(error.message);
+
+      let errorMessage = 'Failed to fetch user activity';
+      if (error.response) {
+        errorMessage = error.response.data?.message || errorMessage;
+        console.error('Error response data:', error.response.data);
+      } else if (error.request) {
+        errorMessage = 'No response received from server';
+        console.error('No response received:', error.request);
+      } else {
+        console.error('Error config:', error.config);
+      }
+
+      Alert.alert('Error', errorMessage);
+    } finally {
+      setIsLoading(false);
+    }
   }, [authUser, api]);
+
+  useEffect(() => {
+    fetchUserActivity();
+  }, [fetchUserActivity]);
 
   const togglecomment = (comment = null) => {
     setSelectedComment(comment);
@@ -1871,7 +1870,7 @@ const ActivityPage = () => {
           <Text className="text-base text-red-600 text-center mt-4 mb-5 font-medium">{error}</Text>
           <TouchableOpacity
             className="bg-blue-600 px-7 py-3 rounded-lg shadow-md shadow-blue-300"
-            onPress={() => window.location.reload()} // This is web-specific, consider a state refresh
+            onPress={fetchUserActivity}
             activeOpacity={0.8}
           >
             <Text className="text-white font-bold text-base">Retry</Text>
@@ -1893,7 +1892,7 @@ const ActivityPage = () => {
               <FlatList
                 data={reviews}
                 renderItem={renderReviewItem}
-                keyExtractor={(item) => item._id || Math.random().toString()}
+                keyExtractor={(item) => item._id}
                 contentContainerClassName="px-4 pb-6"
                 showsVerticalScrollIndicator={false}
               />
@@ -1921,7 +1920,7 @@ const ActivityPage = () => {
                 key={`photos-${activeTab}`}
                 data={photos}
                 renderItem={renderPhotoItem}
-                keyExtractor={(item) => item._id || Math.random().toString()}
+                keyExtractor={(item) => String(item._id)}
                 numColumns={1}
                 contentContainerClassName="px-4 pb-6"
                 showsVerticalScrollIndicator={false}
@@ -1957,7 +1956,7 @@ const ActivityPage = () => {
               <FlatList
                 data={blogs}
                 renderItem={renderBlogItem}
-                keyExtractor={(item) => item._id || Math.random().toString()}
+                keyExtractor={(item) => String(item._id)}
                 contentContainerClassName="px-4 pb-6"
                 showsVerticalScrollIndicator={false}
               />

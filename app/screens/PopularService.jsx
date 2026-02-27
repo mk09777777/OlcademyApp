@@ -21,6 +21,7 @@ import SearchBar from '../../components/SearchBar';
 import tiffinData from '../../Data/tiffin.json';
 import BackRouting from '@/components/BackRouting';
 import { useSafeNavigation } from '@/hooks/navigationPage';
+import { useVoiceSearch } from '@/hooks/useVoiceSearch';
 const { width } = Dimensions.get('window');
 
 /*
@@ -139,6 +140,7 @@ const PopularService = () => {
   const { userPreferences } = usePreferences();
   const [localTiffinData, setLocalTiffinData] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const voiceSearch = useVoiceSearch({ onTranscript: setSearchQuery });
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -317,10 +319,13 @@ const PopularService = () => {
           <MaterialCommunityIcons name="arrow-left" size={24} color="#333" />
         </TouchableOpacity> */}
         <SearchBar
-          value={searchQuery}
-          onChangeText={setSearchQuery}
+          query={searchQuery}
+          setQuery={setSearchQuery}
           placeholder="Search popular services..."
-          className="flex-1 mx-2.5"
+          widthClass="flex-1 mx-2.5"
+          onVoicePress={voiceSearch.toggleRecording}
+          isLoading={voiceSearch.isBusy}
+          isListening={voiceSearch.isRecording}
         />
         <TouchableOpacity onPress={() => setShowFilterModal(true)}>
           <MaterialCommunityIcons name="tune" size={24} color="#333" />

@@ -14,6 +14,7 @@ import Constants from 'expo-constants';
 import { API_CONFIG } from '../../config/apiConfig';
 import { api } from '../../config/httpClient'; 
 import { API_ENDPOINTS } from '../../config/api';
+import { useSafeNavigation } from '@/hooks/navigationPage';
 
 // Check if running in development build or Expo Go
 const isExpoGo = Constants.appOwnership === 'expo';
@@ -110,8 +111,8 @@ export default function FirmBookingSummary() {
 
   useEffect(()=>{
     console.log("offer details are",parsedOffer,firmId,firmName,date,guestCount,time,name,email,contact,selectedTab,offerId);
-fetchInitialSettings()
-  },[enableAll,promosPush,promosWhatsapp,socialPush,ordersPush,ordersWhatsapp])
+    fetchInitialSettings();
+  },[]); // Only run once on mount
 
   const handleSubmit = async () => {
     const orderData = {

@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { Stack , Redirect, router , useRouter } from 'expo-router';
 import { useFonts } from 'expo-font';
+import { LogBox } from 'react-native';
 import { CartProvider } from '@/context/CartContext';
 import { Provider as PaperProvider } from 'react-native-paper';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
@@ -9,10 +10,24 @@ import { PreferencesProvider } from '@/context/PreferencesContext';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import { AuthProvider } from '../context/AuthContext';
 import NotificationWatcher from '@/Model/Notifications';
-import * as Notifications from 'expo-notifications';
+import Constants from 'expo-constants';
 import { LocationProvider } from '@/context/LocationContext';
 import { OffersProvider } from '@/context/OfferContext';
 import { FirmProvider } from '@/context/FirmContext';
+
+// Suppress warnings and expected errors from third-party dependencies
+LogBox.ignoreLogs([
+  'SafeAreaView has been deprecated',
+  'source.uri should not be an empty string',
+  'Error fetching vegMode',
+  'Error fetching location',
+  'Error fetching recently viewed data',
+  'Error fetching banners',
+  'VegMode fetch failed',
+  'No recently viewed data found',
+  'Location/Initial data not found',
+]);
+
 
 
 export const unstable_settings = {
@@ -39,7 +54,7 @@ export default function RootLayout() {
           }
 
             return (
-            <CartProvider>
+            <CartProvider isAuthenticated={isAuthenticated}>
               <OffersProvider>
               <PreferencesProvider>
                 <FirmProvider value={{ firms: [], loading: false }}>
@@ -122,6 +137,7 @@ export default function RootLayout() {
                       <Stack.Screen name="screens/DeleteAccount" options={{ headerShown: false }} />
                       <Stack.Screen name="screens/FQA" options={{ headerShown: false }} />
                       <Stack.Screen name="screens/SendFeedback" options={{ headerShown: false }} />
+                      <Stack.Screen name="screens/CouponScreen" options={{ headerShown: false }} />
 
                       {/* Miscellaneous Screens */}
                       <Stack.Screen name="screens/Activity" options={{ headerShown: false, title: 'Activity' }}                      />
@@ -150,11 +166,23 @@ const NotificationHandler = () => {
   const router = useRouter();
 
   useEffect(() => {
-    const subscription = Notifications.addNotificationResponseReceivedListener(() => {
-      router.push('/screens/NoficationsPage');
-    });
+    const isExpoGo = Constants.appOwnership === 'expo';
+    if (isExpoGo) {
+      return;
+    }
 
-    return () => subscription.remove();
+    let subscription;
+    try {
+      // Lazy-load to avoid hard-crashing when native modules are missing/mismatched.
+      const Notifications = require('expo-notifications');
+      subscription = Notifications.addNotificationResponseReceivedListener(() => {
+        router.push('/screens/NoficationsPage');
+      });
+    } catch (error) {
+      console.warn('[notifications] Unable to initialize expo-notifications listener', error);
+    }
+
+    return () => subscription?.remove?.();
   }, []);
 
   return null;

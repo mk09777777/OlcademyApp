@@ -1183,8 +1183,10 @@ import RadioButtonRN from 'radio-buttons-react-native'
 import Filterbox from '@/components/Filterbox'
 import LocationHeader from '@/components/HomeHeader'
 import DiningCard from '@/components/DaningCard'
+import { EmptyState } from '@/components/EmptyState'
 import { API_CONFIG } from '../../config/apiConfig'
 import { useSafeNavigation } from "@/hooks/navigationPage";
+import { useVoiceSearch } from '@/hooks/useVoiceSearch';
 
 
 const Api_url = API_CONFIG.BACKEND_URL;
@@ -1311,6 +1313,7 @@ export default function TakeAway() {
 
   const router = useRouter()
   const [query, setQuery] = useState('')
+  const voiceSearch = useVoiceSearch({ onTranscript: setQuery })
   const [randomItems, setRandomItems] = useState([])
   const [activeQuickFilters, setActiveQuickFilters] = useState([])
   const [filterboxFilters, setFilterboxFilters] = useState({
@@ -1488,6 +1491,20 @@ export default function TakeAway() {
       if (error?.name === 'CanceledError' || error?.name === 'AbortError' || error?.code === 'ERR_CANCELED') {
         return []
       }
+      if (error?.response?.status === 404) {
+        // If 404, it means no restaurants found for this criteria. 
+        // We handle this as a valid 'empty' state, not an error.
+        if (!isLoadMore) {
+          if (isMountedRef.current) {
+            setNotFound(true)
+            removeNotFound()
+          }
+        }
+        if (isLoadMore && isMountedRef.current) {
+           setIsLoadingMore(false)
+        }
+        return []
+      }
       console.error('Error fetching firms:', error)
       if (!isLoadMore) setNotFound(true)
       return []
@@ -1607,6 +1624,12 @@ export default function TakeAway() {
         setRecentlyViewdData(firmItems)
       }
     } catch (error) {
+      if (error?.response?.status === 404) {
+        if (isMountedRef.current) {
+          setRecentlyViewdData([]);
+        }
+        return;
+      }
       console.error('Error fetching recently viewed data:', error)
       if (isMountedRef.current) {
         setRecentlyViewdData([])
@@ -1978,6 +2001,9 @@ export default function TakeAway() {
               query={query}
               setQuery={setQuery}
               onSearch={handleSearch}
+              onVoicePress={voiceSearch.toggleRecording}
+              isLoading={voiceSearch.isBusy}
+              isListening={voiceSearch.isRecording}
             />
             <View className="flex-col items-center justify-start ml-2.5">
               <Text className="text-base font-outfit-medium text-textsecondary text-center">Veg</Text>
@@ -2064,7 +2090,20 @@ export default function TakeAway() {
               />
             }
             ListEmptyComponent={
-              <View className="flex-1 justify-center items-center p-4">
+              <View className="py-10 items-center">
+                {isInitialLoading || isSearching ? (
+                  <ActivityIndicator size="large" color="#02757A" />
+                ) : (
+                  <EmptyState
+                    image={require('@/assets/images/nodata.png')}
+                    title="No data found"
+                    description={
+                      selectedFeatures?.length
+                        ? 'No restaurants found for the selected features.'
+                        : 'No restaurants found in your area.'
+                    }
+                  />
+                )}
               </View>
             }
             ListHeaderComponent={

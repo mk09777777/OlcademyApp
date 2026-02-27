@@ -10,7 +10,7 @@ const cartEventEmitter = new EventEmitter();
 
 const CartContext = createContext();
 
-const CartProvider = ({ children }) => {
+const CartProvider = ({ children, isAuthenticated = false }) => {
   const [cart, setCart] = useState({});
     const [carts, setCarts] = useState({});
   const [cartCount, setCartCount] = useState(0);
@@ -217,41 +217,45 @@ const CartProvider = ({ children }) => {
     }
   }, [api]);
 
-  const handleRemove = useCallback((itemId) => {
+  const handleRemove = useCallback(async (itemId) => {
     const updatedCart = { ...cart };
     delete updatedCart[itemId];
-    updateCartAndNotify(updatedCart);
+    
+    setCart(updatedCart);
+    setCartCount(prev => prev - (cart[itemId]?.quantity || 0));
+    
+    try {
+      await updateCartAndNotify(updatedCart);
+    } catch (error) {
+      setCart(cart);
+      setCartCount(prev => prev + (cart[itemId]?.quantity || 0));
+    }
   }, [cart, updateCartAndNotify]);
 
   const handleQuantityChange = useCallback(async (itemId, delta) => {
-    setCart(prevCart => {
-      const updatedCart = { ...prevCart };
-      if (!updatedCart[itemId]) return prevCart;
+    const item = cart[itemId];
+    if (!item) return;
 
-      const newQuantity = updatedCart[itemId].quantity + delta;
+    const newQuantity = item.quantity + delta;
 
-      if (newQuantity > 0) {
-        updatedCart[itemId] = {
-          ...updatedCart[itemId],
-          quantity: newQuantity
-        };
-      } else {
-        delete updatedCart[itemId];
-      }
+    if (newQuantity <= 0) {
+      await handleRemove(itemId);
+      return;
+    }
 
-      // Optimistic update
-      setCartCount(prev => prev + delta);
+    const updatedCart = {
+      ...cart,
+      [itemId]: { ...item, quantity: newQuantity }
+    };
 
-      // Async update - don't wait for it
-      updateCartAndNotify(updatedCart).catch(error => {
-        // Auto-rollback if the update fails
-        setCart(prevCart);
-        setCartCount(prev => prev - delta);
-      });
+    setCart(updatedCart);
+    setCartCount(prev => prev + delta);
 
-      return updatedCart;
+    updateCartAndNotify(updatedCart).catch(() => {
+      setCart(cart);
+      setCartCount(prev => prev - delta);
     });
-  }, [updateCartAndNotify]);
+  }, [cart, handleRemove, updateCartAndNotify]);
 
   const getCartItems = useCallback(() => {
     return Object.values(cart).filter(validateCartItem);
@@ -278,9 +282,18 @@ const CartProvider = ({ children }) => {
     });
   }, [getSubtotal, getDiscount, taxDetails, deliveryFee, platformFee]);
 
+  // Only fetch cart when user is authenticated
   useEffect(() => {
-    fetchCart();
-  }, [fetchCart]);
+    if (isAuthenticated) {
+      fetchCart();
+    } else {
+      // Clear cart state when not authenticated
+      setCart({});
+      setCarts({});
+      setCartCount(0);
+      setInitialLoad(false);
+    }
+  }, [isAuthenticated]);
 
   const clearCart = useCallback(() => {
     // Keep `cart` as the same productId-keyed map shape used everywhere else.
