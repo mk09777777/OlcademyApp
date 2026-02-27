@@ -153,8 +153,7 @@ const Filterbox = ({
     }));
   };
 
-  const handleCostChange = (e) => {
-    const val = parseInt(e.target.value, 10);
+  const handleCostChange = (val) => {
     setLocalFilters((prev) => ({
       ...prev,
       priceRange: `${val}`,
@@ -255,7 +254,7 @@ const Filterbox = ({
     switch (activeTab) {
       case "sort":
         return (
-          <ScrollView className="flex-1 p-4">
+          <ScrollView className="flex-1 px-6 py-4">
             {sorts.map((item) => (
               <TouchableOpacity
                 key={item.id}
@@ -277,7 +276,7 @@ const Filterbox = ({
       case "cuisines":
         return (
           <View className="flex-1">
-            <View className="flex-row items-center bg-gray-100 rounded-lg mx-4 mt-4 px-3 py-2">
+            <View className="flex-row items-center bg-gray-100 rounded-lg mx-6 mt-4 px-3 py-2">
               <MaterialIcons
                 name="search"
                 size={24}
@@ -292,7 +291,7 @@ const Filterbox = ({
                 onChangeText={setCuisineSearch}
               />
             </View>
-            <ScrollView className="flex-1 px-4">
+            <ScrollView className="flex-1 px-6">
               {filteredCuisines.map((c) => (
                 <TouchableOpacity
                   key={c.id}
@@ -327,71 +326,91 @@ const Filterbox = ({
         );
       case "rating":
         const ratingValue = parseFloat(localFilters.minRating) || 0;
+        const currentRatingIndex = ratingSteps.indexOf(ratingValue);
         return (
-          <View className="p-4">
-            <Text className="text-base font-outfit-bold color-gray-900 mb-4">
+          <View className="px-6 py-4">
+            <Text className="text-base font-outfit-bold color-gray-900 mb-6">
               Rating: {displayRating(ratingValue)}
             </Text>
-            <View className="relative h-8 bg-gray-200 rounded-full mb-4">
-              <View
-                className="absolute h-full bg-primary rounded-full"
-                style={{
-                  width: `${(ratingSteps.indexOf(ratingValue) / (ratingSteps.length - 1)) * 100}%`,
-                }}
-              />
-              {ratingSteps.map((val, index) => (
-                <TouchableOpacity
-                  key={val}
-                  className="absolute w-6 h-6 rounded-full border-2 border-white -mt-1"
+            <View className="mb-4">
+              <View className="flex-row justify-between mb-3">
+                {ratingSteps.map((val) => (
+                  <Text key={val} className="text-xs color-gray-500 font-outfit">
+                    {displayRating(val)}
+                  </Text>
+                ))}
+              </View>
+              <View className="h-1.5 bg-gray-200 rounded-full relative">
+                <View
+                  className="h-1.5 bg-primary rounded-full"
                   style={{
-                    left: `${(index / (ratingSteps.length - 1)) * 100}%`,
-                    backgroundColor: ratingValue >= val ? "#e23845" : "#ccc",
+                    width: `${(currentRatingIndex / (ratingSteps.length - 1)) * 100}%`,
                   }}
-                  onPress={() => handleRatingChange(index)}
                 />
-              ))}
-            </View>
-            <View className="flex-row justify-between">
-              {ratingSteps.map((val) => (
-                <Text key={val} className="text-xs color-gray-500 font-outfit">
-                  {displayRating(val)}
-                </Text>
-              ))}
+                <View className="absolute w-full flex-row justify-between" style={{ top: -6 }}>
+                  {ratingSteps.map((val, index) => (
+                    <TouchableOpacity
+                      key={val}
+                      onPress={() => handleRatingChange(index.toString())}
+                      className="w-6 h-6 rounded-full items-center justify-center"
+                      style={{
+                        backgroundColor: index === currentRatingIndex ? "#02757A" : "white",
+                        borderWidth: 2,
+                        borderColor: index <= currentRatingIndex ? "#02757A" : "#d1d5db",
+                      }}
+                    />
+                  ))}
+                </View>
+              </View>
             </View>
           </View>
         );
       case "costForTwo":
         const costValue = parseInt(localFilters.priceRange, 10) || 60;
+        const costSteps = [60, 80, 100, 120, 150];
+        const currentCostIndex = costSteps.findIndex(step => step >= costValue);
+        const actualIndex = currentCostIndex === -1 ? costSteps.length - 1 : currentCostIndex;
         return (
-          <View className="p-4">
-            <Text className="text-base font-outfit-bold color-gray-900 mb-4 text-center">
+          <View className="px-6 py-4">
+            <Text className="text-base font-outfit-bold color-gray-900 mb-6 text-center">
               Cost for two: {displayCost(costValue)}
             </Text>
-            <View className="relative h-1 bg-gray-200 rounded-full mb-6">
-              <View
-                className="absolute h-full bg-primary rounded-full"
-                style={{
-                  width: `${((costValue - 60) / 90) * 100}%`,
-                }}
-              />
-              <TouchableOpacity
-                className="absolute w-5 h-5 rounded-full bg-primary -mt-2"
-                style={{
-                  left: `${((costValue - 60) / 90) * 100}%`,
-                  marginLeft: -10,
-                }}
-                onPressIn={() => { }}
-              />
-            </View>
-            <View className="flex-row justify-between">
-              <Text className="text-xs color-gray-500 font-outfit">CAN$60</Text>
-              <Text className="text-xs color-gray-500 font-outfit">CAN$150</Text>
+            <View className="mb-4">
+              <View className="flex-row justify-between mb-3">
+                {costSteps.map((val) => (
+                  <Text key={val} className="text-xs color-gray-500 font-outfit">
+                    ${val}
+                  </Text>
+                ))}
+              </View>
+              <View className="h-1.5 bg-gray-200 rounded-full relative">
+                <View
+                  className="h-1.5 bg-primary rounded-full"
+                  style={{
+                    width: `${(actualIndex / (costSteps.length - 1)) * 100}%`,
+                  }}
+                />
+                <View className="absolute w-full flex-row justify-between" style={{ top: -6 }}>
+                  {costSteps.map((val, index) => (
+                    <TouchableOpacity
+                      key={val}
+                      onPress={() => handleCostChange(val)}
+                      className="w-6 h-6 rounded-full items-center justify-center"
+                      style={{
+                        backgroundColor: index === actualIndex ? "#02757A" : "white",
+                        borderWidth: 2,
+                        borderColor: index <= actualIndex ? "#02757A" : "#d1d5db",
+                      }}
+                    />
+                  ))}
+                </View>
+              </View>
             </View>
           </View>
         );
       case "moreFilters":
         return (
-          <ScrollView className="flex-1 p-4">
+          <ScrollView className="flex-1 px-6 py-4">
             {moreFilters.map((m) => {
               const isChecked =
                 m.value === "Serves Alcohol"
@@ -458,20 +477,17 @@ const Filterbox = ({
           </View>
 
           <View className="flex-row flex-1">
-            <ScrollView
-              className="w-20 bg-gray-100"
-              contentContainerClassName="flex-grow"
-            >
+            <View className="w-1/3 bg-gray-100">
               {filterTabs.map((tab) => (
                 <TouchableOpacity
                   key={tab.value}
-                  className={`py-3.5 px-2 border-b border-gray-200 justify-center ${
-                    activeTab === tab.value ? 'bg-white border-l-3 border-l-primary' : ''
+                  className={`py-4 px-2 border-b border-gray-200 justify-center ${
+                    activeTab === tab.value ? 'bg-white border-l-4 border-l-primary' : ''
                   }`}
                   onPress={() => setActiveTab(tab.value)}
                 >
                   <Text
-                    className={`text-sm font-outfit ${
+                    className={`text-xs font-outfit text-center ${
                       activeTab === tab.value ? 'color-gray-900 font-outfit-bold' : 'color-gray-500'
                     }`}
                   >
@@ -479,7 +495,7 @@ const Filterbox = ({
                   </Text>
                 </TouchableOpacity>
               ))}
-            </ScrollView>
+            </View>
             <View className="flex-1 bg-white">{renderTabContent()}</View>
           </View>
 
