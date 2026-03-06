@@ -14,7 +14,9 @@ const googleKeyCandidates = [
   process.env.GOOGLE_MAPS_API_KEY
 ].filter(Boolean);
 
-export const API_CONFIG = {
+const API_CONFIG = {
   BACKEND_URL: backendCandidates[0] ?? fallbackBackendUrl,
   GOOGLE_MAPS_API_KEY: googleKeyCandidates[0] ?? ''
 };
+
+module.exports = { API_CONFIG };

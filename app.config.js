@@ -1,8 +1,8 @@
-import 'dotenv/config';
-import appJson from './app.json';
-import { API_CONFIG } from './config/apiConfig';
+require('dotenv/config');
+const appJson = require('./app.json');
+const { API_CONFIG } = require('./config/apiConfig');
 
-export default ({ config }) => {
+module.exports = ({ config }) => {
   const baseConfig = appJson.expo ?? {};
   const googleMapsApiKey =
     process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY ??
