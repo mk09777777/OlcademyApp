@@ -62,7 +62,8 @@ export default function OnMindScreens() {
      */
     // const { name } = useLocalSearchParams();
     const route = useRoute();
-    const { name, image } = route.params;
+    const { name, image, isVegOnly: isVegOnlyParam } = route.params || {};
+    const isVegOnly = Boolean(isVegOnlyParam);
     console.log('Received params:', { name, image });
 
     const navigation = useNavigation();
@@ -84,7 +85,12 @@ export default function OnMindScreens() {
         setIsLoading(true);
         try {
 
-            const response = await axios.get(`${API_CONFIG.BACKEND_URL}/firm/getnearbyrest?dish=${name}`);
+            const response = await axios.get(`${API_CONFIG.BACKEND_URL}/firm/getnearbyrest`, {
+                params: {
+                    dish: name,
+                    ...(isVegOnly ? { Dietary: 'vegetarian', cuisines: 'Vegetarian' } : {}),
+                },
+            });
 
             let firmsData;
 
@@ -98,7 +104,35 @@ export default function OnMindScreens() {
                 throw new Error('Unexpected API response structure');
             }
 
-            setAllData(firmsData);
+            const isVegFirm = (firm) => {
+                const info = firm?.restaurantInfo || {};
+                const category = info.category;
+                if (Array.isArray(category) && category.length > 0) {
+                    const tags = category.map((t) => String(t).toLowerCase());
+                    const hasNonVeg = tags.includes('non-veg') || tags.includes('nonveg') || tags.includes('non veg');
+                    const hasVeg = tags.includes('veg') || tags.includes('vegetarian') || tags.includes('pure veg') || tags.includes('veg-only') || tags.includes('veg only');
+                    if (hasNonVeg) return false;
+                    if (hasVeg) return true;
+                }
+
+                const cuisines = info.cuisines;
+                const cuisinesText = Array.isArray(cuisines)
+                    ? cuisines.map((c) => String(c).toLowerCase()).join(',')
+                    : String(cuisines || '').toLowerCase();
+
+                if (cuisinesText.includes('non-veg') || cuisinesText.includes('nonveg') || cuisinesText.includes('chicken') || cuisinesText.includes('mutton') || cuisinesText.includes('fish')) {
+                    return false;
+                }
+                if (cuisinesText.includes('vegetarian') || cuisinesText.includes('pure veg') || cuisinesText.includes(' veg') || cuisinesText.endsWith('veg')) {
+                    return true;
+                }
+
+                const dietary = String(info.Dietary || info.dietary || '').toLowerCase();
+                if (dietary.includes('vegetarian') || dietary.includes('veg')) return true;
+                return false;
+            };
+
+            setAllData(isVegOnly ? firmsData.filter(isVegFirm) : firmsData);
             setError(null);
         } catch (error) {
             console.error('Error fetching firms:', error);
@@ -110,7 +144,7 @@ export default function OnMindScreens() {
 
     useEffect(() => {
         fetchFirms();
-    }, []);
+    }, [name, isVegOnly]);
 
     const handleBookmarkPress = (id) => {
         console.log(`Bookmark pressed for firm ${id}`);

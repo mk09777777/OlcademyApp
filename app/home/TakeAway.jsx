@@ -139,7 +139,7 @@ export default function TakeAway() {
     { name: 'Open Now', icon: 'access-time' }
   ];
 
-  const whatsOnYourMind = [
+  const whatsOnYourMindAll = [
     { id: 1, title: 'Noodles', image: require('@/assets/images/noodles.png') },
     { id: 2, title: 'Paneer', image: require('@/assets/images/paneer.png') },
     { id: 3, title: 'Pizza', image: require('@/assets/images/pizza.png') },
@@ -151,6 +151,26 @@ export default function TakeAway() {
     { id: 9, title: 'Fries', image: require('@/assets/images/fries.png') },
     { id: 10, title: 'Home Style', image: require('@/assets/images/homestyle.png') },
   ];
+
+  const whatsOnYourMind = useMemo(() => {
+    if (!isVegOnly) return whatsOnYourMindAll;
+
+    const vegTitles = new Set([
+      'Noodles',
+      'Paneer',
+      'Pizza',
+      'Sandwich',
+      'Burger',
+      'Fries',
+      'Home Style',
+    ]);
+
+    return whatsOnYourMindAll.filter((item) => vegTitles.has(item.title));
+  }, [isVegOnly]);
+
+  const whatsOnYourMindNumColumns = useMemo(() => {
+    return Math.ceil((whatsOnYourMind?.length || 0) / 2) || 1;
+  }, [whatsOnYourMind?.length]);
 
   const router = useRouter();
   const [query, setQuery] = useState('');
@@ -177,6 +197,36 @@ export default function TakeAway() {
     costHighToLow: "highToLow",
     deliveryTime: "deliveryTime",
   };
+
+  const isVegFirm = useCallback((firm) => {
+    const restaurantInfo = firm?.restaurantInfo || {};
+    const category = restaurantInfo.category;
+    if (Array.isArray(category) && category.length > 0) {
+      const tags = category.map((t) => String(t).toLowerCase());
+      const hasNonVeg = tags.includes('non-veg') || tags.includes('nonveg') || tags.includes('non veg');
+      const hasVeg = tags.includes('veg') || tags.includes('vegetarian') || tags.includes('pure veg') || tags.includes('veg-only') || tags.includes('veg only');
+      if (hasNonVeg) return false;
+      if (hasVeg) return true;
+    }
+
+    const cuisines = restaurantInfo.cuisines;
+    const cuisinesText = Array.isArray(cuisines)
+      ? cuisines.map((c) => String(c).toLowerCase()).join(',')
+      : String(cuisines || '').toLowerCase();
+
+    if (cuisinesText.includes('non-veg') || cuisinesText.includes('nonveg') || cuisinesText.includes('chicken') || cuisinesText.includes('mutton') || cuisinesText.includes('fish')) {
+      return false;
+    }
+
+    if (cuisinesText.includes('vegetarian') || cuisinesText.includes('pure veg') || cuisinesText.includes('veg ' ) || cuisinesText.endsWith('veg') || cuisinesText.includes(' veg')) {
+      return true;
+    }
+
+    const dietary = String(restaurantInfo.Dietary || restaurantInfo.dietary || '').toLowerCase();
+    if (dietary.includes('vegetarian') || dietary.includes('veg')) return true;
+
+    return false;
+  }, []);
   const handleFav = async (firmId) => {
     const saved = await AsyncStorage.getItem("userProfileData");
     if (saved) {
@@ -319,6 +369,7 @@ export default function TakeAway() {
       }
       if (isVegOnly) {
         baseParams.Dietary = 'vegetarian';
+        baseParams.cuisines = baseParams.cuisines ? `${baseParams.cuisines},Vegetarian` : 'Vegetarian';
       } else if (selectedDietary.length > 0) {
         baseParams.Dietary = selectedDietary.join(',');
       }
@@ -567,7 +618,9 @@ export default function TakeAway() {
             name: item.firmInfo?.name,
             address: item.firmInfo?.address,
             ratings: item.firmInfo?.ratings,
-            image_urls: item.firmInfo?.image_urls
+            image_urls: item.firmInfo?.image_urls,
+            cuisines: item.firmInfo?.cuisines || '',
+            category: item.firmInfo?.category || []
           }
         })) || [];
 
@@ -584,11 +637,12 @@ export default function TakeAway() {
   }, []);
 
   const sortPopularData = useCallback(() => {
-    const sorted = randomData.filter(
-      (item) => item.restaurantInfo?.ratings?.overall >= 4
-    );
+    const source = (isVegOnly && Array.isArray(vegData) && vegData.length > 0) ? vegData : randomData;
+    const sorted = (source || [])
+      .filter((item) => item.restaurantInfo?.ratings?.overall >= 4)
+      .filter((item) => (isVegOnly ? isVegFirm(item) : true));
     setPopularData(sorted);
-  }, [randomData]);
+  }, [isVegOnly, isVegFirm, randomData, vegData]);
 
   const handleSearch = useCallback((text) => {
     setQuery(text);
@@ -766,11 +820,19 @@ export default function TakeAway() {
   };
 
   const filteredFirms = useMemo(() => {
-    if (query.trim() !== '') {
-      return searchResults;
-    }
-    return firms;
-  }, [firms, query, searchResults]);
+    const hasQuery = query.trim() !== '';
+    const base = hasQuery
+      ? searchResults
+      : ((isVegOnly && Array.isArray(vegData) && vegData.length > 0) ? vegData : firms);
+
+    const list = Array.isArray(base) ? base : [];
+    return isVegOnly ? list.filter(isVegFirm) : list;
+  }, [firms, query, searchResults, isVegOnly, vegData, isVegFirm]);
+
+  const displayedRecentlyViewData = useMemo(() => {
+    const list = Array.isArray(recentlyViewData) ? recentlyViewData : [];
+    return isVegOnly ? list.filter(isVegFirm) : list;
+  }, [isVegOnly, recentlyViewData, isVegFirm]);
 
   const applySort = (option) => {
     setSelectedSortOption(option);
@@ -803,6 +865,9 @@ export default function TakeAway() {
 
   const sortVegData = useCallback(async () => {
     if (isVegOnly) {
+      const lat = location.lat || userLocation.latitude;
+      const lon = location.lon || userLocation.longitude;
+
       const requestId = ++vegRequestIdRef.current;
       if (vegControllerRef.current) {
         vegControllerRef.current.abort();
@@ -817,13 +882,20 @@ export default function TakeAway() {
       const startTime = Date.now();
 
       try {
-        const response = await axios.get(`${Api_url}/firm/getnearbyrest?cuisines=Vegetarian`, {
+        const response = await axios.get(`${Api_url}/firm/getnearbyrest?feature=Takeaway`, {
+          params: {
+            lat,
+            lon,
+            radius: 5,
+            cuisines: 'Vegetarian',
+            features: 'Takeaway',
+          },
           withCredentials: true,
           signal: controller.signal,
         });
 
         if (!isMountedRef.current || requestId !== vegRequestIdRef.current) return;
-        setVegData(response.data.data);
+        setVegData(response.data.data || []);
 
         // Calculate elapsed time
         const elapsed = Date.now() - startTime;
@@ -873,7 +945,7 @@ export default function TakeAway() {
     }
 
 
-  }, [isVegOnly, safeTimeout]);
+  }, [isVegOnly, safeTimeout, location.lat, location.lon, userLocation.latitude, userLocation.longitude]);
 
   const HandleUploadVegMode = async () => {
     try {
@@ -913,7 +985,7 @@ export default function TakeAway() {
 
   useEffect(() => {
     sortVegData();
-  }, [isVegOnly]);
+  }, [sortVegData]);
 
   useEffect(() => {
     handleGetVegMode(); // Fetch veg mode once on mount
@@ -1098,18 +1170,19 @@ export default function TakeAway() {
                       showsHorizontalScrollIndicator={false}
                     >
                       <FlatList
+                        key={`woym-${whatsOnYourMindNumColumns}`}
                         data={whatsOnYourMind}
                         renderItem={({ item }) => (
                           <TouchableOpacity className="items-center p-2 m-1 ml-1.5 mr-1.5" onPress={() => safeNavigation({
                             pathname: '/screens/OnMindScreens',
-                            params: { name: item?.title }
+                            params: { name: item?.title, isVegOnly }
                           })}>
                             <Image source={item?.image} className="w-16 h-16 rounded-full" />
                             <Text className="text-xs font-outfit text-textprimary mt-1 text-center">{item?.title}</Text>
                           </TouchableOpacity>
                         )}
                         keyExtractor={(item) => item?.id?.toString()}
-                        numColumns={Math.ceil(whatsOnYourMind?.length / 2)}
+                        numColumns={whatsOnYourMindNumColumns}
                         showsHorizontalScrollIndicator={false}
                         contentContainerStyle={{ paddingHorizontal: 10 }}
                         ItemSeparatorComponent={() => <View className="w-2" />}
@@ -1125,10 +1198,10 @@ export default function TakeAway() {
                       <View className="flex-1 h-px bg-primary" />
                     </View>
 
-                    {recentlyViewData.length > 0 ? (
+                    {displayedRecentlyViewData.length > 0 ? (
                       <FlatList
                         showsHorizontalScrollIndicator={false}
-                        data={recentlyViewData}
+                        data={displayedRecentlyViewData}
                         horizontal
                         keyExtractor={(item, index) => item._id + '-' + index}
                         renderItem={({ item, index }) => (
